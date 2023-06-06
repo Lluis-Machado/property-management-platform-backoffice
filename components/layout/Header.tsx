@@ -4,20 +4,17 @@
 import { useEffect, useState } from 'react';
 
 // Libraries imports
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { faBell, faGear } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/navigation'
-import classNames from 'classnames';
 import { Formik, Form as FormikForm } from 'formik';
 
 // Local imports
 import { getUser, signOut } from '@/lib/utils/apiCalls'
-import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
 import { user } from '@/lib/types/user'
 import AvatarDropdown from '@/components/dropdowns/AvatarDropdown';
 import Select from '@/components/selects/Select';
-import { SidebarToggleButton } from './Sidebar/SidebarToggleButton';
 
 const headerOptions = [
     {
@@ -58,7 +55,6 @@ const inputsList = [
 export const Header = (): JSX.Element => {
 
     const [user, setUser] = useState<user | undefined>(undefined)
-    const isDesktop = useMediaQuery()
     const router = useRouter();
 
     const navigationItems = [
@@ -78,15 +74,6 @@ export const Header = (): JSX.Element => {
 
     return (
         <div className='flex flex-row h-header justify-between items-center'>
-            {/* Toggle Sidebar width */}
-            <div className='w-sidebar-icon min-w-sidebar-icon relative' >
-                <AnimatePresence>
-                    {
-                        !isDesktop &&
-                        <SidebarToggleButton />
-                    }
-                </AnimatePresence>
-            </div>
             {/* Property Selector */}
             <div className='w-full flex justify-center items-center mt-4'>
                 <Formik
@@ -122,7 +109,7 @@ export const Header = (): JSX.Element => {
                     )
                 }
                 <div className='mr-5 w-auto flex justify-center items-center'>
-                    {isDesktop ? <p className='whitespace-nowrap font-semibold'>{user?.nickname}</p> : null}
+                    <p className='whitespace-nowrap font-semibold'>{user?.nickname}</p>
                     <AvatarDropdown picture={user?.picture} navigationItems={navigationItems} />
                 </div>
             </div>

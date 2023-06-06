@@ -1,0 +1,16 @@
+{
+    "loginPage": {
+        "title": "Inicia sesión en tu cuenta",
+        "emailInputLabel": "Correo electrónico",
+        "passwordInputLabel": "Contraseña",
+        "forgotPasswordLink": "¿Olvidaste tu contraseña?",
+        "submitButton": "Iniciar sesión"
+    },
+    "resetPasswordPage": {
+        "title": "¿Olvidaste tu contraseña?",
+        "description": "Ingresa tu correo electrónico a continuación para recibir las instrucciones de reinicio de contraseña.",
+        "emailInputLabel": "Correo electrónico",
+        "backToLoginButton": "Volver a inicio de sesión",
+        "submitButton": "Enviar"
+    }
+}

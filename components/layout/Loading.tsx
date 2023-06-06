@@ -1,3 +1,5 @@
+'use client'
+
 // Libraries imports
 import { AnimatePresence, motion } from 'framer-motion';
 

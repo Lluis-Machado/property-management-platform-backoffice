@@ -67,7 +67,9 @@ export default function AvatarDropdown({ picture, navigationItems }: Props): JSX
                         className='h-8 w-8 rounded-full'
                         src={picture || placeholder}
                         alt='user picture'
-                        quality={50}
+                        loading='eager'
+                        placeholder = 'blur'
+                        quality={13}
                     />
                 </button>
                 {/*  <!--  End Dropdown trigger --> */}

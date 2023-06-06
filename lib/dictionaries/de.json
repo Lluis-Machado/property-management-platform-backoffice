@@ -1,0 +1,16 @@
+{
+    "loginPage": {
+        "title": "Melde dich bei deinem Konto an",
+        "emailInputLabel": "E-Mail-Adresse",
+        "passwordInputLabel": "Passwort",
+        "forgotPasswordLink": "Passwort vergessen?",
+        "submitButton": "Anmelden"
+    },
+    "resetPasswordPage": {
+        "title": "Passwort vergessen?",
+        "description": "Geben Sie unten Ihre E-Mail-Adresse ein, um Ihre Passwort-Zurücksetzungsanweisungen zu erhalten.",
+        "emailInputLabel": "E-Mail-Adresse",
+        "backToLoginButton": "Zurück zur Anmeldeseite",
+        "submitButton": "Senden"
+    }
+}

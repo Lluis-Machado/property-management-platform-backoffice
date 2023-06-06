@@ -1,0 +1,16 @@
+{
+    "loginPage": {
+        "title": "Log in to your account",
+        "emailInputLabel": "Email address",
+        "passwordInputLabel": "Password",
+        "forgotPasswordLink": "Forgot password?",
+        "submitButton": "Log In"
+    },
+    "resetPasswordPage": {
+        "title": "Forgot your password?",
+        "description": "Enter your email below to receive your password reset instructions.",
+        "emailInputLabel": "Email address",
+        "backToLoginButton": "Back to Login Page",
+        "submitButton": "Send"
+    }
+}

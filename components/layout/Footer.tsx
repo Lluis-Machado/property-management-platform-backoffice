@@ -1,7 +1,6 @@
 // Libraries imports
 import { faInstagram, faLinkedinIn, faTwitter, faYoutube } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 // Local imports
@@ -59,18 +58,14 @@ export const Footer = () => {
                 {/* Social media */}
                 <div className='flex flex-row justify-between text-secondary-500 order-2 lg:order-3 py-4 lg:py-0'>
                     {SocialMedia.map(({ name, link, icon }) => (
-                        <motion.a
+                        <a
                             key={name}
                             href={link}
                             target='_blank'
-                            className='px-4 text-4xl flex items-center'
-                            rel='noreferrer'
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 1 }}
-                            transition={{ ease: "linear", duration: 0.1 }}
+                            className='px-4 text-4xl flex items-center hover:scale-110 transition-all'
                         >
                             <FontAwesomeIcon icon={icon} />
-                        </motion.a>
+                        </a>
                     ))}
                 </div>
                 {/* PlattesGroup Links */}
@@ -82,7 +77,6 @@ export const Footer = () => {
                                     href={elem.link}
                                     target='_blank'
                                     className='text-links'
-                                    rel='noreferrer'
                                     key={elem.name}
                                 >
                                     {elem.name}
@@ -100,7 +94,6 @@ export const Footer = () => {
                                 href='https://www.plattes.net/'
                                 target='_blank'
                                 className='text-links'
-                                rel='noreferrer'
                             >
                                 {' PlattesGroup'}
                             </a>
