@@ -1,0 +1,19 @@
+.root {
+    --focus-border: theme(colors.primary.600);
+    --separator-border:theme(colors.primary.500);
+};
+
+.container {
+    width: 100%;
+}
+
+.centerPane,
+.rightPane {
+  transition: all 0.15s ease-in-out;
+}
+
+.splitViewContainer:global(.split-view-sash-dragging) .centerPane,
+.splitViewContainer:global(.split-view-sash-dragging) .rightPane {
+  /* disable animation while sash dragging */
+  transition: none;
+}

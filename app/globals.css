@@ -2,26 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+	font-family: 'barlowregular';
+	src: url('../lib/assets/fonts/barlow-regular-webfont.woff2') format('woff2'),
+		url('../lib/assets/fonts/barlow-regular-webfont.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'barlowthin';
+	src: url('../lib/assets/fonts/barlow-thin-webfont.woff2') format('woff2'),
+		url('../lib/assets/fonts/barlow-thin-webfont.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+/* Own CSS */
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+	--WuF_Blue: theme(colors.secondary.500);
+	--WuF_Gold: theme(colors.primary.500);
+	--WuF_White: theme(colors.custom-white);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+* {
+	font-family: 'barlowregular', 'barlowthin';
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+/* Scrollbar */
+::-webkit-scrollbar {
+	width: 8px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+	background: var(--WuF_Blue);
+	border-radius: 6px 0px 0px 6px;
+}
+
+.overflow-y-overlay {
+	overflow-y: overlay;
 }
