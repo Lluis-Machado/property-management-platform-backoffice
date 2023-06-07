@@ -21,7 +21,7 @@ async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
         email: 'test@plattesgroup.net',
         name: 'Test',
         nickname: 'test user',
-        picture: 'https://source.boringavatars.com/',
+        picture: 'https://ui-avatars.com/api/?name=Jon+Snow&background=0D8ABC&color=fff&size=128',
         password: undefined,  // Ensure that password is removed
         isLoggedIn: true
     };
