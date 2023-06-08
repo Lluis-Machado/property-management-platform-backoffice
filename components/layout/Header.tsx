@@ -22,7 +22,6 @@ const headerOptions = [
     }
 ]
 
-
 export const Header = (): JSX.Element => {
     const pathName = usePathname();
     const itemIsActualRoute = useCallback((route: string) => pathName?.includes(route), [pathName]);
@@ -34,7 +33,7 @@ export const Header = (): JSX.Element => {
         return routes.find(route => route.path === parentRoute); // Find the parent with matching path and children
     }, [pathName])
 
-    const getPath = useCallback(() => {
+    const getBasePath = useCallback(() => {
         if (!pathName) return undefined;
         let lastIndex = pathName.lastIndexOf("/");
         if (lastIndex !== -1) {
@@ -59,7 +58,7 @@ export const Header = (): JSX.Element => {
                                     ${itemIsActualRoute(path) && ' pt-2 font-bold border-b-8 text-md bg-primary-300 border-b-primary-600'}`
                                 }
                             >
-                                <Link href={`${getPath()}/${path}`} className='truncate' title={(name.length >= 18) ? name : undefined}>
+                                <Link href={`${getBasePath()}/${path}`} className='truncate' title={(name.length >= 18) ? name : undefined}>
                                     {name}
                                 </Link>
                             </li>
