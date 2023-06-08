@@ -56,7 +56,7 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL(`/${getLocale(req)}/?error=Login to access`, req.url))
 
     if ((pathname === '/' || pathname === '/es' || pathname === '/en' || pathname === '/de') && user?.isLoggedIn)
-        return NextResponse.redirect(new URL(`/${getLocale(req)}/private/dashboard`, req.url))
+        return NextResponse.redirect(new URL(`/${getLocale(req)}/private/documents`, req.url))
 
     //////////////// Check if no supported locale on pathname ////////////////
     if (pathnameIsMissingLocale(req)) {

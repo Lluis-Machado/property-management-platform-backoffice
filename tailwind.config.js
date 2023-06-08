@@ -66,6 +66,9 @@ module.exports = {
       fontFamily: {
         barlow: ['var(--font-barlow)'],
       },
+      letterSpacing: {
+        'sidebar-wide': '.5em',
+      }
     },
   },
   plugins: [],

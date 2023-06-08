@@ -47,7 +47,7 @@ export default function AvatarDropdown({ picture, navigationItems }: Props): JSX
             <motion.div
                 ref={wrapperRef}
                 // key={'userdropdownkey'}
-                className='relative ml-2'
+                className='relative ml-2 select-none'
                 initial={false}
                 animate={isOpen ? 'open' : 'closed'}
             >

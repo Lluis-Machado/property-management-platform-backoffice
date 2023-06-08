@@ -1,3 +1,5 @@
+import 'server-only';
+
 // Libraries imports
 import Image from 'next/image';
 
@@ -10,7 +12,7 @@ export const SidebarHeader = (): JSX.Element => (
             <Image
                 src={Logo}
                 alt='Company Logo'
-                className='w-full text-xl text-primary-500 cursor-pointer flex p-2'
+                className='w-full text-xl text-primary-500 cursor-pointer flex p-2 select-none'
                 loading='eager'
                 quality={13}
                 priority

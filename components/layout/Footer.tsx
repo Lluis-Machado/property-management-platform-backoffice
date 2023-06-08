@@ -1,3 +1,5 @@
+import 'server-only';
+
 // Libraries imports
 import { faInstagram, faLinkedinIn, faTwitter, faYoutube } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
