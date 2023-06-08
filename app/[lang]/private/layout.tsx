@@ -1,7 +1,7 @@
 import '@/lib/assets/dx.generic.pg-theme.css';
 
 // Local imports
-import { Footer } from '@/components/layout/Footer';
+// import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar'
 
@@ -22,12 +22,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     className='flex flex-col flex-auto justify-between overflow-x-hidden overflow-y-overlay'
                     id='content'
                 >
-                    <div className='px-sidebar-icon py-4'>
-                        {children}
-                    </div>
-                    <div className='shadow-footer'>
-                        <Footer />
-                    </div>
+                    {children}
+                    {/* <div className='shadow-footer'> <Footer /> </div> */}
                 </section>
             </section>
         </section>

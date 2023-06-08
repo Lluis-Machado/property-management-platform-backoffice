@@ -1,9 +1,5 @@
-import React from 'react'
+import { redirect } from 'next/navigation';
 
-const page = () => {
-  return (
-    <div>DOCUMENTS PAGE</div>
-  )
+export default async function Documents() {
+    redirect('/invoices');
 }
-
-export default page

@@ -1,6 +1,6 @@
 import { faDochub } from '@fortawesome/free-brands-svg-icons';
 import {
-    faChartBar, faCog, faExchangeAlt, faFileAlt
+    faCog, faExchangeAlt, faFileAlt
 } from '@fortawesome/free-solid-svg-icons';
 
 // Local imports

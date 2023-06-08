@@ -57,7 +57,7 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
 
             console.log(response)
 
-            if (response.ok) return router.push("/private/dashboard");
+            if (response.ok) return router.push("/private");
             else {
                 const data = await response.json()
                 throw new ApiCallError(data?.error || 'An error has occurred, contact admin')

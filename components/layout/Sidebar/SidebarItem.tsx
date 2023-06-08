@@ -18,23 +18,12 @@ interface ISidebarItem {
 
 export const SidebarItem = ({ route }: ISidebarItem): JSX.Element => {
     const pathName = usePathname();
-
     const [isOver, setIsOver] = useState<boolean>(false);
-
-    const routePath = useCallback(() => {
-        return `/private/${route.path}`
-    }, [route.path]);
-
-    const itemIsActualRoute = useCallback(() => pathName?.includes(routePath()), [pathName, routePath]);
+    const itemIsActualRoute = useCallback(() => pathName?.includes(`/private/${route.path}`), [pathName]);
 
     return (
         <li
-            className={
-                `h-auto cursor-pointer transition-all
-                 hover:border-l-8 hover:border-l-primary-500 hover:bg-primary-200 hover:text-secondary-500
-                 active:border-l-primary-700 active:bg-primary-400
-                 ${itemIsActualRoute() && ' border-l-8 border-l-primary-700 bg-primary-400 text-secondary-500'}`
-            }
+            className={`h-auto cursor-pointer`}
             onMouseEnter={() => setIsOver(true)}
             onMouseLeave={() => setIsOver(false)}
         >
@@ -80,7 +69,12 @@ export const SidebarItem = ({ route }: ISidebarItem): JSX.Element => {
             {/* Item */}
             <Link
                 href={`/private/${route.path}`}
-                className={`h-header flex flex-row items-center`}
+                className={`
+                    h-header flex flex-row items-center transition-all
+                    hover:border-l-8 hover:border-l-primary-500 hover:bg-primary-200 hover:text-secondary-500
+                    active:border-l-primary-700 active:bg-primary-400
+                    ${itemIsActualRoute() && ' border-l-8 border-l-primary-700 bg-primary-400 text-secondary-500'}`
+                }
                 onMouseEnter={() => setIsOver(true)}
             >
                 <div className='w-full'>
