@@ -14,26 +14,26 @@ export const routes: route[] = [
     {
         path: 'propertyInformation',
         icon: faHouseChimney,
-        name: 'Property Information',
+        name: 'Module 1',
     },
     {
         path: 'finance',
         icon: faChartLine,
-        name: 'Finance',
+        name: 'Module 2',
     },
     {
         path: 'declarations',
         icon: faListUl,
-        name: 'Declarations',
+        name: 'Module 3',
     },
     {
         path: 'documents',
         icon: faFolder,
-        name: 'Documents',
+        name: 'Module 4',
     },
     {
         path: 'downloadCenter',
         icon: faDownload,
-        name: 'Download Center',
+        name: 'Module 5',
     },
 ];

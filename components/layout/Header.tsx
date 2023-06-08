@@ -73,27 +73,25 @@ export const Header = (): JSX.Element => {
     }, [])
 
     return (
-        <div className='flex flex-row h-header justify-between items-center'>
+        <div className='flex flex-row h-header justify-between'>
             {/* Property Selector */}
-            <div className='w-full flex justify-center items-center mt-4'>
-                <Formik
-                    initialValues={{
-                        property: 'baumhaus',
-                    }}
-                    onSubmit={(values) => alert(JSON.stringify(values, null, 2))}
-                >
-                    <FormikForm>
-                        <div className={'md:w-[25rem] lg:w-[30rem] xl:w-[36rem]'}>
-                            <Select
-                                name='property'
-                                inputsList={inputsList}
-                                defaultValue={inputsList[0]}
-                                submitOnChange
-                                isSecondary
-                            />
-                        </div>
-                    </FormikForm>
-                </Formik>
+            <div className='flex w-full h-full items-center '>
+                <ul className='flex h-full cursor-pointer'>
+                    {
+                        ['Invoices', 'Incomes', 'Page 3', 'SteuerklareungungangenSteuerklareungungangenSteuerklareungungangen', 'Page 5'].map((val) =>
+                            <li className={
+                                `flex h-full px-6 max-w-[13rem] items-center border-r border-primary-500/30 transition-all
+                                hover:pt-2 hover:bg-primary-100 hover:font-bold hover:border-b-8 hover:border-b-primary-400 hover:text-md
+                                active:bg-primary-300 active:border-b-primary-600`
+                            }
+                            >
+                                <p className='truncate' title={(val.length >= 18) ? val : undefined}>
+                                    {val}
+                                </p>
+                            </li>
+                        )
+                    }
+                </ul>
             </div>
             {/* Header options */}
             <div className='flex flex-row text-secondary-500/50 z-20'>
