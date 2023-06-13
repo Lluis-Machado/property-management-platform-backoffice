@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 // Local imports
 import { getUser, signOut } from '@/lib/utils/apiCalls'
 import { user } from '@/lib/types/user'
-import AvatarDropdown from '@/components/dropdowns/AvatarDropdown';
+import { AvatarDropdown } from 'pg-components';
+
 
 const AvatarDropdownWrapper = () => {
     const [user, setUser] = useState<user | undefined>(undefined)
@@ -30,7 +31,7 @@ const AvatarDropdownWrapper = () => {
     return (
         <div className='mr-5 w-auto flex justify-center items-center'>
             <p className='whitespace-nowrap font-semibold select-none'>{user?.nickname}</p>
-            <AvatarDropdown picture={user?.picture} navigationItems={navigationItems} />
+            <AvatarDropdown placeholder='/Portrait_Placeholder.png' picture={user?.picture} navigationItems={navigationItems} />
         </div>
     )
 }

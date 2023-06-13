@@ -6,18 +6,15 @@ import { useState } from 'react';
 // Libraries imports
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
+import { Alert, Input, Button, PasswordInput } from 'pg-components';
 import { useRouter } from 'next/navigation';
 import * as Yup from 'yup';
 import Link from 'next/link';
 
 // Local imports
 import { ApiCallError } from '@/lib/utils/errors';
-import Alert from '@/components/notifications/Alert';
-import BasicInput from '@/components/inputs/BasicInput';
-import Button from '@/components/buttons/Button';
-import GroupItem from '@/components/layoutComponent/GroupItem';
 import Loading from '@/components/layout/Loading';
-import PasswordInput from '@/components/inputs/PasswordInput';
+import GroupItem from '@/components/layoutComponent/GroupItem';
 
 interface Props {
     dictionary: {
@@ -91,7 +88,7 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
                         type='danger'
                     />
                     <GroupItem cols={1} >
-                        <BasicInput
+                        <Input
                             name="username"
                             label={dictionary.emailInputLabel}
                             icon={faUser}
