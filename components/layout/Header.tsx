@@ -50,8 +50,9 @@ export const Header = ({ lang }: { lang: Locale }): JSX.Element => {
                 <ul className='flex h-full cursor-pointer select-none'>
                     {
                         findParent(pathName || '', routes)?.children.map(({ name, path }) =>
-                            <li
+                            <Link
                                 key={path}
+                                href={`${getBasePath()}/${path}`}
                                 className={
                                     `flex h-full px-6 max-w-[13rem] items-center border-r border-primary-500/30 transition-all
                                     hover:pt-2 hover:bg-primary-100 hover:font-bold hover:border-b-8 hover:border-b-primary-400 hover:text-md
@@ -59,10 +60,10 @@ export const Header = ({ lang }: { lang: Locale }): JSX.Element => {
                                     ${itemIsActualRoute(path) && ' pt-2 font-bold border-b-8 text-md bg-primary-300 border-b-primary-600'}`
                                 }
                             >
-                                <Link href={`${getBasePath()}/${path}`} className='truncate' title={(name.length >= 18) ? name : undefined}>
+                                <p className='truncate' title={(name.length >= 18) ? name : undefined}>
                                     {name}
-                                </Link>
-                            </li>
+                                </p>
+                            </Link>
                         )
                     }
                 </ul>
