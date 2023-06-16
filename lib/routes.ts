@@ -1,6 +1,5 @@
-import { faDochub } from '@fortawesome/free-brands-svg-icons';
 import {
-    faCog, faExchangeAlt, faFileAlt
+    faAddressBook, faCalculator, faCog, faFileAlt, faHouse, faReceipt
 } from '@fortawesome/free-solid-svg-icons';
 
 // Local imports
@@ -9,7 +8,7 @@ import { route } from './types/route';
 export const routes: route[] = [
     {
         path: 'documents',
-        icon: faDochub,
+        icon: faFileAlt,
         name: 'Documents',
         children: [
             { name: 'Archives', path: 'archives' },
@@ -18,7 +17,7 @@ export const routes: route[] = [
     },
     {
         path: 'accounting',
-        icon: faFileAlt,
+        icon: faReceipt,
         name: 'Accounting',
         children: [
             { name: 'Tenants', path: 'tenants' },
@@ -31,7 +30,7 @@ export const routes: route[] = [
     },
     {
         path: 'taxes',
-        icon: faCog,
+        icon: faCalculator,
         name: 'Taxes',
         children: [
             { name: 'Declarations', path: 'declarations' },
@@ -39,7 +38,7 @@ export const routes: route[] = [
     },
     {
         path: 'properties',
-        icon: faCog,
+        icon: faHouse,
         name: 'Properties',
         children: [
             { name: 'Properties', path: 'properties' },
@@ -47,7 +46,7 @@ export const routes: route[] = [
     },
     {
         path: 'contacts',
-        icon: faExchangeAlt,
+        icon: faAddressBook,
         name: 'Contacts',
         children: [
             { name: 'Contacts', path: 'contacts' },
