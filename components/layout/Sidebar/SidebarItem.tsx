@@ -19,7 +19,7 @@ interface ISidebarItem {
 export const SidebarItem = ({ route }: ISidebarItem): JSX.Element => {
     const pathName = usePathname();
     const [isOver, setIsOver] = useState<boolean>(false);
-    const itemIsActualRoute = useCallback(() => pathName?.includes(`/private/${route.path}`), [pathName]);
+    const itemIsActualRoute = useCallback(() => pathName?.includes(`/private/${route.path}`), [pathName, route.path]);
 
     return (
         <li

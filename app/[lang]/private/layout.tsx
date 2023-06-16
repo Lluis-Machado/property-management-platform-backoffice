@@ -4,8 +4,14 @@ import '@/lib/assets/dx.generic.pg-theme.css';
 // import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar'
+import { Locale } from '@/i18n-config';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+interface Props {
+    children: React.ReactNode,
+    params: { lang: Locale }
+}
+
+export default function RootLayout({ children, params: { lang } }: Props) {
 
     return (
         <section className='w-screen min-h-screen bg-custom-white'>
@@ -16,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {/* Header and page */}
             <section className='absolute inset-0 left-12 flex flex-col'>
                 <header className='h-header w-full z-50 shadow-header'>
-                    <Header />
+                    <Header lang={lang} />
                 </header>
                 <section
                     className='flex flex-col flex-auto justify-between overflow-x-hidden overflow-y-overlay'

@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { route } from '@/lib/types/route';
 import { useCallback } from 'react';
+import { Locale } from '@/i18n-config';
 
 const headerOptions = [
     {
@@ -22,7 +23,7 @@ const headerOptions = [
     }
 ]
 
-export const Header = (): JSX.Element => {
+export const Header = ({ lang }: { lang: Locale }): JSX.Element => {
     const pathName = usePathname();
     const itemIsActualRoute = useCallback((route: string) => pathName?.includes(route), [pathName]);
 
@@ -31,7 +32,7 @@ export const Header = (): JSX.Element => {
         const segments = path.split('/').filter(segment => segment !== ''); // Split the path and remove empty segments
         const parentRoute = segments[2]; // Get the second segment (it's the parent route)
         return routes.find(route => route.path === parentRoute); // Find the parent with matching path and children
-    }, [pathName])
+    }, [])
 
     const getBasePath = useCallback(() => {
         if (!pathName) return undefined;
@@ -78,7 +79,7 @@ export const Header = (): JSX.Element => {
                         </div>
                     )
                 }
-                <AvatarDropdownWrapper />
+                <AvatarDropdownWrapper lang={lang} />
             </div>
         </div>
     )
