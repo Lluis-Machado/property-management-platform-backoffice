@@ -12,47 +12,54 @@ export const routes: route[] = [
         icon: faDochub,
         name: 'Documents',
         children: [
-            { name: 'Invoices', path: 'invoices' },
-            { name: 'Incomes', path: 'incomes' },
-            { name: 'Management', path: 'management' },
-            { name: 'Downloads', path: 'downloads' },
-            { name: 'Clients', path: 'clients' },
+            { name: 'Archives', path: 'archives' },
+            { name: 'Documents', path: 'files' },
         ]
     },
     {
-        path: 'reports',
+        path: 'accounting',
         icon: faFileAlt,
-        name: 'Reports',
+        name: 'Accounting',
         children: [
-            { name: 'Financial', path: 'financial' },
-            { name: 'Sales', path: 'sales' },
-            { name: 'Inventory', path: 'inventory' },
+            { name: 'Tenants', path: 'tenants' },
             { name: 'Expenses', path: 'expenses' },
-            { name: 'Analytics', path: 'analytics' },
+            { name: 'Incomes', path: 'incomes' },
+            { name: 'Business Partners', path: 'businessPartners' },
+            { name: 'Loans', path: 'loans' },
+            { name: 'Fixed Assets', path: 'fixedAssets' },
         ]
     },
     {
-        path: 'transactions',
-        icon: faExchangeAlt,
-        name: 'Transactions',
-        children: [
-            { name: 'Sales', path: 'sales' },
-            { name: 'Purchases', path: 'purchases' },
-            { name: 'Expenses', path: 'expenses' },
-            { name: 'Receipts', path: 'receipts' },
-            { name: 'Banking', path: 'banking' },
-        ]
-    },
-    {
-        path: 'settings',
+        path: 'taxes',
         icon: faCog,
-        name: 'Settings',
+        name: 'Taxes',
         children: [
-            { name: 'Company', path: 'company' },
+            { name: 'Declarations', path: 'declarations' },
+        ]
+    },
+    {
+        path: 'properties',
+        icon: faCog,
+        name: 'Properties',
+        children: [
+            { name: 'Properties', path: 'properties' },
+        ]
+    },
+    {
+        path: 'contacts',
+        icon: faExchangeAlt,
+        name: 'Contacts',
+        children: [
+            { name: 'Contacts', path: 'contacts' },
+        ]
+    },
+    {
+        path: 'administration',
+        icon: faCog,
+        name: 'Administration',
+        children: [
+            { name: 'Settings', path: 'settings' },
             { name: 'Users', path: 'users' },
-            { name: 'Permissions', path: 'permissions' },
-            { name: 'Preferences', path: 'preferences' },
-            { name: 'Backup', path: 'backup' },
         ]
     },
 ];

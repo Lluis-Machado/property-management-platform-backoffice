@@ -2,7 +2,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div>Management PAge</div>
+    <div>Fixed Ass page</div>
   )
 }
 
