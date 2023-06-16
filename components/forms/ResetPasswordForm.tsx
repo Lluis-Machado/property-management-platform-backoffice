@@ -41,7 +41,7 @@ const ResetPasswordForm = ({ dictionary, searchParams }: Props) => {
         setIsLoading(true)
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_URL}/Users/resetPassword?email=${username}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/Users/resetPassword?email=${username}`);
 
             setError('')
 
