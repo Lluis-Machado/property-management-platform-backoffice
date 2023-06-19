@@ -6,8 +6,8 @@ import './globals.css'
 import { barlow } from '@/lib/utils/mainFont'
 
 export const metadata: Metadata = {
-  title: 'WuF - Portal',
-  description: 'Wohn- und Ferienimmobilien Eigentümer Portal',
+  title: 'WuF - Backoffice',
+  description: 'WuF Backoffice Platform',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

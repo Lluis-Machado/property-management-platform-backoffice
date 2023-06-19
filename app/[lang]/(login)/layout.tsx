@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import logoPng from '@/public/WuF_Logo.png';
+import logoPng from '@/public/WUF_BACKOFFICE.png';
 
 interface Props {
   children: React.ReactNode;
@@ -18,12 +18,12 @@ export default async function RootLayout({ children }: Props) {
               <Image
                 src={logoPng}
                 alt="WuF Logo"
-                className="mx-auto h-24 w-auto"
+                className="mx-auto h-48 w-auto"
                 priority
               />
             </div>
 
-            <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+            <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
 
               {children}
 
