@@ -20,12 +20,12 @@ export const routes: route[] = [
         icon: faReceipt,
         name: 'Accounting',
         children: [
-            { name: 'Tenants', path: 'tenants' },
-            { name: 'Expenses', path: 'expenses' },
-            { name: 'Incomes', path: 'incomes' },
+            { name: 'AR Invoices', path: 'incomes' },
+            { name: 'AP Invoices', path: 'expenses' },
             { name: 'Business Partners', path: 'businessPartners' },
-            { name: 'Loans', path: 'loans' },
             { name: 'Fixed Assets', path: 'fixedAssets' },
+            { name: 'Loans', path: 'loans' },
+            { name: 'Periods', path: 'periods' },
         ]
     },
     {
