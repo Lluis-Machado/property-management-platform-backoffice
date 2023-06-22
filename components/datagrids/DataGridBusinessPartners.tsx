@@ -20,9 +20,9 @@ interface Props {
 const DataGridBusinessPartners = ({ dataSource }: Props) => {
     const pathName = usePathname();
 
-    useEffect(() => {
-        localeDevExtreme()
-    }, []);
+    // useEffect(() => {
+    //     localeDevExtreme()
+    // }, []);
 
     const getBasePath = useCallback(() => {
         if (!pathName) return undefined;
