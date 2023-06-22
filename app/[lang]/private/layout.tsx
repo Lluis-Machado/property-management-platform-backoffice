@@ -14,7 +14,7 @@ interface Props {
 export default function RootLayout({ children, params: { lang } }: Props) {
 
     return (
-        <section className='w-screen min-h-screen bg-custom-white'>
+        <section className='w-screen min-h-screen bg-white'>
             {/* Sidebar */}
             <aside className='absolute inset-0 w-12 bg-secondary-500 text-custom-white z-10k'>
                 <Sidebar />
@@ -25,7 +25,7 @@ export default function RootLayout({ children, params: { lang } }: Props) {
                     <Header lang={lang} />
                 </header>
                 <section
-                    className='flex flex-col flex-auto justify-between overflow-x-hidden overflow-y-overlay'
+                    className='flex flex-col flex-auto justify-start overflow-x-hidden overflow-y-overlay'
                     id='content'
                 >
                     {children}
