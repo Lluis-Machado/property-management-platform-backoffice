@@ -1,0 +1,6 @@
+[{"invoiceNumber":"INV-20210118-002", "date":"2023-09-06","net":7063.11,"gross":5426.16,"serviceFromDate":"2023-05-27","serviceEndDate":"2023-05-30", "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"},
+{"invoiceNumber":"INV-20210117-001", "date":"2023-04-20","net":7811.52,"gross":1304.22,"serviceFromDate":"2023-01-01","serviceEndDate":"2023-01-31", "url": " "},
+{"invoiceNumber":"INV-20210119-002", "date":"2023-02-12","net":634.68,"gross":9931.85,"serviceFromDate":"2023-07-27","serviceEndDate":"2023-07-30", "url": null},
+{"invoiceNumber":"INV-20210108-002","date":"2023-04-05","net":5015.06,"gross":7920.32,"serviceFromDate":"2023-12-06","serviceEndDate":"2024-02-02", "url": false},
+{"invoiceNumber":"INV-20210105-001","date":"2023-02-09","net":1834.31,"gross":3832.06,"serviceFromDate":"2023-02-01","serviceEndDate":"2023-03-04"},
+{"invoiceNumber":"INV-20210122-002","date":"2023-09-24","net":3890.94,"gross":1163.08,"serviceFromDate":"2023-04-03","serviceEndDate":"2023-04-06"}]
