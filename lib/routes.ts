@@ -41,7 +41,7 @@ export const routes: route[] = [
         icon: faHouse,
         name: 'Properties',
         children: [
-            { name: 'Properties', path: 'properties' },
+            { name: 'Property Info', path: 'property' },
         ]
     },
     {
