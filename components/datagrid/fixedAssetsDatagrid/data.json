@@ -1,0 +1,723 @@
+[
+    {
+      "ID": 10,
+      "name": "Asset A",
+      "costType": "House",
+      "activationDate": "2022-01-01 10:22:38",
+      "activationValue": 10000,
+      "depreciationType": 0.01,
+      "accumulatedDepreciation": 5000,
+      "NBVAtStartDate": 5000,
+      "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "depreciation": [
+        {
+          "monthOfYear": 1,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 100
+        },
+        {
+          "monthOfYear": 2,
+          "numberOfRentalDays": 28,
+          "accumulatedDepreciation": 200
+        },
+        {
+          "monthOfYear": 3,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 300
+        },
+        {
+          "monthOfYear": 4,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 400
+        },
+        {
+          "monthOfYear": 5,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 500
+        },
+        {
+          "monthOfYear": 6,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 600
+        },
+        {
+          "monthOfYear": 7,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 700
+        },
+        {
+          "monthOfYear": 8,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 800
+        },
+        {
+          "monthOfYear": 9,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 900
+        },
+        {
+          "monthOfYear": 10,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 1000
+        },
+        {
+          "monthOfYear": 11,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 1100
+        },
+        {
+          "monthOfYear": 12,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 1200
+        }
+      ]
+    },
+    {
+      "ID": 12,
+      "name": "Asset B",
+      "costType": "Garden",
+      "activationDate": "2021-06-15 08:19:16",
+      "activationValue": 15000,
+      "depreciationType": 0.03,
+      "accumulatedDepreciation": 7000,
+      "NBVAtStartDate": 8000,
+      "depreciation": [
+        {
+          "monthOfYear": 1,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 200
+        },
+        {
+          "monthOfYear": 2,
+          "numberOfRentalDays": 28,
+          "accumulatedDepreciation": 400
+        },
+        {
+          "monthOfYear": 3,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 600
+        },
+        {
+          "monthOfYear": 4,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 800
+        },
+        {
+          "monthOfYear": 5,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 1000
+        },
+        {
+          "monthOfYear": 6,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 1200
+        },
+        {
+          "monthOfYear": 7,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 1400
+        },
+        {
+          "monthOfYear": 8,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 1600
+        },
+        {
+          "monthOfYear": 9,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 1800
+        },
+        {
+          "monthOfYear": 10,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 2000
+        },
+        {
+          "monthOfYear": 11,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 2200
+        },
+        {
+          "monthOfYear": 12,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 2400
+        }
+      ]
+    },
+    {
+      "ID": 13,
+      "name": "Asset C",
+      "costType": "Vehicle",
+      "activationDate": "2023-02-10 09:20:33",
+      "activationValue": 2000,
+      "depreciationType": 0.04,
+      "accumulatedDepreciation": 500,
+      "NBVAtStartDate": 1500,
+      "depreciation": [
+        {
+          "monthOfYear": 1,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 50
+        },
+        {
+          "monthOfYear": 2,
+          "numberOfRentalDays": 28,
+          "accumulatedDepreciation": 100
+        },
+        {
+          "monthOfYear": 3,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 150
+        },
+        {
+          "monthOfYear": 4,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 200
+        },
+        {
+          "monthOfYear": 5,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 250
+        },
+        {
+          "monthOfYear": 6,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 300
+        },
+        {
+          "monthOfYear": 7,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 350
+        },
+        {
+          "monthOfYear": 8,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 400
+        },
+        {
+          "monthOfYear": 9,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 450
+        },
+        {
+          "monthOfYear": 10,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 500
+        },
+        {
+          "monthOfYear": 11,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 550
+        },
+        {
+          "monthOfYear": 12,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 600
+        }
+      ]
+    },
+    {
+      "ID": 14,
+      "name": "Asset D",
+      "costType": "House",
+      "activationDate": "2022-07-20 15:50:52",
+      "activationValue": 50000,
+      "depreciationType": 0.01,
+      "accumulatedDepreciation": 12000,
+      "NBVAtStartDate": 38000,
+      "depreciation": [
+        {
+          "monthOfYear": 1,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 1500
+        },
+        {
+          "monthOfYear": 2,
+          "numberOfRentalDays": 28,
+          "accumulatedDepreciation": 3000
+        },
+        {
+          "monthOfYear": 3,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 4500
+        },
+        {
+          "monthOfYear": 4,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 6000
+        },
+        {
+          "monthOfYear": 5,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 7500
+        },
+        {
+          "monthOfYear": 6,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 9000
+        },
+        {
+          "monthOfYear": 7,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 10500
+        },
+        {
+          "monthOfYear": 8,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 12000
+        },
+        {
+          "monthOfYear": 9,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 13500
+        },
+        {
+          "monthOfYear": 10,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 15000
+        },
+        {
+          "monthOfYear": 11,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 16500
+        },
+        {
+          "monthOfYear": 12,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 18000
+        }
+      ]
+    },
+    {
+      "ID": 15,
+      "name": "Asset E",
+      "costType": "Tools",
+      "activationDate": "2021-03-12 16:50:31",
+      "activationValue": 8000,
+      "depreciationType": 0.04,
+      "accumulatedDepreciation": 1000,
+      "NBVAtStartDate": 7000,
+      "depreciation": [
+        {
+          "monthOfYear": 1,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 80
+        },
+        {
+          "monthOfYear": 2,
+          "numberOfRentalDays": 28,
+          "accumulatedDepreciation": 160
+        },
+        {
+          "monthOfYear": 3,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 240
+        },
+        {
+          "monthOfYear": 4,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 320
+        },
+        {
+          "monthOfYear": 5,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 400
+        },
+        {
+          "monthOfYear": 6,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 480
+        },
+        {
+          "monthOfYear": 7,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 560
+        },
+        {
+          "monthOfYear": 8,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 640
+        },
+        {
+          "monthOfYear": 9,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 720
+        },
+        {
+          "monthOfYear": 10,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 800
+        },
+        {
+          "monthOfYear": 11,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 880
+        },
+        {
+          "monthOfYear": 12,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 960
+        }
+      ]
+    },
+    {
+      "ID": 16,
+      "name": "Asset F",
+      "costType": "Furniture",
+      "activationDate": "2021-11-05 14:54:06",
+      "activationValue": 12000,
+      "depreciationType": 0.05,
+      "accumulatedDepreciation": 3500,
+      "NBVAtStartDate": 8500,
+      "depreciation": [
+        {
+          "monthOfYear": 1,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 450
+        },
+        {
+          "monthOfYear": 2,
+          "numberOfRentalDays": 28,
+          "accumulatedDepreciation": 900
+        },
+        {
+          "monthOfYear": 3,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 1350
+        },
+        {
+          "monthOfYear": 4,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 1800
+        },
+        {
+          "monthOfYear": 5,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 2250
+        },
+        {
+          "monthOfYear": 6,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 2700
+        },
+        {
+          "monthOfYear": 7,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 3150
+        },
+        {
+          "monthOfYear": 8,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 3600
+        },
+        {
+          "monthOfYear": 9,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 4050
+        },
+        {
+          "monthOfYear": 10,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 4500
+        },
+        {
+          "monthOfYear": 11,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 4950
+        },
+        {
+          "monthOfYear": 12,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 5400
+        }
+      ]
+    },
+    {
+      "ID": 17,
+      "name": "Asset G",
+      "costType": "Tools",
+      "activationDate": "2022-01-01 10:22:38",
+      "activationValue": 10000,
+      "depreciationType": 0.02,
+      "accumulatedDepreciation": 5000,
+      "NBVAtStartDate": 5000,
+      "depreciation": [
+        {
+          "monthOfYear": 1,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 100
+        },
+        {
+          "monthOfYear": 2,
+          "numberOfRentalDays": 28,
+          "accumulatedDepreciation": 200
+        },
+        {
+          "monthOfYear": 3,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 300
+        },
+        {
+          "monthOfYear": 4,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 400
+        },
+        {
+          "monthOfYear": 5,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 500
+        },
+        {
+          "monthOfYear": 6,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 600
+        },
+        {
+          "monthOfYear": 7,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 700
+        },
+        {
+          "monthOfYear": 8,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 800
+        },
+        {
+          "monthOfYear": 9,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 900
+        },
+        {
+          "monthOfYear": 10,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 1000
+        },
+        {
+          "monthOfYear": 11,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 1100
+        },
+        {
+          "monthOfYear": 12,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 1200
+        }
+      ]
+    },
+    {
+      "ID": 18,
+      "name": "Asset H",
+      "costType": "Furniture",
+      "activationDate": "2021-09-28 12:55:40",
+      "activationValue": 25000,
+      "depreciationType": 0.05,
+      "accumulatedDepreciation": 8000,
+      "NBVAtStartDate": 17000,
+      "depreciation": [
+        {
+          "monthOfYear": 1,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 900
+        },
+        {
+          "monthOfYear": 2,
+          "numberOfRentalDays": 28,
+          "accumulatedDepreciation": 1800
+        },
+        {
+          "monthOfYear": 3,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 2700
+        },
+        {
+          "monthOfYear": 4,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 3600
+        },
+        {
+          "monthOfYear": 5,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 4500
+        },
+        {
+          "monthOfYear": 6,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 5400
+        },
+        {
+          "monthOfYear": 7,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 6300
+        },
+        {
+          "monthOfYear": 8,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 7200
+        },
+        {
+          "monthOfYear": 9,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 8100
+        },
+        {
+          "monthOfYear": 10,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 9000
+        },
+        {
+          "monthOfYear": 11,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 9900
+        },
+        {
+          "monthOfYear": 12,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 10800
+        }
+      ]
+    },
+    {
+      "ID": 19,
+      "name": "Asset I",
+      "costType": "Garden",
+      "activationDate": "2023-01-15 16:01:34",
+      "activationValue": 3000,
+      "depreciationType": 0.03,
+      "accumulatedDepreciation": 500,
+      "NBVAtStartDate": 2500,
+      "depreciation": [
+        {
+          "monthOfYear": 1,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 25
+        },
+        {
+          "monthOfYear": 2,
+          "numberOfRentalDays": 28,
+          "accumulatedDepreciation": 50
+        },
+        {
+          "monthOfYear": 3,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 75
+        },
+        {
+          "monthOfYear": 4,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 100
+        },
+        {
+          "monthOfYear": 5,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 125
+        },
+        {
+          "monthOfYear": 6,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 150
+        },
+        {
+          "monthOfYear": 7,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 175
+        },
+        {
+          "monthOfYear": 8,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 200
+        },
+        {
+          "monthOfYear": 9,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 225
+        },
+        {
+          "monthOfYear": 10,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 250
+        },
+        {
+          "monthOfYear": 11,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 275
+        },
+        {
+          "monthOfYear": 12,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 300
+        }
+      ]
+    },
+    {
+      "ID": 20,
+      "name": "Asset J",
+      "costType": "Furniture",
+      "activationDate": "2021-09-01 10:25:47",
+      "activationValue": 40000,
+      "depreciationType": 0.05,
+      "accumulatedDepreciation": 9000,
+      "NBVAtStartDate": 31000,
+      "depreciation": [
+        {
+          "monthOfYear": 1,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 1800
+        },
+        {
+          "monthOfYear": 2,
+          "numberOfRentalDays": 28,
+          "accumulatedDepreciation": 3600
+        },
+        {
+          "monthOfYear": 3,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 5400
+        },
+        {
+          "monthOfYear": 4,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 7200
+        },
+        {
+          "monthOfYear": 5,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 9000
+        },
+        {
+          "monthOfYear": 6,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 9000
+        },
+        {
+          "monthOfYear": 7,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 9000
+        },
+        {
+          "monthOfYear": 8,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 9000
+        },
+        {
+          "monthOfYear": 9,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 9000
+        },
+        {
+          "monthOfYear": 10,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 9000
+        },
+        {
+          "monthOfYear": 11,
+          "numberOfRentalDays": 30,
+          "accumulatedDepreciation": 9000
+        },
+        {
+          "monthOfYear": 12,
+          "numberOfRentalDays": 31,
+          "accumulatedDepreciation": 9000
+        }
+      ]
+    }
+  ]

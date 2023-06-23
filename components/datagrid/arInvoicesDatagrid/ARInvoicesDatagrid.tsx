@@ -39,7 +39,7 @@ const ARInvoicesDatagrid = ({ dataSource, onInvoiceClick, lang }: Props): React.
   ), [onInvoiceClick]);
 
   return (
-    <div className='mx-2'>
+    <>
       <DataGrid
         dataSource={dataSource}
         keyExpr='invoiceNumber'
@@ -125,7 +125,7 @@ const ARInvoicesDatagrid = ({ dataSource, onInvoiceClick, lang }: Props): React.
           width={120}
         />
       </DataGrid>
-    </div>
+    </>
 
   )
 }

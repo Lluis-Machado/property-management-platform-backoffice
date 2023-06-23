@@ -1,0 +1,11 @@
+.dx-overlay-wrapper.dx-popup-wrapper.dx-header-filter-menu {
+	z-index: 11001 !important;
+}
+
+.dx-row-focused .row-focused-state {
+	color: white;
+}
+
+.dx-master-detail-row .row-focused-state {
+	color: theme(colors.primary.500);
+}
