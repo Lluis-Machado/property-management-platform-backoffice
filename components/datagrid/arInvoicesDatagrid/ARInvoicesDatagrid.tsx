@@ -5,16 +5,21 @@ import { useCallback } from 'react';
 
 // Libraries imports
 import { usePathname } from 'next/navigation';
-import DataGrid, { Column, Paging, SearchPanel, Pager, Export, Editing } from 'devextreme-react/data-grid';
+import { Invoice } from '@/lib/types/invoices';
+import DataGrid, { Column, Paging, SearchPanel, Pager, Export, Editing, HeaderFilter } from 'devextreme-react/data-grid';
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
+import PreviewFileCellRender from '../PreviewFileCellRender';
+import { Locale } from '@/i18n-config';
 
 // Local imports
 
 interface Props {
-  dataSource: any[];
+  dataSource: Invoice[];
+  onInvoiceClick: (title: string, url: string) => void;
+  lang: Locale;
 }
 
-const ARInvoicesDatagrid = ({ dataSource }: Props): React.ReactElement => {
+const ARInvoicesDatagrid = ({ dataSource, onInvoiceClick, lang }: Props): React.ReactElement => {
   const pathName = usePathname();
 
   const getBasePath = useCallback(() => {
@@ -25,6 +30,13 @@ const ARInvoicesDatagrid = ({ dataSource }: Props): React.ReactElement => {
     }
     return pathName;
   }, [pathName])
+
+  const InvoiceCellRender = useCallback(({ row }: any): React.ReactElement => (
+    <PreviewFileCellRender
+      onClick={() => onInvoiceClick(row.data.invoiceNumber, row.data.url)}
+      url={row.data.url}
+    />
+  ), [onInvoiceClick]);
 
   return (
     <div className='mx-2'>
@@ -40,6 +52,7 @@ const ARInvoicesDatagrid = ({ dataSource }: Props): React.ReactElement => {
         height={'85vh'}
         showBorders
       >
+        <HeaderFilter visible />
         <Export enabled={true} />
         <SearchPanel visible searchVisibleColumnsOnly={false} width={400} />
         <Paging defaultPageSize={20} />
@@ -75,18 +88,6 @@ const ARInvoicesDatagrid = ({ dataSource }: Props): React.ReactElement => {
           format={dateFormat}
         />
         <Column
-          dataField='net'
-          dataType='number'
-          caption='Netto'
-          format={currencyFormat}
-        />
-        <Column
-          dataField='gross'
-          dataType='number'
-          caption='Brutto'
-          format={currencyFormat}
-        />
-        <Column
           dataField='serviceFromDate'
           dataType='date'
           caption='Service from date'
@@ -99,6 +100,29 @@ const ARInvoicesDatagrid = ({ dataSource }: Props): React.ReactElement => {
           caption='Service end date'
           //@ts-ignore
           format={dateFormat}
+        />
+        <Column
+          dataField='net'
+          dataType='number'
+          caption='Netto'
+          format={currencyFormat}
+        >
+          <HeaderFilter groupInterval={1000} />
+        </Column>
+        <Column
+          dataField='gross'
+          dataType='number'
+          caption='Brutto'
+          format={currencyFormat}
+        >
+          <HeaderFilter groupInterval={1000} />
+        </Column>
+        <Column
+          alignment='center'
+          allowExporting={false}
+          caption='Invoice'
+          cellRender={InvoiceCellRender}
+          width={120}
         />
       </DataGrid>
     </div>
