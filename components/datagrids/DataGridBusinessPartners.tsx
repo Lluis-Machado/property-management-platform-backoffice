@@ -83,26 +83,22 @@ const DataGridBusinessPartners = ({ dataSource }: Props) => {
                 dataField='name'
                 dataType='string'
                 caption='Name'
-                hidingPriority={0}
             />
             <Column
                 dataField='nif'
                 dataType='number'
                 alignment='left'
                 caption='NIF'
-                hidingPriority={1}
             />
             <Column
                 dataField='phone_number'
                 dataType='string'
                 caption='Phone Number'
-                hidingPriority={2}
             />
             <Column
                 dataField='address'
                 dataType='string'
                 caption='Address'
-                hidingPriority={3}
             />
             {/* <Column
                 caption='View Expenses'
