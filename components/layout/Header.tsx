@@ -34,6 +34,13 @@ export const Header = ({ lang }: { lang: Locale }): JSX.Element => {
         return routes.find(route => route.path === parentRoute); // Find the parent with matching path and children
     }, [])
 
+    const currentRouteIsChild = useCallback((path: string): boolean => {
+        if (!path) return false;
+        const segments = path.split('/').filter(segment => segment !== ''); // Split the path and remove empty segments
+        const possibleChild = segments[3]; // Try to get a segment next to parent
+        return possibleChild !== undefined;
+    }, [])
+
     const getBasePath = useCallback(() => {
         if (!pathName) return undefined;
         let lastIndex = pathName.lastIndexOf("/");
@@ -49,7 +56,7 @@ export const Header = ({ lang }: { lang: Locale }): JSX.Element => {
             <div className='flex w-full h-full items-center '>
                 <ul className='flex h-full cursor-pointer select-none'>
                     {
-                        findParent(pathName || '', routes)?.children.map(({ name, path }) =>
+                        currentRouteIsChild(pathName || '') && findParent(pathName || '', routes)?.children.map(({ name, path }) =>
                             <Link
                                 key={path}
                                 href={`${getBasePath()}/${path}`}
