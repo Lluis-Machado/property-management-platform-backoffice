@@ -4,8 +4,8 @@ import DataGridBusinessPartners from '@/components/datagrids/DataGridBusinessPar
 
 const page = () => {
   return (
-    <div className='my-0'>
-      <div className='text-xl text-secondary-500 mb-3'>Accounting / Business Partners</div>
+    <div>
+      <div className='text-l text-secondary-500 mt-4'>Accounting / Business Partners</div>
       <DataGridBusinessPartners dataSource={data} />
     </div>
   )
