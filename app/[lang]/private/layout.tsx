@@ -25,7 +25,7 @@ export default function RootLayout({ children, params: { lang } }: Props) {
                     <Header lang={lang} />
                 </header>
                 <section
-                    className='flex flex-col flex-auto justify-start overflow-x-hidden overflow-y-overlay'
+                    className='flex flex-col flex-auto justify-start overflow-hidden  p-2'
                     id='content'
                 >
                     {children}

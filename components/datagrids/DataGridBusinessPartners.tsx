@@ -55,7 +55,7 @@ const DataGridBusinessPartners = ({ dataSource }: Props) => {
             focusedRowEnabled
             columnHidingEnabled={false}
             columnMinWidth={100}
-            height={'85vh'}
+            //height={'85vh'}
         >
             <Export enabled={true} />
             <SearchPanel visible searchVisibleColumnsOnly={false} width={400} />
