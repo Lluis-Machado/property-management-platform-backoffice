@@ -1,5 +1,10 @@
-import { redirect } from 'next/navigation';
+import ContactsPage from '@/components/pages/ContactsPage';
+import data from '@/components/pages/contactsPage.json';
 
 export default async function Contacts() {
-    redirect('./contacts/contacts');
+    return (
+        <>
+            <ContactsPage dataSource={data} />
+        </>
+    )
 }
