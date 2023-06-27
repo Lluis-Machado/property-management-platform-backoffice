@@ -27,7 +27,7 @@
     "iron-session": "6.3.1",
     "jwt-decode": "3.1.2",
     "negotiator": "0.6.3",
-    "next": "13.4.6",
+    "next": "^13.4.7",
     "pg-components": "0.2.7",
     "swr": "2.1.5",
     "yup": "1.2.0",

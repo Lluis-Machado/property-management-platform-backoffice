@@ -48,15 +48,15 @@ interface Props {
     /**
      * Component left panel
      */
-    left?: JSX.Element;
+    left?: React.ReactElement;
     /**
    * Component center panel
    */
-    center?: JSX.Element;
+    center?: React.ReactElement;
     /**
    * Component right panel
    */
-    right?: JSX.Element;
+    right?: React.ReactElement;
 }
 
 export default function SplitPaneAnimation(Props: Props) {
