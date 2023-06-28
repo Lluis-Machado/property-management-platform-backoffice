@@ -1,5 +1,5 @@
-import ContactsPage from '@/components/pages/ContactsPage';
-import data from '@/components/pages/contactsPage.json';
+import ContactsPage from '@/components/pages/contacts/ContactsPage';
+import data from '@/components/pages/contacts/contactsPage.json';
 
 export default async function Contacts() {
     return (
