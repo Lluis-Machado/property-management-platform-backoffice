@@ -17,7 +17,7 @@ interface Props {
     visible: boolean;
 };
 
-const TreeViewFormPopup = ({ folderName, onHiding, onSubmit, type, visible }: Props): React.ReactElement => {
+const FormPopup = ({ folderName, onHiding, onSubmit, type, visible }: Props): React.ReactElement => {
     const PopupRef = useRef<Popup>(null);
 
     const FolderNameForm = useCallback(({ submitText }: { submitText: string }): React.ReactElement => {
@@ -96,4 +96,4 @@ const TreeViewFormPopup = ({ folderName, onHiding, onSubmit, type, visible }: Pr
     );
 };
 
-export default TreeViewFormPopup;
+export default FormPopup;

@@ -1,50 +1,32 @@
-'use client'
-
 // React imports
 import { useCallback, useRef, useState } from 'react';
 
 // Libraries imports
-import { ContextMenu, Item } from 'devextreme-react/context-menu';
-import { faFolder } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ContextMenu as DxContextMenu, Item } from 'devextreme-react/context-menu';
 import { ItemClickEvent } from 'devextreme/ui/context_menu';
-import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
 import dynamic from 'next/dynamic';
 
 // Local imports
-import './TreeView.css'
-import { FormPopupType } from './TreeViewFormPopup';
-import { TreeViewPopup, TreeViewPopupType } from './TreeViewPopup';
+import { FormPopupType } from './FormPopup';
+import { TreeViewPopupType } from './TreeViewPopup';
 
 // Dynamic imports
-const TreeViewFormPopup = dynamic(() => import('./TreeViewFormPopup'));
-
-const itemRender = (params: any): React.ReactElement => {
-    if (!params.isDirectory) return <></>;
-    return (
-        <div className='flex flex-row items-center text-center gap-4'>
-            <FontAwesomeIcon icon={faFolder} />
-            <p>
-                {params.name}
-            </p>
-        </div>
-    );
-};
+const FormPopup = dynamic(() => import('./FormPopup'));
+const TreeViewPopup = dynamic(() => import('./TreeViewPopup'));
 
 const addDisabledKey = (node: any) => {
-    const stack = [node]; // Initialize stack with the root node
+    const stack = [node];
 
     while (stack.length > 0) {
         const currentNode = stack.pop();
         currentNode.disabled = false;
 
-        if (Array.isArray(currentNode.items) && currentNode.items.length > 0) {
-            // Push each item of the current node to the stack
+        if (Array.isArray(currentNode.items)) {
             currentNode.items.forEach((item: any) => {
                 stack.push(item);
             });
-        }
-    }
+        };
+    };
 };
 
 const updateDisabledStatus = (treeNode: any, id: string): any => {
@@ -54,19 +36,18 @@ const updateDisabledStatus = (treeNode: any, id: string): any => {
     while (stack.length > 0) {
         const node = stack.pop();
 
-        if (Array.isArray(node.items) && node.items.length > 0) {
+        if (Array.isArray(node.items)) {
             for (const item of node.items) {
                 if (item.uuid === id) {
                     node.disabled = true;
                     item.disabled = true;
+                    return updatedClone;
                 } else {
                     stack.push(item);
                 };
             };
         };
     };
-
-    return updatedClone;
 };
 
 interface Props {
@@ -80,9 +61,10 @@ interface Props {
         rename: boolean;
         upload: boolean;
     };
+    selectedTreeItem: any;
 };
 
-export const TreeView = ({
+export const ContextMenu = ({
     dataSource,
     permissions = {
         copy: true,
@@ -93,14 +75,14 @@ export const TreeView = ({
         rename: true,
         upload: true
     },
+    selectedTreeItem
 }: Props): React.ReactElement => {
-    const ContextMenuRef = useRef<ContextMenu>(null);
+    const ContextMenuRef = useRef<DxContextMenu>(null);
     const UploadFileFormRef = useRef<HTMLFormElement>(null);
     const UploadFileInputRef = useRef<HTMLInputElement>(null);
 
-    const [selectedTreeItem, setSelectedTreeItem] = useState<any>(undefined);
     const [formPopupStatus, setFormPopupStatus] = useState<{
-        folderName: string;
+        folderName?: string;
         type: FormPopupType;
         visible: boolean;
     }>({
@@ -115,7 +97,6 @@ export const TreeView = ({
         type: 'Copy to',
         visible: false
     });
-
     const [dataSourceWithDisabled, setDataSourceWithDisabled] = useState<any[] | undefined>(undefined);
 
     const handleCopyMoveToEvent = useCallback((type: TreeViewPopupType) => {
@@ -135,7 +116,7 @@ export const TreeView = ({
         // TODO: hacer llamada.
     }, []);
 
-    const handleContextMenuItemClick = useCallback((e: ItemClickEvent) => {
+    const handleContextMenuItemClick = useCallback(({ itemIndex }: ItemClickEvent) => {
         const actions: any = {
             // New directory
             0: () => handleFormPopupEvent('New directory'),
@@ -152,19 +133,20 @@ export const TreeView = ({
             // Refresh
             6: () => handleRefreshEvent(),
         };
-        actions[e.itemIndex]();
+        actions[itemIndex]();
     }, [handleCopyMoveToEvent, handleFormPopupEvent, handleRefreshEvent]);
 
     const handleFormPopupSubmit = useCallback((value?: string) => {
+        const { name } = selectedTreeItem;
         switch (formPopupStatus.type) {
             case 'New directory':
-                if (!selectedTreeItem?.name) return;
-                console.log('Creating folder', value, 'in', selectedTreeItem.name);
+                if (!name) return;
+                console.log('Creating folder', value, 'in', name);
                 // TODO: hacer llamada.
                 break;
             case 'Rename':
-                if (!selectedTreeItem?.name) return;
-                console.log('Renaming folder from', selectedTreeItem.name, 'to', value);
+                if (!name) return;
+                console.log('Renaming folder from', name, 'to', value);
                 // TODO: hacer llamada.
                 break;
             case 'Delete':
@@ -172,7 +154,7 @@ export const TreeView = ({
                 // TODO: hacer llamada.
                 break;
         }
-    }, [formPopupStatus.folderName, formPopupStatus.type, selectedTreeItem?.name]);
+    }, [formPopupStatus, selectedTreeItem]);
 
     const handleFileInputOnChange = useCallback(() => {
         const fileInput = UploadFileInputRef.current;
@@ -198,22 +180,9 @@ export const TreeView = ({
         // TODO: hacer llamda.
     }, [selectedTreeItem, treeViewPopupStatus]);
 
-
     return (
-        <div className='w-full relative'>
-            <DxTreeView
-                dataSource={dataSource}
-                displayExpr='name'
-                hasItemsExpr='isDirectory'
-                id='treeview'
-                itemRender={itemRender}
-                itemsExpr='items'
-                keyExpr='id'
-                onItemContextMenu={({ itemData }) => setSelectedTreeItem(itemData)}
-                searchEnabled
-                searchExpr={['name', 'uuid']}
-            />
-            <ContextMenu
+        <>
+            <DxContextMenu
                 ref={ContextMenuRef}
                 target="#treeview .dx-treeview-item"
                 onItemClick={handleContextMenuItemClick}
@@ -226,8 +195,8 @@ export const TreeView = ({
                 <Item closeMenuOnClick icon='copy' text='Copy to' visible={!isRootFolder() && permissions.copy} />
                 <Item closeMenuOnClick icon='trash' text='Delete' visible={!isRootFolder() && permissions.delete} />
                 <Item closeMenuOnClick beginGroup icon='refresh' text='Refresh' />
-            </ContextMenu>
-            <TreeViewFormPopup
+            </DxContextMenu>
+            <FormPopup
                 folderName={formPopupStatus.folderName}
                 onHiding={() => setFormPopupStatus(p => ({ ...p, folderName: '', visible: false }))}
                 onSubmit={handleFormPopupSubmit}
@@ -244,6 +213,8 @@ export const TreeView = ({
             <form ref={UploadFileFormRef} className='hidden'>
                 <input type='file' multiple ref={UploadFileInputRef} onChange={handleFileInputOnChange} />
             </form>
-        </div>
+        </>
     );
 };
+
+export default ContextMenu;

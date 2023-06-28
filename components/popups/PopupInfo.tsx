@@ -11,9 +11,10 @@ interface PopupProps {
     data: any;
     isVisible: boolean;
     onClose: () => void;
+    onShown: () => void;
 };
 
-const Popup = ({ data, isVisible, onClose }: PopupProps) => {
+const Popup = ({ data, isVisible, onClose, onShown }: PopupProps) => {
     const contentRender = useCallback(() =>
         <PopupDatagrid dataSource={data.depreciation} />,
         [data.depreciation]
@@ -27,8 +28,9 @@ const Popup = ({ data, isVisible, onClose }: PopupProps) => {
         <DxPopup
             contentRender={contentRender}
             dragEnabled={false}
-            height={ 'auto'}
-            hideOnOutsideClick={true}
+            height={'auto'}
+            hideOnOutsideClick
+            onShown={onShown}
             onHiding={onClose}
             titleComponent={titleComponent}
             visible={isVisible}

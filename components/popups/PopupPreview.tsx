@@ -26,10 +26,11 @@ interface PopupProps {
     fileURL: string;
     isVisible: boolean;
     onClose: () => void;
+    onShown: () => void;
     title: string;
 };
 
-const PopupPreview = ({ fileURL, isVisible, onClose, title }: PopupProps): React.ReactElement => {
+const PopupPreview = ({ fileURL, isVisible, onClose, onShown, title }: PopupProps): React.ReactElement => {
 
     const contentRender = useCallback(() => <iframe className='w-full h-full' src={`${fileURL}#view=Fit`} />, [fileURL]);
 
@@ -39,12 +40,13 @@ const PopupPreview = ({ fileURL, isVisible, onClose, title }: PopupProps): React
         <DxPopup
             contentRender={contentRender}
             dragEnabled={false}
-            height={'80vh'}             
-            hideOnOutsideClick={true}
+            height='80vh'
+            hideOnOutsideClick
             onHiding={onClose}
+            onShown={onShown}
             titleComponent={titleComponent}
             visible={isVisible}
-            width={'80vw'}
+            width='80vw'
         >
             <Position of='#content' />
         </DxPopup>
