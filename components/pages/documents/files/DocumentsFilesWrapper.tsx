@@ -1,10 +1,12 @@
 // Local imports
-import { TreeView } from "./TreeView"
+import { fileItems } from './data.js';
+import { TreeView } from './TreeView';
+
 
 export const DocumentsFilesWrapper = (): React.ReactElement => {
     return (
         <>
-            <TreeView />
+            <TreeView dataSource={fileItems} />
         </>
     );
 };

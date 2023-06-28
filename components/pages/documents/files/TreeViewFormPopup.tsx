@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 
 // Librares imports
 import { Button, Input } from 'pg-components';
@@ -7,17 +7,17 @@ import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import Popup from 'devextreme-react/popup';
 
-export type PopupType = 'New directory' | 'Rename' | 'Delete';
+export type FormPopupType = 'New directory' | 'Rename' | 'Delete';
 
 interface Props {
     folderName?: string;
     onHiding: () => void;
     onSubmit: (value?: string) => void;
-    type: PopupType;
+    type: FormPopupType;
     visible: boolean;
-}
+};
 
-const TreeViewFormPopup = ({ folderName, onHiding, onSubmit, type, visible }: Props) => {
+const TreeViewFormPopup = ({ folderName, onHiding, onSubmit, type, visible }: Props): React.ReactElement => {
     const PopupRef = useRef<Popup>(null);
 
     const FolderNameForm = useCallback(({ submitText }: { submitText: string }): React.ReactElement => {
@@ -72,14 +72,13 @@ const TreeViewFormPopup = ({ folderName, onHiding, onSubmit, type, visible }: Pr
     ), [folderName, onSubmit]);
 
     const ContentRender = useCallback((): React.ReactElement => {
-        switch (type) {
-            case 'Delete':
-                return <DeleteRender />
-            case 'New directory':
-                return <NewDirectoryRender />
-            case 'Rename':
-                return <RenameRender />
-        }
+        const components = {
+            'Delete': <DeleteRender />,
+            'New directory': <NewDirectoryRender />,
+            'Rename': <RenameRender />
+        };
+
+        return components[type];
     }, [DeleteRender, NewDirectoryRender, RenameRender, type]);
 
     return (
@@ -87,12 +86,12 @@ const TreeViewFormPopup = ({ folderName, onHiding, onSubmit, type, visible }: Pr
             contentRender={ContentRender}
             height='auto'
             hideOnOutsideClick
+            maxWidth={340}
             onHiding={onHiding}
+            ref={PopupRef}
             title={type}
             visible={visible}
             width='80vw'
-            maxWidth={340}
-            ref={PopupRef}
         />
     );
 };

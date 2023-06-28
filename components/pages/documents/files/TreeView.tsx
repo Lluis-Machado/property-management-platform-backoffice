@@ -4,8 +4,8 @@
 import { useCallback, useRef, useState } from 'react';
 
 // Libraries imports
-import { ContextMenu as DxContextMenu, Item } from 'devextreme-react/context-menu';
-import { faFolder, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { ContextMenu, Item } from 'devextreme-react/context-menu';
+import { faFolder } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ItemClickEvent } from 'devextreme/ui/context_menu';
 import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
@@ -13,12 +13,11 @@ import dynamic from 'next/dynamic';
 
 // Local imports
 import './TreeView.css'
-import { fileItems } from './data.js';
-import { PopupType } from './TreeViewFormPopup';
+import { FormPopupType } from './TreeViewFormPopup';
+import { TreeViewPopup, TreeViewPopupType } from './TreeViewPopup';
 
 // Dynamic imports
 const TreeViewFormPopup = dynamic(() => import('./TreeViewFormPopup'));
-const FileUploader = dynamic(() => import('devextreme-react/file-uploader'));
 
 const itemRender = (params: any): React.ReactElement => {
     if (!params.isDirectory) return <></>;
@@ -32,87 +31,178 @@ const itemRender = (params: any): React.ReactElement => {
     );
 };
 
-export const TreeView = (): React.ReactElement => {
-    const ContextMenuRef = useRef<DxContextMenu>(null);
+const addDisabledKey = (node: any) => {
+    const stack = [node]; // Initialize stack with the root node
 
+    while (stack.length > 0) {
+        const currentNode = stack.pop();
+        currentNode.disabled = false;
+
+        if (Array.isArray(currentNode.items) && currentNode.items.length > 0) {
+            // Push each item of the current node to the stack
+            currentNode.items.forEach((item: any) => {
+                stack.push(item);
+            });
+        }
+    }
+};
+
+const updateDisabledStatus = (treeNode: any, id: string): any => {
+    const updatedClone = structuredClone(treeNode);
+    const stack = [updatedClone];
+
+    while (stack.length > 0) {
+        const node = stack.pop();
+
+        if (Array.isArray(node.items) && node.items.length > 0) {
+            for (const item of node.items) {
+                if (item.uuid === id) {
+                    node.disabled = true;
+                    item.disabled = true;
+                } else {
+                    stack.push(item);
+                };
+            };
+        };
+    };
+
+    return updatedClone;
+};
+
+interface Props {
+    dataSource: any;
+    permissions?: {
+        copy: boolean;
+        create: boolean;
+        delete: boolean;
+        download: boolean;
+        move: boolean;
+        rename: boolean;
+        upload: boolean;
+    };
+};
+
+export const TreeView = ({
+    dataSource,
+    permissions = {
+        copy: true,
+        create: true,
+        delete: true,
+        download: true,
+        move: true,
+        rename: true,
+        upload: true
+    },
+}: Props): React.ReactElement => {
+    const ContextMenuRef = useRef<ContextMenu>(null);
     const UploadFileFormRef = useRef<HTMLFormElement>(null);
     const UploadFileInputRef = useRef<HTMLInputElement>(null);
 
     const [selectedTreeItem, setSelectedTreeItem] = useState<any>(undefined);
-    const [popupStatus, setPopupStatus] = useState<{
+    const [formPopupStatus, setFormPopupStatus] = useState<{
         folderName: string;
-        type: PopupType;
+        type: FormPopupType;
         visible: boolean;
     }>({
         folderName: '',
         type: 'Delete',
         visible: false
     });
+    const [treeViewPopupStatus, setTreeViewPopupStatus] = useState<{
+        type: TreeViewPopupType;
+        visible: boolean;
+    }>({
+        type: 'Copy to',
+        visible: false
+    });
 
-    const handleContextMenuItemClick = useCallback((e: ItemClickEvent) => {
-        switch (e.itemIndex) {
-            // New directory
-            case 0:
-                setPopupStatus({ folderName: 'Untitled directory', type: 'New directory', visible: true });
-                break;
-            // Upload files
-            case 1:
-                UploadFileInputRef.current?.click();
-                break;
-            // Rename
-            case 2:
-                if (!selectedTreeItem.name) return;
-                setPopupStatus({ folderName: selectedTreeItem.name, type: 'Rename', visible: true });
-                break;
-            // Move to
-            case 3:
-                break;
-            // Copy to
-            case 4:
-                break;
-            // Delete
-            case 5:
-                if (!selectedTreeItem.name) return;
-                setPopupStatus({ folderName: selectedTreeItem.name, type: 'Delete', visible: true });
-                break;
-            // Refresh
-            case 6:
-                break;
-        }
+    const [dataSourceWithDisabled, setDataSourceWithDisabled] = useState<any[] | undefined>(undefined);
+
+    const handleCopyMoveToEvent = useCallback((type: TreeViewPopupType) => {
+        if (!dataSourceWithDisabled) {
+            dataSource.forEach((item: any) => addDisabledKey(item));
+        };
+        setDataSourceWithDisabled(dataSource.map((item: any) => updateDisabledStatus(item, selectedTreeItem.uuid)));
+        setTreeViewPopupStatus({ type, visible: true });
+    }, [dataSource, dataSourceWithDisabled, selectedTreeItem]);
+
+    const handleFormPopupEvent = useCallback((type: FormPopupType) => {
+        const folderName = type === 'New directory' ? 'Untitled directory' : selectedTreeItem.name;
+        setFormPopupStatus({ folderName, type, visible: true });
     }, [selectedTreeItem]);
 
-    const handlePopupSubmit = useCallback((value?: string) => {
-        switch (popupStatus.type) {
+    const handleRefreshEvent = useCallback(() => {
+        // TODO: hacer llamada.
+    }, []);
+
+    const handleContextMenuItemClick = useCallback((e: ItemClickEvent) => {
+        const actions: any = {
+            // New directory
+            0: () => handleFormPopupEvent('New directory'),
+            // Upload files
+            1: () => UploadFileInputRef.current?.click(),
+            // Rename
+            2: () => handleFormPopupEvent('Rename'),
+            // Move to
+            3: () => handleCopyMoveToEvent('Move to'),
+            // Copy to
+            4: () => handleCopyMoveToEvent('Copy to'),
+            // Delete
+            5: () => handleFormPopupEvent('Delete'),
+            // Refresh
+            6: () => handleRefreshEvent(),
+        };
+        actions[e.itemIndex]();
+    }, [handleCopyMoveToEvent, handleFormPopupEvent, handleRefreshEvent]);
+
+    const handleFormPopupSubmit = useCallback((value?: string) => {
+        switch (formPopupStatus.type) {
             case 'New directory':
                 if (!selectedTreeItem?.name) return;
-                console.log('Creating folder', value, 'in', selectedTreeItem.name)
+                console.log('Creating folder', value, 'in', selectedTreeItem.name);
+                // TODO: hacer llamada.
                 break;
             case 'Rename':
                 if (!selectedTreeItem?.name) return;
-                console.log('Renaming folder from', selectedTreeItem.name, 'to', value)
+                console.log('Renaming folder from', selectedTreeItem.name, 'to', value);
+                // TODO: hacer llamada.
                 break;
             case 'Delete':
-                console.log('Deleting folder', popupStatus.folderName)
+                console.log('Deleting folder', formPopupStatus.folderName);
+                // TODO: hacer llamada.
                 break;
         }
-    }, [popupStatus.folderName, popupStatus.type, selectedTreeItem?.name]);
+    }, [formPopupStatus.folderName, formPopupStatus.type, selectedTreeItem?.name]);
 
     const handleFileInputOnChange = useCallback(() => {
         const fileInput = UploadFileInputRef.current;
         if (!fileInput) return;
 
         const selectedFiles = [...fileInput.files ?? []];
-        for (const f of selectedFiles) {
-            console.log(f);
-        }
+        if (selectedFiles.length === 0) return;
+
+        // TODO: hacer llamada.
 
         UploadFileFormRef.current?.reset();
     }, []);
 
+    const isRootFolder = useCallback(() => selectedTreeItem?.isRoot ?? false, [selectedTreeItem]);
+
+    const handleTreeViewPopupSubmit = useCallback((destinationFolderId: string) => {
+        const originalFolder = selectedTreeItem.uuid;
+        if (treeViewPopupStatus.type === 'Copy to') {
+            console.log("Copying folder", originalFolder, "to", destinationFolderId);
+        } else {
+            console.log("Moving folder", originalFolder, "to", destinationFolderId);
+        }
+        // TODO: hacer llamda.
+    }, [selectedTreeItem, treeViewPopupStatus]);
+
+
     return (
         <div className='w-full relative'>
             <DxTreeView
-                dataSource={fileItems}
+                dataSource={dataSource}
                 displayExpr='name'
                 hasItemsExpr='isDirectory'
                 id='treeview'
@@ -121,31 +211,38 @@ export const TreeView = (): React.ReactElement => {
                 keyExpr='id'
                 onItemContextMenu={({ itemData }) => setSelectedTreeItem(itemData)}
                 searchEnabled
-                searchExpr='name'
+                searchExpr={['name', 'uuid']}
             />
-            <DxContextMenu
+            <ContextMenu
                 ref={ContextMenuRef}
                 target="#treeview .dx-treeview-item"
                 onItemClick={handleContextMenuItemClick}
                 hideOnOutsideClick
             >
-                <Item closeMenuOnClick icon='newfolder' text='New directory' />
-                <Item closeMenuOnClick icon='upload' text='Upload files' />
-                <Item closeMenuOnClick icon='rename' text='Rename' />
-                <Item closeMenuOnClick icon='movetofolder' text='Move to' />
-                <Item closeMenuOnClick icon='copy' text='Copy to' />
-                <Item closeMenuOnClick icon='trash' text='Delete' />
+                <Item closeMenuOnClick icon='newfolder' text='New directory' visible={permissions.create} />
+                <Item closeMenuOnClick icon='upload' text='Upload files' visible={permissions.upload} />
+                <Item closeMenuOnClick icon='rename' text='Rename' visible={!isRootFolder() && permissions.rename} />
+                <Item closeMenuOnClick icon='movetofolder' text='Move to' visible={!isRootFolder() && permissions.move} />
+                <Item closeMenuOnClick icon='copy' text='Copy to' visible={!isRootFolder() && permissions.copy} />
+                <Item closeMenuOnClick icon='trash' text='Delete' visible={!isRootFolder() && permissions.delete} />
                 <Item closeMenuOnClick beginGroup icon='refresh' text='Refresh' />
-            </DxContextMenu>
+            </ContextMenu>
             <TreeViewFormPopup
-                folderName={popupStatus.folderName}
-                onHiding={() => setPopupStatus(p => ({ ...p, folderName: '', visible: false }))}
-                onSubmit={handlePopupSubmit}
-                type={popupStatus.type}
-                visible={popupStatus.visible}
+                folderName={formPopupStatus.folderName}
+                onHiding={() => setFormPopupStatus(p => ({ ...p, folderName: '', visible: false }))}
+                onSubmit={handleFormPopupSubmit}
+                type={formPopupStatus.type}
+                visible={formPopupStatus.visible}
             />
-            <form ref={UploadFileFormRef}>
-                <input type='file' multiple className='hidden' ref={UploadFileInputRef} onChange={handleFileInputOnChange}/>
+            <TreeViewPopup
+                dataSource={dataSourceWithDisabled!}
+                onHiding={() => setTreeViewPopupStatus(p => ({ ...p, visible: false }))}
+                onSubmit={handleTreeViewPopupSubmit}
+                type={treeViewPopupStatus.type}
+                visible={treeViewPopupStatus.visible}
+            />
+            <form ref={UploadFileFormRef} className='hidden'>
+                <input type='file' multiple ref={UploadFileInputRef} onChange={handleFileInputOnChange} />
             </form>
         </div>
     );
