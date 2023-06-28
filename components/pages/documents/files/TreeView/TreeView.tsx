@@ -7,13 +7,11 @@ import { useState } from 'react';
 import { faFolder } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
-import dynamic from 'next/dynamic';
 
 // Local imports
 import './TreeView.css';
+import ContextMenu from './ContextMenu/ContextMenu';
 
-// Dynamic imports
-const ContextMenu = dynamic(() => import('./ContextMenu/ContextMenu'));
 
 const itemRender = (params: any): React.ReactElement => {
     if (!params.isDirectory) return <></>;

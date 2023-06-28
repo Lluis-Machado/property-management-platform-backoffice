@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic';
 
 // Local imports
 import { FormPopupType } from './FormPopup';
+import { PopupVisibility } from '@/lib/types/Popups';
 import { TreeViewPopupType } from './TreeViewPopup';
 
 // Dynamic imports
@@ -84,18 +85,18 @@ export const ContextMenu = ({
     const [formPopupStatus, setFormPopupStatus] = useState<{
         folderName?: string;
         type: FormPopupType;
-        visible: boolean;
+        visibility: PopupVisibility;
     }>({
         folderName: '',
         type: 'Delete',
-        visible: false
+        visibility: { hasBeenOpen: false, visible: false }
     });
     const [treeViewPopupStatus, setTreeViewPopupStatus] = useState<{
         type: TreeViewPopupType;
-        visible: boolean;
+        visibility: PopupVisibility;
     }>({
         type: 'Copy to',
-        visible: false
+        visibility: { hasBeenOpen: false, visible: false }
     });
     const [dataSourceWithDisabled, setDataSourceWithDisabled] = useState<any[] | undefined>(undefined);
 
@@ -104,12 +105,12 @@ export const ContextMenu = ({
             dataSource.forEach((item: any) => addDisabledKey(item));
         };
         setDataSourceWithDisabled(dataSource.map((item: any) => updateDisabledStatus(item, selectedTreeItem.uuid)));
-        setTreeViewPopupStatus({ type, visible: true });
+        setTreeViewPopupStatus(p => ({ type, visibility: { ...p.visibility, visible: true } }));
     }, [dataSource, dataSourceWithDisabled, selectedTreeItem]);
 
     const handleFormPopupEvent = useCallback((type: FormPopupType) => {
         const folderName = type === 'New directory' ? 'Untitled directory' : selectedTreeItem.name;
-        setFormPopupStatus({ folderName, type, visible: true });
+        setFormPopupStatus(p => ({ folderName, type, visibility: { ...p.visibility, visible: true } }));
     }, [selectedTreeItem]);
 
     const handleRefreshEvent = useCallback(() => {
@@ -196,20 +197,28 @@ export const ContextMenu = ({
                 <Item closeMenuOnClick icon='trash' text='Delete' visible={!isRootFolder() && permissions.delete} />
                 <Item closeMenuOnClick beginGroup icon='refresh' text='Refresh' />
             </DxContextMenu>
-            <FormPopup
-                folderName={formPopupStatus.folderName}
-                onHiding={() => setFormPopupStatus(p => ({ ...p, folderName: '', visible: false }))}
-                onSubmit={handleFormPopupSubmit}
-                type={formPopupStatus.type}
-                visible={formPopupStatus.visible}
-            />
-            <TreeViewPopup
-                dataSource={dataSourceWithDisabled!}
-                onHiding={() => setTreeViewPopupStatus(p => ({ ...p, visible: false }))}
-                onSubmit={handleTreeViewPopupSubmit}
-                type={treeViewPopupStatus.type}
-                visible={treeViewPopupStatus.visible}
-            />
+            {
+                (formPopupStatus.visibility.visible || formPopupStatus.visibility.hasBeenOpen) &&
+                <FormPopup
+                    folderName={formPopupStatus.folderName}
+                    onHiding={() => setFormPopupStatus(p => ({ ...p, folderName: '', visibility: { ...p.visibility, visible: false } }))}
+                    onShown={() => setFormPopupStatus(p => ({ ...p, visibility: { ...p.visibility, hasBeenOpen: true } }))}
+                    onSubmit={handleFormPopupSubmit}
+                    type={formPopupStatus.type}
+                    visible={formPopupStatus.visibility.visible}
+                />
+            }
+            {
+                (treeViewPopupStatus.visibility.visible || treeViewPopupStatus.visibility.hasBeenOpen) &&
+                <TreeViewPopup
+                    dataSource={dataSourceWithDisabled!}
+                    onHiding={() => setTreeViewPopupStatus(p => ({ ...p, visibility: { ...p.visibility, visible: false } }))}
+                    onShown={() => setTreeViewPopupStatus(p => ({ ...p, visibility: { ...p.visibility, hasBeenOpen: true } }))}
+                    onSubmit={handleTreeViewPopupSubmit}
+                    type={treeViewPopupStatus.type}
+                    visible={treeViewPopupStatus.visibility.visible}
+                />
+            }
             <form ref={UploadFileFormRef} className='hidden'>
                 <input type='file' multiple ref={UploadFileInputRef} onChange={handleFileInputOnChange} />
             </form>

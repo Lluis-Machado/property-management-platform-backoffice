@@ -14,6 +14,7 @@ interface Props {
     dataSource: any[];
     onHiding: () => void;
     onSubmit: (id: string) => void;
+    onShown: () => void;
     type: TreeViewPopupType;
     visible: boolean;
 };
@@ -30,7 +31,7 @@ const itemRender = (params: any): React.ReactElement => {
     );
 };
 
-export const TreeViewPopup = ({ dataSource, onHiding, onSubmit, type, visible }: Props): React.ReactElement => {
+export const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, visible }: Props): React.ReactElement => {
     const [selectedNode, setSelectedNode] = useState<any>(null);
 
     const handleHiding = useCallback(() => {
@@ -57,7 +58,7 @@ export const TreeViewPopup = ({ dataSource, onHiding, onSubmit, type, visible }:
                 <div className='flex flex-row gap-2 justify-end w-3/4'>
                     <Button
                         disabled={selectedNode === null}
-                        onClick={() => {onSubmit(selectedNode.uuid); handleHiding()}}
+                        onClick={() => { onSubmit(selectedNode.uuid); handleHiding() }}
                         text={type.replace(' to', '')}
                         type='submit'
                     />
@@ -79,6 +80,7 @@ export const TreeViewPopup = ({ dataSource, onHiding, onSubmit, type, visible }:
             hideOnOutsideClick
             maxWidth={340}
             onHiding={handleHiding}
+            onShown={onShown}
             title={type}
             visible={visible}
             width='80vw'

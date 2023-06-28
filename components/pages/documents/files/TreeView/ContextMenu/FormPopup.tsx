@@ -12,12 +12,13 @@ export type FormPopupType = 'New directory' | 'Rename' | 'Delete';
 interface Props {
     folderName?: string;
     onHiding: () => void;
+    onShown: () => void;
     onSubmit: (value?: string) => void;
     type: FormPopupType;
     visible: boolean;
 };
 
-const FormPopup = ({ folderName, onHiding, onSubmit, type, visible }: Props): React.ReactElement => {
+const FormPopup = ({ folderName, onHiding, onShown, onSubmit, type, visible }: Props): React.ReactElement => {
     const PopupRef = useRef<Popup>(null);
 
     const FolderNameForm = useCallback(({ submitText }: { submitText: string }): React.ReactElement => {
@@ -88,6 +89,7 @@ const FormPopup = ({ folderName, onHiding, onSubmit, type, visible }: Props): Re
             hideOnOutsideClick
             maxWidth={340}
             onHiding={onHiding}
+            onShown={onShown}
             ref={PopupRef}
             title={type}
             visible={visible}
