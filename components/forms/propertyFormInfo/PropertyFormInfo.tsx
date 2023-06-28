@@ -3,41 +3,18 @@
 
 // local imports
 import { Formik, Form, FormikHelpers } from 'formik';
-import { Button, Input } from 'pg-components';
+import { Input } from 'pg-components';
 import GroupItem from '../../layoutComponent/GroupItem';
-interface PropertyValues {
-    name: string;
-    type: string;
-    catastralRef: string;
-    mainContact: string;
-    addressLine1: string
-    addressLine2: string;
-    city: string;
-    region: string;
-    state: string;
-    postalCode: string;
-    country: string;
+import { PropertyFormInterface } from '@/lib/types/propertyInfo';
+
+interface Props {
+    initialValues: any;
 }
 
-const PropertyFormInfo = () => {
-
-    const initialValues: PropertyValues = {
-        name: 'Villa Sonnenschein',
-        type: 'Apartment',
-        catastralRef: '13 077 A 018 00039 0000 FP',
-        mainContact: 'Sr. Schaller',
-        addressLine1: 'Calle...',
-        addressLine2: '',
-        city: 'Palma',
-        region: 'Mallorca',
-        state: 'Illes Balears',
-        postalCode: '07010',
-        country: 'España',
-    };
-
+const PropertyFormInfo = ({ initialValues }: Props) => {
     const handleSubmit = async (
-        values: PropertyValues,
-        { setSubmitting }: FormikHelpers<PropertyValues>
+        values: PropertyFormInterface,
+        { setSubmitting }: FormikHelpers<PropertyFormInterface>
     ) => {
         setTimeout(() => {
             alert(JSON.stringify(values, null, 2));
@@ -46,78 +23,56 @@ const PropertyFormInfo = () => {
     };
 
     return (
-        <div className='m-2'>
-            <h5 className="mb-4 text-xl font-bold leading-tight text-secondary-500">
-                Property Information
-            </h5>
+        <div className='m-2 '>
             <Formik
                 initialValues={initialValues}
                 onSubmit={handleSubmit}
             >
-                <Form >
-                    <GroupItem cols={2} >
-                        <Input
-                            name="name"
-                            label={"Name"}
-                        />
-                        <Input
-                            name="type"
-                            label={"Type"}
-                        />
-                        <Input
-                            name="catastralRef"
-                            label={"Catastral Reference"}
-                        />
-                        <Input
-                            name="mainContact"
-                            label={"Main Contact"}
-                        />
-                        <div className='text-ml font-semibold leading-tight text-secondary-500'>Address</div>
-                        <></>
-                        <Input
-                            name="addressLine1"
-                            label={"Address line 1"}
-                        />
-                        <Input
-                            name="addressLine2"
-                            label={"Address line 2"}
-                        />
-                        <Input
-                            name="city"
-                            label={"City"}
-                        />
-                        <Input
-                            name="region"
-                            label={"Region"}
-                        />
-                        <Input
-                            name="state"
-                            label={"State"}
-                        />
-                        <Input
-                            name="postalCode"
-                            label={"Postal Code"}
-                        />
-                        <Input
-                            name="country"
-                            label={"Country"}
-                        />
-                    </GroupItem>
-                    <div className='flex justify-end py-4'>
-                        <div className='flex flex-row justify-between gap-2'>
-                            <Button
-                                elevated
-                                style='outline'
-                                type='reset'
-                                text='Reset'
-                            />
-                            <Button
-                                elevated
-                                type='submit'
-                                text='Submit Changes'
-                            />
+                <Form>
+                    <GroupItem caption='Property Information'>
+                        <div className='flex'>
+                            <GroupItem cols={1}>
+                                <Input
+                                    name="name"
+                                    label={"Name"}
+                                />
+                                <Input
+                                    name="type"
+                                    label={"Type"}
+                                />
+                                <Input
+                                    name="catastralRef"
+                                    label={"Catastral Reference"}
+                                />
+                                <Input
+                                    name="mainContact"
+                                    label={"Main Contact"}
+                                />
+                            </GroupItem>
+                            <GroupItem cols={1}>
+                                <Input
+                                    name="addressLine1"
+                                    label={"Address line 1"}
+                                />
+                                <Input
+                                    name="postalCode"
+                                    label={"Postal Code"}
+                                />
+                                <Input
+                                    name="city"
+                                    label={"City"}
+                                />
+                                <Input
+                                    name="state"
+                                    label={"State"}
+                                />
+                                <Input
+                                    name="country"
+                                    label={"Country"}
+                                />
+                            </GroupItem>
                         </div>
-                    </div>
+                    </GroupItem>
                 </Form>
             </Formik>
         </div >

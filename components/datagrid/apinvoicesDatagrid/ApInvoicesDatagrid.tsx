@@ -99,6 +99,7 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
                 <ClearFilterButton />
             </div>
         ), [ClearFilterButton]);*/
+
     const InvoiceCellRender = useCallback(({ data }: { data: any }): React.ReactElement => (
         <PreviewFileCellRender
             onClick={() => onInvoiceClick(data.invoiceNumber, data.url)}
@@ -220,7 +221,6 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
                 caption='Reverse Charge'
                 cellRender={ReverseChargeCellRender}
                 dataField='reverseCharge'
-                hidingPriority={1}
                 width={150}
             >
                 <HeaderFilter

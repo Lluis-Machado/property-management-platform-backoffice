@@ -1,9 +1,10 @@
 // React imports
+import { useCallback } from 'react';
 // Library imports
 import { useRouter } from 'next/navigation';
-
+import { usePathname } from 'next/navigation';
 // Local imports
-import Datagrid from '../datagrid/Datagrid';
+import Datagrid from './DatagridProperties';
 interface Props {
     dataSource: any[];
 };
@@ -11,13 +12,18 @@ interface Props {
 const PropertiesWrapper = ({ dataSource }: Props): React.ReactElement => {
     const router = useRouter();
 
-    const handleDouleClick = ({ data }: any) => {
+    const handleDoubleClick = ({ data }: any) => {
         router.push(`./properties/${data.id}/property`)
     }
-
+    const pathName = usePathname();
+    const getBasePath = useCallback((): string => pathName?.substring(0, pathName.lastIndexOf('/')) ?? '', [pathName]);
     return (
         <div className='mx-8'>
-            <Datagrid dataSource={dataSource} handleDouleClick={handleDouleClick} />
+            <Datagrid 
+                dataSource={dataSource} 
+                handleDoubleClick={handleDoubleClick} 
+                basePath={getBasePath()}    
+            />
         </div>
     )
 }
