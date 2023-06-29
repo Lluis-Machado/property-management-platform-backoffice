@@ -1,5 +1,3 @@
-import 'server-only';
-
 // Local imports
 import { routes } from '@/lib/routes';
 import { SidebarItemsList } from './Sidebar/SidebarItemsList';

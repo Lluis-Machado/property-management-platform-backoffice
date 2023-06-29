@@ -49,7 +49,7 @@ export const routes: route[] = [
         icon: faAddressBook,
         name: 'Contacts',
         children: [
-            { name: 'Contacts', path: 'contacts' },
+            { name: 'Contact Info', path: 'contact' },
         ]
     },
     {

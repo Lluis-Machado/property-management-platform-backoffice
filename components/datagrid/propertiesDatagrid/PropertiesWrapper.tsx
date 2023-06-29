@@ -1,9 +1,14 @@
+'use client'
+
 // React imports
+import { useCallback } from 'react';
+
 // Library imports
 import { useRouter } from 'next/navigation';
 
 // Local imports
 import Datagrid from '../datagrid/Datagrid';
+
 interface Props {
     dataSource: any[];
 };
@@ -11,9 +16,9 @@ interface Props {
 const PropertiesWrapper = ({ dataSource }: Props): React.ReactElement => {
     const router = useRouter();
 
-    const handleDouleClick = ({ data }: any) => {
+    const handleDouleClick = useCallback(({ data }: any) => {
         router.push(`./properties/${data.id}/property`)
-    }
+    }, [router])
 
     return (
         <div className='mx-8'>

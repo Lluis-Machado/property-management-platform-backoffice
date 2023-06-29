@@ -1,5 +1,3 @@
-import 'server-only';
-
 // Local imports
 import { route } from '@/lib/types/route';
 import { SidebarItem } from './SidebarItem';

@@ -1,16 +1,11 @@
-// react imports
-
-//library imports
-import DataGrid, { Column as DxColumn, SearchPanel, Toolbar, Item, Pager, HeaderFilter } from 'devextreme-react/data-grid';
-
-// local imports
-
+import DataGrid, { Column as DxColumn, SearchPanel, Toolbar, Item, Pager } from 'devextreme-react/data-grid';
 
 interface Props {
     dataSource: any[];
     handleDouleClick: ({ data }: any) => void;
 };
 
+// TODO: Esto no se deberia llamar Datagrid, demasiado generico
 const Datagrid = ({ dataSource, handleDouleClick }: Props): React.ReactElement => {
     return (
         <DataGrid
@@ -19,13 +14,11 @@ const Datagrid = ({ dataSource, handleDouleClick }: Props): React.ReactElement =
             columnMinWidth={100}
             dataSource={dataSource}
             focusedRowEnabled
-            id='datagrid'
             keyExpr='name'
             showBorders
             showRowLines
             onRowDblClick={handleDouleClick}
         >
-            <HeaderFilter visible />
             <SearchPanel
                 searchVisibleColumnsOnly={false}
                 visible
@@ -58,7 +51,6 @@ const Datagrid = ({ dataSource, handleDouleClick }: Props): React.ReactElement =
                 caption='Address'
                 dataField='address'
                 dataType='string'
-                allowHeaderFiltering={false}
                 hidingPriority={2}
             />
         </DataGrid>
