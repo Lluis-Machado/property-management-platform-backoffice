@@ -17,8 +17,8 @@ export default function ApInvoices({ params: {lang}, searchParams }: Props): Rea
   const [invoicePreviewTitle, setInvoicePreviewTitle] = useState<string>('');
   const [invoicePreviewURL, setInvoicePreviewURL] = useState<string>('');
   return (
-    <div className='mx-4'>
-      <div className='text-l text-secondary-500 mb-3 ml-4 mt-4'>Accounting / AR Invoices</div>
+    <div>
+      <div className='text-l text-secondary-500 mt-4'>Accounting / AP Invoices</div>
       <ApInvoicesDatagrid  
            dataSource={data}
            onInvoiceClick={(title, url) => {

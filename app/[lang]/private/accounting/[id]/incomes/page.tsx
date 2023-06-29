@@ -10,8 +10,8 @@ interface Props {
 
 const page = ({ params: { lang } }: Props) => {
   return (
-    <div className='my-0'>
-      <div className='text-l text-secondary-500 mb-3 ml-4 mt-4'>Accounting / AR Invoices</div>
+    <div>
+      <div className='text-l text-secondary-500 mt-4'>Accounting / AR Invoices</div>
       <ARInvoicesWrapper  
         data={data} 
         lang={lang}

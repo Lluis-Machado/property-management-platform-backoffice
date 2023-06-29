@@ -16,7 +16,7 @@ const AccountingWrapper = ({ dataSource }: Props): React.ReactElement => {
         router.push(`./accounting/${data.id}/incomes`)
     }
     return (
-        <div className='mx-8'>
+        <div className=''>
             <Datagrid dataSource={dataSource} handleDouleClick={handleDouleClick} />
         </div>
     )
