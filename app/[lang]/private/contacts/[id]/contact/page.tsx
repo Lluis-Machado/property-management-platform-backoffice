@@ -5,25 +5,25 @@ interface Props {
 }
 
 interface ContactValues {
-    firstName: string;
-    lastName: string;
-    dateOfBirth: string;
-    taxResidence: string;
-    idCardNum: string;
-    idCardExpDate: string;
-    passportNum: string;
-    passportExpDate: string;
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: string;
+    taxResidence?: string;
+    idCardNum?: string;
+    idCardExpDate?: string;
+    passportNum?: string;
+    passportExpDate?: string;
     nif: string;
-    companyNumber: string;
-    addressLine: string;
-    city: string;
-    region: string;
-    state: string;
-    postalCode: string;
-    country: string;
-    email: string;
-    telephoneNum: string;
-    cellphoneNum: string;
+    companyNumber?: string;
+    addressLine?: string;
+    city?: string;
+    region?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+    email?: string;
+    telephoneNum?: string;
+    cellphoneNum?: string;
 }
 
 const page = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
@@ -32,7 +32,7 @@ const page = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
     const initialValues: ContactValues = {
         firstName: 'Peter',
         lastName: 'Pan',
-        dateOfBirth: '01/07/1970',
+        dateOfBirth: undefined,
         taxResidence: 'Germany',
         idCardNum: 'L7MJ28WPT',
         idCardExpDate: '21/07/2026',

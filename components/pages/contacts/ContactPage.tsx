@@ -1,29 +1,30 @@
 'use client'
 
+import DatePicker from '@/components/datepicker/DatePicker';
 import { Formik, Form, FormikHelpers } from 'formik';
 import { Button, Input, Select } from 'pg-components';
 import GroupItem from '../../layoutComponent/GroupItem';
 
 interface ContactValues {
-    firstName: string;
-    lastName: string;
-    dateOfBirth: string;
-    taxResidence: string;
-    idCardNum: string;
-    idCardExpDate: string;
-    passportNum: string;
-    passportExpDate: string;
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: string;
+    taxResidence?: string;
+    idCardNum?: string;
+    idCardExpDate?: string;
+    passportNum?: string;
+    passportExpDate?: string;
     nif: string;
-    companyNumber: string;
-    addressLine: string;
-    city: string;
-    region: string;
-    state: string;
-    postalCode: string;
-    country: string;
-    email: string;
-    telephoneNum: string;
-    cellphoneNum: string;
+    companyNumber?: string;
+    addressLine?: string;
+    city?: string;
+    region?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+    email?: string;
+    telephoneNum?: string;
+    cellphoneNum?: string;
 }
 
 const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
@@ -44,8 +45,8 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                 initialValues={initialValues}
                 onSubmit={handleSubmit}
             >
-                <Form >
-                    <GroupItem cols={2} caption={'Contact Information'} >
+                <Form>
+                    <GroupItem cols={3} caption={'Contact Information'} >
                         <Input
                             name="firstName"
                             label={"First name"}
@@ -54,9 +55,11 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                             name="lastName"
                             label={"Last name"}
                         />
-                        <Input
-                            name="dateOfBirth"
-                            label={"Date of birth"}
+                        <DatePicker
+                            name='dateOfBirth'
+                            label='Date of birth'
+                            defaultValue={initialValues.dateOfBirth ?? undefined}
+                            isClearable
                         />
                         <Select
                             name='taxResidence'
@@ -96,7 +99,7 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                             label={"Company number"}
                         />
                     </GroupItem>
-                    <GroupItem cols={2} caption={'Adress Information'} >
+                    <GroupItem cols={3} caption={'Adress Information'} >
                         <Input
                             name="addressLine"
                             label={"Address line"}

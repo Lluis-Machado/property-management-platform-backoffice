@@ -1,5 +1,3 @@
-import 'server-only';
-
 // Libraries imports
 import Image from 'next/image';
 
