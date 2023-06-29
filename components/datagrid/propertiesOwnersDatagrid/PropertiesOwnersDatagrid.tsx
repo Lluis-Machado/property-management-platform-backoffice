@@ -4,11 +4,12 @@
 // Libraries imports
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import DataGrid, { Column, Paging, SearchPanel, Pager, Editing, MasterDetail, Lookup, Summary, TotalItem, Scrolling } from 'devextreme-react/data-grid';
-import DropDownBox from 'devextreme-react/drop-down-box';
+import DataGrid, { Column, Paging, SearchPanel, Pager, Editing, Lookup, Summary, TotalItem } from 'devextreme-react/data-grid';
 
 // Local imports
-import PropertiesOwnerMasterDetail from './PropertiesOwnerMasterDetail';
+import OwnerDropdownComponent from './OwnerDropdownComponent';
+
+import contacts from './contacts.json';
 
 interface Props {
     dataSource: any[];
@@ -22,35 +23,8 @@ const MainContactCellRender = ({ value }: any): React.ReactElement => (
 );
 
 const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
-    
-    const OwnerDropdownComponent = (data: any) => {
-        console.log(data)
-        return (
-            <DropDownBox
-                //onOptionChanged 
-                opened
-                dataSource={dataSource}
-                value={dataSource}
-                displayExpr="first_name"
-                valueExpr="nif"
-            >
-                <DataGrid
-                    dataSource={dataSource}
-                    selectedRowKeys={data.value}
-                    focusedRowEnabled
-                    keyExpr='nif'
-                >
-                    <SearchPanel visible />
-                    <Column dataField="first_name" />
-                    <Column dataField="last_name" />
-                    <Column dataField="nif" caption='DNI/NIE'/>
-                    <Paging enabled={true} defaultPageSize={10} />
-                    <Scrolling mode='virtual'/>
-                </DataGrid>
-            </DropDownBox>
-        );
-    }
-    
+
+
     return (
         <DataGrid
             dataSource={dataSource}
@@ -64,11 +38,10 @@ const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
             columnMinWidth={100}
         >
             <SearchPanel visible searchVisibleColumnsOnly={false} width={400} />
-            <Paging defaultPageSize={10} />
+            <Paging defaultPageSize={5} />
             <Pager
                 visible={true}
                 displayMode={'compact'}
-                showPageSizeSelector
                 showInfo
                 showNavigationButtons
             />
@@ -83,22 +56,16 @@ const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
                 newRowPosition='first'
             />
             <Column
-                dataField='first_name'
-                dataType='string'
-                caption='First name'
+                dataField='contactId'
+                caption='Contact'
                 editCellComponent={OwnerDropdownComponent}
             >
                 <Lookup
-                    dataSource={dataSource}
-                    valueExpr="first_name"
-                    displayExpr={"first_name"}
+                    dataSource={contacts}
+                    valueExpr="id"
+                    displayExpr="full_name"
                 />
             </Column>
-            <Column
-                dataField='last_name'
-                dataType='string'
-                caption='Last name'
-            />
             <Column
                 dataField='percentage'
                 dataType='number'
@@ -112,10 +79,10 @@ const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
                 width={150}
                 cellRender={MainContactCellRender}
             />
-            <MasterDetail
+            {/* <MasterDetail
                 enabled={true}
                 component={PropertiesOwnerMasterDetail}
-            />
+            /> */}
             <Summary>
                 <TotalItem
                     column="percentage"

@@ -29,49 +29,45 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                 onSubmit={handleSubmit}
             >
                 <Form>
-                    <GroupItem caption='Property Information'>
-                        <div className='flex'>
-                            <GroupItem cols={1}>
-                                <Input
-                                    name="name"
-                                    label={"Name"}
-                                />
-                                <Input
-                                    name="type"
-                                    label={"Type"}
-                                />
-                                <Input
-                                    name="catastralRef"
-                                    label={"Catastral Reference"}
-                                />
-                                <Input
-                                    name="mainContact"
-                                    label={"Main Contact"}
-                                />
-                            </GroupItem>
-                            <GroupItem cols={1}>
-                                <Input
-                                    name="addressLine1"
-                                    label={"Address line 1"}
-                                />
-                                <Input
-                                    name="postalCode"
-                                    label={"Postal Code"}
-                                />
-                                <Input
-                                    name="city"
-                                    label={"City"}
-                                />
-                                <Input
-                                    name="state"
-                                    label={"State"}
-                                />
-                                <Input
-                                    name="country"
-                                    label={"Country"}
-                                />
-                            </GroupItem>
-                        </div>
+                    <GroupItem caption='Property Information' cols={4}>
+                        <Input
+                            name="name"
+                            label={"Name"}
+                        />
+                        <Input
+                            name="type"
+                            label={"Type"}
+                        />
+                        <Input
+                            name="catastralRef"
+                            label={"Catastral Reference"}
+                        />
+                        <Input
+                            name="mainContact"
+                            label={"Main Contact"}
+                        />
+                    </GroupItem>
+                    <GroupItem caption='Address Information' cols={4}>
+                        <Input
+                            name="addressLine1"
+                            label={"Address line 1"}
+                        />
+                        <Input
+                            name="postalCode"
+                            label={"Postal Code"}
+                        />
+                        <Input
+                            name="city"
+                            label={"City"}
+                        />
+                        <Input
+                            name="state"
+                            label={"State"}
+                        />
+                        <Input
+                            name="country"
+                            label={"Country"}
+                        />
                     </GroupItem>
                 </Form>
             </Formik>

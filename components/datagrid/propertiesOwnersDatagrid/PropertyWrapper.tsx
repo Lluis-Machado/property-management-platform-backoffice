@@ -34,7 +34,7 @@ const PropertyWrapper = ({id} : Props) : React.ReactElement => {
     return (
         <>
             <div className="flex justify-center">
-                <div className="w-32 flex gap-4">
+                <div className="flex gap-4">
                     <Link href={`/private/documents?propertyId=${id}`} className="flex gap-2 items-center border-2 rounded-md p-2">
                         <FontAwesomeIcon
                             icon={faFileLines}
@@ -48,7 +48,14 @@ const PropertyWrapper = ({id} : Props) : React.ReactElement => {
                             icon={faReceipt}
                             className='text-primary-500 row-focused-state hover:scale-125 transition-transform'
                         />
-                           <p className="text-secondary-500">Invoices</p>
+                           <p className="text-secondary-500"> AR Invoices</p>
+                    </Link>
+                    <Link href={`/private/accounting/${id}/expenses`} className="flex gap-2 items-center border-2 rounded-md p-2">
+                        <FontAwesomeIcon
+                            icon={faReceipt}
+                            className='text-primary-500 row-focused-state hover:scale-125 transition-transform'
+                        />
+                           <p className="text-secondary-500"> AP Invoices</p>
                     </Link>
                 </div>
             </div>
