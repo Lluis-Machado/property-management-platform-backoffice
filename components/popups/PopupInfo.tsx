@@ -15,30 +15,29 @@ interface PopupProps {
 };
 
 const Popup = ({ data, isVisible, onClose, onShown }: PopupProps) => {
-    const contentRender = useCallback(() =>
-        <PopupDatagrid dataSource={data.depreciation} />,
-        [data.depreciation]
-    )
-    const titleComponent = useCallback(() =>
-        <HeaderPopup title={data.name + ' Depreciations'} onClose={onClose} />,
-        [data.name, onClose]
-    );
+    const contentRender = useCallback(() => (
+        <PopupDatagrid dataSource={data.depreciation} />
+    ), [data.depreciation]);
+
+    const titleComponent = useCallback(() => (
+        <HeaderPopup title={data.name + ' Depreciations'} onClose={onClose} />
+    ), [data.name, onClose]);
 
     return (
         <DxPopup
             contentRender={contentRender}
             dragEnabled={false}
-            height={'auto'}
+            height='auto'
             hideOnOutsideClick
-            onShown={onShown}
             onHiding={onClose}
+            onShown={onShown}
             titleComponent={titleComponent}
             visible={isVisible}
-            width={'50vw'}
+            width='50vw'
         >
             <Position of='#content' />
         </DxPopup>
-    )
+    );
 };
 
 export default Popup;
@@ -46,7 +45,7 @@ export default Popup;
 interface PopupHeaderProps {
     title: string;
     onClose: () => void;
-}
+};
 
 const HeaderPopup = ({ title, onClose }: PopupHeaderProps) => (
     <div className='flex justify-between'>
@@ -57,11 +56,11 @@ const HeaderPopup = ({ title, onClose }: PopupHeaderProps) => (
             <Button icon={faXmark} size={'base'} onClick={onClose} style={'outline'} />
         </div>
     </div>
-)
+);
 
 interface PopupDatagridProps {
     dataSource: any;
-}
+};
 
 const PopupDatagrid = ({ dataSource }: PopupDatagridProps) => (
     <DataGrid
@@ -97,4 +96,4 @@ const PopupDatagrid = ({ dataSource }: PopupDatagridProps) => (
                 valueFormat={{ type: 'currency', currency: 'EUR', precision: 2 }} />
         </Summary>
     </DataGrid>
-)
+);

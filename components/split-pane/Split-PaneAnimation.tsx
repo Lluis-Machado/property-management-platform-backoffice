@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { Allotment } from "allotment";
-import "allotment/dist/style.css";
-import styles from "./style/splitPane.module.css";
+import { Allotment } from 'allotment';
+import 'allotment/dist/style.css';
+import styles from './style/splitPane.module.css';
 
 interface Props {
     /**
@@ -68,7 +68,7 @@ export default function SplitPaneAnimation(Props: Props) {
         right
     } = Props;
     return (
-        <div className={"h-full w-full"}>
+        <div className='h-full w-full'>
             <Allotment
                 className={styles.root + ' ' + styles.splitViewContainer}
                 proportionalLayout={proportionalLayout}

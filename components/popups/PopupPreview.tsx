@@ -50,7 +50,7 @@ const PopupPreview = ({ fileURL, isVisible, onClose, onShown, title }: PopupProp
         >
             <Position of='#content' />
         </DxPopup>
-    )
+    );
 };
 
 export default memo(PopupPreview);
