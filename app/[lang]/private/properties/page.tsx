@@ -2,7 +2,7 @@
 import data from '@/components/datagrid/propertiesDatagrid/data.json';
 import PropertiesWrapper from '@/components/datagrid/propertiesDatagrid/PropertiesWrapper';
 
-export default async function Properties() {
+export default function Properties(): React.ReactElement {
     return (
         <>
             <div className='text-l text-secondary-500 mt-4'>Select a property</div>
@@ -10,5 +10,5 @@ export default async function Properties() {
                 dataSource={data}
             />
         </>
-    )
-}
+    );
+};
