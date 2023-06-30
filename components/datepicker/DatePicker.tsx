@@ -4,7 +4,6 @@ import DateBox from 'devextreme-react/date-box';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
-import { DateTime } from 'luxon';
 
 interface Props {
     /**
@@ -54,7 +53,7 @@ const DatePicker = ({
     const [menuIsOpen, setMenuIsOpen] = useState(false);
     const [currentValue, setCurrentValue] = useState(defaultValue);
 
-    console.log("currentValue: ", currentValue)
+    // console.log("currentValue: ", currentValue)
 
     const labelMenuIsOpenClasses = (): string => {
         if (menuIsOpen) {

@@ -5,10 +5,10 @@ import { Button, Input, Select } from 'pg-components';
 import { Formik, Form, FormikHelpers } from 'formik';
 
 // Local imports
+import GroupItem from '@/components/layoutComponent/GroupItem';
 import DatePicker from '@/components/datepicker/DatePicker';
-import GroupItem from '../../../layoutComponent/GroupItem';
 
-interface ContactValues {
+interface contactValues {
     firstName?: string;
     lastName?: string;
     dateOfBirth?: Date;
@@ -31,9 +31,10 @@ interface ContactValues {
 };
 
 const handleSubmit = async (
-    values: ContactValues,
-    { setSubmitting }: FormikHelpers<ContactValues>
+    values: contactValues,
+    { setSubmitting }: FormikHelpers<contactValues>
 ) => {
+    console.log("PINGA: ", values)
     // values.dateOfBirth = `${values.dateOfBirth.}`
     setTimeout(() => {
         alert(JSON.stringify(values, null, 2));
@@ -41,7 +42,7 @@ const handleSubmit = async (
     }, 500);
 };
 
-const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
+const ContactPage = ({ initialValues }: { initialValues: contactValues }) => {
     return (
         <div className='m-2'>
         <Formik
