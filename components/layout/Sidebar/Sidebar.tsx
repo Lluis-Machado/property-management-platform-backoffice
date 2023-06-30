@@ -1,9 +1,7 @@
-import 'server-only';
-
 // Local imports
 import { routes } from '@/lib/routes';
-import { SidebarItemsList } from './SidebarItemsList';
 import { SidebarHeader } from './SidebarHeader';
+import { SidebarItemsList } from './SidebarItemsList';
 
 const Sidebar = (): React.ReactElement => {
     return (

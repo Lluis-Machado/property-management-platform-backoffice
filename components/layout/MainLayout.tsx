@@ -1,9 +1,11 @@
 // React imports
 import { FC, memo } from 'react';
+
 // Local imports
+import { ContentWrapper } from './ContentWrapper';
 import { Locale } from '@/i18n-config';
-import Sidebar from './sidebar/Sidebar';
 import Header from './header/Header';
+import Sidebar from './sidebar/Sidebar';
 
 interface Props {
     children: React.ReactNode,
@@ -22,9 +24,9 @@ const MainLayout: FC<Props> = memo(function MainLayout({ children, lang }) {
                 <header className='h-header w-full z-50 shadow-header'>
                     <Header lang={lang} />
                 </header>
-                <section className='m-2 overflow-hidden' id='content'>
+                <ContentWrapper lang={lang}>
                     {children}
-                </section>
+                </ContentWrapper>
             </section>
         </section>
     );
