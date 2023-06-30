@@ -1,3 +1,5 @@
+'use client'
+
 // React imports
 // Library imports
 import { useRouter } from 'next/navigation';

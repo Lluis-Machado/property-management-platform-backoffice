@@ -37,12 +37,12 @@ const ARInvoicesDatagrid = ({ dataSource, onInvoiceClick, lang }: Props): React.
       url={row.data.url}
     />
   ), [onInvoiceClick]);
-
+    console.log(dataSource)
   return (
     <>
       <DataGrid
         dataSource={dataSource}
-        keyExpr='invoiceNumber'
+        keyExpr='id'
         showRowLines
         allowColumnResizing
         rowAlternationEnabled
@@ -76,7 +76,7 @@ const ARInvoicesDatagrid = ({ dataSource, onInvoiceClick, lang }: Props): React.
         />
 
         <Column
-          dataField='invoiceNumber'
+          dataField='id'
           dataType='string'
           caption='Invoice Number'
         />
@@ -84,25 +84,26 @@ const ARInvoicesDatagrid = ({ dataSource, onInvoiceClick, lang }: Props): React.
           dataField='date'
           dataType='date'
           caption='Date'
+          width={150}
           //@ts-ignore
           format={dateFormat}
         />
         <Column
-          dataField='serviceFromDate'
+          dataField='invoiceLines[0].serviceDateFrom'
           dataType='date'
           caption='Service from date'
           //@ts-ignore
           format={dateFormat}
         />
         <Column
-          dataField='serviceEndDate'
+          dataField='invoiceLines[0].serviceDateTo'
           dataType='date'
           caption='Service end date'
           //@ts-ignore
           format={dateFormat}
         />
         <Column
-          dataField='net'
+          dataField='netAmount'
           dataType='number'
           caption='Netto'
           format={currencyFormat}
@@ -110,7 +111,7 @@ const ARInvoicesDatagrid = ({ dataSource, onInvoiceClick, lang }: Props): React.
           <HeaderFilter groupInterval={1000} />
         </Column>
         <Column
-          dataField='gross'
+          dataField='grossAmount'
           dataType='number'
           caption='Brutto'
           format={currencyFormat}
