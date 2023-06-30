@@ -8,7 +8,7 @@ interface Props {
   params: { lang: Locale };
 };
 
-const ResetPassPage = async ({ searchParams, params: { lang } }: Props) => {
+const ResetPasswordPage = async ({ searchParams, params: { lang } }: Props): Promise<React.ReactElement> => {
   const dictionary = await getDictionary(lang);
 
   return (
@@ -21,4 +21,4 @@ const ResetPassPage = async ({ searchParams, params: { lang } }: Props) => {
   );
 };
 
-export default ResetPassPage;
+export default ResetPasswordPage;

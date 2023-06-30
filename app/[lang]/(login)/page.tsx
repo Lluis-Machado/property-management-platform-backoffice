@@ -4,11 +4,11 @@ import { Locale } from '@/i18n-config';
 import LoginForm from '@/components/forms/LoginForm';
 
 interface Props {
-  searchParams: any;
   params: { lang: Locale };
+  searchParams: any;
 };
 
-const LoginPage = async ({ searchParams, params: { lang } }: Props) => {
+const LoginPage = async ({ params: { lang }, searchParams }: Props): Promise<React.ReactElement> => {
   const dictionary = await getDictionary(lang);
 
   return (
