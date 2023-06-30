@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { withSessionRoute } from "@/lib/ironSession/withSession";
 import jwt_decode from "jwt-decode";
-import { tokenPayload, tokenRes } from "@/lib/types/token";
-import { auth0User, user } from "@/lib/types/user";
+import { TokenPayload, TokenRes } from "@/lib/types/token";
+import { Auth0User, User } from "@/lib/types/user";
 
 export default withSessionRoute(loginRoute);
 
@@ -11,7 +11,7 @@ async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
 
     console.log('username y password: ', username, password)
 
-    const user: user = {
+    const user: User = {
         token: {
             access_token: 'eydsfdfsdfDSFREFGOEKGEORGKEGOK%4ogtk090k593409kt430k3fkfek',
             expires_in: 8600,

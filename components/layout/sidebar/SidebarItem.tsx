@@ -11,13 +11,13 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
 // Local imports
-import { route } from '@/lib/types/route';
+import { Route } from '@/lib/types/route';
 
-// Dynamic imports
+// Dynamic Routets
 const SidebarTooltip = dynamic(() => import('./SidebarTooltip'));
 
 interface Props {
-    route: route;
+    route: Route;
 };
 
 export const SidebarItem: FC<Props> = memo(function SidebarItem({ route }) {
