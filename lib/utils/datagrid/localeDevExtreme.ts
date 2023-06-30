@@ -21,5 +21,5 @@ export const localeDevExtreme = (lang: Locale) => {
             loadMessages(enMessages)
             locale('en');
             break;
-    }
-}
+    };
+};

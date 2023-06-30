@@ -3,10 +3,9 @@
 // Libraries imports
 import DataGrid, { Column, Paging, SearchPanel, Pager, Export, Editing } from 'devextreme-react/data-grid';
 
-
 interface Props {
     dataSource: any[];
-}
+};
 
 const DataGridBusinessPartners = ({ dataSource }: Props) => {
     return (
@@ -72,7 +71,7 @@ const DataGridBusinessPartners = ({ dataSource }: Props) => {
                 cellRender={ViewExpensesCellRender}
             /> */}
         </DataGrid>
-    )
-}
+    );
+};
 
-export default DataGridBusinessPartners
+export default DataGridBusinessPartners;

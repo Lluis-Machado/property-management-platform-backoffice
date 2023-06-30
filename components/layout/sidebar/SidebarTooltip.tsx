@@ -3,10 +3,10 @@ import { FC, memo } from 'react';
 
 // Libraries imports
 import { easeInOut, motion } from 'framer-motion';
-import { route } from '@/lib/types/route';
+import { Route } from '@/lib/types/route';
 
 interface Props {
-    route: route;
+    route: Route;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
 };
