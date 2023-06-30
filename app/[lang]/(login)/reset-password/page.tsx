@@ -13,7 +13,7 @@ const ResetPassPage = async ({ searchParams, params: { lang } }: Props) => {
 
   return (
     <>
-      <h2 className="mb-10 text-center text-2xl font-bold leading-9 tracking-tight text-secondary-500">
+      <h2 className='mb-10 text-center text-2xl font-bold leading-9 tracking-tight text-secondary-500'>
         {dictionary.resetPasswordPage.title}
       </h2>
       <ResetPasswordForm dictionary={dictionary.resetPasswordPage} searchParams={searchParams} />

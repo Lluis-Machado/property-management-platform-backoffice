@@ -1,16 +1,13 @@
-'use client'
-
 // Local imports
+import { Locale } from '@/i18n-config';
 import data from '@/components/datagrid/fixedAssetsDatagrid/data.json';
 import FixedAssetsWrapper from '@/components/datagrid/fixedAssetsDatagrid/FixedAssetsWrapper.tsx/FixedAssetsWrapper';
-import { Locale } from '@/i18n-config';
 
 interface Props {
-    params: { lang: Locale }
-}
+    params: { lang: Locale };
+};
 
-export default async function FixedAssets({ params: { lang } }: Props) {
-
+export default function FixedAssets({ params: { lang } }: Props): React.ReactElement {
     return (
         <div>
             <div className='text-l text-secondary-500 mt-4'>Accounting / Fixed Assets</div>
@@ -20,5 +17,5 @@ export default async function FixedAssets({ params: { lang } }: Props) {
                 lang={lang}
             />
         </div>
-    )
-}
+    );
+};

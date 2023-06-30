@@ -11,8 +11,8 @@ import data from '@/components/datagrid/apinvoicesDatagrid/data.json';
 import PopupPreview from '@/components/popups/PopupPreview';
 
 interface Props {
-  params: { lang: Locale }
-  searchParams: { searchParams: any }
+  params: { lang: Locale };
+  searchParams: { searchParams: any };
 };
 
 export default function ApInvoices({ params: { lang }, searchParams }: Props): React.ReactElement {
