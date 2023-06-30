@@ -8,10 +8,10 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 // Local imports
-import { route } from '@/lib/types/route';
+import { Route } from '@/lib/types/route';
 import { routes } from '@/lib/routes';
 
-const findParent = (path: string, routes: route[]) => {
+const findParent = (path: string, routes: Route[]) => {
     if (!path) return undefined;
     const segments = path.split('/').filter(segment => segment !== ''); // Split the path and remove empty segments
     const parentRoute = segments[2]; // Get the second segment (it's the parent route)

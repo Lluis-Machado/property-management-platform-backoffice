@@ -3,8 +3,8 @@ const createErrorFactory = function (name: string) {
         constructor (msg: string) {
             super(msg);
             this.name = name;
-        }
-    }
-}
+        };
+    };
+};
 
 export const ApiCallError = createErrorFactory('ApiCallError');

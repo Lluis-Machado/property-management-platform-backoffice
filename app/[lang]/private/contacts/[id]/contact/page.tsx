@@ -1,8 +1,9 @@
-import ContactPage from "@/components/pages/contacts/ContactPage";
+// Local imports
+import ContactPage from '@/components/pages/contacts/contact/ContactPage';
 
 interface Props {
-    params: { id: string }
-}
+    params: { id: string };
+};
 
 interface ContactValues {
     firstName?: string;
@@ -41,24 +42,24 @@ const Contact = async ({ params: { id } }: Props): Promise<React.ReactElement> =
         nif: '07626053N',
         companyNumber: '8765434767',
 
-        addressLine: 'Magnus-Gerlach-Ring 1',
-        city: 'Hoyerswerda',
-        region: 'Hessen',
-        state: 'Hessen',
-        postalCode: '24420',
-        country: 'Germany',
+    addressLine: 'Magnus-Gerlach-Ring 1',
+    city: 'Hoyerswerda',
+    region: 'Hessen',
+    state: 'Hessen',
+    postalCode: '24420',
+    country: 'Germany',
 
-        email: 'peter.pan@berg.net',
-        telephoneNum: '(02552) 453615',
-        cellphoneNum: '4915751628512'
-    };
-
-    return (
-        <>
-            <div className='text-lg text-secondary-500'>{`Contacts / Contact Info`}</div>
-            <ContactPage initialValues={initialValues} />
-        </>
-    )
-}
+    email: 'peter.pan@berg.net',
+    telephoneNum: '(02552) 453615',
+    cellphoneNum: '4915751628512'
+};
+const page = ({ params: { id } }: Props): React.ReactElement => (
+    <>
+        <div className='text-lg text-secondary-500'>
+            Contacts / Contact Info
+        </div>
+        <ContactPage initialValues={initialValues} />
+    </>
+);
 
 export default Contact

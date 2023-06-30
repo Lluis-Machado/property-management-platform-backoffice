@@ -1,5 +1,8 @@
+// libraries imports
 import { redirect } from 'next/navigation';
 
-export default async function Documents() {
+const Documents = () => {
     redirect('./documents/archives');
-}
+};
+
+export default Documents;

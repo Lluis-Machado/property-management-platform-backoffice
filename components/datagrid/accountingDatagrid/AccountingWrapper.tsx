@@ -1,4 +1,5 @@
-// React imports
+'use client'
+
 // Library imports
 import { useRouter } from 'next/navigation';
 
@@ -16,10 +17,8 @@ const AccountingWrapper = ({ dataSource }: Props): React.ReactElement => {
         router.push(`./accounting/${data.id}/incomes`)
     }
     return (
-        <div className=''>
-            <Datagrid dataSource={dataSource} handleDouleClick={handleDouleClick} />
-        </div>
-    )
-}
+        <Datagrid dataSource={dataSource} handleDouleClick={handleDouleClick} />
+    );
+};
 
-export default AccountingWrapper
+export default AccountingWrapper;

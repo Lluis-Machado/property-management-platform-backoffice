@@ -6,7 +6,7 @@ import { Formik, Form, FormikHelpers } from 'formik';
 
 // Local imports
 import DatePicker from '@/components/datepicker/DatePicker';
-import GroupItem from '../../layoutComponent/GroupItem';
+import GroupItem from '../../../layoutComponent/GroupItem';
 
 interface ContactValues {
     firstName?: string;

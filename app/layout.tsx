@@ -1,19 +1,24 @@
-import { Metadata } from 'next';
+// Libraries imports
 import '@fortawesome/fontawesome-svg-core/styles.css';
+import { Metadata } from 'next';
 
 // Local imports
-import './globals.css'
-import { barlow } from '@/lib/utils/mainFont'
+import './globals.css';
+import { barlow } from '@/lib/utils/mainFont';
 
 export const metadata: Metadata = {
-  title: 'WuF - Backoffice',
   description: 'WuF Backoffice Platform',
-}
+  title: 'WuF - Backoffice',
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html className={`${barlow.variable}`}>
-      <body> {children} </body>
-    </html>
-  )
-}
+interface Props {
+  children: React.ReactNode;
+};
+
+const RootLayout = ({ children }: Props): React.ReactElement => (
+  <html className={`${barlow.variable}`}>
+    <body> {children} </body>
+  </html>
+);
+
+export default RootLayout;
