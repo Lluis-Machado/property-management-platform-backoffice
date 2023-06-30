@@ -52,9 +52,9 @@ const DatePicker = ({
     isReadOnly
 }: Props) => {
     const [menuIsOpen, setMenuIsOpen] = useState(false);
-    const [currentValue, setCurrentValue] = useState<any>(defaultValue);
+    const [currentValue, setCurrentValue] = useState<any>(defaultValue && new Date(defaultValue));
 
-    console.log(currentValue)
+    console.log("currentValue: ", currentValue)
 
     const labelMenuIsOpenClasses = (): string => {
         if (menuIsOpen) {
@@ -86,10 +86,11 @@ const DatePicker = ({
                             onFocusOut={() => setMenuIsOpen(false)}
                             onValueChange={(e) => {
                                 console.log("EEEEEEEEEEEEEEEEEEE vale: ", e)
-                                // const formattedDate = DateTime.fromJSDate(e).toFormat('dd/MM/yyyy')
-                                // console.log("El blu leibel vale: ", formattedDate)
-                                setCurrentValue(e)
-                                form.setFieldValue(name, e)
+                                const onlyDate = DateTime.fromJSDate(e).toISODate()
+                                const date = DateTime.fromISO(onlyDate!, {zone: 'utc'}).toJSDate()
+                                console.log("HEH DALE: ", date)
+                                setCurrentValue(date)
+                                form.setFieldValue(name, date)
                             }}
                         />
                         <label

@@ -78,17 +78,21 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                             name="idCardNum"
                             label={"ID card number"}
                         />
-                        <Input
+                        <DatePicker
                             name="idCardExpDate"
                             label={"ID card expiration date"}
+                            defaultValue={initialValues.idCardExpDate ?? undefined}
+                            isClearable
                         />
                         <Input
                             name="passportNum"
                             label={"Passport Number"}
                         />
-                        <Input
-                            name="passportExpDate"
+                        <DatePicker
+                            name='passportExpDate'
                             label={"Passport expiration date"}
+                            defaultValue={initialValues.passportExpDate ?? undefined}
+                            isClearable
                         />
                         <Input
                             name="nif"

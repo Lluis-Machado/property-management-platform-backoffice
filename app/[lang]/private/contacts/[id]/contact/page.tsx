@@ -35,9 +35,9 @@ const page = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
         dateOfBirth: undefined,
         taxResidence: 'Germany',
         idCardNum: 'L7MJ28WPT',
-        idCardExpDate: '21/07/2026',
+        idCardExpDate: undefined,
         passportNum: 'IUT034536O',
-        passportExpDate: '14/02/2025',
+        passportExpDate: undefined,
         nif: '07626053N',
         companyNumber: '8765434767',
 
