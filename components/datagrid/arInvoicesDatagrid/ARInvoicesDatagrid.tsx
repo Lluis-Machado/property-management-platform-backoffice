@@ -4,7 +4,6 @@
 import { useCallback } from 'react';
 
 // Libraries imports
-import { usePathname } from 'next/navigation';
 import { Invoice } from '@/lib/types/invoices';
 import DataGrid, { Column, Paging, SearchPanel, Pager, Export, Editing, HeaderFilter } from 'devextreme-react/data-grid';
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
@@ -20,16 +19,6 @@ interface Props {
 }
 
 const ARInvoicesDatagrid = ({ dataSource, onInvoiceClick, lang }: Props): React.ReactElement => {
-  const pathName = usePathname();
-
-  const getBasePath = useCallback(() => {
-    if (!pathName) return undefined;
-    let lastIndex = pathName.lastIndexOf('/');
-    if (lastIndex !== -1) {
-      return pathName.substring(0, lastIndex);
-    }
-    return pathName;
-  }, [pathName])
 
   const InvoiceCellRender = useCallback(({ row }: any): React.ReactElement => (
     <PreviewFileCellRender
