@@ -15,10 +15,10 @@ interface Props {
   children: React.ReactNode;
 };
 
-export default function RootLayout({ children }: Props): React.ReactElement {
-  return (
-    <html className={`${barlow.variable}`}>
-      <body> {children} </body>
-    </html>
-  );
-};
+const RootLayout = ({ children }: Props): React.ReactElement => (
+  <html className={`${barlow.variable}`}>
+    <body> {children} </body>
+  </html>
+);
+
+export default RootLayout;
