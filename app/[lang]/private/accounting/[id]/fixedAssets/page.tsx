@@ -9,13 +9,13 @@ interface Props {
 
 export default function FixedAssets({ params: { lang } }: Props): React.ReactElement {
     return (
-        <div>
+        <>
             <div className='text-l text-secondary-500 mt-4'>Accounting / Fixed Assets</div>
             <FixedAssetsWrapper
                 dataSource={data}
                 selectedProperty='Test property'
                 lang={lang}
             />
-        </div>
+        </>
     );
 };
