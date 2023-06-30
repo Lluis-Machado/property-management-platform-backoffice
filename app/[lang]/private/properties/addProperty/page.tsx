@@ -10,7 +10,7 @@ const page = (): React.ReactElement => {
     mainContact: '',
     addressLine1: '',
     city: '',
-    state: '',
+    provinces: '',
     postalCode: '',
     country: '',
   };
