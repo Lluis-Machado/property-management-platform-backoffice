@@ -1,8 +1,3 @@
-'use client'
-
-//React imports
-//Library imports
-
 // Local imports
 import data from '@/components/datagrid/propertiesDatagrid/data.json';
 import PropertiesWrapper from '@/components/datagrid/propertiesDatagrid/PropertiesWrapper';

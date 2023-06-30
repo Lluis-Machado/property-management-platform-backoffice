@@ -1,12 +1,10 @@
-import 'server-only';
-
 // Libraries imports
 import Image from 'next/image';
 
 // Local imports
 import Logo from '@/public/WuF_White.png';
 
-export const SidebarHeader = (): JSX.Element => (
+export const SidebarHeader = (): React.ReactElement => (
     <div className='h-header flex flex-row items-center'>
         <div className='w-sidebar-icon absolute right-0'>
             <Image

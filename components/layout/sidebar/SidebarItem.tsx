@@ -1,22 +1,26 @@
 'use client'
 
 // React imports
-import { useCallback, useState } from 'react';
+import { FC, memo, useCallback, useState } from 'react';
 
 // Libraries imports
-import { AnimatePresence, easeInOut, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { usePathname } from 'next/navigation';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
 
 // Local imports
 import { route } from '@/lib/types/route';
-import Link from 'next/link';
 
-interface ISidebarItem {
+// Dynamic imports
+const SidebarTooltip = dynamic(() => import('./SidebarTooltip'));
+
+interface Props {
     route: route;
-}
+};
 
-export const SidebarItem = ({ route }: ISidebarItem): JSX.Element => {
+export const SidebarItem: FC<Props> = memo(function SidebarItem({ route }) {
     const pathName = usePathname();
     const [isOver, setIsOver] = useState<boolean>(false);
     const itemIsActualRoute = useCallback(() => pathName?.includes(`/private/${route.path}`), [pathName, route.path]);
@@ -31,39 +35,11 @@ export const SidebarItem = ({ route }: ISidebarItem): JSX.Element => {
             <AnimatePresence>
                 {
                     isOver &&
-                    <motion.div
-                        className='absolute h-header flex flex-row items-center cursor-default text-custom-white'
-                        initial={{
-                            left: 40,
-                            opacity: 0,
-                        }}
-                        animate={{
-                            left: 60,
-                            opacity: 1,
-                            transition: {
-                                duration: .3,
-                                ease: easeInOut
-                            }
-                        }}
-                        exit={{
-                            opacity: 0,
-                            transition: {
-                                duration: .3,
-                                ease: easeInOut
-                            }
-                        }}
+                    <SidebarTooltip
                         onMouseEnter={() => setIsOver(true)}
                         onMouseLeave={() => setIsOver(false)}
-                    >
-                        <div className='w-5 h-5 bg-secondary-500 rotate-45' />
-                        <div className={`
-                            absolute left-1 text-center whitespace-nowrap px-4 
-                            py-1 bg-secondary-500 rounded-lg select-none
-                        `}
-                        >
-                            {route.name}
-                        </div>
-                    </motion.div>
+                        route={route}
+                    />
                 }
             </AnimatePresence>
             {/* Item */}
@@ -85,5 +61,5 @@ export const SidebarItem = ({ route }: ISidebarItem): JSX.Element => {
                 </div>
             </Link>
         </li>
-    )
-}
+    );
+});
