@@ -1,6 +1,8 @@
 // Libraries imports
 import { redirect } from 'next/navigation';
 
-export default async function Private() {
+const Private = () => {
     redirect('/private/documents');
 };
+
+export default Private;
