@@ -12,7 +12,6 @@ import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
 import './TreeView.css';
 import ContextMenu from './ContextMenu/ContextMenu';
 
-
 const itemRender = (params: any): React.ReactElement => {
     if (!params.isDirectory) return <></>;
     return (
@@ -27,29 +26,9 @@ const itemRender = (params: any): React.ReactElement => {
 
 interface Props {
     dataSource: any;
-    permissions?: {
-        copy: boolean;
-        create: boolean;
-        delete: boolean;
-        download: boolean;
-        move: boolean;
-        rename: boolean;
-        upload: boolean;
-    };
 };
 
-export const TreeView = ({
-    dataSource,
-    permissions = {
-        copy: true,
-        create: true,
-        delete: true,
-        download: true,
-        move: true,
-        rename: true,
-        upload: true
-    },
-}: Props): React.ReactElement => {
+export const TreeView = ({ dataSource }: Props): React.ReactElement => {
     const [selectedTreeItem, setSelectedTreeItem] = useState<any>(undefined);
 
     return (
@@ -69,7 +48,6 @@ export const TreeView = ({
             <ContextMenu
                 dataSource={dataSource}
                 selectedTreeItem={selectedTreeItem}
-                permissions={permissions}
             />
         </div>
     );

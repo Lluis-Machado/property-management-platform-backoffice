@@ -53,29 +53,11 @@ const updateDisabledStatus = (treeNode: any, id: string): any => {
 
 interface Props {
     dataSource: any;
-    permissions?: {
-        copy: boolean;
-        create: boolean;
-        delete: boolean;
-        download: boolean;
-        move: boolean;
-        rename: boolean;
-        upload: boolean;
-    };
     selectedTreeItem: any;
 };
 
 export const ContextMenu = ({
     dataSource,
-    permissions = {
-        copy: true,
-        create: true,
-        delete: true,
-        download: true,
-        move: true,
-        rename: true,
-        upload: true
-    },
     selectedTreeItem
 }: Props): React.ReactElement => {
     const ContextMenuRef = useRef<DxContextMenu>(null);
@@ -189,12 +171,12 @@ export const ContextMenu = ({
                 onItemClick={handleContextMenuItemClick}
                 hideOnOutsideClick
             >
-                <Item closeMenuOnClick icon='newfolder' text='New directory' visible={permissions.create} />
-                <Item closeMenuOnClick icon='upload' text='Upload files' visible={permissions.upload} />
-                <Item closeMenuOnClick icon='rename' text='Rename' visible={!isRootFolder() && permissions.rename} />
-                <Item closeMenuOnClick icon='movetofolder' text='Move to' visible={!isRootFolder() && permissions.move} />
-                <Item closeMenuOnClick icon='copy' text='Copy to' visible={!isRootFolder() && permissions.copy} />
-                <Item closeMenuOnClick icon='trash' text='Delete' visible={!isRootFolder() && permissions.delete} />
+                <Item closeMenuOnClick icon='newfolder' text='New directory' />
+                <Item closeMenuOnClick icon='upload' text='Upload files' />
+                <Item closeMenuOnClick icon='rename' text='Rename' visible={!isRootFolder()} />
+                <Item closeMenuOnClick icon='movetofolder' text='Move to' visible={!isRootFolder()} />
+                <Item closeMenuOnClick icon='copy' text='Copy to' visible={!isRootFolder()} />
+                <Item closeMenuOnClick icon='trash' text='Delete' visible={!isRootFolder()} />
                 <Item closeMenuOnClick beginGroup icon='refresh' text='Refresh' />
             </DxContextMenu>
             {
