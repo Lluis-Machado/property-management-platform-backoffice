@@ -1,12 +1,14 @@
-import Image from 'next/image'
+// Libraries imports
+import Image from 'next/image';
+
+// Local imports
 import logoPng from '@/public/WUF_BACKOFFICE.png';
 
 interface Props {
   children: React.ReactNode;
-}
+};
 
-export default async function RootLayout({ children }: Props) {
-
+export default function RootLayout({ children }: Props): React.ReactElement {
   return (
     <>
       <div className="h-screen bg-white">
@@ -38,5 +40,5 @@ export default async function RootLayout({ children }: Props) {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
