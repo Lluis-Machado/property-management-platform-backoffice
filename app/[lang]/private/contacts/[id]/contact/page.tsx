@@ -1,8 +1,9 @@
-import ContactPage from "@/components/pages/contacts/ContactPage";
+// Local imports
+import ContactPage from '@/components/pages/contacts/ContactPage';
 
 interface Props {
-    params: { id: string }
-}
+    params: { id: string };
+};
 
 interface ContactValues {
     firstName?: string;
@@ -24,7 +25,7 @@ interface ContactValues {
     email?: string;
     telephoneNum?: string;
     cellphoneNum?: string;
-}
+};
 
 const page = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
 
@@ -58,7 +59,7 @@ const page = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
             <div className='text-lg text-secondary-500'>{`Contacts / Contact Info`}</div>
             <ContactPage initialValues={initialValues} />
         </>
-    )
-}
+    );
+};
 
-export default page
+export default page;

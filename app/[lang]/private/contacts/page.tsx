@@ -1,10 +1,9 @@
+// Local imports
 import ContactsPage from '@/components/pages/contacts/ContactsPage';
 import data from '@/components/pages/contacts/contactsPage.json';
 
-export default async function Contacts() {
+export default function Contacts(): React.ReactElement {
     return (
-        <>
-            <ContactsPage dataSource={data} />
-        </>
-    )
-}
+        <ContactsPage dataSource={data} />
+    );
+};
