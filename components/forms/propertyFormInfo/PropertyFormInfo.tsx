@@ -48,7 +48,7 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                             ]}
                             label="Type"
                             name="type"
-                            size="base"
+                            size="large"
                             defaultValue={{
                                 label: 'Vacational use',
                                 value: 'Vacational use'
@@ -87,7 +87,7 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                             ]}
                             label="Main Contact"
                             name="mainContact"
-                            size="base"
+                            size="large"
                             defaultValue={{
                                 label: 'Ruby Hope',
                                 value: 'Ruby Hope'
@@ -116,7 +116,7 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                             ]}
                             label="City"
                             name="city"
-                            size="base"
+                            size="large"
                             defaultValue={{
                                 label: 'Palma',
                                 value: 'Palma'
@@ -152,7 +152,7 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                             label="Province"
                             name="provinces"
                             isSearchable={true}
-                            size="base"
+                            size="large"
                             defaultValue={{
                                 label: 'Islas Baleares',
                                 value: 'Islas Baleares'
@@ -181,7 +181,7 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                             label="Country"
                             name="country"
                             isSearchable={true}
-                            size="base"
+                            size="large"
                             defaultValue={{
                                 label: 'Spain',
                                 value: 'Spain'
