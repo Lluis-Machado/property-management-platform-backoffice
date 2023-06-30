@@ -7,15 +7,15 @@ interface Props {
     params: { lang: Locale };
 };
 
-export default function FixedAssets({ params: { lang } }: Props): React.ReactElement {
-    return (
-        <>
-            <div className='text-l text-secondary-500 mt-4'>Accounting / Fixed Assets</div>
-            <FixedAssetsWrapper
-                dataSource={data}
-                selectedProperty='Test property'
-                lang={lang}
-            />
-        </>
-    );
-};
+const FixedAssets = ({ params: { lang } }: Props): React.ReactElement => (
+    <>
+        <div className='text-l text-secondary-500 mt-4'>Accounting / Fixed Assets</div>
+        <FixedAssetsWrapper
+            dataSource={data}
+            selectedProperty='Test property'
+            lang={lang}
+        />
+    </>
+);
+
+export default FixedAssets;

@@ -2,8 +2,8 @@
 import ContactsPage from '@/components/pages/contacts/ContactsPage';
 import data from '@/components/pages/contacts/contactsPage.json';
 
-export default function Contacts(): React.ReactElement {
-    return (
-        <ContactsPage dataSource={data} />
-    );
-};
+const Contacts = (): React.ReactElement => (
+    <ContactsPage dataSource={data} />
+);
+
+export default Contacts;
