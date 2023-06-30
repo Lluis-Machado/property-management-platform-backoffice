@@ -1,26 +1,18 @@
-"use client"
-
-import '@/lib/assets/dx.generic.pg-theme.css';
+// React imports
+import { FC, memo } from 'react';
 
 // Local imports
-// import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar'
+import { ContentWrapper } from './ContentWrapper';
 import { Locale } from '@/i18n-config';
-import { useEffect } from 'react';
-import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
+import Header from './header/Header';
+import Sidebar from './sidebar/Sidebar';
 
 interface Props {
     children: React.ReactNode,
     lang: Locale
 };
 
-const MainLayout = ({ children, lang }: Props) => {
-    
-    useEffect(() => {
-        localeDevExtreme(lang);
-    }, [lang]);
-
+const MainLayout: FC<Props> = memo(function MainLayout({ children, lang }) {
     return (
         <section className='w-screen min-h-screen bg-white'>
             {/* Sidebar */}
@@ -32,18 +24,12 @@ const MainLayout = ({ children, lang }: Props) => {
                 <header className='h-header w-full z-50 shadow-header'>
                     <Header lang={lang} />
                 </header>
-                <section
-                    className='flex flex-col flex-auto justify-start overflow-x-hidden'
-                    id='content'
-                >
-                    <div className='m-2'>
-                        {children}
-                    </div>
-                    {/* <div className='shadow-footer'> <Footer /> </div> */}
-                </section>
+                <ContentWrapper lang={lang}>
+                    {children}
+                </ContentWrapper>
             </section>
         </section>
-    )
-}
+    );
+});
 
-export default MainLayout
+export default MainLayout;
