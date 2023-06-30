@@ -33,7 +33,7 @@ export const Layout = ({ children, className = '', cols = 2 }: Props): JSX.Eleme
 
     return (
         <section className={className}>
-            <motion.div layout className='grid grid-cols-4 gap-6 md:grid-cols-8 lg:grid-cols-12'>
+            <motion.div layout className='grid grid-cols-4 gap-2 md:grid-cols-8 lg:grid-cols-12'>
                 {
                     children instanceof Array
                         ? children.map(renderChild)

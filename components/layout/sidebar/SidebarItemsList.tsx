@@ -1,14 +1,12 @@
-import 'server-only';
-
 // Local imports
 import { route } from '@/lib/types/route';
 import { SidebarItem } from './SidebarItem';
 
 interface Props {
     Routes: route[];
-}
+};
 
-export const SidebarItemsList = ({ Routes }: Props): JSX.Element => {
+export const SidebarItemsList = ({ Routes }: Props): React.ReactElement => {
     return (
         <nav>
             <ul className='w-full'>
@@ -17,5 +15,5 @@ export const SidebarItemsList = ({ Routes }: Props): JSX.Element => {
                 )}
             </ul>
         </nav>
-    )
-}
+    );
+};

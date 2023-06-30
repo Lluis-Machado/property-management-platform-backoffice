@@ -1,8 +1,3 @@
-'use client'
-
-//React imports
-//Library imports
-
 // Local imports
 import data from '@/components/datagrid/propertiesDatagrid/data.json';
 import PropertiesWrapper from '@/components/datagrid/propertiesDatagrid/PropertiesWrapper';
@@ -10,7 +5,7 @@ import PropertiesWrapper from '@/components/datagrid/propertiesDatagrid/Properti
 export default async function Properties() {
     return (
         <>
-            <div className='text-l text-secondary-500 ml-2 mt-4'>Properties</div>
+            <div className='text-l text-secondary-500 mt-4'>Select a property</div>
             <PropertiesWrapper
                 dataSource={data}
             />

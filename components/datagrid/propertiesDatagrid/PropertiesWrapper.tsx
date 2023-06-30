@@ -1,3 +1,5 @@
+'use client'
+
 // React imports
 import { useCallback } from 'react';
 // Library imports
