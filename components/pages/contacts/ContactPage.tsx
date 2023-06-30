@@ -40,7 +40,7 @@ const handleSubmit = async (
     }, 500);
 };
 
-const inputsList: { label: string, value: string }[] = [
+const taxResidenceSelectorInputs: { label: string, value: string }[] = [
     { label: 'Germany', value: 'de' },
     { label: 'Spain', value: 'es' },
     { label: 'France', value: 'fr' },
@@ -48,117 +48,86 @@ const inputsList: { label: string, value: string }[] = [
     { label: 'Italy', value: 'it' },
 ];
 
-const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => (
-    <div className='m-2'>
-        <Formik
-            initialValues={initialValues}
-            onSubmit={handleSubmit}
-        >
-            <Form>
-                <GroupItem cols={3} caption={'Contact Information'} >
-                    <Input
-                        name='firstName'
-                        label='First name'
-                    />
-                    <Input
-                        name='lastName'
-                        label='Last name'
-                    />
-                    <DatePicker
-                        name='dateOfBirth'
-                        label='Date of birth'
-                        defaultValue={initialValues.dateOfBirth ?? undefined}
-                        isClearable
-                    />
-                    <Select
-                        name='taxResidence'
-                        label='Tax residence'
-                        size='large'
-                        inputsList={inputsList}
-                        defaultValue={inputsList[0]}
-                    />
-                    <Input
-                        name='idCardNum'
-                        label='ID card number'
-                    />
-                    <Input
-                        name='idCardExpDate'
-                        label='ID card expiration date'
-                    />
-                    <Input
-                        name='passportNum'
-                        label='Passport Number'
-                    />
-                    <Input
-                        name='passportExpDate'
-                        label='Passport expiration date'
-                    />
-                    <Input
-                        name='nif'
-                        label='NIF'
-                    />
-                    <Input
-                        name='companyNumber'
-                        label='Company number'
-                    />
-                </GroupItem>
-                <GroupItem cols={3} caption='Adress Information' >
-                    <Input
-                        name='addressLine'
-                        label='Address line'
-                    />
-                    <Input
-                        name='city'
-                        label='City'
-                    />
-                    <Input
-                        name='region'
-                        label='Region'
-                    />
-                    <Input
-                        name='state'
-                        label='State'
-                    />
-                    <Input
-                        name='postalCode'
-                        label='Postal Code'
-                    />
-                    <Input
-                        name='country'
-                        label='Country'
-                    />
+interface Inputs {
+    name: string;
+    label: string
+};
 
-                    <Input
-                        name='email'
-                        label='Email'
-                    />
-                    <Input
-                        name='telephoneNum'
-                        label='Telephone number'
-                    />
-                    <Input
-                        name='cellphoneNum'
-                        label='Cellphone Number'
-                    />
-                </GroupItem>
-                <div className='flex justify-end py-4'>
-                    <div className='flex flex-row justify-between gap-2'>
-                        <Button
-                            elevated
-                            style='outline'
-                            type='reset'
-                            text='Reset'
+const contactInformationInputs: Inputs[] = [
+    { name: 'firstName', label: 'First name' },
+    { name: 'lastName', label: 'Last name' },
+    { name: 'idCardNum', label: 'ID card number' },
+    { name: 'idCardExpDate', label: 'ID card expiration date' },
+    { name: 'passportNum', label: 'Passport Number' },
+    { name: 'passportExpDate', label: 'Passport expiration date' },
+    { name: 'nif', label: 'NIF' },
+    { name: 'companyNumber', label: 'Company number' },
+];
+
+const addressInformationInputs: Inputs[] = [
+    { name: 'addressLine', label: 'Address line' },
+    { name: 'city', label: 'City' },
+    { name: 'region', label: 'Region' },
+    { name: 'state', label: 'State' },
+    { name: 'postalCode', label: 'Postal Code' },
+    { name: 'country', label: 'Country' },
+    { name: 'email', label: 'Email' },
+    { name: 'telephoneNum', label: 'Telephone number' },
+    { name: 'cellphoneNum', label: 'Cellphone Number' },
+];
+
+const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
+    return (
+        <div className='m-2'>
+            <Formik
+                initialValues={initialValues}
+                onSubmit={handleSubmit}
+            >
+                <Form>
+                    <GroupItem cols={3} caption='Contact Information' >
+                        {
+                            ...contactInformationInputs.slice(0, 2).map(input => <Input key={input.name} {...input} />)
+                        }
+                        <DatePicker
+                            name='dateOfBirth'
+                            label='Date of birth'
+                            defaultValue={initialValues.dateOfBirth ?? undefined}
+                            isClearable
                         />
-                        <Button
-                            elevated
-                            type='submit'
-                            text='Submit Changes'
+                        <Select
+                            name='taxResidence'
+                            label='Tax residence'
+                            size='large'
+                            inputsList={taxResidenceSelectorInputs}
+                            defaultValue={taxResidenceSelectorInputs[0]}
                         />
+                        {
+                            ...contactInformationInputs.slice(3).map(input => <Input key={input.name} {...input} />)
+                        }
+                    </GroupItem>
+                    <GroupItem cols={3} caption='Address Information' >
+                        {
+                            ...addressInformationInputs.map(input => <Input key={input.name} {...input} />)
+                        }
+                    </GroupItem>
+                    <div className='flex justify-end py-4'>
+                        <div className='flex flex-row justify-between gap-2'>
+                            <Button
+                                elevated
+                                style='outline'
+                                type='reset'
+                                text='Reset'
+                            />
+                            <Button
+                                elevated
+                                type='submit'
+                                text='Submit Changes'
+                            />
+                        </div>
                     </div>
-                </div>
-            </Form>
-        </Formik>
-    </div>
-);
-
+                </Form>
+            </Formik>
+        </div>
+    );
+};
 export default ContactPage;
