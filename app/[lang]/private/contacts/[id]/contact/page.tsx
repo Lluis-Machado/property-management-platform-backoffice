@@ -1,5 +1,5 @@
 // Local imports
-import ContactPage from '@/components/pages/contacts/contact/ContactPage';
+import ContactPage from '@/components/pages/contacts/ContactPage';
 
 interface Props {
     params: { id: string };
