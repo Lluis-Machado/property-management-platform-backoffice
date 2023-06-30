@@ -5,38 +5,16 @@ interface Props {
     params: { id: string };
 };
 
-interface ContactValues {
-    firstName?: string;
-    lastName?: string;
-    dateOfBirth?: string;
-    taxResidence?: string;
-    idCardNum?: string;
-    idCardExpDate?: string;
-    passportNum?: string;
-    passportExpDate?: string;
-    nif: string;
-    companyNumber?: string;
-    addressLine?: string;
-    city?: string;
-    region?: string;
-    state?: string;
-    postalCode?: string;
-    country?: string;
-    email?: string;
-    telephoneNum?: string;
-    cellphoneNum?: string;
-};
-
 // TODO: Fetching de datos desde el backend
-const initialValues: ContactValues = {
+const initialValues = {
     firstName: 'Peter',
     lastName: 'Pan',
     dateOfBirth: undefined,
     taxResidence: 'Germany',
     idCardNum: 'L7MJ28WPT',
-    idCardExpDate: '21/07/2026',
+    idCardExpDate: undefined,
     passportNum: 'IUT034536O',
-    passportExpDate: '14/02/2025',
+    passportExpDate: new Date('2023-06-29'),
     nif: '07626053N',
     companyNumber: '8765434767',
 
@@ -51,7 +29,8 @@ const initialValues: ContactValues = {
     telephoneNum: '(02552) 453615',
     cellphoneNum: '4915751628512'
 };
-const page = ({ params: { id } }: Props): React.ReactElement => (
+
+const Contact = async ({ params: { id } }: Props): Promise<React.ReactElement> => (
     <>
         <div className='text-lg text-secondary-500'>
             Contacts / Contact Info
@@ -60,4 +39,4 @@ const page = ({ params: { id } }: Props): React.ReactElement => (
     </>
 );
 
-export default page;
+export default Contact

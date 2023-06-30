@@ -1,3 +1,5 @@
+'use client'
+
 // React imports
 import { FC, memo } from 'react';
 
