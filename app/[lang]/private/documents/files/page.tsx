@@ -1,9 +1,10 @@
-import React from 'react'
+// Local imports
+import { DocumentsFilesWrapper } from "@/components/pages/documents/files/DocumentsFilesWrapper"
 
-const page = () => {
+const page = (): React.ReactElement => {
   return (
-    <div>Docs page</div>
-  )
-}
+    <DocumentsFilesWrapper />
+  );
+};
 
-export default page
+export default page;

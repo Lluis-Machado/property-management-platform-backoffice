@@ -1,50 +1,14 @@
 'use client'
 
-// React imports
-import { useCallback, useEffect } from 'react';
-
 // Libraries imports
-import { faFileInvoice } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { usePathname } from 'next/navigation';
-import DataGrid, { Column, Paging, SearchPanel, Toolbar, Item, Pager, Export, Editing } from 'devextreme-react/data-grid';
-import Link from 'next/link';
+import DataGrid, { Column, Paging, SearchPanel, Pager, Export, Editing } from 'devextreme-react/data-grid';
 
-// Local imports
-import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 
 interface Props {
     dataSource: any[];
 }
 
 const DataGridBusinessPartners = ({ dataSource }: Props) => {
-    const pathName = usePathname();
-
-    // useEffect(() => {
-    //     localeDevExtreme()
-    // }, []);
-
-    const getBasePath = useCallback(() => {
-        if (!pathName) return undefined;
-        let lastIndex = pathName.lastIndexOf('/');
-        if (lastIndex !== -1) {
-            return pathName.substring(0, lastIndex);
-        }
-        return pathName;
-    }, [pathName])
-
-    // const ViewExpensesCellRender = useCallback(({ data }: any) => {
-    //     const { name } = data;
-    //     return (
-    //         <Link href={`${getBasePath()}/expenses?bp=${name}`}>
-    //             <FontAwesomeIcon
-    //                 icon={faFileInvoice}
-    //                 className='text-primary-600 hover:scale-110 hover:text-primary-800'
-    //             />
-    //         </Link>
-    //     )
-    // }, [getBasePath]);
-
     return (
         <DataGrid
             dataSource={dataSource}
