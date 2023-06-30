@@ -1,6 +1,8 @@
 // Libraries imports
 import { redirect } from 'next/navigation';
 
-export default function Taxes() {
+const Taxes = () => {
     redirect('./taxes/declarations');
 };
+
+export default Taxes;

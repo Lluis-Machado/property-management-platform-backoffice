@@ -1,7 +1,5 @@
-const page = (): React.ReactElement => {
-  return (
-    <div>declarations page</div>
-  );
-};
+const page = (): React.ReactElement => (
+  <div>declarations page</div>
+);
 
 export default page;
