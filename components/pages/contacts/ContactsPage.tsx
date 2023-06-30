@@ -1,8 +1,11 @@
 'use client'
 
+// React imports
 import { useCallback } from 'react';
+
+// Libraries imports
 import { useRouter } from 'next/navigation';
-import DataGrid, { Column as DxColumn, SearchPanel, Toolbar, Item, Pager } from 'devextreme-react/data-grid';
+import { Column as DxColumn, DataGrid, Item, Pager, SearchPanel, Toolbar } from 'devextreme-react/data-grid';
 
 interface Props {
     dataSource: any[];
@@ -18,15 +21,15 @@ const ContactsPage = ({ dataSource }: Props) => {
     return (
         <div>
             <DataGrid
-                allowColumnResizing={true}
+                allowColumnResizing
                 columnHidingEnabled={false}
                 columnMinWidth={100}
                 dataSource={dataSource}
                 focusedRowEnabled
                 keyExpr='id'
+                onRowDblClick={handleDouleClick}
                 showBorders
                 showRowLines
-                onRowDblClick={handleDouleClick}
             >
                 <SearchPanel
                     searchVisibleColumnsOnly={false}

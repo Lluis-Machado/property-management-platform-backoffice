@@ -9,6 +9,7 @@ import PopupPreview from '@/components/popups/PopupPreview';
 import ARInvoicesDatagrid from './ARInvoicesDatagrid';
 import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 import { Locale } from '@/i18n-config';
+import { PopupVisibility } from '@/lib/types/Popups';
 
 interface Props {
     data: Invoice[];
@@ -17,18 +18,18 @@ interface Props {
 
 const IncomeWrapper = ({ data, lang }: Props) => {
     const [invoiceURL, setInvoiceURL] = useState<string>('#');
-    const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false);
+    const [popupVisibility, setPopupVisibility] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
     const [popupTitle, setPopupTitle] = useState<string>('');
 
 
     useEffect(() => {
         localeDevExtreme(lang)
     }, [lang]);
-    
+
     const onClickHandler = useCallback((title: string, url: string) => {
-        setIsPopupVisible(true);
         setPopupTitle(title);
         setInvoiceURL(url);
+        setPopupVisibility(p => ({ ...p, visible: true }));
     }, []);
 
     return (
@@ -41,12 +42,13 @@ const IncomeWrapper = ({ data, lang }: Props) => {
             />
             {/* Document Preview Popup */}
             {
-                popupTitle &&
+                (popupVisibility.visible || popupVisibility.hasBeenOpen) &&
                 <PopupPreview
                     fileURL={invoiceURL}
-                    isVisible={isPopupVisible}
-                    onClose={() => setIsPopupVisible(false)}
+                    isVisible={popupVisibility.visible}
+                    onClose={() => setPopupVisibility(p => ({ ...p, visible: false }))}
                     title={popupTitle}
+                    onShown={() => setPopupVisibility(p => ({ ...p, hasBeenOpen: true }))}
                 />
             }
         </>

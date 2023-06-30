@@ -1,8 +1,11 @@
 'use client'
 
-import DatePicker from '@/components/datepicker/DatePicker';
-import { Formik, Form, FormikHelpers } from 'formik';
+// Libraries imports
 import { Button, Input, Select } from 'pg-components';
+import { Formik, Form, FormikHelpers } from 'formik';
+
+// Local imports
+import DatePicker from '@/components/datepicker/DatePicker';
 import GroupItem from '../../layoutComponent/GroupItem';
 
 interface ContactValues {
@@ -25,20 +28,55 @@ interface ContactValues {
     email?: string;
     telephoneNum?: string;
     cellphoneNum?: string;
-}
+};
+
+const handleSubmit = async (
+    values: ContactValues,
+    { setSubmitting }: FormikHelpers<ContactValues>
+) => {
+    setTimeout(() => {
+        alert(JSON.stringify(values, null, 2));
+        setSubmitting(false);
+    }, 500);
+};
+
+const taxResidenceSelectorInputs: { label: string, value: string }[] = [
+    { label: 'Germany', value: 'de' },
+    { label: 'Spain', value: 'es' },
+    { label: 'France', value: 'fr' },
+    { label: 'Russia', value: 'ru' },
+    { label: 'Italy', value: 'it' },
+];
+
+interface Inputs {
+    name: string;
+    label: string
+};
+
+const contactInformationInputs: Inputs[] = [
+    { name: 'firstName', label: 'First name' },
+    { name: 'lastName', label: 'Last name' },
+    { name: 'idCardNum', label: 'ID card number' },
+    { name: 'idCardExpDate', label: 'ID card expiration date' },
+    { name: 'passportNum', label: 'Passport Number' },
+    { name: 'passportExpDate', label: 'Passport expiration date' },
+    { name: 'nif', label: 'NIF' },
+    { name: 'companyNumber', label: 'Company number' },
+];
+
+const addressInformationInputs: Inputs[] = [
+    { name: 'addressLine', label: 'Address line' },
+    { name: 'city', label: 'City' },
+    { name: 'region', label: 'Region' },
+    { name: 'state', label: 'State' },
+    { name: 'postalCode', label: 'Postal Code' },
+    { name: 'country', label: 'Country' },
+    { name: 'email', label: 'Email' },
+    { name: 'telephoneNum', label: 'Telephone number' },
+    { name: 'cellphoneNum', label: 'Cellphone Number' },
+];
 
 const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
-
-    const handleSubmit = async (
-        values: ContactValues,
-        { setSubmitting }: FormikHelpers<ContactValues>
-    ) => {
-        setTimeout(() => {
-            alert(JSON.stringify(values, null, 2));
-            setSubmitting(false);
-        }, 500);
-    };
-
     return (
         <div className='m-2'>
             <Formik
@@ -46,15 +84,10 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                 onSubmit={handleSubmit}
             >
                 <Form>
-                    <GroupItem cols={3} caption={'Contact Information'} >
-                        <Input
-                            name="firstName"
-                            label={"First name"}
-                        />
-                        <Input
-                            name="lastName"
-                            label={"Last name"}
-                        />
+                    <GroupItem cols={3} caption='Contact Information' >
+                        {
+                            ...contactInformationInputs.slice(0, 2).map(input => <Input key={input.name} {...input} />)
+                        }
                         <DatePicker
                             name='dateOfBirth'
                             label='Date of birth'
@@ -65,78 +98,17 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                             name='taxResidence'
                             label='Tax residence'
                             size='large'
-                            inputsList={[
-                                { label: 'Germany', value: 'de' },
-                                { label: 'Spain', value: 'es' },
-                                { label: 'France', value: 'fr' },
-                                { label: 'Russia', value: 'ru' },
-                                { label: 'Italy', value: 'it' },
-                            ]}
-                            defaultValue={{ label: 'Germany', value: 'de' }}
+                            inputsList={taxResidenceSelectorInputs}
+                            defaultValue={taxResidenceSelectorInputs[0]}
                         />
-                        <Input
-                            name="idCardNum"
-                            label={"ID card number"}
-                        />
-                        <Input
-                            name="idCardExpDate"
-                            label={"ID card expiration date"}
-                        />
-                        <Input
-                            name="passportNum"
-                            label={"Passport Number"}
-                        />
-                        <Input
-                            name="passportExpDate"
-                            label={"Passport expiration date"}
-                        />
-                        <Input
-                            name="nif"
-                            label={"NIF"}
-                        />
-                        <Input
-                            name="companyNumber"
-                            label={"Company number"}
-                        />
+                        {
+                            ...contactInformationInputs.slice(3).map(input => <Input key={input.name} {...input} />)
+                        }
                     </GroupItem>
-                    <GroupItem cols={3} caption={'Adress Information'} >
-                        <Input
-                            name="addressLine"
-                            label={"Address line"}
-                        />
-                        <Input
-                            name="city"
-                            label={"City"}
-                        />
-                        <Input
-                            name="region"
-                            label={"Region"}
-                        />
-                        <Input
-                            name="state"
-                            label={"State"}
-                        />
-                        <Input
-                            name="postalCode"
-                            label={"Postal Code"}
-                        />
-                        <Input
-                            name="country"
-                            label={"Country"}
-                        />
-
-                        <Input
-                            name="email"
-                            label={"Email"}
-                        />
-                        <Input
-                            name="telephoneNum"
-                            label={"Telephone number"}
-                        />
-                        <Input
-                            name="cellphoneNum"
-                            label={"Cellphone Number"}
-                        />
+                    <GroupItem cols={3} caption='Address Information' >
+                        {
+                            ...addressInformationInputs.map(input => <Input key={input.name} {...input} />)
+                        }
                     </GroupItem>
                     <div className='flex justify-end py-4'>
                         <div className='flex flex-row justify-between gap-2'>
@@ -155,8 +127,7 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                     </div>
                 </Form>
             </Formik>
-        </div >
-    )
-}
-
-export default ContactPage
+        </div>
+    );
+};
+export default ContactPage;
