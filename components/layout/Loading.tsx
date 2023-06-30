@@ -3,7 +3,7 @@
 // Libraries imports
 import { AnimatePresence, motion } from 'framer-motion';
 
-const Loading = ({ isLoading }: { isLoading: boolean }): JSX.Element => (
+const Loading = ({ isLoading }: { isLoading: boolean }): React.ReactElement => (
     <AnimatePresence>
         {isLoading && (
             <motion.div
