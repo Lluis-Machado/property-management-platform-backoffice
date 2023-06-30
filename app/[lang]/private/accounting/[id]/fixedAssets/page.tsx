@@ -9,7 +9,9 @@ interface Props {
 
 const FixedAssets = ({ params: { lang } }: Props): React.ReactElement => (
     <>
-        <div className='text-l text-secondary-500 mt-4'>Accounting / Fixed Assets</div>
+        <div className='text-l text-secondary-500 mt-4'>
+            Accounting / Fixed Assets
+        </div>
         <FixedAssetsWrapper
             dataSource={data}
             selectedProperty='Test property'

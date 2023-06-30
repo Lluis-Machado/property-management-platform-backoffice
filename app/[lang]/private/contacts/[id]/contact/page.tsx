@@ -53,7 +53,9 @@ const initialValues: ContactValues = {
 };
 const page = ({ params: { id } }: Props): React.ReactElement => (
     <>
-        <div className='text-lg text-secondary-500'>{`Contacts / Contact Info`}</div>
+        <div className='text-lg text-secondary-500'>
+            Contacts / Contact Info
+        </div>
         <ContactPage initialValues={initialValues} />
     </>
 );

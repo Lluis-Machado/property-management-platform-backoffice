@@ -4,7 +4,9 @@ import DataGridBusinessPartners from '@/components/datagrids/DataGridBusinessPar
 
 const page = (): React.ReactElement => (
   <>
-    <div className='text-l text-secondary-500 mt-4'>Accounting / Business Partners</div>
+    <div className='text-l text-secondary-500 mt-4'>
+      Accounting / Business Partners
+    </div>
     <DataGridBusinessPartners dataSource={data} />
   </>
 );

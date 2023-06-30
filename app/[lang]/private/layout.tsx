@@ -8,12 +8,10 @@ interface Props {
     params: { lang: Locale };
 };
 
-const RootLayout = ({ children, params: { lang } }: Props): React.ReactElement => {
-    return (
-        <MainLayout lang={lang}>
-            {children}
-        </MainLayout>
-    );
-};
+const RootLayout = ({ children, params: { lang } }: Props): React.ReactElement => (
+    <MainLayout lang={lang}>
+        {children}
+    </MainLayout>
+);
 
 export default RootLayout;

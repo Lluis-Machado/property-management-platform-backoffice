@@ -1,5 +1,7 @@
 const page = (): React.ReactElement => (
-  <div>Tenants page</div>
+  <div>
+    Tenants page
+  </div>
 );
 
 export default page;

@@ -8,11 +8,10 @@ interface Props {
 
 const page = ({ params: { lang } }: Props): React.ReactElement => (
   <>
-    <div className='text-l text-secondary-500 mt-4'>Accounting / AR Invoices</div>
-    <ARInvoicesWrapper
-      data={data}
-      lang={lang}
-    />
+    <div className='text-l text-secondary-500 mt-4'>
+      Accounting / AR Invoices
+    </div>
+    <ARInvoicesWrapper data={data} lang={lang} />
   </>
 );
 
