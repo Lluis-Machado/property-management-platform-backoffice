@@ -1,10 +1,8 @@
 // local imports
 import ProfilePage from '@/components/pages/ProfilePage';
 
-const page = (): React.ReactElement => {
-  return (
-    <ProfilePage />
-  );
-};
+const page = (): React.ReactElement => (
+  <ProfilePage />
+);
 
 export default page;
