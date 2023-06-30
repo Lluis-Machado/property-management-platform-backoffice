@@ -14,7 +14,7 @@ interface Props {
     /**
     * A date to set as default
     */
-    defaultValue?: string;
+    defaultValue?: Date;
     /**
     * Select text label
     */
@@ -52,7 +52,7 @@ const DatePicker = ({
     isReadOnly
 }: Props) => {
     const [menuIsOpen, setMenuIsOpen] = useState(false);
-    const [currentValue, setCurrentValue] = useState<any>(defaultValue && new Date(defaultValue));
+    const [currentValue, setCurrentValue] = useState(defaultValue);
 
     console.log("currentValue: ", currentValue)
 
@@ -84,11 +84,9 @@ const DatePicker = ({
                             readOnly={isReadOnly}
                             onFocusIn={() => setMenuIsOpen(true)}
                             onFocusOut={() => setMenuIsOpen(false)}
-                            onValueChange={(e) => {
-                                console.log("EEEEEEEEEEEEEEEEEEE vale: ", e)
-                                const onlyDate = DateTime.fromJSDate(e).toISODate()
-                                const date = DateTime.fromISO(onlyDate!, {zone: 'utc'}).toJSDate()
-                                console.log("HEH DALE: ", date)
+                            onValueChange={(date) => {
+                                // const isoDate = DateTime.fromJSDate(e).toISODate()
+                                // const date = DateTime.fromISO(isoDate!, {zone: 'utc'}).toJSDate()
                                 setCurrentValue(date)
                                 form.setFieldValue(name, date)
                             }}

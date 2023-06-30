@@ -11,12 +11,12 @@ import GroupItem from '../../layoutComponent/GroupItem';
 interface ContactValues {
     firstName?: string;
     lastName?: string;
-    dateOfBirth?: string;
+    dateOfBirth?: Date;
     taxResidence?: string;
     idCardNum?: string;
-    idCardExpDate?: string;
+    idCardExpDate?: Date;
     passportNum?: string;
-    passportExpDate?: string;
+    passportExpDate?: Date;
     nif: string;
     companyNumber?: string;
     addressLine?: string;
@@ -34,7 +34,8 @@ const handleSubmit = async (
     values: ContactValues,
     { setSubmitting }: FormikHelpers<ContactValues>
 ) => {
-    console.log("PINGA")
+    console.log("PINGA: ", values)
+    // values.dateOfBirth = `${values.dateOfBirth.}`
     setTimeout(() => {
         alert(JSON.stringify(values, null, 2));
         setSubmitting(false);

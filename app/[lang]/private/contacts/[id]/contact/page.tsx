@@ -7,12 +7,12 @@ interface Props {
 interface ContactValues {
     firstName?: string;
     lastName?: string;
-    dateOfBirth?: string;
+    dateOfBirth?: Date;
     taxResidence?: string;
     idCardNum?: string;
-    idCardExpDate?: string;
+    idCardExpDate?: Date;
     passportNum?: string;
-    passportExpDate?: string;
+    passportExpDate?: Date;
     nif: string;
     companyNumber?: string;
     addressLine?: string;
@@ -24,9 +24,9 @@ interface ContactValues {
     email?: string;
     telephoneNum?: string;
     cellphoneNum?: string;
-}
+};
 
-const page = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
+const Contact = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
 
     // TODO: Fetching de datos desde el backend
     const initialValues: ContactValues = {
@@ -37,7 +37,7 @@ const page = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
         idCardNum: 'L7MJ28WPT',
         idCardExpDate: undefined,
         passportNum: 'IUT034536O',
-        passportExpDate: undefined,
+        passportExpDate: new Date('2023-06-29'),
         nif: '07626053N',
         companyNumber: '8765434767',
 
@@ -61,4 +61,4 @@ const page = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
     )
 }
 
-export default page
+export default Contact
