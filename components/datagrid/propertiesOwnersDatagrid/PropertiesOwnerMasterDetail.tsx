@@ -1,10 +1,8 @@
 //local imports
 
-
 interface Props {
     data: any;
 };
-
 
 const PropertiesOwnerMasterDetail = ({ data }: Props): React.ReactElement => {
     console.log(data)

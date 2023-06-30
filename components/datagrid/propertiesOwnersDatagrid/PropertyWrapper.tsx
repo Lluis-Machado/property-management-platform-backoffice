@@ -3,17 +3,16 @@
 
 // Libraries imports
 import { Tabs } from "pg-components";
+import { faFileLines, faNoteSticky, faReceipt, faUserGroup, faWarehouse } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // Local imports
 import PropertyFormInfo from "@/components/forms/propertyFormInfo/PropertyFormInfo"
 import { PropertyFormInterface } from "@/lib/types/propertyInfo";
 import PropertiesOwnersDatagrid from "./PropertiesOwnersDatagrid";
-import data from "./data.json"
 import PropertyTextArea from "@/components/textArea/PropertyTextArea";
-import { faFileLines, faNoteSticky, faReceipt, faUserGroup, faWarehouse } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import data from "./data.json"
 interface Props {
     id: string;
 };
@@ -27,9 +26,9 @@ const PropertyWrapper = ({id} : Props) : React.ReactElement => {
         mainContact: 'Sr. Schaller',
         addressLine1: 'Calle...',
         city: 'Palma',
-        state: 'Illes Balears',
         postalCode: '07010',
-        country: 'España',
+        provinces: 'Islas Baleares',
+        country: 'Spain',
     };
     return (
         <>

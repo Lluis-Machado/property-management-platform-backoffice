@@ -34,8 +34,13 @@ const PropertyTextArea = () => {
                         <Button
                             elevated
                             style='outline'
+                            type='reset'
+                            text='Reset'
+                        />
+                        <Button
+                            elevated
                             type='submit'
-                            text='Save'
+                            text='Submit'
                         />
                     </div>
                 </div>
