@@ -1,9 +1,7 @@
-import React from 'react'
-
-const page = () => {
+const page = (): React.ReactElement => {
   return (
     <div>Users page</div>
-  )
-}
+  );
+};
 
-export default page
+export default page;

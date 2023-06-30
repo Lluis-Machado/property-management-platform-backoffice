@@ -1,5 +1,6 @@
+// Libraries imports
 import { redirect } from 'next/navigation';
 
-export default async function Administration() {
+export default function Administration() {
     redirect('./administration/settings');
-}
+};
