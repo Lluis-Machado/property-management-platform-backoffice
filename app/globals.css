@@ -23,6 +23,8 @@
 	--WuF_Blue: theme(colors.secondary.500);
 	--WuF_Gold: theme(colors.primary.500);
 	--WuF_White: theme(colors.custom-white);
+	--Slate_200: theme(colors.slate.200);
+	--Slate_500: theme(colors.slate.500);
 }
 
 * {
@@ -42,4 +44,29 @@
 
 .overflow-y-overlay {
 	overflow-y: overlay;
+}
+.dx-texteditor.dx-editor-outlined.dx-datebox-date.dx-datebox-calendar {
+	border: 0 !important;
+    border-bottom: 1px solid var(--Slate_200) !important;
+    border-radius: 0 !important;
+	transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.dx-texteditor.dx-editor-outlined.dx-datebox-date.dx-datebox-calendar.dx-state-focused {
+    border-bottom: 1px solid var(--WuF_Gold) !important;
+	transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.dx-dropdowneditor-icon {
+	color: var(--Slate_500) !important;
+}
+
+.dx-texteditor-input {
+	color: var(--Slate_500) !important;
+	font-size: 1rem !important;
+    line-height: 1.5rem !important;
 }

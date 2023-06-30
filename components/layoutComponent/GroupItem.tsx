@@ -10,9 +10,9 @@ interface Props {
 export const GroupItem = ({ caption, children, cols = 2 }: Props): JSX.Element => (
     <>
         {
-            caption && <div className='mb-3'>
-                <h3 className='text-primary-500 font-bold text-xl'>{caption}</h3>
-                <hr className='border-primary-500/50' />
+            caption && <div className='mb-5'>
+                <h3 className='text-secondary-500 font-bold text-xl'>{caption}</h3>
+                <hr className='border-secondary-500/50' />
             </div>
         }
         <Layout cols={cols}>
