@@ -22,7 +22,7 @@ const ChangePwPopup = ({ isVisible, onClose }: PopupProps) => {
                 </div>
             </div>
         )
-    }, [])
+    }, [onClose])
     const titleComponent = useCallback(() => {
         return (
             <div className='flex justify-between'>
@@ -31,7 +31,7 @@ const ChangePwPopup = ({ isVisible, onClose }: PopupProps) => {
                 </div>
             </div>
         )
-    }, [onClose]);
+    }, []);
     return (
         <Popup
             contentRender={contentRender}
