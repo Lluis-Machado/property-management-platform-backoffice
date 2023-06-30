@@ -1,11 +1,10 @@
-import ProfilePage from "@/components/pages/ProfilePage"
+// local imports
+import ProfilePage from '@/components/pages/ProfilePage';
 
-const page = () => {
+const page = (): React.ReactElement => {
   return (
-    <>
-      <ProfilePage />
-    </>
-  )
-}
+    <ProfilePage />
+  );
+};
 
-export default page
+export default page;
