@@ -10,7 +10,7 @@ interface Props {
     children: React.ReactNode;
     className?: string;
     cols?: LayoutColsAmount;
-}
+};
 
 const getItemSpan = (cols: LayoutColsAmount): string => {
     const spans: Record<LayoutColsAmount, string> = {
@@ -21,9 +21,9 @@ const getItemSpan = (cols: LayoutColsAmount): string => {
         6: 'lg:col-span-2',
     }
     return `col-span-4 ${spans[cols]}`;
-}
+};
 
-export const Layout = ({ children, className = '', cols = 2 }: Props): JSX.Element => {
+export const Layout = ({ children, className = '', cols = 2 }: Props): React.ReactElement => {
 
     const renderChild = useCallback((child: React.ReactNode, key: number) => (
         <motion.div layout='position' className={getItemSpan(cols)} key={key}>
@@ -41,7 +41,7 @@ export const Layout = ({ children, className = '', cols = 2 }: Props): JSX.Eleme
                 }
             </motion.div>
         </section>
-    )
-}
+    );
+};
 
 export default Layout;
