@@ -3,6 +3,8 @@ import { FormError } from 'pg-components';
 import DateBox from 'devextreme-react/date-box';
 import classNames from 'classnames';
 import { useState } from 'react';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import { DateTime } from 'luxon';
 
 interface Props {
     /**
@@ -50,7 +52,7 @@ const DatePicker = ({
     isReadOnly
 }: Props) => {
     const [menuIsOpen, setMenuIsOpen] = useState(false);
-    const [currentValue, setCurrentValue] = useState(defaultValue);
+    const [currentValue, setCurrentValue] = useState<any>(defaultValue);
 
     console.log(currentValue)
 
@@ -73,7 +75,8 @@ const DatePicker = ({
                             {...field}
                             type="date"
                             className='h-12'
-                            displayFormat="shortdate"
+                            //@ts-ignore
+                            displayFormat={dateFormat}
                             useMaskBehavior
                             defaultValue={defaultValue}
                             showClearButton={isClearable}
@@ -82,6 +85,9 @@ const DatePicker = ({
                             onFocusIn={() => setMenuIsOpen(true)}
                             onFocusOut={() => setMenuIsOpen(false)}
                             onValueChange={(e) => {
+                                console.log("EEEEEEEEEEEEEEEEEEE vale: ", e)
+                                // const formattedDate = DateTime.fromJSDate(e).toFormat('dd/MM/yyyy')
+                                // console.log("El blu leibel vale: ", formattedDate)
                                 setCurrentValue(e)
                                 form.setFieldValue(name, e)
                             }}
