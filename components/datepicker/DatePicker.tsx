@@ -76,7 +76,6 @@ const DatePicker = ({
                             className='h-12'
                             //@ts-ignore
                             displayFormat={dateFormat}
-                            useMaskBehavior
                             defaultValue={defaultValue}
                             showClearButton={isClearable}
                             disabled={isDisabled}
