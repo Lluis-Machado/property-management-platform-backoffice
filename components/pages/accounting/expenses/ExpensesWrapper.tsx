@@ -6,16 +6,16 @@ import { useState } from 'react';
 // Local imports
 import { Locale } from '@/i18n-config';
 import { PopupVisibility } from '@/lib/types/Popups';
-import DataGrid from './Datagrid';
 import PopupPreview from '@/components/popups/PopupPreview';
+import DataGrid from './DataGrid';
 
 interface Props {
     data: any[]
-    params: { lang: Locale };
+    lang: Locale;
     searchParams: { searchParams: any };
 };
 
-const ExpensesWrapper = ({ data, params: { lang }, searchParams }: Props): React.ReactElement => {
+const ExpensesWrapper = ({ data, lang , searchParams }: Props): React.ReactElement => {
     const [invoiceVisibility, setInvoiceVisibility] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
     const [invoicePreviewTitle, setInvoicePreviewTitle] = useState<string>('');
     const [invoicePreviewURL, setInvoicePreviewURL] = useState<string>('');

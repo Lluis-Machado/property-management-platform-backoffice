@@ -24,7 +24,7 @@ export default async function ApInvoices({ params: {lang, id}, searchParams }: P
   const data = await getData(id)
   return (
     <ExpensesWrapper
-        dataSource={data}
+        data={data}
         searchParams={searchParams}
         lang = {lang}
     />
