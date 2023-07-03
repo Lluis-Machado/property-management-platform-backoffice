@@ -2,9 +2,7 @@
 // React imports
 
 //Local imports
-//import data from '@/components/datagrid/apinvoicesDatagrid/data.json';
-//import PopupPreview from '@/components/popups/PopupPreview';
-import ExpensesWrapper from '@/components/datagrid/apinvoicesDatagrid/ApInvoicesWrapper';
+import ExpensesWrapper from '@/components/datagrid/apinvoicesDatagrid/ExpensesWrapper';
 import { Locale } from '@/i18n-config';
 interface Props {
   params: { lang: Locale , id: string}
