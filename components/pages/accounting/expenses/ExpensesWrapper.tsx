@@ -6,7 +6,7 @@ import { useState } from 'react';
 // Local imports
 import { Locale } from '@/i18n-config';
 import { PopupVisibility } from '@/lib/types/Popups';
-import ApInvoicesDatagrid from '@/components/datagrid/apinvoicesDatagrid/ApInvoicesDatagrid';
+import DataGrid from './Datagrid';
 import PopupPreview from '@/components/popups/PopupPreview';
 
 interface Props {
@@ -22,7 +22,7 @@ const ExpensesWrapper = ({ data, params: { lang }, searchParams }: Props): React
     
     return (
         <>
-            <ApInvoicesDatagrid
+            <DataGrid
                 dataSource={data}
                 onInvoiceClick={(title, url) => {
                     setInvoicePreviewTitle(title);

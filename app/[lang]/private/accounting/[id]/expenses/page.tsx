@@ -1,6 +1,6 @@
 //Local imports
 import { Locale } from '@/i18n-config';
-import data from '@/components/datagrid/apinvoicesDatagrid/data.json';
+import data from '@/components/pages/accounting/expenses/data.json';
 import ExpensesWrapper from '@/components/pages/accounting/expenses/ExpensesWrapper';
 
 interface Props {

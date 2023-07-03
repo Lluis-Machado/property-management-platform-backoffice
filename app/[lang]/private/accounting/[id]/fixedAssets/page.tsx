@@ -1,7 +1,7 @@
 // Local imports
 import { Locale } from '@/i18n-config';
-import data from '@/components/datagrid/fixedAssetsDatagrid/data.json';
-import FixedAssetsWrapper from '@/components/datagrid/fixedAssetsDatagrid/FixedAssetsWrapper.tsx/FixedAssetsWrapper';
+import data from '@/components/pages/accounting/fixedAssets/data.json';
+import FixedAssetsWrapper from '@/components/pages/accounting/fixedAssets/FixedAssetsWrapper';
 
 interface Props {
     params: { lang: Locale };

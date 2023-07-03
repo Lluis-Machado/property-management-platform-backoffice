@@ -1,7 +1,7 @@
 'use client'
 
 // React imports
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 // Libraries imports
 import { faCheck, faXmark, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
@@ -9,8 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { usePathname } from 'next/navigation';
 import { Locale } from '@/i18n-config';
 import { Tooltip } from 'devextreme-react/tooltip';
-import DataGrid, { Column, Paging, SearchPanel, Pager, Export, Editing, HeaderFilter } from 'devextreme-react/data-grid';
-import PreviewFileCellRender from '../PreviewFileCellRender';
+import { DataGrid as DxDataGrid, Column, Paging, SearchPanel, Pager, Export, Editing, HeaderFilter } from 'devextreme-react/data-grid';
+import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
 
 // Local imports
@@ -71,8 +71,8 @@ interface Props {
 };
 
 
-const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.ReactElement => {
-    const dataGridRef = useRef<DataGrid>(null);
+const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.ReactElement => {
+    const dataGridRef = useRef<DxDataGrid>(null);
     const pathName = usePathname();
 
     useEffect(() => {
@@ -107,7 +107,7 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
     ), [onInvoiceClick]);
 
     return (
-        <DataGrid
+        <DxDataGrid
             dataSource={dataSource}
             keyExpr='invoiceNumber'
             showRowLines
@@ -238,8 +238,8 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
                 cellRender={InvoiceCellRender}
                 width={100}
             />
-        </DataGrid>
+        </DxDataGrid>
     )
 }
 
-export default ApInvoicesDatagrid
+export default DataGrid

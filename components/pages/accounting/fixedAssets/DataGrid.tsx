@@ -7,13 +7,12 @@ import { useCallback } from 'react';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { usePathname } from 'next/navigation';
-import DataGrid, { Column, Paging, SearchPanel, HeaderFilter, Pager, Export, Editing } from 'devextreme-react/data-grid';
+import { DataGrid as DxDataGrid, Column, Paging, SearchPanel, HeaderFilter, Pager, Export, Editing } from 'devextreme-react/data-grid';
 import { Locale } from '@/i18n-config';
-
 
 // Local imports
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
-import PreviewFileCellRender from '../../PreviewFileCellRender';
+import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
 
 interface Props {
     dataSource: any[];
@@ -23,7 +22,7 @@ interface Props {
     lang: Locale
 };
 
-const FixedAssetsDatagrid = ({
+const DataGrid = ({
     dataSource,
     onDepreciationClick,
     onInvoiceClick,
@@ -51,7 +50,7 @@ const FixedAssetsDatagrid = ({
 
     return (
         <>
-            <DataGrid
+            <DxDataGrid
                 dataSource={dataSource}
                 keyExpr='ID'
                 showRowLines
@@ -142,9 +141,9 @@ const FixedAssetsDatagrid = ({
                     cellRender={InvoiceCellRender}
                     width={100}
                 />
-            </DataGrid>
+            </DxDataGrid>
         </>
     )
 }
 
-export default FixedAssetsDatagrid
+export default DataGrid
