@@ -1,7 +1,7 @@
 //React import
 
 //Local imports
-import data from '@/components/datagrid/arInvoicesDatagrid/data.json';
+//import data from '@/components/datagrid/arInvoicesDatagrid/data.json';
 import { Locale } from '@/i18n-config';
 import ARInvoicesWrapper from '@/components/datagrid/arInvoicesDatagrid/ARInvoicesWrapper';
 interface Props {
@@ -23,7 +23,6 @@ async function getData(id: string) {
 
 export default async function ArInvoices({ params: { lang, id} }: Props) {
   const data = await getData(id)
-  console.log(data)
   return (
     <div>
       <div className='text-l text-secondary-500 mt-4'>Accounting / AR Invoices</div>
