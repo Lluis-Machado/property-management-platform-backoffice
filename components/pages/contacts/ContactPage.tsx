@@ -1,19 +1,22 @@
 'use client'
 
-import DatePicker from '@/components/datepicker/DatePicker';
-import { Formik, Form, FormikHelpers } from 'formik';
+// Libraries imports
 import { Button, Input, Select } from 'pg-components';
-import GroupItem from '../../layoutComponent/GroupItem';
+import { Formik, Form, FormikHelpers } from 'formik';
 
-interface ContactValues {
+// Local imports
+import GroupItem from '@/components/layoutComponent/GroupItem';
+import DatePicker from '@/components/datepicker/DatePicker';
+
+interface contactValues {
     firstName?: string;
     lastName?: string;
-    dateOfBirth?: string;
+    dateOfBirth?: Date;
     taxResidence?: string;
     idCardNum?: string;
-    idCardExpDate?: string;
+    idCardExpDate?: Date;
     passportNum?: string;
-    passportExpDate?: string;
+    passportExpDate?: Date;
     nif: string;
     companyNumber?: string;
     addressLine?: string;
@@ -25,20 +28,21 @@ interface ContactValues {
     email?: string;
     telephoneNum?: string;
     cellphoneNum?: string;
-}
+};
 
-const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
+const handleSubmit = async (
+    values: contactValues,
+    { setSubmitting }: FormikHelpers<contactValues>
+) => {
+    console.log("PINGA: ", values)
+    // values.dateOfBirth = `${values.dateOfBirth.}`
+    setTimeout(() => {
+        alert(JSON.stringify(values, null, 2));
+        setSubmitting(false);
+    }, 500);
+};
 
-    const handleSubmit = async (
-        values: ContactValues,
-        { setSubmitting }: FormikHelpers<ContactValues>
-    ) => {
-        setTimeout(() => {
-            alert(JSON.stringify(values, null, 2));
-            setSubmitting(false);
-        }, 500);
-    };
-
+const ContactPage = ({ initialValues }: { initialValues: contactValues }) => {
     return (
         <div className='m-2'>
             <Formik
@@ -78,17 +82,21 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                             name="idCardNum"
                             label={"ID card number"}
                         />
-                        <Input
+                        <DatePicker
                             name="idCardExpDate"
                             label={"ID card expiration date"}
+                            defaultValue={initialValues.idCardExpDate ?? undefined}
+                            isClearable
                         />
                         <Input
                             name="passportNum"
                             label={"Passport Number"}
                         />
-                        <Input
-                            name="passportExpDate"
+                        <DatePicker
+                            name='passportExpDate'
                             label={"Passport expiration date"}
+                            defaultValue={initialValues.passportExpDate ?? undefined}
+                            isClearable
                         />
                         <Input
                             name="nif"
@@ -156,7 +164,6 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                 </Form>
             </Formik>
         </div >
-    )
-}
-
-export default ContactPage
+    );
+};
+export default ContactPage;

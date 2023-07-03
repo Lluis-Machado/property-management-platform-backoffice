@@ -1,8 +1,8 @@
-import { user } from "./user";
+import { User } from './user';
 
 export type AuthSlice = {
     isLoggedIn: boolean;
-    userData: user | null;
-    login: (data: user) => void;
+    userData: User | null;
+    login: (data: User) => void;
     logout: () => void;
 };

@@ -1,9 +1,7 @@
-import React from 'react'
+const page = (): React.ReactElement => (
+  <div>
+    Loans page
+  </div>
+);
 
-const page = () => {
-  return (
-    <div>Loans page</div>
-  )
-}
-
-export default page
+export default page;

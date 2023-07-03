@@ -1,6 +1,3 @@
-//React imports
-//Library imports
-
 // Local imports
 import AccountingWrapper from "@/components/datagrid/accountingDatagrid/AccountingWrapper"
 //import data from '@/components/datagrid/propertiesDatagrid/data.json';

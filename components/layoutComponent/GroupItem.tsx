@@ -3,11 +3,11 @@ import Layout, { LayoutColsAmount } from "./Layout";
 
 interface Props {
     caption?: string;
-    children: JSX.Element | JSX.Element[];
+    children: React.ReactNode;
     cols?: LayoutColsAmount;
 }
 
-export const GroupItem = ({ caption, children, cols = 2 }: Props): JSX.Element => (
+export const GroupItem = ({ caption, children, cols = 2 }: Props): React.ReactElement => (
     <>
         {
             caption && <div className='mb-5'>

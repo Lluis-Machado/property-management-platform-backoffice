@@ -1,3 +1,5 @@
+'use client'
+
 // React imports
 import { useCallback, useEffect, useState } from 'react';
 
@@ -6,10 +8,12 @@ import dynamic from 'next/dynamic';
 
 // Local imports
 import '../../datagrid.css';
-import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
-import FixedAssetsDatagrid from './FixedAssetsDatagrid';
 import { Locale } from '@/i18n-config';
+import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
+import { PopupVisibility } from '@/lib/types/Popups';
+import FixedAssetsDatagrid from './FixedAssetsDatagrid';
 
+// Dynamic imports
 const Popup = dynamic(() => import('../../../popups/PopupInfo'));
 const PopupPreview = dynamic(() => import('../../../popups/PopupPreview'));
 
@@ -20,8 +24,8 @@ interface Props {
 };
 
 const FixedAssetsWrapper = ({ dataSource, lang }: Props): React.ReactElement => {
-    const [isDepreciationPopupVisible, setIsDepreciationPopupVisible] = useState<boolean>(false);
-    const [isInvoicePopupVisible, setIsInvoicePopupVisible] = useState<boolean>(false);
+    const [depreciationPopupVisibility, setDepreciationPopupVisiblity] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
+    const [invoicePopupVisibility, setInvoicePopupVisibility] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
     const [selectedFixedAsset, setSelectedFixedAsset] = useState<{ name: string, depreciation: any[] }>({ name: '', depreciation: [] });
     const [selectedInvoice, setSelectedInvoice] = useState<{ name: string, url: string }>({ name: '', url: '' });
 
@@ -31,12 +35,12 @@ const FixedAssetsWrapper = ({ dataSource, lang }: Props): React.ReactElement => 
 
     const handleDepreciationClick = useCallback((name: string, depreciation: any[]) => {
         setSelectedFixedAsset({ name, depreciation });
-        setIsDepreciationPopupVisible(true);
+        setDepreciationPopupVisiblity(p => ({ ...p, visible: true }));
     }, []);
 
     const handleInvoiceClick = useCallback((title: string, url: string) => {
         setSelectedInvoice({ name: title, url });
-        setIsInvoicePopupVisible(true);
+        setInvoicePopupVisibility(p => ({ ...p, visible: true }));
     }, []);
     return (
         <>
@@ -47,17 +51,25 @@ const FixedAssetsWrapper = ({ dataSource, lang }: Props): React.ReactElement => 
                 selectedProperty='Test property'
                 lang={lang}
             />
-            <Popup
-                data={selectedFixedAsset}
-                isVisible={isDepreciationPopupVisible}
-                onClose={() => setIsDepreciationPopupVisible(false)}
-            />
-            <PopupPreview
-                fileURL={selectedInvoice.url}
-                isVisible={isInvoicePopupVisible}
-                onClose={() => setIsInvoicePopupVisible(false)}
-                title={selectedInvoice.name}
-            />
+            {
+                (depreciationPopupVisibility.visible || depreciationPopupVisibility.hasBeenOpen) &&
+                <Popup
+                    data={selectedFixedAsset}
+                    isVisible={depreciationPopupVisibility.visible}
+                    onClose={() => setDepreciationPopupVisiblity(p => ({ ...p, visible: false }))}
+                    onShown={() => setDepreciationPopupVisiblity(p => ({ ...p, hasBeenOpen: true }))}
+                />
+            }
+            {
+                (invoicePopupVisibility.visible || invoicePopupVisibility.hasBeenOpen) &&
+                <PopupPreview
+                    fileURL={selectedInvoice.url}
+                    isVisible={invoicePopupVisibility.visible}
+                    onClose={() => setInvoicePopupVisibility(p => ({ ...p, visible: false }))}
+                    onShown={() => setInvoicePopupVisibility(p => ({ ...p, hasBeenOpen: true }))}
+                    title={selectedInvoice.name}
+                />
+            }
         </>
     )
 }

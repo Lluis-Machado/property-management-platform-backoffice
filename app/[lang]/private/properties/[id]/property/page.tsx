@@ -1,18 +1,16 @@
 // local imports
-import PropertyWrapper from "@/components/datagrid/propertiesOwnersDatagrid/PropertyWrapper"
-
+import PropertyFormInfo from '@/components/forms/propertyFormInfo/PropertyFormInfo';
 interface Props {
-  params: { id: string }
-}
+  params: { id: string };
+};
 
-const page = ({ params: { id } }: Props): React.ReactElement => {
+const page = ({ params: { id } }: Props): React.ReactElement => (
+  <>
+    <div className='text-l text-secondary-500 mb-3'>
+      {`Properties / ${id}`}
+    </div>
+    <PropertyFormInfo id={id} />
+  </>
+);
 
-  return (
-    <>
-      <div className='text-l text-secondary-500 mb-3'>{`Properties / ${id}/ Property Info`}</div>
-      <PropertyWrapper id = {id} />
-    </>
-  )
-}
-
-export default page
+export default page;

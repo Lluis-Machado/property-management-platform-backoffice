@@ -1,4 +1,4 @@
-import React from 'react'
+// Local imports
 import data from '@/components/datagrids/data.json';
 import DataGridBusinessPartners from '@/components/datagrids/DataGridBusinessPartners';
 interface Props {

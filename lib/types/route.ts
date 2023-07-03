@@ -1,13 +1,14 @@
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
+// Libraries imports
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
-export interface route {
+export interface Route {
     path: string;
     icon: IconProp;
     name: string;
-    children: routeChildren[];
-}
+    children: RouteChildren[];
+};
 
-interface routeChildren {
+interface RouteChildren {
     name: string;
     path: string;
-}
+};

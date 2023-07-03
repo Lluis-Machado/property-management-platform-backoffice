@@ -1,9 +1,8 @@
 // Local imports
-import { route } from '@/lib/types/route';
+import { Route } from '@/lib/types/route';
 import { SidebarItem } from './SidebarItem';
-
 interface Props {
-    Routes: route[];
+    Routes: Route[];
 };
 
 export const SidebarItemsList = ({ Routes }: Props): React.ReactElement => {

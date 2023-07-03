@@ -1,17 +1,18 @@
-import { tokenRes } from "./token";
+// Local imports
+import { TokenRes } from './token';
 
-export interface user {
-    token: tokenRes,
-    id: string,
-    email: string,
-    name: string,
-    nickname: string,
-    picture: string,
-    password: string | undefined,
+export interface User {
+    token:      TokenRes,
+    id:         string,
+    email:      string,
+    name:       string,
+    nickname:   string,
+    picture:    string,
+    password:   string | undefined,
     isLoggedIn: boolean
-}
+};
 
-export interface auth0User {
+export interface Auth0User {
     blocked:             boolean;
     created_at:          Date;
     email:               string;
@@ -28,11 +29,11 @@ export interface auth0User {
     last_ip:             string;
     last_login:          Date;
     logins_count:        number;
-}
+};
 
 export interface Identity {
     user_id:    string;
     provider:   string;
     connection: string;
     isSocial:   boolean;
-}
+};

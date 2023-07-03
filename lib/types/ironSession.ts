@@ -1,7 +1,7 @@
-import { user } from "./user";
+import { User } from './user';
 
-declare module "iron-session" {
+declare module 'iron-session' {
     interface IronSessionData {
-        user?: user
+        user?: User
     }
-}
+};

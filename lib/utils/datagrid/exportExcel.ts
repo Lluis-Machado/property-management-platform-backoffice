@@ -37,7 +37,7 @@ interface TableProperties {
      * Rows of data.
      */
     // rows?: any;
-}
+};
 
 interface StyleProperties {
     /**
@@ -60,7 +60,7 @@ interface StyleProperties {
      * Alternate columns shown with background colour
      */
     showColumnStripes?: boolean;
-}
+};
 
 interface TableColumnProperties {
     /**
@@ -83,9 +83,9 @@ interface TableColumnProperties {
      * Optional formula for custom functions.
      */
     totalsRowFormula?: any;
-}
+};
 
-type totalFunctions = 'none' | 'average' | 'countNums' | 'count' | 'max' | 'min' | 'stdDev' | 'var' | 'sum' | 'custom'
+type totalFunctions = 'none' | 'average' | 'countNums' | 'count' | 'max' | 'min' | 'stdDev' | 'var' | 'sum' | 'custom';
 
 export interface Column extends TableColumnProperties {
     /**
@@ -96,7 +96,7 @@ export interface Column extends TableColumnProperties {
      * Type of data that has the column.
      */
     type?: 'boolean' | 'date' | 'currency' | 'percentage';
-}
+};
 
 export interface ExportExcelProps {
     /**
@@ -106,9 +106,9 @@ export interface ExportExcelProps {
     fileProperties: {
         fileName: string;
         sheetName: string;
-    }
+    };
     tableProperties: TableProperties;
-}
+};
 
 export const exportExcel = async ({ dataSource, fileProperties, tableProperties }: ExportExcelProps) => {
     const { Workbook } = await import('exceljs');
@@ -134,7 +134,7 @@ export const exportExcel = async ({ dataSource, fileProperties, tableProperties 
                     return row;
                 }, [])
             ))
-        )
+        );
 
         const { columns, ref, ...rest } = tableProperties;
         worksheet.addTable({
@@ -143,7 +143,7 @@ export const exportExcel = async ({ dataSource, fileProperties, tableProperties 
             ref: ref ?? 'A1',
             rows: getRows(),
         });
-    }
+    };
 
     /**
      * Function that adjust all columns width to fit its content and adds a bit of padding.
@@ -153,7 +153,7 @@ export const exportExcel = async ({ dataSource, fileProperties, tableProperties 
             const lengths = column.values.map((v: any) => v.toString().length);
             const maxLength = Math.max(...lengths.filter((e: any) => !isNaN(e))) + 5;
             column.width = maxLength;
-        }
+        };
     };
 
     /**
@@ -181,7 +181,7 @@ export const exportExcel = async ({ dataSource, fileProperties, tableProperties 
             } else if (col.type == 'percentage') {
                 cell.numFmt = '0.00%';
             }
-        }
+        };
 
         worksheet.eachRow({ includeEmpty: true }, (row: any, rowNumber: any) => {
             row.eachCell((cell: any, colNumber: any) => {
@@ -191,13 +191,13 @@ export const exportExcel = async ({ dataSource, fileProperties, tableProperties 
                 // font
                 cell.font = {
                     name: 'Bahnschrift Condensed',
-                    color: { argb: 'fbfbfd' }
+                    color: { argb: 'fbfbfd' },
                 };
 
                 // alignment
 
                 // border
-                const borderStyle = { style: 'thin', color: { argb: 'fbfbfd' } }
+                const borderStyle = { style: 'thin', color: { argb: 'fbfbfd' } };
                 cell.border = {
                     top: borderStyle,
                     left: borderStyle,
@@ -213,12 +213,12 @@ export const exportExcel = async ({ dataSource, fileProperties, tableProperties 
                         argb: rowNumber == 1
                             ? 'b99f6c'
                             : '274158'
-                    }
+                    },
                 };
 
             });
         });
-    }
+    };
 
     addTable();
     columnsAutoWidth();

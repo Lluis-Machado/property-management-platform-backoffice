@@ -1,9 +1,7 @@
-import React from 'react'
+const page = (): React.ReactElement => (
+  <div>
+    Archives Page
+  </div>
+);
 
-const page = () => {
-  return (
-    <div>Archives Page</div>
-  )
-}
-
-export default page
+export default page;
