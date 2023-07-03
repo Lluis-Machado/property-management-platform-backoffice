@@ -1,109 +1,194 @@
 "use client"
-// react imports
+// React imports
 
-// local imports
+// Libraries imports
 import { Formik, Form, FormikHelpers } from 'formik';
-import { Button, Input } from 'pg-components';
+import { Button, Input, Select } from 'pg-components';
+
+// Local imports
 import GroupItem from '../../layoutComponent/GroupItem';
-interface PropertyValues {
-    name: string;
-    type: string;
-    catastralRef: string;
-    mainContact: string;
-    addressLine1: string
-    addressLine2: string;
-    city: string;
-    region: string;
-    state: string;
-    postalCode: string;
-    country: string;
+import { PropertyFormInterface } from '@/lib/types/propertyInfo';
+
+interface Props {
+    initialValues: any;
 }
 
-const PropertyFormInfo = () => {
-
-    const initialValues: PropertyValues = {
-        name: 'Villa Sonnenschein',
-        type: 'Apartment',
-        catastralRef: '13 077 A 018 00039 0000 FP',
-        mainContact: 'Sr. Schaller',
-        addressLine1: 'Calle...',
-        addressLine2: '',
-        city: 'Palma',
-        region: 'Mallorca',
-        state: 'Illes Balears',
-        postalCode: '07010',
-        country: 'España',
-    };
-
+const PropertyFormInfo = ({ initialValues }: Props) => {
     const handleSubmit = async (
-        values: PropertyValues,
-        { setSubmitting }: FormikHelpers<PropertyValues>
+        values: PropertyFormInterface,
+        { setSubmitting }: FormikHelpers<PropertyFormInterface>
     ) => {
         setTimeout(() => {
             alert(JSON.stringify(values, null, 2));
             setSubmitting(false);
         }, 500);
     };
-
     return (
-        <div className='m-2'>
-            <h5 className="mb-4 text-xl font-bold leading-tight text-secondary-500">
-                Property Information
-            </h5>
+        <div className='m-2 '>
             <Formik
                 initialValues={initialValues}
                 onSubmit={handleSubmit}
             >
-                <Form >
-                    <GroupItem cols={2} >
+                <Form>
+                    <GroupItem caption='Property Information' cols={4}>
                         <Input
                             name="name"
-                            label={"Name"}
+                            label="Name"
                         />
-                        <Input
+                        <Select
+                            inputsList={[
+                                {
+                                    label: 'Private',
+                                    value: 'Private'
+                                },
+                                {
+                                    label: 'Vacational use',
+                                    value: 'Vacational use'
+                                }
+                            ]}
+                            label="Type"
                             name="type"
-                            label={"Type"}
+                            size="large"
+                            defaultValue={{
+                                label: 'Vacational use',
+                                value: 'Vacational use'
+                            }}
                         />
                         <Input
                             name="catastralRef"
                             label={"Catastral Reference"}
                         />
-                        <Input
+                        <Select
+                            inputsList={[
+                                {
+                                    label: 'Bryon D. Rogers',
+                                    value: 'Bryon D. Rogers'
+                                },
+                                {
+                                    label: 'Joyce D. Wright',
+                                    value: 'Joyce D. Wright'
+                                },
+                                {
+                                    label: 'Laura V. Hust',
+                                    value: 'Laura V. Hust'
+                                },
+                                {
+                                    label: 'Leo Linger',
+                                    value: 'Leo Linger'
+                                },
+                                {
+                                    label: 'Milla Hamilton',
+                                    value: 'Milla Hamilton'
+                                },
+                                {
+                                    label: 'Ruby Hope',
+                                    value: 'Ruby Hope'
+                                }
+                            ]}
+                            label="Main Contact"
                             name="mainContact"
-                            label={"Main Contact"}
+                            size="large"
+                            defaultValue={{
+                                label: 'Ruby Hope',
+                                value: 'Ruby Hope'
+                            }}
                         />
-                        <div className='text-ml font-semibold leading-tight text-secondary-500'>Address</div>
-                        <></>
+                    </GroupItem>
+                    <GroupItem caption='Address Information' cols={4}>
                         <Input
                             name="addressLine1"
                             label={"Address line 1"}
                         />
                         <Input
-                            name="addressLine2"
-                            label={"Address line 2"}
-                        />
-                        <Input
-                            name="city"
-                            label={"City"}
-                        />
-                        <Input
-                            name="region"
-                            label={"Region"}
-                        />
-                        <Input
-                            name="state"
-                            label={"State"}
-                        />
-                        <Input
+                            label="Postal Code"
                             name="postalCode"
-                            label={"Postal Code"}
                         />
-                        <Input
+                        <Select
+                            inputsList={[
+                                {
+                                    label: 'Calvia',
+                                    value: 'Calvia'
+                                },
+                                {
+                                    label: 'Palma',
+                                    value: 'Palma'
+                                }
+                            ]}
+                            label="City"
+                            name="city"
+                            size="large"
+                            defaultValue={{
+                                label: 'Palma',
+                                value: 'Palma'
+                            }}
+                        />
+                        <Select
+                            inputsList={[{
+                                label: 'Alava',
+                                value: 'Alava'
+                            }, {
+                                label: 'Asturias',
+                                value: 'Asturias'
+                            }, {
+                                label: 'Barcelona',
+                                value: 'Barcelona'
+                            }, {
+                                label: 'Granada',
+                                value: 'Granada'
+                            }, {
+                                label: 'Huelva',
+                                value: 'Huelva'
+                            }, {
+                                label: 'Islas Baleares',
+                                value: 'Islas Baleares'
+                            }, {
+                                label: 'Madrid',
+                                value: 'Madrid'
+                            }, {
+                                label: 'Zaragoza',
+                                value: 'Zaragoza'
+                            }
+                            ]}
+                            label="Province"
+                            name="provinces"
+                            isSearchable={true}
+                            size="large"
+                            defaultValue={{
+                                label: 'Islas Baleares',
+                                value: 'Islas Baleares'
+                            }}
+                        />
+                        <Select
+                            inputsList={[{
+                                label: 'Andorra',
+                                value: 'Andorra'
+                            }, {
+                                label: 'Belgium',
+                                value: 'Belgium'
+                            }, {
+                                label: 'France',
+                                value: 'France'
+                            }, {
+                                label: 'United Kingdom',
+                                value: 'United Kingdom'
+                            }, {
+                                label: 'Spain',
+                                value: 'Spain'
+                            }, {
+                                label: 'Portugal',
+                                value: 'Portugal'
+                            }]}
+                            label="Country"
                             name="country"
-                            label={"Country"}
+                            isSearchable={true}
+                            size="large"
+                            defaultValue={{
+                                label: 'Spain',
+                                value: 'Spain'
+                            }}
                         />
                     </GroupItem>
-                    <div className='flex justify-end py-4'>
+                    <div className='flex justify-end'>
                         <div className='flex flex-row justify-between gap-2'>
                             <Button
                                 elevated
@@ -114,7 +199,7 @@ const PropertyFormInfo = () => {
                             <Button
                                 elevated
                                 type='submit'
-                                text='Submit Changes'
+                                text='Submit'
                             />
                         </div>
                     </div>

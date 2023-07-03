@@ -1,0 +1,26 @@
+[
+    {
+        "id": "6a848540-a568-46e4-a42f-0a1bb605ff77",
+        "contactId": "6a848540-a568-46e4-a42f-0a1bb605ff60",
+        "percentage": 25,
+        "main_contact": false
+    },
+    {
+        "id": "edb3a469-0c53-4786-9e58-e2ee4d23d0eb",
+        "contactId": "edb3a469-0c53-4786-9e58-e2ee4d23d061",
+        "percentage": 25,
+        "main_contact": false
+    },
+    {
+        "id": "fa8ce70b-6831-410f-8c1a-1b950a840620",
+        "contactId": "fa8ce70b-6831-410f-8c1a-1b950a840662",
+        "percentage": 25,
+        "main_contact": false
+    },
+    {
+        "id": "91095466-90a0-46e2-92c6-b8edba235003",
+        "contactId": "91095466-90a0-46e2-92c6-b8edba235063",
+        "percentage": 25,
+        "main_contact": true
+    }
+]

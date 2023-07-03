@@ -11,7 +11,7 @@ const DataGridBusinessPartners = ({ dataSource }: Props) => {
     return (
         <DataGrid
             dataSource={dataSource}
-            keyExpr='nif'
+            keyExpr='id'
             showRowLines
             allowColumnResizing
             rowAlternationEnabled
@@ -48,7 +48,7 @@ const DataGridBusinessPartners = ({ dataSource }: Props) => {
                 caption='Name'
             />
             <Column
-                dataField='nif'
+                dataField='vatNumber'
                 dataType='number'
                 alignment='left'
                 caption='NIF'
