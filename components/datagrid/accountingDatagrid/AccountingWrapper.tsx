@@ -4,7 +4,7 @@
 import { useRouter } from 'next/navigation';
 
 // Local imports
-import Datagrid from '../datagrid/Datagrid';
+import Datagrid from './Datagrid';
 
 interface Props {
     dataSource: any[];

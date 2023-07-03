@@ -99,6 +99,7 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
                 <ClearFilterButton />
             </div>
         ), [ClearFilterButton]);*/
+
     const InvoiceCellRender = useCallback(({ data }: { data: any }): React.ReactElement => (
         <PreviewFileCellRender
             onClick={() => onInvoiceClick(data.invoiceNumber, data.url)}
@@ -109,7 +110,7 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
     return (
         <DxDataGrid
             dataSource={dataSource}
-            keyExpr='invoiceNumber'
+            keyExpr='id'
             showRowLines
             defaultFilterValue={params.bp ? ['businessPartner', '=', params.bp] : undefined}
             allowColumnResizing
@@ -147,7 +148,7 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
             <Column
                 allowHeaderFiltering={false}
                 caption='Invoice Nr.'
-                dataField='invoiceNumber'
+                dataField='id'
                 dataType='string'
             />
             <Column
@@ -157,30 +158,29 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
                 width={100}
                 //@ts-ignore
                 format={dateFormat}
-                
             />
             <Column
                 caption='Business Partner'
-                dataField='businessPartner'
+                dataField='businessPartner.name'
                 dataType='string'
             />
             <Column
                 caption='Netto'
-                dataField='net'
+                dataField='netAmount'
                 dataType='number'
                 format={currencyFormat}
                 width={100}
             />
             <Column
                 caption='Bruto'
-                dataField='gross'
+                dataField='grossAmount'
                 dataType='number'
                 format={currencyFormat}
                 width={100}
             />
             <Column
                 caption='Service from date'
-                dataField='serviceFromDate'
+                dataField='invoiceLines[0].serviceDateFrom'
                 dataType='date'
                 width={100}
                 //@ts-ignore
@@ -188,7 +188,7 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
             />
             <Column
                 caption='Service end date'
-                dataField='serviceEndDate'
+                dataField='invoiceLines[0].serviceDateTo'
                 dataType='date'
                 //@ts-ignore
                 format={dateFormat}
@@ -204,7 +204,7 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
             />
             <Column
                 caption='Category'
-                dataField='category'
+                dataField='invoiceLines[0].expenseCategory.name'
                 dataType='string'
                 width={150}
             />
@@ -212,7 +212,7 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
                 allowGrouping={false}
                 allowHeaderFiltering={false}
                 caption='Description'
-                dataField='description'
+                dataField='invoiceLines[0].description'
                 dataType='string'
             />
             <Column
@@ -220,7 +220,6 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
                 caption='Reverse Charge'
                 cellRender={ReverseChargeCellRender}
                 dataField='reverseCharge'
-                hidingPriority={1}
                 width={150}
             >
                 <HeaderFilter
