@@ -21,13 +21,20 @@ interface Props {
     dataSource: any[];
     selectedProperty: string;
     lang: Locale;
+    years: string[];
 };
 
-const FixedAssetsWrapper = ({ dataSource, lang }: Props): React.ReactElement => {
+const FixedAssetsWrapper = ({ dataSource, lang, years }: Props): React.ReactElement => {
     const [depreciationPopupVisibility, setDepreciationPopupVisiblity] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
     const [invoicePopupVisibility, setInvoicePopupVisibility] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
     const [selectedFixedAsset, setSelectedFixedAsset] = useState<{ name: string, depreciation: any[] }>({ name: '', depreciation: [] });
     const [selectedInvoice, setSelectedInvoice] = useState<{ name: string, url: string }>({ name: '', url: '' });
+    const [selectedYear, setSelectedYear] = useState<string>(years[0]);
+
+    useEffect(() => {
+        // TODO: Filter dataSource by year.
+        console.log("Selected year: ", selectedYear);
+    }, [selectedYear]);
 
     useEffect(() => {
         localeDevExtreme(lang)
@@ -49,7 +56,10 @@ const FixedAssetsWrapper = ({ dataSource, lang }: Props): React.ReactElement => 
                 onDepreciationClick={handleDepreciationClick}
                 onInvoiceClick={handleInvoiceClick}
                 selectedProperty='Test property'
+                onYearChange={setSelectedYear}
                 lang={lang}
+                selectedYear={selectedYear}
+                years={years}
             />
             {
                 (depreciationPopupVisibility.visible || depreciationPopupVisibility.hasBeenOpen) &&

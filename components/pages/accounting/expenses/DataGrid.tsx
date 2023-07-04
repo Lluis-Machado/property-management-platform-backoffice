@@ -87,18 +87,6 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
         }
         return pathName;
     }, [pathName])
-    /*
-        const ClearFilterButton = useCallback((): React.ReactElement => (
-            <Button
-                text='Clear Filter'
-                onClick={() => { dataGridRef.current?.instance?.clearFilter() }}
-            />
-        ), [dataGridRef]);
-        const DesktopClearFilterButton = useCallback((): React.ReactElement => (
-            <div className='ml-8'>
-                <ClearFilterButton />
-            </div>
-        ), [ClearFilterButton]);*/
 
     const InvoiceCellRender = useCallback(({ data }: { data: any }): React.ReactElement => (
         <PreviewFileCellRender
