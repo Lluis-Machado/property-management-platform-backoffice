@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DataGrid, { Column, Paging, SearchPanel, Pager, Editing, Lookup, Summary, TotalItem } from 'devextreme-react/data-grid';
 
 // Local imports
-import OwnerDropdownComponent from '../../dropdowns/OwnerDropdownComponent';
+import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
 import contacts from './contacts.json';
 
 interface Props {
