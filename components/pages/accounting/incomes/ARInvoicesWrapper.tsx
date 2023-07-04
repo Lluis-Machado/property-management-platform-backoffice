@@ -6,7 +6,7 @@ import { useState, memo, useCallback, useEffect } from 'react';
 // Local imports
 import { Invoice } from '@/lib/types/invoices';
 import PopupPreview from '@/components/popups/PopupPreview';
-import ARInvoicesDatagrid from './ARInvoicesDatagrid';
+import DataGrid from './DataGrid';
 import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 import { Locale } from '@/i18n-config';
 import { PopupVisibility } from '@/lib/types/Popups';
@@ -35,7 +35,7 @@ const IncomeWrapper = ({ data, lang }: Props) => {
     return (
         <>
             {/* Data Grid */}
-            <ARInvoicesDatagrid
+            <DataGrid
                 dataSource={data}
                 onInvoiceClick={onClickHandler}
                 lang={lang}

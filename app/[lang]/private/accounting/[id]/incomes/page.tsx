@@ -1,7 +1,7 @@
 //Local imports
 import { Locale } from '@/i18n-config';
-import ARInvoicesWrapper from '@/components/datagrid/arInvoicesDatagrid/ARInvoicesWrapper';
-import data from '@/components/datagrid/arInvoicesDatagrid/data.json';
+import ARInvoicesWrapper from '@/components/pages/accounting/incomes/ARInvoicesWrapper';
+import data from '@/components/pages/accounting/incomes/data.json';
 interface Props {
   params: { 
     lang: Locale, 

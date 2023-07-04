@@ -1,5 +1,5 @@
 // Local imports
-import AccountingWrapper from "@/components/datagrid/accountingDatagrid/AccountingWrapper"
+import AccountingWrapper from "@/components/pages/accounting/AccountingWrapper"
 //import data from '@/components/datagrid/propertiesDatagrid/data.json';
 
 async function getData() {
