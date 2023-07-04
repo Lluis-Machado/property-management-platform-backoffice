@@ -49,10 +49,11 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                             label="Type"
                             name="type"
                             size="large"
+                            /*
                             defaultValue={{
                                 label: 'Vacational use',
                                 value: 'Vacational use'
-                            }}
+                            }}*/
                         />
                         <Input
                             name="catastralRef"
@@ -88,10 +89,11 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                             label="Main Contact"
                             name="mainContact"
                             size="large"
+                            /*
                             defaultValue={{
                                 label: 'Ruby Hope',
                                 value: 'Ruby Hope'
-                            }}
+                            }}*/
                         />
                     </GroupItem>
                     <GroupItem caption='Address Information' cols={4}>
@@ -117,10 +119,11 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                             label="City"
                             name="city"
                             size="large"
+                            /*
                             defaultValue={{
                                 label: 'Palma',
                                 value: 'Palma'
-                            }}
+                            }}*/
                         />
                         <Select
                             inputsList={[{
@@ -153,10 +156,11 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                             name="provinces"
                             isSearchable={true}
                             size="large"
+                            /*
                             defaultValue={{
                                 label: 'Islas Baleares',
                                 value: 'Islas Baleares'
-                            }}
+                            }}*/
                         />
                         <Select
                             inputsList={[{
@@ -182,10 +186,11 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                             name="country"
                             isSearchable={true}
                             size="large"
+                            /*
                             defaultValue={{
                                 label: 'Spain',
                                 value: 'Spain'
-                            }}
+                            }}*/
                         />
                     </GroupItem>
                     <div className='flex justify-end'>

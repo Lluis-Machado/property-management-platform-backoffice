@@ -65,17 +65,6 @@ const Datagrid = ({ dataSource, handleDoubleClick, basePath }: Props): React.Rea
                 dataField='name'
                 dataType='string'
             />
-            <DxColumn
-                caption='Contact Person'
-                dataField='primary_contact'
-                dataType='string'
-            />
-            <DxColumn
-                caption='Address'
-                dataField='address'
-                dataType='string'
-                allowHeaderFiltering={false}
-            />
         </DataGrid>
     )
 }

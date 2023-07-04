@@ -15,10 +15,11 @@ import PropertyTextArea from "@/components/textArea/PropertyTextArea";
 import data from "./data.json"
 interface Props {
     id: string;
+    //dataSource: [];
 };
 
 const PropertyWrapper = ({id} : Props) : React.ReactElement => {
-
+    
     const initialValues: PropertyFormInterface = {
         name: 'Villa Sonnenschein',
         type: 'Apartment',
