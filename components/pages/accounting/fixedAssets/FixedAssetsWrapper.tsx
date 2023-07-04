@@ -11,7 +11,7 @@ import './datagrid.css';
 import { Locale } from '@/i18n-config';
 import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 import { PopupVisibility } from '@/lib/types/Popups';
-import DataGrid from './Datagrid';
+import DataGrid from './DataGrid';
 
 // Dynamic imports
 const Popup = dynamic(() => import('../../../popups/PopupInfo'));

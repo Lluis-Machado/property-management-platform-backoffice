@@ -13,21 +13,28 @@ import { Locale } from '@/i18n-config';
 // Local imports
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
 import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
+import YearSelector from '@/components/datagrid/YearSelector';
 
 interface Props {
     dataSource: any[];
     onDepreciationClick: (name: string, depreciation: []) => void;
     onInvoiceClick: (title: string, url: string) => void;
+    onYearChange: (year: string) => void;
     selectedProperty: string;
-    lang: Locale
+    selectedYear: string;
+    lang: Locale;
+    years: string[];
 };
 
 const DataGrid = ({
     dataSource,
     onDepreciationClick,
     onInvoiceClick,
+    onYearChange,
     selectedProperty,
-    lang
+    selectedYear,
+    lang,
+    years
 }: Props): React.ReactElement => {
     const pathName = usePathname();
 
@@ -47,6 +54,10 @@ const DataGrid = ({
             url={data.url}
         />
     ), [onInvoiceClick]);
+
+    const YearSelect = useCallback((): React.ReactElement => (
+        <YearSelector years={years} onSelectionChanged={onYearChange} />
+    ), [onYearChange, years]);
 
     return (
         <>
