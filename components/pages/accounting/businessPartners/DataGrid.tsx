@@ -1,18 +1,17 @@
 'use client'
 
 // Libraries imports
-import DataGrid, { Column, Paging, SearchPanel, Pager, Export, Editing } from 'devextreme-react/data-grid';
-
+import { DataGrid as DxDataGrid,  Column, Paging, SearchPanel, Pager, Export, Editing } from 'devextreme-react/data-grid';
 
 interface Props {
     dataSource: any[];
-}
+};
 
-const DataGridBusinessPartners = ({ dataSource }: Props) => {
+const DataGrid = ({ dataSource }: Props) => {
     return (
-        <DataGrid
+        <DxDataGrid
             dataSource={dataSource}
-            keyExpr='nif'
+            keyExpr='id'
             showRowLines
             allowColumnResizing
             rowAlternationEnabled
@@ -49,7 +48,7 @@ const DataGridBusinessPartners = ({ dataSource }: Props) => {
                 caption='Name'
             />
             <Column
-                dataField='nif'
+                dataField='vatNumber'
                 dataType='number'
                 alignment='left'
                 caption='NIF'
@@ -71,8 +70,8 @@ const DataGridBusinessPartners = ({ dataSource }: Props) => {
                 width={150}
                 cellRender={ViewExpensesCellRender}
             /> */}
-        </DataGrid>
-    )
-}
+        </DxDataGrid>
+    );
+};
 
-export default DataGridBusinessPartners
+export default DataGrid;

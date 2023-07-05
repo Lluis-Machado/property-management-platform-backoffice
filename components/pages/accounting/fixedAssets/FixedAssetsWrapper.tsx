@@ -1,3 +1,5 @@
+'use client'
+
 // React imports
 import { useCallback, useEffect, useState } from 'react';
 
@@ -5,11 +7,11 @@ import { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
 // Local imports
-import '../../datagrid.css';
+import './datagrid.css';
 import { Locale } from '@/i18n-config';
 import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 import { PopupVisibility } from '@/lib/types/Popups';
-import FixedAssetsDatagrid from './FixedAssetsDatagrid';
+import DataGrid from './DataGrid';
 
 // Dynamic imports
 const Popup = dynamic(() => import('../../../popups/PopupInfo'));
@@ -19,13 +21,20 @@ interface Props {
     dataSource: any[];
     selectedProperty: string;
     lang: Locale;
+    years: string[];
 };
 
-const FixedAssetsWrapper = ({ dataSource, lang }: Props): React.ReactElement => {
+const FixedAssetsWrapper = ({ dataSource, lang, years }: Props): React.ReactElement => {
     const [depreciationPopupVisibility, setDepreciationPopupVisiblity] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
     const [invoicePopupVisibility, setInvoicePopupVisibility] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
     const [selectedFixedAsset, setSelectedFixedAsset] = useState<{ name: string, depreciation: any[] }>({ name: '', depreciation: [] });
     const [selectedInvoice, setSelectedInvoice] = useState<{ name: string, url: string }>({ name: '', url: '' });
+    const [selectedYear, setSelectedYear] = useState<string>(years[0]);
+
+    useEffect(() => {
+        // TODO: Filter dataSource by year.
+        console.log("Selected year: ", selectedYear);
+    }, [selectedYear]);
 
     useEffect(() => {
         localeDevExtreme(lang)
@@ -42,12 +51,15 @@ const FixedAssetsWrapper = ({ dataSource, lang }: Props): React.ReactElement => 
     }, []);
     return (
         <>
-            <FixedAssetsDatagrid
+            <DataGrid
                 dataSource={dataSource}
                 onDepreciationClick={handleDepreciationClick}
                 onInvoiceClick={handleInvoiceClick}
                 selectedProperty='Test property'
+                onYearChange={setSelectedYear}
                 lang={lang}
+                selectedYear={selectedYear}
+                years={years}
             />
             {
                 (depreciationPopupVisibility.visible || depreciationPopupVisibility.hasBeenOpen) &&

@@ -7,28 +7,34 @@ import { useCallback } from 'react';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { usePathname } from 'next/navigation';
-import DataGrid, { Column, Paging, SearchPanel, HeaderFilter, Pager, Export, Editing } from 'devextreme-react/data-grid';
+import { DataGrid as DxDataGrid, Column, Paging, SearchPanel, HeaderFilter, Pager, Export, Editing } from 'devextreme-react/data-grid';
 import { Locale } from '@/i18n-config';
-
 
 // Local imports
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
-import PreviewFileCellRender from '../../PreviewFileCellRender';
+import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
+import YearSelector from '@/components/datagrid/YearSelector';
 
 interface Props {
     dataSource: any[];
     onDepreciationClick: (name: string, depreciation: []) => void;
     onInvoiceClick: (title: string, url: string) => void;
+    onYearChange: (year: string) => void;
     selectedProperty: string;
-    lang: Locale
+    selectedYear: string;
+    lang: Locale;
+    years: string[];
 };
 
-const FixedAssetsDatagrid = ({
+const DataGrid = ({
     dataSource,
     onDepreciationClick,
     onInvoiceClick,
+    onYearChange,
     selectedProperty,
-    lang
+    selectedYear,
+    lang,
+    years
 }: Props): React.ReactElement => {
     const pathName = usePathname();
 
@@ -49,9 +55,13 @@ const FixedAssetsDatagrid = ({
         />
     ), [onInvoiceClick]);
 
+    const YearSelect = useCallback((): React.ReactElement => (
+        <YearSelector years={years} onSelectionChanged={onYearChange} />
+    ), [onYearChange, years]);
+
     return (
         <>
-            <DataGrid
+            <DxDataGrid
                 dataSource={dataSource}
                 keyExpr='ID'
                 showRowLines
@@ -142,9 +152,9 @@ const FixedAssetsDatagrid = ({
                     cellRender={InvoiceCellRender}
                     width={100}
                 />
-            </DataGrid>
+            </DxDataGrid>
         </>
     )
 }
 
-export default FixedAssetsDatagrid
+export default DataGrid

@@ -6,11 +6,11 @@ import { AvatarDropdown } from 'pg-components';
 
 // Local imports
 import { getUser, signOut } from '@/lib/utils/apiCalls'
-import { user } from '@/lib/types/user'
+import { User } from '@/lib/types/user'
 import { Locale } from '@/i18n-config';
 
 const AvatarDropdownWrapper = ({ lang }: { lang: Locale }) => {
-    const [user, setUser] = useState<user | undefined>(undefined)
+    const [user, setUser] = useState<User | undefined>(undefined)
     const router = useRouter();
 
     const navigationItems = [

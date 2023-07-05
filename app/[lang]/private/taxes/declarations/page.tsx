@@ -1,9 +1,7 @@
-import React from 'react'
+const page = (): React.ReactElement => (
+  <div>
+    declarations page
+  </div>
+);
 
-const page = () => {
-  return (
-    <div>declarations page</div>
-  )
-}
-
-export default page
+export default page;

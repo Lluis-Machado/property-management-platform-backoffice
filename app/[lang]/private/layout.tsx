@@ -4,14 +4,14 @@ import { Locale } from '@/i18n-config';
 import MainLayout from '@/components/layout/MainLayout';
 
 interface Props {
-    children: React.ReactNode,
-    params: { lang: Locale }
+    children: React.ReactNode;
+    params: { lang: Locale };
 };
 
-export default function RootLayout({ children, params: { lang } }: Props) {
-    return (
-        <MainLayout lang={lang}>
-            {children}
-        </MainLayout>
-    );
-};
+const RootLayout = ({ children, params: { lang } }: Props): React.ReactElement => (
+    <MainLayout lang={lang}>
+        {children}
+    </MainLayout>
+);
+
+export default RootLayout;

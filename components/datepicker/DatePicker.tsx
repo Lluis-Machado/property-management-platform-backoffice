@@ -3,6 +3,7 @@ import { FormError } from 'pg-components';
 import DateBox from 'devextreme-react/date-box';
 import classNames from 'classnames';
 import { useState } from 'react';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 
 interface Props {
     /**
@@ -12,7 +13,7 @@ interface Props {
     /**
     * A date to set as default
     */
-    defaultValue?: string;
+    defaultValue?: Date;
     /**
     * Select text label
     */
@@ -52,7 +53,7 @@ const DatePicker = ({
     const [menuIsOpen, setMenuIsOpen] = useState(false);
     const [currentValue, setCurrentValue] = useState(defaultValue);
 
-    console.log(currentValue)
+    // console.log("currentValue: ", currentValue)
 
     const labelMenuIsOpenClasses = (): string => {
         if (menuIsOpen) {
@@ -73,17 +74,19 @@ const DatePicker = ({
                             {...field}
                             type="date"
                             className='h-12'
-                            displayFormat="shortdate"
-                            useMaskBehavior
+                            //@ts-ignore
+                            displayFormat={dateFormat}
                             defaultValue={defaultValue}
                             showClearButton={isClearable}
                             disabled={isDisabled}
                             readOnly={isReadOnly}
                             onFocusIn={() => setMenuIsOpen(true)}
                             onFocusOut={() => setMenuIsOpen(false)}
-                            onValueChange={(e) => {
-                                setCurrentValue(e)
-                                form.setFieldValue(name, e)
+                            onValueChange={(date) => {
+                                // const isoDate = DateTime.fromJSDate(e).toISODate()
+                                // const date = DateTime.fromISO(isoDate!, {zone: 'utc'}).toJSDate()
+                                setCurrentValue(date)
+                                form.setFieldValue(name, date)
                             }}
                         />
                         <label

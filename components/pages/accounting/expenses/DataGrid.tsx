@@ -1,7 +1,7 @@
 'use client'
 
 // React imports
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 // Libraries imports
 import { faCheck, faXmark, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
@@ -9,8 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { usePathname } from 'next/navigation';
 import { Locale } from '@/i18n-config';
 import { Tooltip } from 'devextreme-react/tooltip';
-import DataGrid, { Column, Paging, SearchPanel, Pager, Export, Editing, HeaderFilter } from 'devextreme-react/data-grid';
-import PreviewFileCellRender from '../PreviewFileCellRender';
+import { DataGrid as DxDataGrid, Column, Paging, SearchPanel, Pager, Export, Editing, HeaderFilter } from 'devextreme-react/data-grid';
+import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
 
 // Local imports
@@ -71,8 +71,8 @@ interface Props {
 };
 
 
-const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.ReactElement => {
-    const dataGridRef = useRef<DataGrid>(null);
+const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.ReactElement => {
+    const dataGridRef = useRef<DxDataGrid>(null);
     const pathName = usePathname();
 
     useEffect(() => {
@@ -87,18 +87,7 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
         }
         return pathName;
     }, [pathName])
-    /*
-        const ClearFilterButton = useCallback((): React.ReactElement => (
-            <Button
-                text='Clear Filter'
-                onClick={() => { dataGridRef.current?.instance?.clearFilter() }}
-            />
-        ), [dataGridRef]);
-        const DesktopClearFilterButton = useCallback((): React.ReactElement => (
-            <div className='ml-8'>
-                <ClearFilterButton />
-            </div>
-        ), [ClearFilterButton]);*/
+
     const InvoiceCellRender = useCallback(({ data }: { data: any }): React.ReactElement => (
         <PreviewFileCellRender
             onClick={() => onInvoiceClick(data.invoiceNumber, data.url)}
@@ -107,9 +96,9 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
     ), [onInvoiceClick]);
 
     return (
-        <DataGrid
+        <DxDataGrid
             dataSource={dataSource}
-            keyExpr='invoiceNumber'
+            keyExpr='id'
             showRowLines
             defaultFilterValue={params.bp ? ['businessPartner', '=', params.bp] : undefined}
             allowColumnResizing
@@ -147,7 +136,7 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
             <Column
                 allowHeaderFiltering={false}
                 caption='Invoice Nr.'
-                dataField='invoiceNumber'
+                dataField='id'
                 dataType='string'
             />
             <Column
@@ -157,30 +146,29 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
                 width={100}
                 //@ts-ignore
                 format={dateFormat}
-                
             />
             <Column
                 caption='Business Partner'
-                dataField='businessPartner'
+                dataField='businessPartner.name'
                 dataType='string'
             />
             <Column
                 caption='Netto'
-                dataField='net'
+                dataField='netAmount'
                 dataType='number'
                 format={currencyFormat}
                 width={100}
             />
             <Column
                 caption='Bruto'
-                dataField='gross'
+                dataField='grossAmount'
                 dataType='number'
                 format={currencyFormat}
                 width={100}
             />
             <Column
                 caption='Service from date'
-                dataField='serviceFromDate'
+                dataField='invoiceLines[0].serviceDateFrom'
                 dataType='date'
                 width={100}
                 //@ts-ignore
@@ -188,7 +176,7 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
             />
             <Column
                 caption='Service end date'
-                dataField='serviceEndDate'
+                dataField='invoiceLines[0].serviceDateTo'
                 dataType='date'
                 //@ts-ignore
                 format={dateFormat}
@@ -204,7 +192,7 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
             />
             <Column
                 caption='Category'
-                dataField='category'
+                dataField='invoiceLines[0].expenseCategory.name'
                 dataType='string'
                 width={150}
             />
@@ -212,7 +200,7 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
                 allowGrouping={false}
                 allowHeaderFiltering={false}
                 caption='Description'
-                dataField='description'
+                dataField='invoiceLines[0].description'
                 dataType='string'
             />
             <Column
@@ -220,7 +208,6 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
                 caption='Reverse Charge'
                 cellRender={ReverseChargeCellRender}
                 dataField='reverseCharge'
-                hidingPriority={1}
                 width={150}
             >
                 <HeaderFilter
@@ -238,8 +225,8 @@ const ApInvoicesDatagrid = ({ dataSource, onInvoiceClick, params, lang }: Props)
                 cellRender={InvoiceCellRender}
                 width={100}
             />
-        </DataGrid>
+        </DxDataGrid>
     )
 }
 
-export default ApInvoicesDatagrid
+export default DataGrid

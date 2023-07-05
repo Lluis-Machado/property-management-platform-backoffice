@@ -3,9 +3,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 // Local imports
-import { route } from './types/route';
+import { Route } from './types/route';
 
-export const routes: route[] = [
+export const routes: Route[] = [
     {
         path: 'documents',
         icon: faFileAlt,

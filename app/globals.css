@@ -28,7 +28,7 @@
 }
 
 * {
-	font-family: 'barlowregular', 'barlowthin';
+	font-family: 'barlowregular', 'barlowthin', serif, sans-serif, cursive, fantasy, monospace;
 }
 
 /* Scrollbar */

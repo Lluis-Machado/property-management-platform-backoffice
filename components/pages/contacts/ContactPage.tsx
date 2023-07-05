@@ -5,18 +5,18 @@ import { Button, Input, Select } from 'pg-components';
 import { Formik, Form, FormikHelpers } from 'formik';
 
 // Local imports
+import GroupItem from '@/components/layoutComponent/GroupItem';
 import DatePicker from '@/components/datepicker/DatePicker';
-import GroupItem from '../../layoutComponent/GroupItem';
 
-interface ContactValues {
+interface contactValues {
     firstName?: string;
     lastName?: string;
-    dateOfBirth?: string;
+    dateOfBirth?: Date;
     taxResidence?: string;
     idCardNum?: string;
-    idCardExpDate?: string;
+    idCardExpDate?: Date;
     passportNum?: string;
-    passportExpDate?: string;
+    passportExpDate?: Date;
     nif: string;
     companyNumber?: string;
     addressLine?: string;
@@ -31,52 +31,18 @@ interface ContactValues {
 };
 
 const handleSubmit = async (
-    values: ContactValues,
-    { setSubmitting }: FormikHelpers<ContactValues>
+    values: contactValues,
+    { setSubmitting }: FormikHelpers<contactValues>
 ) => {
+    console.log("PINGA: ", values)
+    // values.dateOfBirth = `${values.dateOfBirth.}`
     setTimeout(() => {
         alert(JSON.stringify(values, null, 2));
         setSubmitting(false);
     }, 500);
 };
 
-const taxResidenceSelectorInputs: { label: string, value: string }[] = [
-    { label: 'Germany', value: 'de' },
-    { label: 'Spain', value: 'es' },
-    { label: 'France', value: 'fr' },
-    { label: 'Russia', value: 'ru' },
-    { label: 'Italy', value: 'it' },
-];
-
-interface Inputs {
-    name: string;
-    label: string
-};
-
-const contactInformationInputs: Inputs[] = [
-    { name: 'firstName', label: 'First name' },
-    { name: 'lastName', label: 'Last name' },
-    { name: 'idCardNum', label: 'ID card number' },
-    { name: 'idCardExpDate', label: 'ID card expiration date' },
-    { name: 'passportNum', label: 'Passport Number' },
-    { name: 'passportExpDate', label: 'Passport expiration date' },
-    { name: 'nif', label: 'NIF' },
-    { name: 'companyNumber', label: 'Company number' },
-];
-
-const addressInformationInputs: Inputs[] = [
-    { name: 'addressLine', label: 'Address line' },
-    { name: 'city', label: 'City' },
-    { name: 'region', label: 'Region' },
-    { name: 'state', label: 'State' },
-    { name: 'postalCode', label: 'Postal Code' },
-    { name: 'country', label: 'Country' },
-    { name: 'email', label: 'Email' },
-    { name: 'telephoneNum', label: 'Telephone number' },
-    { name: 'cellphoneNum', label: 'Cellphone Number' },
-];
-
-const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
+const ContactPage = ({ initialValues }: { initialValues: contactValues }) => {
     return (
         <div className='m-2'>
             <Formik
@@ -84,10 +50,15 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                 onSubmit={handleSubmit}
             >
                 <Form>
-                    <GroupItem cols={3} caption='Contact Information' >
-                        {
-                            ...contactInformationInputs.slice(0, 2).map(input => <Input key={input.name} {...input} />)
-                        }
+                    <GroupItem cols={3} caption={'Contact Information'} >
+                        <Input
+                            name="firstName"
+                            label={"First name"}
+                        />
+                        <Input
+                            name="lastName"
+                            label={"Last name"}
+                        />
                         <DatePicker
                             name='dateOfBirth'
                             label='Date of birth'
@@ -98,17 +69,82 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                             name='taxResidence'
                             label='Tax residence'
                             size='large'
-                            inputsList={taxResidenceSelectorInputs}
-                            defaultValue={taxResidenceSelectorInputs[0]}
+                            inputsList={[
+                                { label: 'Germany', value: 'de' },
+                                { label: 'Spain', value: 'es' },
+                                { label: 'France', value: 'fr' },
+                                { label: 'Russia', value: 'ru' },
+                                { label: 'Italy', value: 'it' },
+                            ]}
+                            defaultValue={{ label: 'Germany', value: 'de' }}
                         />
-                        {
-                            ...contactInformationInputs.slice(3).map(input => <Input key={input.name} {...input} />)
-                        }
+                        <Input
+                            name="idCardNum"
+                            label={"ID card number"}
+                        />
+                        <DatePicker
+                            name="idCardExpDate"
+                            label={"ID card expiration date"}
+                            defaultValue={initialValues.idCardExpDate ?? undefined}
+                            isClearable
+                        />
+                        <Input
+                            name="passportNum"
+                            label={"Passport Number"}
+                        />
+                        <DatePicker
+                            name='passportExpDate'
+                            label={"Passport expiration date"}
+                            defaultValue={initialValues.passportExpDate ?? undefined}
+                            isClearable
+                        />
+                        <Input
+                            name="nif"
+                            label={"NIF"}
+                        />
+                        <Input
+                            name="companyNumber"
+                            label={"Company number"}
+                        />
                     </GroupItem>
-                    <GroupItem cols={3} caption='Address Information' >
-                        {
-                            ...addressInformationInputs.map(input => <Input key={input.name} {...input} />)
-                        }
+                    <GroupItem cols={3} caption={'Adress Information'} >
+                        <Input
+                            name="addressLine"
+                            label={"Address line"}
+                        />
+                        <Input
+                            name="city"
+                            label={"City"}
+                        />
+                        <Input
+                            name="region"
+                            label={"Region"}
+                        />
+                        <Input
+                            name="state"
+                            label={"State"}
+                        />
+                        <Input
+                            name="postalCode"
+                            label={"Postal Code"}
+                        />
+                        <Input
+                            name="country"
+                            label={"Country"}
+                        />
+
+                        <Input
+                            name="email"
+                            label={"Email"}
+                        />
+                        <Input
+                            name="telephoneNum"
+                            label={"Telephone number"}
+                        />
+                        <Input
+                            name="cellphoneNum"
+                            label={"Cellphone Number"}
+                        />
                     </GroupItem>
                     <div className='flex justify-end py-4'>
                         <div className='flex flex-row justify-between gap-2'>
@@ -127,7 +163,7 @@ const ContactPage = ({ initialValues }: { initialValues: ContactValues }) => {
                     </div>
                 </Form>
             </Formik>
-        </div>
+        </div >
     );
 };
 export default ContactPage;
