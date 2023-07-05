@@ -1,23 +1,7 @@
 // Local imports
 import ContactPage from '@/components/pages/contacts/ContactPage';
+import { ContactData } from '@/lib/types/contactData';
 import { ApiCallError } from '@/lib/utils/errors';
-
-export interface ContactData {
-    id: string;
-    firstName: string;
-    lastName: string;
-    birthDay: string;
-    nif: string;
-    email: string;
-    phoneNumber: string;
-    mobilePhoneNumber: string;
-    addressLine1: string;
-    addressLine2: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-}
 
 interface Props {
     params: { id: string };

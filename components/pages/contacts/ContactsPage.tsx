@@ -1,7 +1,7 @@
 'use client'
 
 // React imports
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 
 // Libraries imports
 import { useRouter } from 'next/navigation';
@@ -9,6 +9,9 @@ import { Column as DxColumn, DataGrid, Item, Pager, SearchPanel, Toolbar, Master
 import { Form, Formik } from 'formik';
 import { Input } from 'pg-components';
 import GroupItem from '@/components/layoutComponent/GroupItem';
+import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
     dataSource: any[];
@@ -21,8 +24,20 @@ const ContactsPage = ({ dataSource }: Props) => {
         router.push(`./contacts/${data.id}/contact`)
     }, [router])
 
+    const addRowButton = (): React.ReactElement => {
+        return (
+            <Link
+                href={`/private/contacts/addContact`}
+                className='cursor-pointer p-2.5 flex flex-row items-center border rounded-md text-gray-500 border-slate-300
+                hover:border-primary-200 hover:text-primary-500 active:border-primary-500 active:text-primary-700'
+            >
+                <FontAwesomeIcon icon={faPlus} />
+            </Link>
+        )
+    };
+
     return (
-        <div>
+        <>
             <DataGrid
                 allowColumnResizing
                 columnHidingEnabled={false}
@@ -47,6 +62,7 @@ const ContactsPage = ({ dataSource }: Props) => {
                 />
 
                 <Toolbar>
+                    <Item render={addRowButton} />
                     <Item name='searchPanel' />
                 </Toolbar>
 
@@ -79,9 +95,11 @@ const ContactsPage = ({ dataSource }: Props) => {
                     component={DetailTemplate}
                 />
             </DataGrid>
-        </div>
+        </>
     )
 }
+
+export default memo(ContactsPage);
 
 const DetailTemplate = (props: any) => {
     const { birthDay, phoneNumber, mobilePhoneNumber, addressLine1, addressLine2, city, state, postalCode, country } = props.data.data;
@@ -106,5 +124,3 @@ const DetailTemplate = (props: any) => {
         </Formik>
     )
 }
-
-export default ContactsPage
