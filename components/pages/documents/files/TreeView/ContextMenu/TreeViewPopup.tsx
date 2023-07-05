@@ -31,7 +31,7 @@ const itemRender = (params: any): React.ReactElement => {
     );
 };
 
-export const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, visible }: Props): React.ReactElement => {
+const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, visible }: Props): React.ReactElement => {
     const [selectedNode, setSelectedNode] = useState<any>(null);
 
     const handleHiding = useCallback(() => {
