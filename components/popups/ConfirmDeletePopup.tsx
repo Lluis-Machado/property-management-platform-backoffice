@@ -21,7 +21,11 @@ const ConfirmDeletePopup = ({
     const contentRender = useCallback(() => (
         <div className='flex flex-col gap-4'>
             <div className='flex gap-4'>
-                <Button text='Cancel' style='outline' onClick={onClose} />
+                <Button
+                    text='Cancel'
+                    style='outline'
+                    onClick={onClose}
+                />
                 <Button
                     text='Continue'
                     onClick={() => {
@@ -34,10 +38,8 @@ const ConfirmDeletePopup = ({
     ), [onClose]);
 
     const titleComponent = useCallback(() => (
-        <div className='flex justify-between'>
-            <div className='flex font-bold text-2xl text-secondary-500 justify-center items-center'>
-                {message || 'Are you sure you want to delete this record?'}
-            </div>
+        <div className='flex font-bold text-2xl text-secondary-500 justify-center items-center'>
+            {message || 'Are you sure you want to delete this record?'}
         </div>
     ), []);
 
@@ -49,7 +51,7 @@ const ConfirmDeletePopup = ({
             height='auto'
             hideOnOutsideClick={false}
             visible={isVisible}
-            width='50vw'
+            width='40vw'
         >
             <Position of='#content' />
         </Popup>

@@ -71,6 +71,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                     type: 'success',
                     message: 'Contact updated correctly!'
                 })
+
             } catch (error) {
                 console.error(error)
                 setAlertConfig({
@@ -112,10 +113,10 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                     message: 'CHECK CONSOLE'
                 })
             }
-        }, [contactId]
+        }, [contactId, router]
     )
 
-    const onHiding = useCallback(
+    const onAlertHiding = useCallback(
         () => {
             setAlertConfig({
                 ...alertConfig,
@@ -125,7 +126,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
     )
 
     return (
-        <div className='m-2'>
+        <>
             <ConfirmDeletePopup
                 message='Are you sure you want to delete this contact?'
                 isVisible={confirmationVisible}
@@ -136,7 +137,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 <Alert
                     body={alertConfig.message}
                     isVisible={alertConfig.isVisible}
-                    onHidden={onHiding}
+                    onHidden={onAlertHiding}
                     type={alertConfig.type}
                     duration={3000}
                 />
@@ -288,7 +289,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                     </Form>
                 </Formik>
             </div>
-        </div>
+        </>
     );
 };
 
