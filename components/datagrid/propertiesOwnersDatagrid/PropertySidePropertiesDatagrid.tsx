@@ -33,11 +33,14 @@ const PropertySidePropertiesDatagrid = ({ dataSource }: Props) => {
                 showInfo
                 showNavigationButtons
             />
-            <Column
-                dataField='id'
-                dataType='string'
-                caption='ID'
-                width={300}
+            <Editing
+                mode="batch"
+                allowUpdating
+                allowAdding
+                allowDeleting
+                useIcons
+                startEditAction={'dblClick'}
+                newRowPosition='first'
             />
             <Column
                 dataField='name'

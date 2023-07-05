@@ -9,17 +9,58 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // Local imports
 import PropertyFormInfo from "@/components/forms/propertyFormInfo/PropertyFormInfo"
-import { PropertyFormInterface } from "@/lib/types/propertyInfo";
+import { PropertyInterface } from "@/lib/types/propertyInfo";
 import PropertiesOwnersDatagrid from "./PropertiesOwnersDatagrid";
 import PropertyTextArea from "@/components/textArea/PropertyTextArea";
 import PropertySidePropertiesDatagrid from "./PropertySidePropertiesDatagrid";
+import { FormikHelpers } from "formik";
 interface Props {
     id: string;
-    data: PropertyFormInterface [];
+    data: any;
 };
 
-const PropertyWrapper = ({id, data} : Props) : React.ReactElement => {
-       return (
+const PropertyWrapper = ({ id, data }: Props): React.ReactElement => {
+    const handleSubmit = async (
+        values: PropertyInterface,
+        { setSubmitting }: FormikHelpers<PropertyInterface>
+    ) => {
+        const res = await fetch(`https://stage.plattesapis.net/properties/properties/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8'
+            },
+            body: JSON.stringify({
+                "name": values.name,
+                "type": values.type,
+                "typeOfUse": [
+                  data.typeOfUse
+                ],
+                "address": {
+                    "addressLine1": values.address.addressLine1,
+                    "addressLine2": values.address.addressLine2,
+                    "city": values.address.city,
+                    "state": values.address.state,
+                    "postalCode": values.address.postalCode,
+                    "country": values.address.country
+                },
+                "cadastreRef": values.cadastreRef,
+                "comments": data.comments,
+                "ownerships": [
+                  {
+                    "id": data.ownerships[0].id,
+                    "contactId": data.ownerships[0].contactId,
+                    "propertyId": data.ownerships[0].propertyId,
+                    "mainOwnership": data.ownerships[0].mainOwnership,
+                    "share": data.ownerships[0].share
+                  }
+                ]
+              }),
+        })
+        await res.json();
+        setSubmitting(false);
+    };
+
+    return (
         <>
             <div className="flex justify-center">
                 <div className="flex gap-4">
@@ -36,18 +77,18 @@ const PropertyWrapper = ({id, data} : Props) : React.ReactElement => {
                             icon={faReceipt}
                             className='text-primary-500 row-focused-state hover:scale-125 transition-transform'
                         />
-                           <p className="text-secondary-500"> AR Invoices</p>
+                        <p className="text-secondary-500"> AR Invoices</p>
                     </Link>
                     <Link href={`/private/accounting/${id}/expenses`} className="flex gap-2 items-center border-2 rounded-md p-2">
                         <FontAwesomeIcon
                             icon={faReceipt}
                             className='text-primary-500 row-focused-state hover:scale-125 transition-transform'
                         />
-                           <p className="text-secondary-500"> AP Invoices</p>
+                        <p className="text-secondary-500"> AP Invoices</p>
                     </Link>
                 </div>
             </div>
-            <PropertyFormInfo initialValues={data} />
+            <PropertyFormInfo initialValues={data} handleSubmit={handleSubmit} />
             <Tabs
                 dataSource={[
                     {
@@ -56,7 +97,7 @@ const PropertyWrapper = ({id, data} : Props) : React.ReactElement => {
                         title: 'Owners'
                     },
                     {
-                        children: <PropertySidePropertiesDatagrid dataSource={data}/>,
+                        children: <PropertySidePropertiesDatagrid dataSource={data} />,
                         icon: faWarehouse,
                         title: 'Side properties'
                     },

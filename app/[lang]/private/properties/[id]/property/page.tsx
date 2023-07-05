@@ -6,7 +6,7 @@ interface Props {
 }
 
 async function getData(id: string) {
-  const res = await fetch(`https://stage.plattesapis.net/properties/properties/${id}`)
+  const res = await fetch(`https://stage.plattesapis.net/properties/properties/${id}`, { cache: 'no-cache' })
   if (!res.ok) {
       throw new Error('Failed to fetch data')
     }

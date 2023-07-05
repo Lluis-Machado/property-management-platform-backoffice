@@ -3,7 +3,7 @@ import data from '@/components/datagrid/propertiesDatagrid/data.json';
 import PropertiesWrapper from '@/components/datagrid/propertiesDatagrid/PropertiesWrapper';
 
 async function getData() {
-    const res = await fetch('https://stage.plattesapis.net/properties/properties')
+    const res = await fetch('https://stage.plattesapis.net/properties/properties', { cache: 'no-cache' })
     if (!res.ok) {
         throw new Error('Failed to fetch data')
       }

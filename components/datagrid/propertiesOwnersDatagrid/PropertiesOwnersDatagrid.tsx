@@ -22,9 +22,7 @@ const MainContactCellRender = ({ value }: any): React.ReactElement => (
 );
 
 const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
-
     const data = dataSource.ownerships;
-    console.log(data)
     return (
         <DataGrid
             dataSource={data}
