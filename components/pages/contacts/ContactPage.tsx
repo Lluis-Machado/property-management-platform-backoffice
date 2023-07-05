@@ -173,7 +173,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                             <DatePicker
                                 name='birthDay'
                                 label='Birth date'
-                                defaultValue={new Date(initialValues.birthDay) ?? undefined}
+                                defaultValue={initialValues.birthDay ?? undefined}
                                 isClearable
                                 readOnly={isLoading}
                             />
