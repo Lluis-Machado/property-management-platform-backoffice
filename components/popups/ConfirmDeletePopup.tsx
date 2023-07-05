@@ -9,29 +9,42 @@ interface PopupProps {
     message: string;
     isVisible: boolean;
     onClose: () => void;
+    onConfirm: () => void;
 };
 
 const ConfirmDeletePopup = ({
     message,
     isVisible,
-    onClose
+    onClose,
+    onConfirm
 }: PopupProps) => {
     const contentRender = useCallback(() => (
         <div className='flex flex-col gap-4'>
-            <p className='text-lg'>{ message || 'Are you sure you want to delete this record?' }</p>
             <div className='flex gap-4'>
                 <Button text='Cancel' style='outline' onClick={onClose} />
                 <Button
                     text='Continue'
-                    onClick={onClose}
+                    onClick={() => {
+                        onClose()
+                        onConfirm()
+                    }}
                 />
             </div>
         </div>
     ), [onClose]);
 
+    const titleComponent = useCallback(() => (
+        <div className='flex justify-between'>
+            <div className='flex font-bold text-2xl text-secondary-500 justify-center items-center'>
+                {message || 'Are you sure you want to delete this record?'}
+            </div>
+        </div>
+    ), []);
+
     return (
         <Popup
             contentRender={contentRender}
+            titleComponent={titleComponent}
             dragEnabled={false}
             height='auto'
             hideOnOutsideClick={false}
