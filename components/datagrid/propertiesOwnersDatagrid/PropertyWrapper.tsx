@@ -12,26 +12,14 @@ import PropertyFormInfo from "@/components/forms/propertyFormInfo/PropertyFormIn
 import { PropertyFormInterface } from "@/lib/types/propertyInfo";
 import PropertiesOwnersDatagrid from "./PropertiesOwnersDatagrid";
 import PropertyTextArea from "@/components/textArea/PropertyTextArea";
-import data from "./data.json"
+import PropertySidePropertiesDatagrid from "./PropertySidePropertiesDatagrid";
 interface Props {
     id: string;
-    //dataSource: [];
+    data: PropertyFormInterface [];
 };
 
-const PropertyWrapper = ({id} : Props) : React.ReactElement => {
-    
-    const initialValues: PropertyFormInterface = {
-        name: 'Villa Sonnenschein',
-        type: 'Apartment',
-        catastralRef: '13 077 A 018 00039 0000 FP',
-        mainContact: 'Sr. Schaller',
-        addressLine1: 'Calle...',
-        city: 'Palma',
-        postalCode: '07010',
-        provinces: 'Islas Baleares',
-        country: 'Spain',
-    };
-    return (
+const PropertyWrapper = ({id, data} : Props) : React.ReactElement => {
+       return (
         <>
             <div className="flex justify-center">
                 <div className="flex gap-4">
@@ -59,7 +47,7 @@ const PropertyWrapper = ({id} : Props) : React.ReactElement => {
                     </Link>
                 </div>
             </div>
-            <PropertyFormInfo initialValues={initialValues} />
+            <PropertyFormInfo initialValues={data} />
             <Tabs
                 dataSource={[
                     {
@@ -68,7 +56,7 @@ const PropertyWrapper = ({id} : Props) : React.ReactElement => {
                         title: 'Owners'
                     },
                     {
-                        children: <div>Side properties</div>,
+                        children: <PropertySidePropertiesDatagrid dataSource={data}/>,
                         icon: faWarehouse,
                         title: 'Side properties'
                     },

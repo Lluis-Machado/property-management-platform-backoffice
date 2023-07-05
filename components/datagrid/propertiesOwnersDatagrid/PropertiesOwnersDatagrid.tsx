@@ -11,7 +11,7 @@ import OwnerDropdownComponent from '../../dropdowns/OwnerDropdownComponent';
 import contacts from './contacts.json';
 
 interface Props {
-    dataSource: any[];
+    dataSource: any;
 };
 
 const MainContactCellRender = ({ value }: any): React.ReactElement => (
@@ -23,10 +23,11 @@ const MainContactCellRender = ({ value }: any): React.ReactElement => (
 
 const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
 
-
+    const data = dataSource.ownerships;
+    console.log(data)
     return (
         <DataGrid
-            dataSource={dataSource}
+            dataSource={data}
             keyExpr='id'
             showRowLines
             showBorders
@@ -66,13 +67,13 @@ const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
                 />
             </Column>
             <Column
-                dataField='percentage'
+                dataField='share'
                 dataType='number'
                 caption='Percentage %'
                 width={150}
             />
             <Column
-                dataField='main_contact'
+                dataField='mainOwnership'
                 dataType='boolean'
                 caption='Main Contact Person'
                 width={150}

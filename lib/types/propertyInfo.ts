@@ -5,7 +5,7 @@ export interface PropertyFormInterface {
     mainContact: string;
     addressLine1: string
     city: string;
-    provinces: string;
+    state: string;
     postalCode: string;
     country: string;
 };

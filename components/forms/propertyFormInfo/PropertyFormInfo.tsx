@@ -18,11 +18,17 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
         values: PropertyFormInterface,
         { setSubmitting }: FormikHelpers<PropertyFormInterface>
     ) => {
-        setTimeout(() => {
-            alert(JSON.stringify(values, null, 2));
-            setSubmitting(false);
-        }, 500);
+        const res = await fetch('https://stage.plattesapis.net/properties/properties', {
+            method: 'POST',
+            headers: { 
+                'Content-type': 'application/json; charset=UTF-8' 
+            },
+            body: JSON.stringify(values),
+        })
+        await res.json();
+        setSubmitting(false);
     };
+    console.log(initialValues)
     return (
         <div className='m-2 '>
             <Formik
@@ -56,7 +62,7 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                             }}*/
                         />
                         <Input
-                            name="catastralRef"
+                            name="cadastreRef"
                             label={"Catastral Reference"}
                         />
                         <Select
@@ -87,7 +93,7 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                                 }
                             ]}
                             label="Main Contact"
-                            name="mainContact"
+                            name="mainContact.firstName"
                             size="large"
                             /*
                             defaultValue={{
@@ -98,12 +104,12 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                     </GroupItem>
                     <GroupItem caption='Address Information' cols={4}>
                         <Input
-                            name="addressLine1"
+                            name="address.addressLine1"
                             label={"Address line 1"}
                         />
                         <Input
                             label="Postal Code"
-                            name="postalCode"
+                            name="address.postalCode"
                         />
                         <Select
                             inputsList={[
@@ -117,7 +123,7 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                                 }
                             ]}
                             label="City"
-                            name="city"
+                            name="address.city"
                             size="large"
                             /*
                             defaultValue={{
@@ -152,8 +158,8 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                                 value: 'Zaragoza'
                             }
                             ]}
-                            label="Province"
-                            name="provinces"
+                            label="State"
+                            name="address.state"
                             isSearchable={true}
                             size="large"
                             /*
@@ -183,7 +189,7 @@ const PropertyFormInfo = ({ initialValues }: Props) => {
                                 value: 'Portugal'
                             }]}
                             label="Country"
-                            name="country"
+                            name="address.country"
                             isSearchable={true}
                             size="large"
                             /*
