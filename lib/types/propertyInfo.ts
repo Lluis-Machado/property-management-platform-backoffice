@@ -1,17 +1,5 @@
-export interface PropertyFormInterface {
-    name: string;
-    type: string;
-    cadastreRef: string;
-    mainContact: string;
-    addressLine1: string;
-    addressLine2: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-};
-
 export interface PropertyInterface {
+    propertyId: string;
     name: string;
     type: string;
     typeOfUse: [
@@ -51,7 +39,7 @@ export interface PropertyInterface {
     ]
 };
 
-export interface CreateProperty {
+export interface CreatePropertyInterface {
     name: string;
     type: string;
     typeOfUse: [

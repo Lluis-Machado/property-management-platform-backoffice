@@ -1,14 +1,14 @@
 "use client"
 //local imports
 import PropertyFormInfo from "@/components/forms/propertyFormInfo/PropertyFormInfo"
-import { CreateProperty } from "@/lib/types/propertyInfo";
+import { CreatePropertyInterface } from "@/lib/types/propertyInfo";
 import { FormikHelpers } from "formik";
 
 const page = (): React.ReactElement => {
 
   const handleSubmit = async (
-    values: CreateProperty,
-    { setSubmitting }: FormikHelpers<CreateProperty>
+    values: CreatePropertyInterface,
+    { setSubmitting }: FormikHelpers<CreatePropertyInterface>
   ) => {
     const res = await fetch('https://stage.plattesapis.net/properties/properties', {
       method: 'POST',
@@ -16,22 +16,12 @@ const page = (): React.ReactElement => {
         'Content-type': 'application/json; charset=UTF-8'
       },
       body: JSON.stringify({
-        "name": values.name,
-        "type": values.type,
+        ...values,
         "typeOfUse": [
           0
         ],
-        "address": {
-          "addressLine1": values.address.addressLine1,
-          "addressLine2": values.address.addressLine2,
-          "city": values.address.city,
-          "state": values.address.state,
-          "postalCode": values.address.postalCode,
-          "country": values.address.country
-        },
-        "cadastreRef": values.cadastreRef,
         "comments": "",
-        //SEE HOW TO GET THE CONTACT ID FROM INPUT MAIN CONTACT
+        //SEE HOW TO GET THE CONTACT ID FROM MAIN CONTACT
         "ownerships": [
           {
             "contactId": "615a6923-f207-4872-a0fc-039cd4faf5f1",
@@ -46,7 +36,7 @@ const page = (): React.ReactElement => {
     setSubmitting(false);
   };
 
-  const initialValues: CreateProperty = {
+  const initialValues: CreatePropertyInterface = {
     name: "",
     type: "",
     typeOfUse: [

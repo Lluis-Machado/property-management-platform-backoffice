@@ -7,15 +7,14 @@ import { Button, Input } from 'pg-components';
 
 // Local imports
 import GroupItem from '../../layoutComponent/GroupItem';
-import { PropertyInterface, CreateProperty } from '@/lib/types/propertyInfo';
+import { PropertyInterface, CreatePropertyInterface } from '@/lib/types/propertyInfo';
 
 interface Props {
-    initialValues: PropertyInterface | CreateProperty;
+    initialValues: PropertyInterface | CreatePropertyInterface;
     handleSubmit: any;
 }
 
 const PropertyFormInfo = ({ initialValues, handleSubmit }: Props) => {
-    console.log(initialValues)
     return (
         <div className='m-2 '>
             <Formik

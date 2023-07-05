@@ -16,7 +16,7 @@ import PropertySidePropertiesDatagrid from "./PropertySidePropertiesDatagrid";
 import { FormikHelpers } from "formik";
 interface Props {
     id: string;
-    data: any;
+    data: PropertyInterface;
 };
 
 const PropertyWrapper = ({ id, data }: Props): React.ReactElement => {
@@ -24,37 +24,15 @@ const PropertyWrapper = ({ id, data }: Props): React.ReactElement => {
         values: PropertyInterface,
         { setSubmitting }: FormikHelpers<PropertyInterface>
     ) => {
+        console.log(values)
         const res = await fetch(`https://stage.plattesapis.net/properties/properties/${id}`, {
             method: 'PATCH',
             headers: {
                 'Content-type': 'application/json; charset=UTF-8'
             },
             body: JSON.stringify({
-                "name": values.name,
-                "type": values.type,
-                "typeOfUse": [
-                  data.typeOfUse
-                ],
-                "address": {
-                    "addressLine1": values.address.addressLine1,
-                    "addressLine2": values.address.addressLine2,
-                    "city": values.address.city,
-                    "state": values.address.state,
-                    "postalCode": values.address.postalCode,
-                    "country": values.address.country
-                },
-                "cadastreRef": values.cadastreRef,
-                "comments": data.comments,
-                "ownerships": [
-                  {
-                    "id": data.ownerships[0].id,
-                    "contactId": data.ownerships[0].contactId,
-                    "propertyId": data.ownerships[0].propertyId,
-                    "mainOwnership": data.ownerships[0].mainOwnership,
-                    "share": data.ownerships[0].share
-                  }
-                ]
-              }),
+                ...values
+            })
         })
         await res.json();
         setSubmitting(false);
