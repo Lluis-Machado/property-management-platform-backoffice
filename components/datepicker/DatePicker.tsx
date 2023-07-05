@@ -37,7 +37,7 @@ interface Props {
     /**
     * Read only HTML prop
     */
-    isReadOnly?: boolean;
+    readOnly?: boolean;
 }
 
 const DatePicker = ({
@@ -48,7 +48,7 @@ const DatePicker = ({
     isSecondary,
     isClearable,
     isDisabled,
-    isReadOnly
+    readOnly
 }: Props) => {
     const [menuIsOpen, setMenuIsOpen] = useState(false);
     const [currentValue, setCurrentValue] = useState(defaultValue);
@@ -79,7 +79,7 @@ const DatePicker = ({
                             defaultValue={defaultValue}
                             showClearButton={isClearable}
                             disabled={isDisabled}
-                            readOnly={isReadOnly}
+                            readOnly={readOnly}
                             onFocusIn={() => setMenuIsOpen(true)}
                             onFocusOut={() => setMenuIsOpen(false)}
                             onValueChange={(date) => {

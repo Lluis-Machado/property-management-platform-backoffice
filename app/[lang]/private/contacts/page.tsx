@@ -1,9 +1,16 @@
 // Local imports
 import ContactsPage from '@/components/pages/contacts/ContactsPage';
-import data from '@/components/pages/contacts/contactsPage.json';
+import { ApiCallError } from '@/lib/utils/errors';
 
-const Contacts = (): React.ReactElement => (
-    <ContactsPage dataSource={data} />
-);
+const Contacts = async () => {
+
+    const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts`, { cache: 'no-cache' })
+    if(!resp.ok) throw new ApiCallError('Error while getting contacts');
+    const data = await resp.json();
+
+    return (
+        <ContactsPage dataSource={data} />
+    )
+};
 
 export default Contacts;

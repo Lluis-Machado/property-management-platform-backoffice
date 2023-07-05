@@ -1,42 +1,42 @@
 // Local imports
 import ContactPage from '@/components/pages/contacts/ContactPage';
+import { ApiCallError } from '@/lib/utils/errors';
+
+export interface ContactData {
+    id: string;
+    firstName: string;
+    lastName: string;
+    birthDay: string;
+    nif: string;
+    email: string;
+    phoneNumber: string;
+    mobilePhoneNumber: string;
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+}
 
 interface Props {
     params: { id: string };
 };
 
-// TODO: Fetching de datos desde el backend
-const initialValues = {
-    firstName: 'Peter',
-    lastName: 'Pan',
-    dateOfBirth: undefined,
-    taxResidence: 'Germany',
-    idCardNum: 'L7MJ28WPT',
-    idCardExpDate: undefined,
-    passportNum: 'IUT034536O',
-    passportExpDate: new Date('2023-06-29'),
-    nif: '07626053N',
-    companyNumber: '8765434767',
+const Contact = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
 
-    addressLine: 'Magnus-Gerlach-Ring 1',
-    city: 'Hoyerswerda',
-    region: 'Hessen',
-    state: 'Hessen',
-    postalCode: '24420',
-    country: 'Germany',
+    const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${id}`, { cache: 'no-cache' })
+    if (!resp.ok) throw new ApiCallError('Error while getting contact info');
+    const data: ContactData = await resp.json();
 
-    email: 'peter.pan@berg.net',
-    telephoneNum: '(02552) 453615',
-    cellphoneNum: '4915751628512'
+    return (
+        <>
+            <div className='text-lg text-secondary-500'>
+                Contacts / Contact Info
+            </div>
+            <ContactPage initialValues={data} contactId={id} />
+        </>
+    )
 };
-
-const Contact = async ({ params: { id } }: Props): Promise<React.ReactElement> => (
-    <>
-        <div className='text-lg text-secondary-500'>
-            Contacts / Contact Info
-        </div>
-        <ContactPage initialValues={initialValues} />
-    </>
-);
 
 export default Contact
