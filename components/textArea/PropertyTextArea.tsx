@@ -33,12 +33,6 @@ const PropertyTextArea = () => {
                     <div className='flex flex-row justify-between gap-2'>
                         <Button
                             elevated
-                            style='outline'
-                            type='reset'
-                            text='Reset'
-                        />
-                        <Button
-                            elevated
                             type='submit'
                             text='Submit'
                         />

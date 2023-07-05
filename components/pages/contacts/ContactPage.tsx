@@ -272,13 +272,6 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                             <div className='flex flex-row justify-between gap-2'>
                                 <Button
                                     elevated
-                                    style='outline'
-                                    type='reset'
-                                    text='Reset'
-                                    disabled={isLoading}
-                                />
-                                <Button
-                                    elevated
                                     type='submit'
                                     text='Submit Changes'
                                     disabled={isLoading}
