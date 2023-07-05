@@ -60,7 +60,7 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
                 throw new ApiCallError(data?.error || 'An error has occurred, contact admin')
             }
 
-        } catch (err: any) {
+        } catch (err) {
             console.error(err); // TODO: Delete this
             (err instanceof ApiCallError) && setError(err.message)
         } finally {

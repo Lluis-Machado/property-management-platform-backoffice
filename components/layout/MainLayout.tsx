@@ -1,5 +1,5 @@
 // React imports
-import { FC, memo } from 'react';
+import { memo } from 'react';
 
 // Local imports
 import { ContentWrapper } from './ContentWrapper';
@@ -12,7 +12,7 @@ interface Props {
     lang: Locale
 };
 
-const MainLayout: FC<Props> = memo(function MainLayout({ children, lang }) {
+function MainLayout({ children, lang }: Props) {
     return (
         <section className='w-screen min-h-screen bg-white'>
             {/* Sidebar */}
@@ -30,6 +30,6 @@ const MainLayout: FC<Props> = memo(function MainLayout({ children, lang }) {
             </section>
         </section>
     );
-});
+};
 
-export default MainLayout;
+export default memo(MainLayout);

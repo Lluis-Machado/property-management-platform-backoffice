@@ -8,15 +8,12 @@ import { Formik, Form, FormikHelpers } from 'formik';
 import GroupItem from '@/components/layoutComponent/GroupItem';
 import DatePicker from '@/components/datepicker/DatePicker';
 import { memo, useCallback, useState } from 'react';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ApiCallError } from '@/lib/utils/errors';
-import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { useRouter } from 'next/navigation';
 import { ContactData } from '@/lib/types/contactData';
 
 interface Props {
     initialValues: ContactData;
-    contactId: string;
 }
 
 interface AlertConfig {
@@ -25,9 +22,8 @@ interface AlertConfig {
     message: string;
 }
 
-const ContactPage = ({ contactId, initialValues }: Props) => {
+const AddContactPage = ({ initialValues }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [confirmationVisible, setConfirmationVisible] = useState<boolean>(false);
     const [alertConfig, setAlertConfig] = useState<AlertConfig>({
         isVisible: false,
         type: 'info',
@@ -39,6 +35,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
     const handleSubmit = useCallback(
         async (values: ContactData, { setSubmitting }: FormikHelpers<ContactData>) => {
             console.log("Valores a enviar: ", values)
+            console.log("Valores a enviar en JSON: ", JSON.stringify(values))
 
             if (values === initialValues) {
                 setAlertConfig({
@@ -53,16 +50,16 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
 
             try {
 
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts`,
                     {
-                        method: 'PATCH',
+                        method: 'POST',
                         body: JSON.stringify(values),
                         headers: { 'Content-type': 'application/json; charset=UTF-8' }
                     }
                 )
 
                 if (!resp.ok) throw new ApiCallError('Error while updating a contact');
-                const data: ContactData = await resp.json();
+                const data = await resp.json();
 
                 console.log('TODO CORRECTO, valores de vuelta: ', data)
 
@@ -72,6 +69,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                     message: 'Contact updated correctly!'
                 })
 
+                router.push('/private/contacts')
             } catch (error) {
                 console.error(error)
                 setAlertConfig({
@@ -83,37 +81,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 setIsLoading(false);
                 setSubmitting(false);
             }
-        }, [contactId]
-    )
-
-    const handleDelete = useCallback(
-        async () => {
-            try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
-                    {
-                        method: 'DELETE',
-                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
-                    }
-                )
-
-                if (!resp.ok) throw new ApiCallError('Error while deleting a contact');
-
-                setAlertConfig({
-                    isVisible: true,
-                    type: 'success',
-                    message: 'Contact deleted correctly!'
-                })
-
-                router.push('/private/contacts/')
-            } catch (error) {
-                console.error(error)
-                setAlertConfig({
-                    isVisible: true,
-                    type: 'danger',
-                    message: 'CHECK CONSOLE'
-                })
-            }
-        }, [contactId, router]
+        }, [router]
     )
 
     const onAlertHiding = useCallback(
@@ -127,12 +95,6 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
 
     return (
         <>
-            <ConfirmDeletePopup
-                message='Are you sure you want to delete this contact?'
-                isVisible={confirmationVisible}
-                onClose={() => setConfirmationVisible(false)}
-                onConfirm={handleDelete}
-            />
             <div className='absolute right-8'>
                 <Alert
                     body={alertConfig.message}
@@ -141,17 +103,6 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                     type={alertConfig.type}
                     duration={3000}
                 />
-            </div>
-            <div className='flex w-full justify-end'>
-                <div className='w-10'>
-                    <Button
-                        elevated
-                        onClick={() => setConfirmationVisible(true)}
-                        type='button'
-                        icon={faTrash}
-                        style='outline'
-                    />
-                </div>
             </div>
             <div>
                 <Formik
@@ -286,4 +237,4 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
     );
 };
 
-export default memo(ContactPage);
+export default memo(AddContactPage);
