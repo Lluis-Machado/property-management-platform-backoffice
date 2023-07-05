@@ -4,6 +4,7 @@ import DateBox from 'devextreme-react/date-box';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import { DateTime } from 'luxon';
 
 interface Props {
     /**
@@ -13,7 +14,7 @@ interface Props {
     /**
     * A date to set as default
     */
-    defaultValue?: Date;
+    defaultValue?: string;
     /**
     * Select text label
     */
@@ -37,7 +38,7 @@ interface Props {
     /**
     * Read only HTML prop
     */
-    isReadOnly?: boolean;
+    readOnly?: boolean;
 }
 
 const DatePicker = ({
@@ -48,12 +49,10 @@ const DatePicker = ({
     isSecondary,
     isClearable,
     isDisabled,
-    isReadOnly
+    readOnly
 }: Props) => {
     const [menuIsOpen, setMenuIsOpen] = useState(false);
     const [currentValue, setCurrentValue] = useState(defaultValue);
-
-    // console.log("currentValue: ", currentValue)
 
     const labelMenuIsOpenClasses = (): string => {
         if (menuIsOpen) {
@@ -79,14 +78,21 @@ const DatePicker = ({
                             defaultValue={defaultValue}
                             showClearButton={isClearable}
                             disabled={isDisabled}
-                            readOnly={isReadOnly}
+                            readOnly={readOnly}
                             onFocusIn={() => setMenuIsOpen(true)}
                             onFocusOut={() => setMenuIsOpen(false)}
                             onValueChange={(date) => {
-                                // const isoDate = DateTime.fromJSDate(e).toISODate()
-                                // const date = DateTime.fromISO(isoDate!, {zone: 'utc'}).toJSDate()
-                                setCurrentValue(date)
-                                form.setFieldValue(name, date)
+                                // Error handling
+                                if (!date) {
+                                    setCurrentValue(date)
+                                    form.setFieldValue(name, date)
+                                    return;
+                                }
+                                // Convert to luxon and set format
+                                const luxonDate = DateTime.fromJSDate(new Date(date))
+                                const formattedDate = luxonDate.toFormat('yyyy-MM-dd');
+                                setCurrentValue(formattedDate)
+                                form.setFieldValue(name, formattedDate)
                             }}
                         />
                         <label

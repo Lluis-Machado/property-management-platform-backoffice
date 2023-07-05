@@ -1,5 +1,5 @@
 // local imports
-import PropertyWrapper from "@/components/datagrid/propertiesOwnersDatagrid/PropertyWrapper"
+import PropertyWrapper from "@/components/pages/properties/property/PropertyWrapper"
 
 interface Props {
   params: { id: string }

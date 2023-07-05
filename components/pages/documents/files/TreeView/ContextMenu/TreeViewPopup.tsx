@@ -66,7 +66,7 @@ export const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, v
                         onClick={handleHiding}
                         style='outline'
                         text='Cancel'
-                        type='reset'
+                        type='button'
                     />
                 </div>
             </div>

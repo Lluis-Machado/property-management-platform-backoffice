@@ -2,8 +2,9 @@
 // React imports
 
 //Local imports
-import ExpensesWrapper from '@/components/datagrid/apinvoicesDatagrid/ExpensesWrapper';
 import { Locale } from '@/i18n-config';
+import ExpensesWrapper from '@/components/pages/accounting/expenses/ExpensesWrapper';
+
 interface Props {
   params: { lang: Locale , id: string}
   searchParams: {searchParams: any}
@@ -23,7 +24,7 @@ export default async function ApInvoices({ params: {lang, id}, searchParams }: P
   const data = await getData(id)
   return (
     <ExpensesWrapper
-        dataSource={data}
+        data={data}
         searchParams={searchParams}
         lang = {lang}
     />
