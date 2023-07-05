@@ -1,13 +1,12 @@
 // Local imports
 import data from '@/components/pages/properties/data.json';
 import PropertiesWrapper from '@/components/pages/properties/PropertiesWrapper';
+import { ApiCallError } from '@/lib/utils/errors';
 
 async function getData() {
-    const res = await fetch('https://stage.plattesapis.net/properties/properties', { cache: 'no-cache' })
-    if (!res.ok) {
-        throw new Error('Failed to fetch data')
-      }
-      return res.json()
+    const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties`, { cache: 'no-cache' })
+    if (!resp.ok) throw new ApiCallError('Error while getting property info');
+    return resp.json()
   }
 
 export default async function Properties() {

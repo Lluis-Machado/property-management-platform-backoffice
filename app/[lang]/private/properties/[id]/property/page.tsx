@@ -1,16 +1,15 @@
 // local imports
 import PropertyWrapper from "@/components/pages/properties/property/PropertyWrapper"
+import { ApiCallError } from "@/lib/utils/errors";
 
 interface Props {
   params: { id: string }
 }
 
 async function getData(id: string) {
-  const res = await fetch(`https://stage.plattesapis.net/properties/properties/${id}`, { cache: 'no-cache' })
-  if (!res.ok) {
-      throw new Error('Failed to fetch data')
-    }
-    return res.json()
+  const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties/${id}`, { cache: 'no-cache' })
+    if (!resp.ok) throw new ApiCallError('Error while getting property info');
+    return resp.json()
 }
 
 export default async function Property({ params: {id} }: Props) {

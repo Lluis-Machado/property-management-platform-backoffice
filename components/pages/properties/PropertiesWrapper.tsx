@@ -14,9 +14,10 @@ interface Props {
 const PropertiesWrapper = ({ dataSource }: Props): React.ReactElement => {
     const router = useRouter();
 
-    const handleDoubleClick = ({ data }: any) => {
+    const handleDoubleClick = useCallback(({ data }: any) => {
         router.push(`./properties/${data.id}/property`)
-    }
+    }, [router])
+
     const pathName = usePathname();
     const getBasePath = useCallback((): string => pathName?.substring(0, pathName.lastIndexOf('/')) ?? '', [pathName]);
     return (

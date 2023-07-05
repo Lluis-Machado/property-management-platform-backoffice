@@ -19,7 +19,7 @@ interface Props {
     contactId: string;
 }
 
-interface AlertConfig {
+export interface AlertConfig {
     isVisible: boolean;
     type: alertType;
     message: string;
