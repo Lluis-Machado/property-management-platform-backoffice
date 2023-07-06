@@ -16,6 +16,7 @@ import { faArrowRight, faCopy, faDownload, faFile, faImage, faPenToSquare, faQue
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ContextMenu from './ContextMenu';
 import DataSource from 'devextreme/data/data_source';
+import { ContextMenuPreparingEvent } from 'devextreme/ui/data_grid';
 
 type ToolBarItemType = 'Download' | 'Move to' | 'Copy to' | 'Rename' | 'Delete' | 'Clear Selection' | 'Separator';
 
@@ -103,6 +104,14 @@ const DataGrid = ({ onSelectedFile }: Props) => {
         onSelectedFile(selectedRowsData.length === 1 ? selectedRowsData[0] : null);
     }, [onSelectedFile]);
 
+    const handleRightClick = useCallback((e: ContextMenuPreparingEvent<any, any>) => {
+        if (e.row?.rowType === "data") {
+            const instance = DataGridRef.current!.instance;
+            instance.clearSelection();
+            instance.selectRowsByIndexes([e.rowIndex]);
+        };
+    }, []);
+
     return (
         <div>
 
@@ -113,6 +122,7 @@ const DataGrid = ({ onSelectedFile }: Props) => {
                 rowAlternationEnabled
                 showBorders
                 id='dataGrid'
+                onContextMenuPreparing={handleRightClick}
             >
                 <Selection mode='multiple' showCheckBoxesMode='none' />
                 <Toolbar visible>

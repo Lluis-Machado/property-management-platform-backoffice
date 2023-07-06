@@ -21,11 +21,12 @@ export const DocumentsFilesWrapper = (): React.ReactElement => {
 
     return (
         <SplitPane
-            onReset={console.log}
-            onVisibleChange={console.log}
             visible={isFileDetailsVisible}
-            leftPanePreferredSize={120}
+            leftPanePreferredSize={200}
             rightPanePreferredSize={600}
+            minSizeLeft={100}
+            minSizeCenter={650}
+            minSizeRight={420}
             left={<TreeView dataSource={fileItems} />}
             center={<DataGrid onSelectedFile={e => { setSelectedFile(e); setIsFileDetailsVisible(true) }} />}
             right={
