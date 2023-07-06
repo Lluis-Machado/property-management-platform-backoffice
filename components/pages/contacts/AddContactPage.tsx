@@ -12,6 +12,7 @@ import { memo, useCallback, useState } from 'react';
 import { ApiCallError } from '@/lib/utils/errors';
 import { useRouter } from 'next/navigation';
 import { ContactData } from '@/lib/types/contactData';
+import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
 
 interface Props {
     initialValues: ContactData;
@@ -34,20 +35,14 @@ const AddContactPage = ({ initialValues }: Props) => {
 
             setIsLoading(true)
 
-            try {
+            const toastId = toast.loading("Creating contact...");
 
-                const resp = await toast.promise(
-                    fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts`,
-                        {
-                            method: 'POST',
-                            body: JSON.stringify(values),
-                            headers: { 'Content-type': 'application/json; charset=UTF-8' }
-                        }
-                    ),
+            try {
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts`,
                     {
-                        pending: 'Creating contact...',
-                        success: 'Contact created correctly!',
-                        error: 'Something went wrong'
+                        method: 'POST',
+                        body: JSON.stringify(values),
+                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
                     }
                 );
 
@@ -57,15 +52,17 @@ const AddContactPage = ({ initialValues }: Props) => {
                 }
                 const data = await resp.json();
 
-                console.log('TODO CORRECTO, valores de vuelta: ', data)
+                console.log('TODO CORRECTO, valores de vuelta: ', data);
 
-                router.push('/private/contacts')
+                updateSuccessToast(toastId, "Contact created correctly!");
+                router.push('/private/contacts', { shallow: true })
+
             } catch (error: any) {
                 console.error(error)
                 if (error instanceof ApiCallError) {
-                    toast.error(error.message)
+                    updateErrorToast(toastId, error.message);
                 } else {
-                    toast.error('There was an unexpected error, contact admin')
+                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
                 }
             } finally {
                 setIsLoading(false);

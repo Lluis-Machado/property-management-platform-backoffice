@@ -15,6 +15,7 @@ import DatePicker from '@/components/datepicker/DatePicker';
 import { ApiCallError } from '@/lib/utils/errors';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { ContactData } from '@/lib/types/contactData';
+import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
 
 interface Props {
     initialValues: ContactData;
@@ -37,34 +38,29 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
             }
 
             setIsLoading(true)
+            const toastId = toast.loading("Updating contact...");
 
             try {
-                const resp = await toast.promise(
-                    fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
-                        {
-                            method: 'PATCH',
-                            body: JSON.stringify(values),
-                            headers: { 'Content-type': 'application/json; charset=UTF-8' }
-                        }
-                    ),
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
                     {
-                        pending: 'Updating contact...',
-                        success: 'Contact updated correctly!',
-                        error: 'Something went wrong'
+                        method: 'PATCH',
+                        body: JSON.stringify(values),
+                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
                     }
-                );
+                )
 
                 if (!resp.ok) throw new ApiCallError('Error while updating a contact');
                 const data: ContactData = await resp.json();
 
                 console.log('TODO CORRECTO, valores de vuelta: ', data)
+                updateSuccessToast(toastId, "Contact updated correctly!");
 
             } catch (error: unknown) {
                 console.error(error)
                 if (error instanceof ApiCallError) {
-                    toast.error(error.message)
+                    updateErrorToast(toastId, error.message);
                 } else {
-                    toast.error('There was an unexpected error, contact admin')
+                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
                 }
             } finally {
                 setIsLoading(false);
@@ -75,30 +71,26 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
 
     const handleDelete = useCallback(
         async () => {
+            const toastId = toast.loading("Deleting contact...");
             try {
-                const resp = await toast.promise(
-                    fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
-                        {
-                            method: 'DELETE',
-                            headers: { 'Content-type': 'application/json; charset=UTF-8' }
-                        }
-                    ),
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
                     {
-                        pending: 'Deleting contact...',
-                        success: 'Contact deleted correctly!',
-                        error: 'Something went wrong'
+                        method: 'DELETE',
+                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
                     }
-                );
+                )
 
                 if (!resp.ok) throw new ApiCallError('Error while deleting a contact');
 
-                router.push('/private/contacts/')
+                updateSuccessToast(toastId, "Contact deleted correctly!");
+                router.push('/private/contacts/', { shallow: true })
+
             } catch (error: unknown) {
                 console.error(error)
                 if (error instanceof ApiCallError) {
-                    toast.error(error.message)
+                    updateErrorToast(toastId, error.message);
                 } else {
-                    toast.error('There was an unexpected error, contact admin')
+                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
                 }
             }
         }, [contactId, router]
