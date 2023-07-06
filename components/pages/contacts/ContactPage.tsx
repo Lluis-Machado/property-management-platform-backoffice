@@ -1,39 +1,29 @@
 'use client'
 
 // Libraries imports
-import { Alert, Button, Input, alertType } from 'pg-components';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { Button, Input } from 'pg-components';
 import { Formik, Form, FormikHelpers } from 'formik';
+import { memo, useCallback, useState } from 'react';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-toastify';
 
 // Local imports
 import GroupItem from '@/components/layoutComponent/GroupItem';
 import DatePicker from '@/components/datepicker/DatePicker';
-import { memo, useCallback, useState } from 'react';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ApiCallError } from '@/lib/utils/errors';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
-import { useRouter } from 'next/navigation';
 import { ContactData } from '@/lib/types/contactData';
-import Image from 'next/image';
 
 interface Props {
     initialValues: ContactData;
     contactId: string;
 }
 
-interface AlertConfig {
-    isVisible: boolean;
-    type: alertType;
-    message: string;
-}
-
 const ContactPage = ({ contactId, initialValues }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] = useState<boolean>(false);
-    const [alertConfig, setAlertConfig] = useState<AlertConfig>({
-        isVisible: false,
-        type: 'info',
-        message: '',
-    });
 
     const router = useRouter();
 
@@ -42,44 +32,40 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
             console.log("Valores a enviar: ", values)
 
             if (values === initialValues) {
-                setAlertConfig({
-                    isVisible: true,
-                    type: 'warning',
-                    message: 'Change at least one field'
-                })
+                toast.warning('Change at least one field')
                 return;
             }
 
             setIsLoading(true)
 
             try {
-
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
+                const resp = await toast.promise(
+                    fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
+                        {
+                            method: 'PATCH',
+                            body: JSON.stringify(values),
+                            headers: { 'Content-type': 'application/json; charset=UTF-8' }
+                        }
+                    ),
                     {
-                        method: 'PATCH',
-                        body: JSON.stringify(values),
-                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
+                        pending: 'Updating contact...',
+                        success: 'Contact updated correctly!',
+                        error: 'Something went wrong'
                     }
-                )
+                );
 
                 if (!resp.ok) throw new ApiCallError('Error while updating a contact');
                 const data: ContactData = await resp.json();
 
                 console.log('TODO CORRECTO, valores de vuelta: ', data)
 
-                setAlertConfig({
-                    isVisible: true,
-                    type: 'success',
-                    message: 'Contact updated correctly!'
-                })
-
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error(error)
-                setAlertConfig({
-                    isVisible: true,
-                    type: 'danger',
-                    message: 'CHECK CONSOLE'
-                })
+                if (error instanceof ApiCallError) {
+                    toast.error(error.message)
+                } else {
+                    toast.error('There was an unexpected error, contact admin')
+                }
             } finally {
                 setIsLoading(false);
                 setSubmitting(false);
@@ -90,40 +76,32 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
     const handleDelete = useCallback(
         async () => {
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
+                const resp = await toast.promise(
+                    fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
+                        {
+                            method: 'DELETE',
+                            headers: { 'Content-type': 'application/json; charset=UTF-8' }
+                        }
+                    ),
                     {
-                        method: 'DELETE',
-                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
+                        pending: 'Deleting contact...',
+                        success: 'Contact deleted correctly!',
+                        error: 'Something went wrong'
                     }
-                )
+                );
 
                 if (!resp.ok) throw new ApiCallError('Error while deleting a contact');
 
-                setAlertConfig({
-                    isVisible: true,
-                    type: 'success',
-                    message: 'Contact deleted correctly!'
-                })
-
                 router.push('/private/contacts/')
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error(error)
-                setAlertConfig({
-                    isVisible: true,
-                    type: 'danger',
-                    message: 'CHECK CONSOLE'
-                })
+                if (error instanceof ApiCallError) {
+                    toast.error(error.message)
+                } else {
+                    toast.error('There was an unexpected error, contact admin')
+                }
             }
         }, [contactId, router]
-    )
-
-    const onAlertHiding = useCallback(
-        () => {
-            setAlertConfig({
-                ...alertConfig,
-                isVisible: false,
-            });
-        }, []
     )
 
     return (
@@ -134,15 +112,6 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 onClose={() => setConfirmationVisible(false)}
                 onConfirm={handleDelete}
             />
-            <div className='absolute right-8'>
-                <Alert
-                    body={alertConfig.message}
-                    isVisible={alertConfig.isVisible}
-                    onHidden={onAlertHiding}
-                    type={alertConfig.type}
-                    duration={3000}
-                />
-            </div>
             <div className='flex my-6 w-full justify-between'>
                 {/* Contact avatar and name */}
                 <div className='flex ml-5 gap-5 items-center'>
@@ -159,7 +128,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 </div>
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center'>
-                {initialValues.lastName}
+                    {initialValues.lastName}
                 </div>
                 {/* Delete contact button */}
                 <div className='w-10 self-end'>
@@ -168,35 +137,35 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                         onClick={() => setConfirmationVisible(true)}
                         type='button'
                         icon={faTrash}
-                        style='outline'
+                        style='danger'
                     />
                 </div>
             </div>
-            <div>
-                <Formik
-                    initialValues={initialValues}
-                    onSubmit={handleSubmit}
-                >
-                    <Form>
-                        <GroupItem cols={3} caption={'Contact Information'} >
-                            <Input
-                                name="firstName"
-                                label={"First name"}
-                                readOnly={isLoading}
-                            />
-                            <Input
-                                name="lastName"
-                                label={"Last name"}
-                                readOnly={isLoading}
-                            />
-                            <DatePicker
-                                name='birthDay'
-                                label='Birth date'
-                                defaultValue={initialValues.birthDay ?? undefined}
-                                isClearable
-                                readOnly={isLoading}
-                            />
-                            {/* <Select
+            {/* Contact form */}
+            <Formik
+                initialValues={initialValues}
+                onSubmit={handleSubmit}
+            >
+                <Form>
+                    <GroupItem cols={3} caption={'Contact Information'} >
+                        <Input
+                            name="firstName"
+                            label={"First name"}
+                            readOnly={isLoading}
+                        />
+                        <Input
+                            name="lastName"
+                            label={"Last name"}
+                            readOnly={isLoading}
+                        />
+                        <DatePicker
+                            name='birthDay'
+                            label='Birth date'
+                            defaultValue={initialValues.birthDay ?? undefined}
+                            isClearable
+                            readOnly={isLoading}
+                        />
+                        {/* <Select
                             name='taxResidence'
                             label='Tax residence'
                             size='large'
@@ -209,17 +178,17 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                             ]}
                             defaultValue={{ label: 'Germany', value: 'de' }}
                         /> */}
-                            {/* <Input
+                        {/* <Input
                             name="idCardNumber"
                             label={"ID card number"}
                         /> */}
-                            {/* <DatePicker
+                        {/* <DatePicker
                             name="idCardExpDate"
                             label={"ID card expiration date"}
                             defaultValue={initialValues.idCardExpDate ?? undefined}
                             isClearable
                         /> */}
-                            {/* <Input
+                        {/* <Input
                             name="passportNum"
                             label={"Passport Number"}
                             />
@@ -229,78 +198,77 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                             defaultValue={initialValues.passportExpDate ?? undefined}
                             isClearable
                         /> */}
-                            <Input
-                                name="nif"
-                                label={"NIF"}
-                                readOnly={isLoading}
-                            />
-                            {/* <Input
+                        <Input
+                            name="nif"
+                            label={"NIF"}
+                            readOnly={isLoading}
+                        />
+                        {/* <Input
                             name="companyNumber"
                             label={"Company number"}
                         /> */}
-                        </GroupItem>
-                        <GroupItem cols={3} caption={'Address Information'} >
-                            <Input
-                                name="addressLine1"
-                                label={"Address line"}
-                                readOnly={isLoading}
-                            />
-                            <Input
-                                name="addressLine2"
-                                label={"Address line 2"}
-                                readOnly={isLoading}
-                            />
-                            <Input
-                                name="city"
-                                label={"City"}
-                                readOnly={isLoading}
-                            />
-                            <Input
-                                name="state"
-                                label={"State"}
-                                readOnly={isLoading}
-                            />
-                            <Input
-                                name="postalCode"
-                                label={"Postal code"}
-                                readOnly={isLoading}
-                            />
-                            <Input
-                                name="country"
-                                label={"Country"}
-                                readOnly={isLoading}
-                            />
+                    </GroupItem>
+                    <GroupItem cols={3} caption={'Address Information'} >
+                        <Input
+                            name="addressLine1"
+                            label={"Address line"}
+                            readOnly={isLoading}
+                        />
+                        <Input
+                            name="addressLine2"
+                            label={"Address line 2"}
+                            readOnly={isLoading}
+                        />
+                        <Input
+                            name="city"
+                            label={"City"}
+                            readOnly={isLoading}
+                        />
+                        <Input
+                            name="state"
+                            label={"State"}
+                            readOnly={isLoading}
+                        />
+                        <Input
+                            name="postalCode"
+                            label={"Postal code"}
+                            readOnly={isLoading}
+                        />
+                        <Input
+                            name="country"
+                            label={"Country"}
+                            readOnly={isLoading}
+                        />
 
-                            <Input
-                                name="email"
-                                label={"Email"}
-                                readOnly={isLoading}
+                        <Input
+                            name="email"
+                            label={"Email"}
+                            readOnly={isLoading}
+                        />
+                        <Input
+                            name="phoneNumber"
+                            label={"Phone number"}
+                            readOnly={isLoading}
+                        />
+                        <Input
+                            name="mobilePhoneNumber"
+                            label={"Mobile phone number"}
+                            readOnly={isLoading}
+                        />
+                    </GroupItem>
+                    <div className='flex justify-end py-4'>
+                        <div className='flex flex-row justify-between gap-2'>
+                            <Button
+                                elevated
+                                type='submit'
+                                text='Submit Changes'
+                                disabled={isLoading}
+                                isLoading={isLoading}
                             />
-                            <Input
-                                name="phoneNumber"
-                                label={"Phone number"}
-                                readOnly={isLoading}
-                            />
-                            <Input
-                                name="mobilePhoneNumber"
-                                label={"Mobile phone number"}
-                                readOnly={isLoading}
-                            />
-                        </GroupItem>
-                        <div className='flex justify-end py-4'>
-                            <div className='flex flex-row justify-between gap-2'>
-                                <Button
-                                    elevated
-                                    type='submit'
-                                    text='Submit Changes'
-                                    disabled={isLoading}
-                                    isLoading={isLoading}
-                                />
-                            </div>
                         </div>
-                    </Form>
-                </Formik>
-            </div>
+                    </div>
+                </Form>
+            </Formik>
         </div>
     );
 };
