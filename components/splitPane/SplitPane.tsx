@@ -57,30 +57,39 @@ interface Props {
    * Component right panel
    */
     right?: React.ReactElement;
+    /**
+     * Left pane preferred size
+     */
+    leftPanePreferredSize?: number;
+    /**
+     * Center pane preferred size
+     */
+    centerPanePreferredSize?: number;
+    /**
+     * Right pane preferred size
+     */
+    rightPanePreferredSize?: number;
 }
 
-export default function SplitPaneAnimation(Props: Props) {
+export default function SplitPane(Props: Props) {
     const {
-        proportionalLayout = false,
-        visible,
-        left,
-        center,
-        right
+        visible, left, center, right,
+        leftPanePreferredSize, centerPanePreferredSize, rightPanePreferredSize,
+        ...rest
     } = Props;
     return (
-        <div className='h-full w-full'>
+        <div className='h-screen'>
             <Allotment
                 className={styles.root + ' ' + styles.splitViewContainer}
-                proportionalLayout={proportionalLayout}
-                {...Props}
+                {...rest}
             >
-                <Allotment.Pane minSize={100}>
+                <Allotment.Pane preferredSize={leftPanePreferredSize} minSize={100}>
                     {left}
                 </Allotment.Pane>
-                <Allotment.Pane className={styles.centerPane}>
+                <Allotment.Pane preferredSize={centerPanePreferredSize} className={styles.centerPane}>
                     {center}
                 </Allotment.Pane>
-                <Allotment.Pane minSize={300} visible={visible} className={styles.rightPane} >
+                <Allotment.Pane preferredSize={rightPanePreferredSize} minSize={300} visible={visible} className={styles.rightPane} >
                     {right}
                 </Allotment.Pane>
             </Allotment>

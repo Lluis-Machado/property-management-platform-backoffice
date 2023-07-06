@@ -14,6 +14,8 @@ import {
 import { files } from '../files';
 import { faArrowRight, faCopy, faDownload, faFile, faImage, faPenToSquare, faQuestion, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import ContextMenu from './ContextMenu';
+import DataSource from 'devextreme/data/data_source';
 
 type ToolBarItemType = 'Download' | 'Move to' | 'Copy to' | 'Rename' | 'Delete' | 'Clear Selection' | 'Separator';
 
@@ -48,7 +50,11 @@ const customizeNameText = ({ value }: { value: string }) => {
         : value.substring(0, lastIndex);
 };
 
-const DataGrid = () => {
+interface Props {
+    onSelectedFile: (file: any) => void;
+}
+
+const DataGrid = ({ onSelectedFile }: Props) => {
 
     const DataGridRef = useRef<DxDataGrid>(null);
 
@@ -94,54 +100,60 @@ const DataGrid = () => {
 
     const handleOnSelectionChanged = useCallback(({ selectedRowsData }: any) => {
         setSelectedItems(selectedRowsData);
-    }, []);
+        onSelectedFile(selectedRowsData.length === 1 ? selectedRowsData[0] : null);
+    }, [onSelectedFile]);
 
     return (
-        <DxDataGrid
-            dataSource={files}
-            onSelectionChanged={handleOnSelectionChanged}
-            ref={DataGridRef}
-            rowAlternationEnabled
-            showBorders
-        >
-            <Selection mode='multiple' showCheckBoxesMode='none' />
-            <Toolbar visible>
-                <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Download')} />
-                <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Separator')} />
-                <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Move to')} />
-                <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Copy to')} />
-                <Item location='before' visible={selectedItems.length === 1} render={_ => ToolBarItemRender('Rename')} />
-                <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Separator')} />
-                <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Delete')} />
-                <Item location='after' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Clear Selection')} />
-            </Toolbar>
-            <Column
-                caption=''
-                cellRender={fileExtensionCellRender}
-                dataField='file_extension'
-                width={30}
-            />
-            <Column
-                caption='Name'
-                dataField='file_name'
-                customizeText={customizeNameText}
-            />
-            <Column
-                caption='Size (B)'
-                dataField='file_size'
-                dataType='number'
-            />
-            <Column
-                caption='Created'
-                dataField='created_date'
-                dataType='date'
-            />
-            <Column
-                caption='Modified'
-                dataField='modified_date'
-                dataType='date'
-            />
-        </DxDataGrid>
+        <div>
+
+            <DxDataGrid
+                dataSource={files}
+                onSelectionChanged={handleOnSelectionChanged}
+                ref={DataGridRef}
+                rowAlternationEnabled
+                showBorders
+                id='dataGrid'
+            >
+                <Selection mode='multiple' showCheckBoxesMode='none' />
+                <Toolbar visible>
+                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Download')} />
+                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Separator')} />
+                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Move to')} />
+                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Copy to')} />
+                    <Item location='before' visible={selectedItems.length === 1} render={_ => ToolBarItemRender('Rename')} />
+                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Separator')} />
+                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Delete')} />
+                    <Item location='after' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Clear Selection')} />
+                </Toolbar>
+                <Column
+                    caption=''
+                    cellRender={fileExtensionCellRender}
+                    dataField='file_extension'
+                    width={30}
+                />
+                <Column
+                    caption='Name'
+                    dataField='file_name'
+                    customizeText={customizeNameText}
+                />
+                <Column
+                    caption='Size (B)'
+                    dataField='file_size'
+                    dataType='number'
+                />
+                <Column
+                    caption='Created'
+                    dataField='created_date'
+                    dataType='date'
+                />
+                <Column
+                    caption='Modified'
+                    dataField='modified_date'
+                    dataType='date'
+                />
+            </DxDataGrid>
+            <ContextMenu dataSource={DataSource} selectedTreeItem={selectedItems} />
+        </div>
     );
 };
 

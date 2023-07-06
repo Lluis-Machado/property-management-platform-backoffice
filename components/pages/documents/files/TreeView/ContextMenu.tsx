@@ -7,13 +7,13 @@ import { ItemClickEvent } from 'devextreme/ui/context_menu';
 import dynamic from 'next/dynamic';
 
 // Local imports
-import { FormPopupType } from './FormPopup';
+import { FormPopupType } from '../popups/FormPopup';
 import { PopupVisibility } from '@/lib/types/Popups';
-import { TreeViewPopupType } from './TreeViewPopup';
+import { TreeViewPopupType } from '../popups/TreeViewPopup';
 
 // Dynamic imports
-const FormPopup = dynamic(() => import('./FormPopup'));
-const TreeViewPopup = dynamic(() => import('./TreeViewPopup'));
+const FormPopup = dynamic(() => import('../popups/FormPopup'));
+const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 
 const addDisabledKey = (node: any) => {
     const stack = [node];

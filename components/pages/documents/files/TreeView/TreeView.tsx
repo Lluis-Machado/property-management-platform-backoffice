@@ -10,7 +10,7 @@ import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
 
 // Local imports
 import './TreeView.css';
-import ContextMenu from './contextMenu/ContextMenu';
+import ContextMenu from './ContextMenu';
 
 const itemRender = (params: any): React.ReactElement => {
     if (!params.isDirectory) return <></>;
