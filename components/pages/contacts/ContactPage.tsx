@@ -13,6 +13,7 @@ import { ApiCallError } from '@/lib/utils/errors';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { useRouter } from 'next/navigation';
 import { ContactData } from '@/lib/types/contactData';
+import Image from 'next/image';
 
 interface Props {
     initialValues: ContactData;
@@ -126,7 +127,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
     )
 
     return (
-        <>
+        <div className='mt-4'>
             <ConfirmDeletePopup
                 message='Are you sure you want to delete this contact?'
                 isVisible={confirmationVisible}
@@ -142,8 +143,26 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                     duration={3000}
                 />
             </div>
-            <div className='flex w-full justify-end'>
-                <div className='w-10'>
+            <div className='flex my-6 w-full justify-between'>
+                {/* Contact avatar and name */}
+                <div className='flex ml-5 gap-5 items-center'>
+                    <Image
+                        className='rounded-full select-none'
+                        src={`https://ui-avatars.com/api/?name=${initialValues.firstName}+${initialValues.lastName}&background=random&size=128`}
+                        alt='user avatar with name initials'
+                        width={64}
+                        height={64}
+                    />
+                    <span className='text-4xl tracking-tight text-zinc-900'>
+                        {initialValues.firstName} {initialValues.lastName}
+                    </span>
+                </div>
+                {/* Cards with actions */}
+                <div className='flex flex-row items-center'>
+                {initialValues.lastName}
+                </div>
+                {/* Delete contact button */}
+                <div className='w-10 self-end'>
                     <Button
                         elevated
                         onClick={() => setConfirmationVisible(true)}
@@ -220,7 +239,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                             label={"Company number"}
                         /> */}
                         </GroupItem>
-                        <GroupItem cols={3} caption={'Adress Information'} >
+                        <GroupItem cols={3} caption={'Address Information'} >
                             <Input
                                 name="addressLine1"
                                 label={"Address line"}
@@ -282,7 +301,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                     </Form>
                 </Formik>
             </div>
-        </>
+        </div>
     );
 };
 

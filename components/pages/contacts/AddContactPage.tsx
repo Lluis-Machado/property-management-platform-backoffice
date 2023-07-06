@@ -58,7 +58,11 @@ const AddContactPage = ({ initialValues }: Props) => {
                     }
                 )
 
-                if (!resp.ok) throw new ApiCallError('Error while updating a contact');
+                if (!resp.ok)
+                {
+                    const responseMsg = await resp.text()
+                    throw new ApiCallError(responseMsg);
+                }
                 const data = await resp.json();
 
                 console.log('TODO CORRECTO, valores de vuelta: ', data)
@@ -70,12 +74,12 @@ const AddContactPage = ({ initialValues }: Props) => {
                 })
 
                 router.push('/private/contacts')
-            } catch (error) {
+            } catch (error: any) {
                 console.error(error)
                 setAlertConfig({
                     isVisible: true,
                     type: 'danger',
-                    message: 'CHECK CONSOLE'
+                    message: error.message
                 })
             } finally {
                 setIsLoading(false);

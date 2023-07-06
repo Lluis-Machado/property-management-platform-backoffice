@@ -2,7 +2,7 @@ export interface ContactData {
     id: string;
     firstName: string;
     lastName: string;
-    birthDay: string;
+    birthDay: string | null;
     nif: string;
     email: string;
     phoneNumber: string;
