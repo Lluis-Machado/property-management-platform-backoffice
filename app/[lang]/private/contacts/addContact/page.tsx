@@ -6,7 +6,7 @@ const initialValues: ContactData = {
     id: '',
     firstName: '',
     lastName: '',
-    birthDay: '',
+    birthDay: null,
     nif: '',
     email: '',
     phoneNumber: '',

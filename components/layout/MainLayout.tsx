@@ -1,5 +1,6 @@
 // React imports
 import { memo } from 'react';
+import { ToastContainer } from 'react-toastify';
 
 // Local imports
 import { ContentWrapper } from './ContentWrapper';
@@ -28,6 +29,7 @@ function MainLayout({ children, lang }: Props) {
                     {children}
                 </ContentWrapper>
             </section>
+            <ToastContainer />
         </section>
     );
 };
