@@ -1,5 +1,4 @@
 // Local imports
-import data from '@/components/pages/properties/data.json';
 import PropertiesWrapper from '@/components/pages/properties/PropertiesWrapper';
 import { ApiCallError } from '@/lib/utils/errors';
 
@@ -9,6 +8,7 @@ async function getData() {
     return resp.json()
   }
 
+
 export default async function Properties() {
     const data = await getData()
     return (
@@ -16,7 +16,7 @@ export default async function Properties() {
             <div className='text-l text-secondary-500 mt-4'>
                 Select a property
             </div>
-            <PropertiesWrapper dataSource={data} />
+            <PropertiesWrapper dataSource={data}/>
         </>
     )
 };

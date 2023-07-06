@@ -19,13 +19,15 @@ import PropertySidePropertiesDatagrid from "./PropertySidePropertiesDatagrid";
 import { AlertConfig } from "../../contacts/ContactPage";
 import { ApiCallError } from "@/lib/utils/errors";
 import ConfirmDeletePopup from "@/components/popups/ConfirmDeletePopup";
+import { ContactData } from "@/lib/types/contactData";
 
 interface Props {
     id: string;
     data: PropertyInterface;
+    contactData: ContactData[];
 };
 
-const PropertyWrapper = ({ id, data }: Props): React.ReactElement => {
+const PropertyWrapper = ({ id, data, contactData }: Props): React.ReactElement => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] = useState<boolean>(false);
     const [alertConfig, setAlertConfig] = useState<AlertConfig>({
@@ -53,7 +55,19 @@ const PropertyWrapper = ({ id, data }: Props): React.ReactElement => {
                 const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties/${id}`,
                     {
                         method: 'PATCH',
-                        body: JSON.stringify(values),
+                        body: JSON.stringify({
+                            ...values,
+
+                            // FOR EACH 
+                            "ownerships": [
+
+                                {
+                                    "contactId": values.mainContact,
+                                    "mainOwnership": true,
+                                    "share": 100
+                                }
+                            ],
+                        }),
                         headers: { 'Content-type': 'application/json; charset=UTF-8' }
                     }
                 )
@@ -175,11 +189,11 @@ const PropertyWrapper = ({ id, data }: Props): React.ReactElement => {
                     />
                 </div>
             </div>
-            <PropertyFormInfo initialValues={data} handleSubmit={handleSubmit} isLoading={isLoading} />
+            <PropertyFormInfo initialValues={data} contactData={contactData} handleSubmit={handleSubmit} isLoading={isLoading} />
             <Tabs
                 dataSource={[
                     {
-                        children: <PropertiesOwnersDatagrid dataSource={data} />,
+                        children: <PropertiesOwnersDatagrid dataSource={data} contactData={contactData} />,
                         icon: faUserGroup,
                         title: 'Owners'
                     },
@@ -191,7 +205,7 @@ const PropertyWrapper = ({ id, data }: Props): React.ReactElement => {
                     {
                         children: <PropertyTextArea />,
                         icon: faNoteSticky,
-                        title: 'Notes'
+                        title: 'Comments'
                     }
                 ]}
             />

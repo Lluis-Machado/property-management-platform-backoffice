@@ -8,10 +8,11 @@ import DataGrid, { Column, Paging, SearchPanel, Pager, Editing, Lookup, Summary,
 
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
-import contacts from './contacts.json';
+import { ContactData } from '@/lib/types/contactData';
 
 interface Props {
     dataSource: any;
+    contactData: ContactData[];
 };
 
 const MainContactCellRender = ({ value }: any): React.ReactElement => (
@@ -21,7 +22,7 @@ const MainContactCellRender = ({ value }: any): React.ReactElement => (
     />
 );
 
-const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
+const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
     const data = dataSource.ownerships;
     return (
         <DataGrid
@@ -55,15 +56,20 @@ const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
             />
             <Column
                 dataField='contactId'
-                caption='Contact'
+                caption='First Name'
                 editCellComponent={OwnerDropdownComponent}
             >
                 <Lookup
-                    dataSource={contacts}
+                    dataSource={contactData}
                     valueExpr="id"
-                    displayExpr="full_name"
+                    displayExpr="firstName"
                 />
             </Column>
+            <Column
+                dataField='contactDetail.lastName'
+                dataType='string'
+                caption='Last Name'
+            />
             <Column
                 dataField='share'
                 dataType='number'
@@ -77,16 +83,6 @@ const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
                 width={150}
                 cellRender={MainContactCellRender}
             />
-            {/* <MasterDetail
-                enabled={true}
-                component={PropertiesOwnerMasterDetail}
-            /> */}
-            <Summary>
-                <TotalItem
-                    column="percentage"
-                    summaryType="sum"
-                />
-            </Summary>
         </DataGrid>
     )
 }

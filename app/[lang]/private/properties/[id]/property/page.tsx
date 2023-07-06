@@ -11,13 +11,19 @@ async function getData(id: string) {
     if (!resp.ok) throw new ApiCallError('Error while getting property info');
     return resp.json()
 }
+async function getContacts() {
+  const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts`, { cache: 'no-cache' })
+  if (!resp.ok) throw new ApiCallError('Error while getting property info');
+  return resp.json()
+}
 
 export default async function Property({ params: {id} }: Props) {
   const data = await getData(id)
+  const contactData = await getContacts()
   return (
     <>
       <div className='text-l text-secondary-500 mb-3'>{`Properties / ${id}/ Property Info`}</div>
-      <PropertyWrapper id={id} data={data}></PropertyWrapper>
+      <PropertyWrapper id={id} data={data} contactData={contactData}></PropertyWrapper>
     </>
   )
 }

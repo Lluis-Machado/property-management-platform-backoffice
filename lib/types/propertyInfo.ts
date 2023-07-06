@@ -1,65 +1,44 @@
 export interface PropertyInterface {
-    propertyId: string;
-    name: string;
-    type: string;
-    typeOfUse: [
-        number
-    ];
-    address: {
-        addressLine1: string,
-        addressLine2: string,
-        city: string,
-        state: string,
-        postalCode: string,
-        country: string
-    },
-    cadastreRef: string,
-    comments: string,
-    parentPropertyId: string,
-    ownerships: [
-        {
-            id: string,
-            contactId: string,
-            propertyId: string,
-            share: number,
-            mainOwnership: boolean,
-            contactDetail: {
-                firstName: string,
-                lastName: string,
-                id: string
-            },
-            deleted: boolean
-        }
-    ],
-    childProperties: [
-        {
-            id: string,
-            name: string
-        }
-    ]
-};
+    ownerships: Ownership[]
+    childProperties: any[]
+    name: string
+    type: string
+    typeOfUse: number[]
+    address: Address
+    cadastreRef: string
+    comments: string
+    mainContact: MainContact
+    parentProperty: any
+    id: string
+}
 
-export interface CreatePropertyInterface {
-    name: string;
-    type: string;
-    typeOfUse: [
-        number
-    ];
-    address: {
-        addressLine1: string,
-        addressLine2: string,
-        city: string,
-        state: string,
-        postalCode: string,
-        country: string
-    },
-    cadastreRef: string,
-    ownerships: [
-        {
-            id: string,
-            contactId: string,
-            mainOwnership: boolean,
-            share: number
-        }
-    ]
+interface Ownership {
+    id: string
+    contactId: string
+    propertyId: string
+    share: number
+    mainOwnership: boolean
+    contactDetail: ContactDetail
+    deleted: boolean
+}
+
+interface ContactDetail {
+    firstName: string
+    lastName: string
+    id: string
+}
+
+interface Address {
+    addressLine1: string
+    addressLine2: string
+    city: string
+    state: string
+    postalCode: string
+    country: string
+}
+
+interface MainContact {
+    firstName: string
+    lastName: string
+    id: string
 }

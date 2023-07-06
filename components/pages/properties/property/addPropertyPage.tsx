@@ -2,18 +2,20 @@
 //react imports 
 import { memo, useCallback, useState } from "react"; 3
 //local imports
-import { CreatePropertyInterface } from "@/lib/types/propertyInfo";
+import { PropertyInterface } from "@/lib/types/propertyInfo";
 import { FormikHelpers } from "formik";
 import PropertyFormInfo from "@/components/forms/propertyFormInfo/PropertyFormInfo";
 import { AlertConfig } from "../../contacts/ContactPage";
 import { ApiCallError } from "@/lib/utils/errors";
 import { useRouter } from 'next/navigation';
 import { Alert } from "pg-components";
+import { ContactData } from "@/lib/types/contactData";
 
 interface Props {
-  initialValues: CreatePropertyInterface;
+  initialValues: PropertyInterface;
+  contactData: ContactData[];
 }
-const AddPropertyPage = ({ initialValues }: Props) => {
+const AddPropertyPage = ({ initialValues, contactData }: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [alertConfig, setAlertConfig] = useState<AlertConfig>({
     isVisible: false,
@@ -24,7 +26,7 @@ const AddPropertyPage = ({ initialValues }: Props) => {
   const router = useRouter();
 
   const handleSubmit = useCallback(
-    async (values: CreatePropertyInterface, { setSubmitting }: FormikHelpers<CreatePropertyInterface>) => {
+    async (values: PropertyInterface, { setSubmitting }: FormikHelpers<PropertyInterface>) => {
       console.log("Valores a enviar: ", values)
 
       if (values === initialValues) {
@@ -45,18 +47,13 @@ const AddPropertyPage = ({ initialValues }: Props) => {
             method: 'POST',
             body: JSON.stringify({
               ...values,
-              "typeOfUse": [
-                0
-              ],
-              "comments": "",
-              //SEE HOW TO GET THE CONTACT ID FROM MAIN CONTACT
               "ownerships": [
                 {
-                  "contactId": "615a6923-f207-4872-a0fc-039cd4faf5f1",
+                  "contactId": values.mainContact,
                   "mainOwnership": true,
                   "share": 100
                 }
-              ]
+              ],
             }),
             headers: { 'Content-type': 'application/json; charset=UTF-8' }
           }
@@ -70,7 +67,7 @@ const AddPropertyPage = ({ initialValues }: Props) => {
         setAlertConfig({
           isVisible: true,
           type: 'success',
-          message: 'Property updated correctly!'
+          message: 'Property added succesfully!'
         })
 
         router.push('/private/properties/')
@@ -107,7 +104,7 @@ const AddPropertyPage = ({ initialValues }: Props) => {
         />
       </div>
       <div className='text-l text-secondary-500 mb-3'>{`Properties / add Property`}</div>
-      <PropertyFormInfo initialValues={initialValues} handleSubmit={handleSubmit} isLoading={isLoading} />
+      <PropertyFormInfo initialValues={initialValues} contactData={contactData} handleSubmit={handleSubmit} isLoading={isLoading} />
     </>
   )
 }

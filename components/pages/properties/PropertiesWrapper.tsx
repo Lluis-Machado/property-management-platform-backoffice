@@ -6,12 +6,12 @@ import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
 // Local imports
-import Datagrid from './DatagridProperties';
+import Datagrid from './Datagrid';
 interface Props {
     dataSource: any[];
 };
 
-const PropertiesWrapper = ({ dataSource }: Props): React.ReactElement => {
+const PropertiesWrapper = ({ dataSource}: Props): React.ReactElement => {
     const router = useRouter();
 
     const handleDoubleClick = useCallback(({ data }: any) => {

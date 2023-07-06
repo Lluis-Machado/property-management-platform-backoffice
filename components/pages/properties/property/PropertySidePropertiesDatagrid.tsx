@@ -8,7 +8,6 @@ interface Props {
     dataSource: any;
 };
 
-
 const PropertySidePropertiesDatagrid = ({ dataSource }: Props) => {
 
     const data = dataSource.childProperties;
