@@ -9,7 +9,7 @@ interface Props {
 
 const Contact = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
 
-    const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${id}`, { cache: 'no-cache' })
+    const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${id}`, { cache: 'no-store' })
     if (!resp.ok) throw new ApiCallError('Error while getting contact info');
     const data: ContactData = await resp.json();
 
