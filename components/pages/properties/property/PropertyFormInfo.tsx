@@ -1,15 +1,15 @@
 "use client"
 // React imports
+import { useState } from 'react';
 
 // Libraries imports
 import { Formik, Form } from 'formik';
 import { Button, Input, Select } from 'pg-components';
 
 // Local imports
-import GroupItem from '../../layoutComponent/GroupItem';
-import { PropertyInterface } from '@/lib/types/propertyInfo';
 import { ContactData } from '@/lib/types/contactData';
-import { useEffect, useState } from 'react';
+import { PropertyInterface } from '@/lib/types/propertyInfo';
+import GroupItem from '@/components/layoutComponent/GroupItem';
 
 interface Props {
     initialValues: PropertyInterface;
@@ -19,16 +19,14 @@ interface Props {
 };
 
 const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading }: Props) => {
-    const [formattedContacts, setFormattedContacts] = useState<{ label: string; value: string }[]>([]);
-
-    useEffect(() => {
-        setFormattedContacts(contactData.map(({ firstName, lastName, id }) => {
+    const [formattedContacts, setFormattedContacts] = useState<{ label: string; value: string }[]>(
+        contactData.map(({ firstName, lastName, id }) => {
             return {
                 label: `${firstName} ${lastName}`,
                 value: `${id}`,
             };
-        }));
-    }, [contactData])
+        })
+    );
 
     return (
         <div className='m-2 '>

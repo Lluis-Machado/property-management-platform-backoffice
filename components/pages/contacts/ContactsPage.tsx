@@ -44,6 +44,7 @@ const ContactsPage = ({ dataSource }: Props) => {
             keyExpr='id'
             onRowDblClick={handleDouleClick}
             columnHidingEnabled={false}
+            rowAlternationEnabled
             allowColumnResizing
             showBorders
             showRowLines

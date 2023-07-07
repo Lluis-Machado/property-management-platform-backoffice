@@ -1,5 +1,5 @@
 // Local imports
-import AddPropertyPage from '@/components/pages/properties/property/addPropertyPage';
+import AddPropertyPage from '@/components/pages/properties/AddPropertyPage';
 import { PropertyInterface } from '@/lib/types/propertyInfo';
 import { getApiData } from '@/lib/utils/apiCalls';
 
@@ -48,7 +48,12 @@ const AddProperty = async () => {
     const contactData = await getApiData('/contacts/contacts', 'Error while getting contacts');
 
     return (
-        <AddPropertyPage initialValues={initialValues} contactData={contactData} />
+        <>
+            <div className='text-lg text-secondary-500'>
+                Properties / Add Property
+            </div>
+            <AddPropertyPage initialValues={initialValues} contactData={contactData} />
+        </>
     )
 };
 

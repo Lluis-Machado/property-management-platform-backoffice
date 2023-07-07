@@ -6,7 +6,7 @@ interface Props {
     params: { id: string };
 };
 
-const Contact = async ({ params: { id } }: Props): Promise<React.ReactElement> => {
+const Contact = async ({ params: { id } }: Props) => {
     const data = await getApiData(`/contacts/contacts/${id}`, 'Error while getting contact info');
 
     return (

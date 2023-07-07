@@ -14,7 +14,7 @@ interface Props {
     dataSource: any[];
 };
 
-const PropertiesWrapper = ({ dataSource }: Props): React.ReactElement => {
+const PropertiesPage = ({ dataSource }: Props): React.ReactElement => {
 
     console.log(dataSource)
     const router = useRouter();
@@ -54,6 +54,7 @@ const PropertiesWrapper = ({ dataSource }: Props): React.ReactElement => {
             keyExpr='id'
             onRowDblClick={handleDoubleClick}
             columnHidingEnabled={false}
+            rowAlternationEnabled
             allowColumnResizing
             showBorders
             showRowLines
@@ -101,4 +102,4 @@ const PropertiesWrapper = ({ dataSource }: Props): React.ReactElement => {
     )
 }
 
-export default memo(PropertiesWrapper);
+export default memo(PropertiesPage);

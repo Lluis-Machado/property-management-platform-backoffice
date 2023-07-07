@@ -16,8 +16,6 @@ import { ApiCallError } from '@/lib/utils/errors';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { ContactData } from '@/lib/types/contactData';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
-import Link from 'next/link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 
 interface Props {
@@ -70,7 +68,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 setIsLoading(false);
                 setSubmitting(false);
             }
-        }, [contactId]
+        }, [contactId, initialValues]
     )
 
     const handleDelete = useCallback(

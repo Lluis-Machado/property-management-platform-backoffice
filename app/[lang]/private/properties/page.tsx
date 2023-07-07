@@ -1,5 +1,5 @@
 // Local imports
-import PropertiesWrapper from '@/components/pages/properties/PropertiesWrapper';
+import PropertiesPage from '@/components/pages/properties/PropertiesPage';
 import { getApiData } from '@/lib/utils/apiCalls';
 
 export default async function Properties() {
@@ -10,7 +10,7 @@ export default async function Properties() {
             <div className='text-lg text-secondary-500 mt-4'>
                 Select a property
             </div>
-            <PropertiesWrapper dataSource={data} />
+            <PropertiesPage dataSource={data} />
         </>
     )
 };

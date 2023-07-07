@@ -1,7 +1,9 @@
 'use client'
 // React imports
+
 // Libraries imports
-import DataGrid, { Column, Paging, SearchPanel, Pager, Editing, Lookup, Summary, TotalItem } from 'devextreme-react/data-grid';
+import DataGrid, { Column, Paging, SearchPanel, Pager, Editing } from 'devextreme-react/data-grid';
+
 // Local imports
 
 interface Props {
@@ -11,7 +13,8 @@ interface Props {
 const PropertySidePropertiesDatagrid = ({ dataSource }: Props) => {
 
     const data = dataSource.childProperties;
-    console.log(data)
+    // console.log(data)
+
     return (
         <DataGrid
             dataSource={data}
