@@ -55,7 +55,7 @@ const AddContactPage = ({ initialValues }: Props) => {
                 console.log('TODO CORRECTO, valores de vuelta: ', data);
 
                 updateSuccessToast(toastId, "Contact created correctly!");
-                router.push('/private/contacts', { shallow: true })
+                router.push('/private/contacts')
 
             } catch (error: any) {
                 console.error(error)
