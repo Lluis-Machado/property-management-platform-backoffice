@@ -83,7 +83,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 if (!resp.ok) throw new ApiCallError('Error while deleting a contact');
 
                 updateSuccessToast(toastId, "Contact deleted correctly!");
-                router.push('/private/contacts/')
+                router.push('/private/contacts')
 
             } catch (error: unknown) {
                 console.error(error)
