@@ -1,50 +1,139 @@
 'use client'
 
 // Libraries imports
-import { Button, Input, Select } from 'pg-components';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { Button, Input } from 'pg-components';
 import { Formik, Form, FormikHelpers } from 'formik';
+import { memo, useCallback, useState } from 'react';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-toastify';
 
 // Local imports
 import GroupItem from '@/components/layoutComponent/GroupItem';
 import DatePicker from '@/components/datepicker/DatePicker';
+import { ApiCallError } from '@/lib/utils/errors';
+import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
+import { ContactData } from '@/lib/types/contactData';
+import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
 
-interface contactValues {
-    firstName?: string;
-    lastName?: string;
-    dateOfBirth?: Date;
-    taxResidence?: string;
-    idCardNum?: string;
-    idCardExpDate?: Date;
-    passportNum?: string;
-    passportExpDate?: Date;
-    nif: string;
-    companyNumber?: string;
-    addressLine?: string;
-    city?: string;
-    region?: string;
-    state?: string;
-    postalCode?: string;
-    country?: string;
-    email?: string;
-    telephoneNum?: string;
-    cellphoneNum?: string;
-};
+interface Props {
+    initialValues: ContactData;
+    contactId: string;
+}
 
-const handleSubmit = async (
-    values: contactValues,
-    { setSubmitting }: FormikHelpers<contactValues>
-) => {
-    console.log("PINGA: ", values)
-    // values.dateOfBirth = `${values.dateOfBirth.}`
-    setTimeout(() => {
-        alert(JSON.stringify(values, null, 2));
-        setSubmitting(false);
-    }, 500);
-};
+const ContactPage = ({ contactId, initialValues }: Props) => {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [confirmationVisible, setConfirmationVisible] = useState<boolean>(false);
 
-const ContactPage = ({ initialValues }: { initialValues: contactValues }) => {
+    const router = useRouter();
+
+    const handleSubmit = useCallback(
+        async (values: ContactData, { setSubmitting }: FormikHelpers<ContactData>) => {
+            console.log("Valores a enviar: ", values)
+
+            if (values === initialValues) {
+                toast.warning('Change at least one field')
+                return;
+            }
+
+            setIsLoading(true)
+            const toastId = toast.loading("Updating contact...");
+
+            try {
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
+                    {
+                        method: 'PATCH',
+                        body: JSON.stringify(values),
+                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
+                    }
+                )
+
+                if (!resp.ok) throw new ApiCallError('Error while updating a contact');
+                const data: ContactData = await resp.json();
+
+                console.log('TODO CORRECTO, valores de vuelta: ', data)
+                updateSuccessToast(toastId, "Contact updated correctly!");
+
+            } catch (error: unknown) {
+                console.error(error)
+                if (error instanceof ApiCallError) {
+                    updateErrorToast(toastId, error.message);
+                } else {
+                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
+                }
+            } finally {
+                setIsLoading(false);
+                setSubmitting(false);
+            }
+        }, [contactId]
+    )
+
+    const handleDelete = useCallback(
+        async () => {
+            const toastId = toast.loading("Deleting contact...");
+            try {
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
+                    {
+                        method: 'DELETE',
+                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
+                    }
+                )
+
+                if (!resp.ok) throw new ApiCallError('Error while deleting a contact');
+
+                updateSuccessToast(toastId, "Contact deleted correctly!");
+                router.push('/private/contacts/', { shallow: true })
+
+            } catch (error: unknown) {
+                console.error(error)
+                if (error instanceof ApiCallError) {
+                    updateErrorToast(toastId, error.message);
+                } else {
+                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
+                }
+            }
+        }, [contactId, router]
+    )
+
     return (
-        <div className='m-2'>
+        <div className='mt-4'>
+            <ConfirmDeletePopup
+                message='Are you sure you want to delete this contact?'
+                isVisible={confirmationVisible}
+                onClose={() => setConfirmationVisible(false)}
+                onConfirm={handleDelete}
+            />
+            <div className='flex my-6 w-full justify-between'>
+                {/* Contact avatar and name */}
+                <div className='flex ml-5 gap-5 items-center'>
+                    <Image
+                        className='rounded-full select-none'
+                        src={`https://ui-avatars.com/api/?name=${initialValues.firstName}+${initialValues.lastName}&background=random&size=128`}
+                        alt='user avatar with name initials'
+                        width={64}
+                        height={64}
+                    />
+                    <span className='text-4xl tracking-tight text-zinc-900'>
+                        {initialValues.firstName} {initialValues.lastName}
+                    </span>
+                </div>
+                {/* Cards with actions */}
+                <div className='flex flex-row items-center'>
+                    {initialValues.lastName}
+                </div>
+                {/* Delete contact button */}
+                <div className='w-10 self-end'>
+                    <Button
+                        elevated
+                        onClick={() => setConfirmationVisible(true)}
+                        type='button'
+                        icon={faTrash}
+                        style='danger'
+                    />
+                </div>
+            </div>
+            {/* Contact form */}
             <Formik
                 initialValues={initialValues}
                 onSubmit={handleSubmit}
@@ -54,18 +143,21 @@ const ContactPage = ({ initialValues }: { initialValues: contactValues }) => {
                         <Input
                             name="firstName"
                             label={"First name"}
+                            readOnly={isLoading}
                         />
                         <Input
                             name="lastName"
                             label={"Last name"}
+                            readOnly={isLoading}
                         />
                         <DatePicker
-                            name='dateOfBirth'
-                            label='Date of birth'
-                            defaultValue={initialValues.dateOfBirth ?? undefined}
+                            name='birthDay'
+                            label='Birth date'
+                            defaultValue={initialValues.birthDay ?? undefined}
                             isClearable
+                            readOnly={isLoading}
                         />
-                        <Select
+                        {/* <Select
                             name='taxResidence'
                             label='Tax residence'
                             size='large'
@@ -77,93 +169,100 @@ const ContactPage = ({ initialValues }: { initialValues: contactValues }) => {
                                 { label: 'Italy', value: 'it' },
                             ]}
                             defaultValue={{ label: 'Germany', value: 'de' }}
-                        />
-                        <Input
-                            name="idCardNum"
+                        /> */}
+                        {/* <Input
+                            name="idCardNumber"
                             label={"ID card number"}
-                        />
-                        <DatePicker
+                        /> */}
+                        {/* <DatePicker
                             name="idCardExpDate"
                             label={"ID card expiration date"}
                             defaultValue={initialValues.idCardExpDate ?? undefined}
                             isClearable
-                        />
-                        <Input
+                        /> */}
+                        {/* <Input
                             name="passportNum"
                             label={"Passport Number"}
-                        />
+                            />
                         <DatePicker
-                            name='passportExpDate'
+                        name='passportExpDate'
                             label={"Passport expiration date"}
                             defaultValue={initialValues.passportExpDate ?? undefined}
                             isClearable
-                        />
+                        /> */}
                         <Input
                             name="nif"
                             label={"NIF"}
+                            readOnly={isLoading}
                         />
-                        <Input
+                        {/* <Input
                             name="companyNumber"
                             label={"Company number"}
-                        />
+                        /> */}
                     </GroupItem>
-                    <GroupItem cols={3} caption={'Adress Information'} >
+                    <GroupItem cols={3} caption={'Address Information'} >
                         <Input
-                            name="addressLine"
+                            name="addressLine1"
                             label={"Address line"}
+                            readOnly={isLoading}
+                        />
+                        <Input
+                            name="addressLine2"
+                            label={"Address line 2"}
+                            readOnly={isLoading}
                         />
                         <Input
                             name="city"
                             label={"City"}
-                        />
-                        <Input
-                            name="region"
-                            label={"Region"}
+                            readOnly={isLoading}
                         />
                         <Input
                             name="state"
                             label={"State"}
+                            readOnly={isLoading}
                         />
                         <Input
                             name="postalCode"
-                            label={"Postal Code"}
+                            label={"Postal code"}
+                            readOnly={isLoading}
                         />
                         <Input
                             name="country"
                             label={"Country"}
+                            readOnly={isLoading}
                         />
 
                         <Input
                             name="email"
                             label={"Email"}
+                            readOnly={isLoading}
                         />
                         <Input
-                            name="telephoneNum"
-                            label={"Telephone number"}
+                            name="phoneNumber"
+                            label={"Phone number"}
+                            readOnly={isLoading}
                         />
                         <Input
-                            name="cellphoneNum"
-                            label={"Cellphone Number"}
+                            name="mobilePhoneNumber"
+                            label={"Mobile phone number"}
+                            readOnly={isLoading}
                         />
                     </GroupItem>
                     <div className='flex justify-end py-4'>
                         <div className='flex flex-row justify-between gap-2'>
                             <Button
                                 elevated
-                                style='outline'
-                                type='reset'
-                                text='Reset'
-                            />
-                            <Button
-                                elevated
                                 type='submit'
                                 text='Submit Changes'
+                                disabled={isLoading}
+                                isLoading={isLoading}
                             />
                         </div>
                     </div>
                 </Form>
             </Formik>
-        </div >
+        </div>
     );
 };
-export default ContactPage;
+
+export default memo(ContactPage);

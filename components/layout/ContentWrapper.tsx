@@ -20,7 +20,7 @@ export const ContentWrapper: FC<Props> = memo(function ContentWrapper({ children
 
     return (
         <section className='overflow-x-hidden' id='content'>
-            <div className='m-2'>
+            <div className='m-4'>
                 {children}
             </div>
         </section>

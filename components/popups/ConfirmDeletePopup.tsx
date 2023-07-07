@@ -6,21 +6,31 @@ import { Button } from 'pg-components';
 import { Popup, Position } from 'devextreme-react/popup';
 
 interface PopupProps {
+    message: string;
     isVisible: boolean;
     onClose: () => void;
+    onConfirm: () => void;
 };
 
-const ChangePwPopup = ({ isVisible, onClose }: PopupProps) => {
+const ConfirmDeletePopup = ({
+    message,
+    isVisible,
+    onClose,
+    onConfirm
+}: PopupProps) => {
     const contentRender = useCallback(() => (
-        <div className='flex flex-col gap-4 justify-center items-center'>
-            <p className='text-lg'>You will receive an email to change your password</p>
-            <div className='flex gap-4 w-full'>
-                <Button text='Cancel' style='outline' onClick={onClose} />
+        <div className='flex flex-col gap-4'>
+            <div className='flex gap-4'>
+                <Button
+                    text='Cancel'
+                    style='outline'
+                    onClick={onClose}
+                />
                 <Button
                     text='Continue'
                     onClick={() => {
-                        window.alert('Sending email to change password...')
                         onClose()
+                        onConfirm()
                     }}
                 />
             </div>
@@ -29,23 +39,23 @@ const ChangePwPopup = ({ isVisible, onClose }: PopupProps) => {
 
     const titleComponent = useCallback(() => (
         <div className='flex font-bold text-2xl text-secondary-500 justify-center items-center'>
-            Change Password
+            {message || 'Are you sure you want to delete this record?'}
         </div>
     ), []);
 
     return (
         <Popup
             contentRender={contentRender}
+            titleComponent={titleComponent}
             dragEnabled={false}
             height='auto'
             hideOnOutsideClick={false}
-            titleComponent={titleComponent}
             visible={isVisible}
-            width='30vw'
+            width='40vw'
         >
             <Position of='#content' />
         </Popup>
     );
 };
 
-export default ChangePwPopup;
+export default ConfirmDeletePopup;

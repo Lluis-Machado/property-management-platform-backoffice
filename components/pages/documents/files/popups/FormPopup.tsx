@@ -42,7 +42,7 @@ const FormPopup = ({ elementName, onHiding, onShown, onSubmit, type, visible }: 
                     <div className='flex justify-end'>
                         <div className='flex flex-row gap-2 justify-end w-3/4'>
                             <Button text={submitText} type='submit' />
-                            <Button text='Cancel' type='reset' style='outline' onClick={() => PopupRef.current?.instance.hide()} />
+                            <Button text='Cancel' type='button' style='outline' onClick={() => PopupRef.current?.instance.hide()} />
                         </div>
                     </div>
                 </Form>
