@@ -33,7 +33,7 @@ const itemRender = (params: any): React.ReactElement => {
 
 const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, visible }: Props): React.ReactElement => {
     const [selectedNode, setSelectedNode] = useState<any>(null);
-
+    
     const handleHiding = useCallback(() => {
         setSelectedNode(null);
         onHiding();
@@ -46,7 +46,7 @@ const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, visible 
                 disabledExpr='disabled'
                 displayExpr='name'
                 hasItemsExpr='isDirectory'
-                id='treeview'
+                id='treeviewPopup'
                 itemRender={itemRender}
                 itemsExpr='items'
                 keyExpr='id'

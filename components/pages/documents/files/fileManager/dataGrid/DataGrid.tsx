@@ -2,25 +2,21 @@
 import { useCallback, useRef, useState } from 'react';
 
 // Libraries imports
+import { Column, DataGrid as DxDataGrid, Item, Selection, Toolbar } from 'devextreme-react/data-grid';
+import { ContextMenuPreparingEvent } from 'devextreme/ui/data_grid';
 import {
-    Column,
-    DataGrid as DxDataGrid,
-    Item,
-    Selection,
-    Toolbar,
-} from 'devextreme-react/data-grid';
+    faArrowRight, faCopy, faDownload, faFile,
+    faImage, faPenToSquare, faQuestion, faTrash
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Local imports
-import { files } from '../files';
-import { faArrowRight, faCopy, faDownload, faFile, faImage, faPenToSquare, faQuestion, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { files } from '../../files';
 import ContextMenu from './ContextMenu';
-import DataSource from 'devextreme/data/data_source';
-import { ContextMenuPreparingEvent } from 'devextreme/ui/data_grid';
 
-type ToolBarItemType = 'Download' | 'Move to' | 'Copy to' | 'Rename' | 'Delete' | 'Clear Selection' | 'Separator';
+type ToolBarItemType = 'Download' | 'Move to' | 'Copy to' | 'Rename' | 'Delete' | 'Separator';
 
-const fileExtensionCellRender = (e: any) => {
+const fileExtensionCellRender = (e: any): React.ReactElement => {
     const icon = (ext: string) => {
         switch (ext) {
             case 'jpeg':
@@ -52,88 +48,96 @@ const customizeNameText = ({ value }: { value: string }) => {
 };
 
 interface Props {
+    onFileCopy: () => void;
+    onFileDelete: () => void;
+    onFileDownload: () => void;
+    onFileMove: () => void;
+    onFileRename: () => void;
+    onRefresh: () => void;
     onSelectedFile: (file: any) => void;
-}
+};
 
-const DataGrid = ({ onSelectedFile }: Props) => {
+const DataGrid = ({
+    onFileCopy, onFileDelete, onFileDownload, onFileMove,
+    onFileRename, onRefresh, onSelectedFile
+}: Props): React.ReactElement => {
 
     const DataGridRef = useRef<DxDataGrid>(null);
 
-    const [selectedItems, setSelectedItems] = useState<any[]>([]);
+    const [selectedFilesQuantity, setSelectedFilesQuantity] = useState<number>(0);
 
-    const actionClicked = useCallback((action: ToolBarItemType) => {
-        const actions = {
-            'Download': () => { console.log('TODO: Download file') },
-            'Move to': () => { console.log('TODO: Move file') },
-            'Copy to': () => { console.log('TODO: Copy file') },
-            'Rename': () => { console.log('TODO: Rename file') },
-            'Delete': () => { console.log('TODO: Delete file') },
-            'Clear Selection': () => { DataGridRef.current?.instance.clearSelection() },
+    const handleOnClick = useCallback((action: ToolBarItemType) => {
+        const on = {
+            'Download': onFileDownload,
+            'Move to': onFileMove,
+            'Copy to': onFileCopy,
+            'Rename': onFileRename,
+            'Delete': onFileDelete,
             'Separator': () => { },
         };
-        actions[action]();
-    }, []);
 
-    const ToolBarItemRender = useCallback((type: ToolBarItemType) => {
+        on[action]();
+    }, [onFileCopy, onFileDelete, onFileDownload, onFileMove, onFileRename]);
+
+    const ToolBarItemRender = useCallback((type: ToolBarItemType): React.ReactElement => {
         const icon = {
             'Download': faDownload,
             'Move to': faArrowRight,
             'Copy to': faCopy,
             'Rename': faPenToSquare,
             'Delete': faTrash,
-            'Clear Selection': faXmark
         };
         return type === 'Separator'
-            ? <div className='h-8 border border-primary-500' />
+            ? <div className='h-8 border border-primary-500 pointer-events-none' />
             : (
                 <div
                     className='
                         flex flex-row gap-2 select-none p-2 text-base items-center text-center 
                         hover:bg-primary-300 hover:rounded hover:cursor-pointer transition-colors duration-300
                     '
-                    onClick={() => actionClicked(type)}
+                    onClick={() => handleOnClick(type)}
                 >
                     <FontAwesomeIcon icon={icon[type]} />
                     {type}
                 </div>
             )
-    }, [actionClicked]);
+    }, [handleOnClick]);
 
     const handleOnSelectionChanged = useCallback(({ selectedRowsData }: any) => {
-        setSelectedItems(selectedRowsData);
-        onSelectedFile(selectedRowsData.length === 1 ? selectedRowsData[0] : null);
+        setSelectedFilesQuantity(selectedRowsData.length);
+        onSelectedFile(selectedRowsData);
     }, [onSelectedFile]);
 
     const handleRightClick = useCallback((e: ContextMenuPreparingEvent<any, any>) => {
-        if (e.row?.rowType === "data") {
+        if (e.row?.rowType === 'data') {
             const instance = DataGridRef.current!.instance;
-            instance.clearSelection();
-            instance.selectRowsByIndexes([e.rowIndex]);
+            if (!instance.isRowSelected(e.row.key)) {
+                instance.clearSelection();
+                instance.selectRowsByIndexes([e.rowIndex]);
+            };
         };
     }, []);
 
     return (
-        <div>
-
+        <>
             <DxDataGrid
                 dataSource={files}
+                id='dataGrid'
+                onContextMenuPreparing={handleRightClick}
                 onSelectionChanged={handleOnSelectionChanged}
                 ref={DataGridRef}
                 rowAlternationEnabled
                 showBorders
-                id='dataGrid'
-                onContextMenuPreparing={handleRightClick}
             >
                 <Selection mode='multiple' showCheckBoxesMode='none' />
                 <Toolbar visible>
-                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Download')} />
-                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Separator')} />
-                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Move to')} />
-                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Copy to')} />
-                    <Item location='before' visible={selectedItems.length === 1} render={_ => ToolBarItemRender('Rename')} />
-                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Separator')} />
-                    <Item location='before' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Delete')} />
-                    <Item location='after' visible={selectedItems.length > 0} render={_ => ToolBarItemRender('Clear Selection')} />
+                    <Item location='before' visible={selectedFilesQuantity > 0} render={_ => ToolBarItemRender('Download')} />
+                    <Item location='before' visible={selectedFilesQuantity > 0} render={_ => ToolBarItemRender('Separator')} />
+                    <Item location='before' visible={selectedFilesQuantity > 0} render={_ => ToolBarItemRender('Move to')} />
+                    <Item location='before' visible={selectedFilesQuantity > 0} render={_ => ToolBarItemRender('Copy to')} />
+                    <Item location='before' visible={selectedFilesQuantity === 1} render={_ => ToolBarItemRender('Rename')} />
+                    <Item location='before' visible={selectedFilesQuantity > 0} render={_ => ToolBarItemRender('Separator')} />
+                    <Item location='before' visible={selectedFilesQuantity > 0} render={_ => ToolBarItemRender('Delete')} />
                 </Toolbar>
                 <Column
                     caption=''
@@ -162,8 +166,16 @@ const DataGrid = ({ onSelectedFile }: Props) => {
                     dataType='date'
                 />
             </DxDataGrid>
-            <ContextMenu dataSource={DataSource} selectedTreeItem={selectedItems} />
-        </div>
+            <ContextMenu
+                onFileCopy={onFileCopy}
+                onFileDelete={onFileDelete}
+                onFileDownload={onFileDownload}
+                onFileMove={onFileMove}
+                onFileRename={onFileRename}
+                onRefresh={onRefresh}
+                selectedFilesQuantity={selectedFilesQuantity}
+            />
+        </>
     );
 };
 

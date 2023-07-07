@@ -10,7 +10,7 @@ import Popup from 'devextreme-react/popup';
 export type FormPopupType = 'New directory' | 'Rename' | 'Delete';
 
 interface Props {
-    folderName?: string;
+    elementName?: string;
     onHiding: () => void;
     onShown: () => void;
     onSubmit: (value?: string) => void;
@@ -18,7 +18,7 @@ interface Props {
     visible: boolean;
 };
 
-const FormPopup = ({ folderName, onHiding, onShown, onSubmit, type, visible }: Props): React.ReactElement => {
+const FormPopup = ({ elementName, onHiding, onShown, onSubmit, type, visible }: Props): React.ReactElement => {
     const PopupRef = useRef<Popup>(null);
 
     const FolderNameForm = useCallback(({ submitText }: { submitText: string }): React.ReactElement => {
@@ -27,7 +27,7 @@ const FormPopup = ({ folderName, onHiding, onShown, onSubmit, type, visible }: P
         });
         return (
             <Formik
-                initialValues={{ folderName }}
+                initialValues={{ folderName: elementName }}
                 onSubmit={(values) => {
                     onSubmit(values.folderName);
                     PopupRef.current?.instance.hide()
@@ -48,7 +48,7 @@ const FormPopup = ({ folderName, onHiding, onShown, onSubmit, type, visible }: P
                 </Form>
             </Formik>
         );
-    }, [folderName, onSubmit]);
+    }, [elementName, onSubmit]);
 
     const NewDirectoryRender = useCallback((): React.ReactElement => (
         <FolderNameForm submitText='Create' />
@@ -61,7 +61,7 @@ const FormPopup = ({ folderName, onHiding, onShown, onSubmit, type, visible }: P
     const DeleteRender = useCallback((): React.ReactElement => (
         <div className='flex flex-col justify-between h-full'>
             <p>
-                {`Are you sure you want to delete ${folderName}?`}
+                {`Are you sure you want to delete ${elementName}?`}
             </p>
             <div className='flex justify-end'>
                 <div className='flex flex-row gap-2 justify-end w-3/4'>
@@ -70,7 +70,7 @@ const FormPopup = ({ folderName, onHiding, onShown, onSubmit, type, visible }: P
                 </div>
             </div>
         </div>
-    ), [folderName, onSubmit]);
+    ), [elementName, onSubmit]);
 
     const ContentRender = useCallback((): React.ReactElement => {
         const components = {

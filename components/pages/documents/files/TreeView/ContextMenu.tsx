@@ -182,7 +182,7 @@ export const ContextMenu = ({
             {
                 (formPopupStatus.visibility.visible || formPopupStatus.visibility.hasBeenOpen) &&
                 <FormPopup
-                    folderName={formPopupStatus.folderName}
+                    elementName={formPopupStatus.folderName}
                     onHiding={() => setFormPopupStatus(p => ({ ...p, folderName: '', visibility: { ...p.visibility, visible: false } }))}
                     onShown={() => setFormPopupStatus(p => ({ ...p, visibility: { ...p.visibility, hasBeenOpen: true } }))}
                     onSubmit={handleFormPopupSubmit}

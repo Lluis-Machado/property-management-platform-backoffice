@@ -28,7 +28,7 @@
     "jwt-decode": "3.1.2",
     "luxon": "3.3.0",
     "negotiator": "0.6.3",
-    "next": "^13.4.8",
+    "next": "^13.4.9",
     "pg-components": "0.2.11",
     "swr": "2.1.5",
     "yup": "1.2.0",
