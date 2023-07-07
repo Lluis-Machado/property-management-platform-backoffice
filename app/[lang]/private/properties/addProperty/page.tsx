@@ -1,7 +1,7 @@
 // Local imports
 import AddPropertyPage from '@/components/pages/properties/property/addPropertyPage';
 import { PropertyInterface } from '@/lib/types/propertyInfo';
-import { ApiCallError } from '@/lib/utils/errors';
+import { getApiData } from '@/lib/utils/apiCalls';
 
 const initialValues: PropertyInterface = {
     name: "",
@@ -43,14 +43,10 @@ const initialValues: PropertyInterface = {
     id: "",
     childProperties: [],
 };
-async function getContacts() {
-    const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts`, { cache: 'no-cache' })
-    if (!resp.ok) throw new ApiCallError('Error while getting property info');
-    return resp.json()
-}
 
-const AddProperty = async (): Promise<React.ReactElement> => {
-    const contactData = await getContacts();
+const AddProperty = async () => {
+    const contactData = await getApiData('/contacts/contacts', 'Error while getting contacts');
+
     return (
         <AddPropertyPage initialValues={initialValues} contactData={contactData} />
     )
