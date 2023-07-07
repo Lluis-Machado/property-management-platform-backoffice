@@ -26,7 +26,7 @@ const PropertyTextArea = () => {
             <Form className="mt-2">
                 <TextArea
                     name="notes"
-                    label="Save your notes"
+                    label="Save your comments"
                     isSecondary
                 />
                 <div className='flex justify-end py-4'>

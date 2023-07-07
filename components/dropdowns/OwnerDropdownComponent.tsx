@@ -7,7 +7,6 @@ import DataGrid, { Column, Scrolling, SearchPanel, Selection } from 'devextreme-
 import DropDownBox from 'devextreme-react/drop-down-box'
 
 const OwnerDropdownComponent = (props: any) => {
-    console.log("PROPS: ", props)
     const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([props.data.value])
     const [isDropDownOpened, setIsDropDownOpened] = useState<boolean>(false)
 
@@ -15,9 +14,7 @@ const OwnerDropdownComponent = (props: any) => {
         if(props.data.value) setSelectedRowKeys([props.data.value])
     }, [props.data.value])
 
-    console.log(selectedRowKeys)
     const handleSelectionChange = (e: any) => {
-        console.log("handleSelectionChange: ", e)
         setSelectedRowKeys([e.selectedRowKeys])
         setIsDropDownOpened(false)
         props.data.setValue(selectedRowKeys[0])
@@ -40,7 +37,8 @@ const OwnerDropdownComponent = (props: any) => {
             onSelectionChanged={handleSelectionChange}
         >
             <SearchPanel visible />
-            <Column dataField="full_name" />
+            <Column dataField="firstName" />
+            <Column dataField="lastName" />
             <Column dataField="nif" caption='DNI/NIE' />
             <Column dataField="email" />
             <Scrolling mode="virtual" />

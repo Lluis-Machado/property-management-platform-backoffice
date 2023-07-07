@@ -19,7 +19,7 @@ const initialValues: ContactData = {
     country: ''
 }
 
-const AddContact = async (): Promise<React.ReactElement> => {
+const AddContact = () => {
     return (
         <>
             <div className='text-lg text-secondary-500'>

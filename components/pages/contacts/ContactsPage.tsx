@@ -5,7 +5,7 @@ import { memo, useCallback } from 'react';
 
 // Libraries imports
 import { useRouter } from 'next/navigation';
-import { Column as DxColumn, DataGrid, Item, Pager, SearchPanel, Toolbar, MasterDetail } from 'devextreme-react/data-grid';
+import { Column, DataGrid, Item, Pager, SearchPanel, Toolbar, MasterDetail } from 'devextreme-react/data-grid';
 import { Form, Formik } from 'formik';
 import { Input } from 'pg-components';
 import GroupItem from '@/components/layoutComponent/GroupItem';
@@ -37,65 +37,64 @@ const ContactsPage = ({ dataSource }: Props) => {
     };
 
     return (
-        <>
-            <DataGrid
-                allowColumnResizing
-                columnHidingEnabled={false}
-                columnMinWidth={100}
-                dataSource={dataSource}
-                focusedRowEnabled
-                keyExpr='id'
-                onRowDblClick={handleDouleClick}
-                showBorders
-                showRowLines
-            >
-                <SearchPanel
-                    searchVisibleColumnsOnly={false}
-                    visible
-                    width={350}
-                />
-                <Pager
-                    allowedPageSizes='auto'
-                    showInfo
-                    showNavigationButtons
-                    visible
-                />
+        <DataGrid
+            columnMinWidth={100}
+            dataSource={dataSource}
+            focusedRowEnabled
+            keyExpr='id'
+            onRowDblClick={handleDouleClick}
+            columnHidingEnabled={false}
+            rowAlternationEnabled
+            allowColumnResizing
+            showBorders
+            showRowLines
+        >
+            <SearchPanel
+                searchVisibleColumnsOnly={false}
+                visible
+                width={350}
+            />
+            <Pager
+                allowedPageSizes='auto'
+                showInfo
+                showNavigationButtons
+                visible
+            />
 
-                <Toolbar>
-                    <Item render={addRowButton} />
-                    <Item name='searchPanel' />
-                </Toolbar>
+            <Toolbar>
+                <Item render={addRowButton} />
+                <Item name='searchPanel' />
+            </Toolbar>
 
-                <DxColumn
-                    caption='Fisrt Name'
-                    dataField='firstName'
-                    dataType='string'
-                    hidingPriority={0}
-                />
-                <DxColumn
-                    caption='Last Name'
-                    dataField='lastName'
-                    dataType='string'
-                    hidingPriority={1}
-                />
-                <DxColumn
-                    caption='NIF'
-                    dataField='nif'
-                    dataType='string'
-                    hidingPriority={2}
-                />
-                <DxColumn
-                    caption='Email'
-                    dataField='email'
-                    dataType='string'
-                    hidingPriority={3}
-                />
-                <MasterDetail
-                    enabled={true}
-                    component={DetailTemplate}
-                />
-            </DataGrid>
-        </>
+            <Column
+                caption='Fisrt Name'
+                dataField='firstName'
+                dataType='string'
+                hidingPriority={0}
+            />
+            <Column
+                caption='Last Name'
+                dataField='lastName'
+                dataType='string'
+                hidingPriority={1}
+            />
+            <Column
+                caption='NIF'
+                dataField='nif'
+                dataType='string'
+                hidingPriority={2}
+            />
+            <Column
+                caption='Email'
+                dataField='email'
+                dataType='string'
+                hidingPriority={3}
+            />
+            <MasterDetail
+                enabled={true}
+                component={DetailTemplate}
+            />
+        </DataGrid>
     )
 }
 
