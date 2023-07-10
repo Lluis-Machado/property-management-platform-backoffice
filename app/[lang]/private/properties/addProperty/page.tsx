@@ -1,4 +1,5 @@
 // Local imports
+import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddPropertyPage from '@/components/pages/properties/AddPropertyPage';
 import { PropertyInterface } from '@/lib/types/propertyInfo';
 import { getApiData } from '@/lib/utils/apiCalls';
@@ -49,9 +50,7 @@ const AddProperty = async () => {
 
     return (
         <>
-            <div className='text-lg text-secondary-500'>
-                Properties / Add Property
-            </div>
+            <Breadcrumb />
             <AddPropertyPage initialValues={initialValues} contactData={contactData} />
         </>
     )

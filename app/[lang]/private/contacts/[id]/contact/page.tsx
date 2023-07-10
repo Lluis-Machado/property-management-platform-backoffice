@@ -1,4 +1,5 @@
 // Local imports
+import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import ContactPage from '@/components/pages/contacts/ContactPage';
 import { getApiData } from '@/lib/utils/apiCalls';
 
@@ -11,9 +12,7 @@ const Contact = async ({ params: { id } }: Props) => {
 
     return (
         <>
-            <div className='text-lg text-secondary-500'>
-                Contacts / Contact Info
-            </div>
+            <Breadcrumb />
             <ContactPage initialValues={data} contactId={id} />
         </>
     )

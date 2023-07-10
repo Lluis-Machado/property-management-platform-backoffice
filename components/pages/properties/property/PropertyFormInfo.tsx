@@ -29,7 +29,7 @@ const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading 
     );
 
     return (
-        <div className='m-2 '>
+        <div>
             <Formik
                 initialValues={initialValues}
                 onSubmit={handleSubmit}
