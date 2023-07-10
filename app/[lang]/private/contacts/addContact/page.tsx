@@ -1,4 +1,5 @@
 // Local imports
+import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddContactPage from '@/components/pages/contacts/AddContactPage';
 import { ContactData } from '@/lib/types/contactData';
 
@@ -22,9 +23,7 @@ const initialValues: ContactData = {
 const AddContact = () => {
     return (
         <>
-            <div className='text-lg text-secondary-500'>
-                Contacts / Add Contact
-            </div>
+            <Breadcrumb />
             <AddContactPage initialValues={initialValues} />
         </>
     )

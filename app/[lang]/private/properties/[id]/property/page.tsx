@@ -1,4 +1,5 @@
 // local imports
+import Breadcrumb from "@/components/breadcrumb/Breadcrumb";
 import PropertyPage from "@/components/pages/properties/property/PropertyPage"
 import { getApiData } from "@/lib/utils/apiCalls";
 
@@ -12,9 +13,7 @@ const Property = async ({ params: { id } }: Props) => {
 
   return (
     <>
-      <div className='text-lg text-secondary-500'>
-        Properties / Property Info
-      </div>
+      <Breadcrumb />
       <PropertyPage id={id} initialValues={data} contactData={contactData} />
     </>
   )
