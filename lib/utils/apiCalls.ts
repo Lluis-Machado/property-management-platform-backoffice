@@ -14,7 +14,7 @@ export const signOut = async (): Promise<Response> => {
 };
 
 export const getApiData = async (path: string, errorMsg: string) => {
-    const resp = await fetch(process.env.NEXT_PUBLIC_API_GATEWAY_URL + path, { cache: 'no-store' })
+    const resp = await fetch(process.env.NEXT_PUBLIC_API_GATEWAY_URL + path, { next: { revalidate: 3 } })
     if (!resp.ok) throw new ApiCallError(errorMsg);
     return resp.json()
 }
