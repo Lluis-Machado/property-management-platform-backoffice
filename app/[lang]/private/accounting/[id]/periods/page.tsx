@@ -1,7 +1,10 @@
+import Breadcrumb from "@/components/breadcrumb/Breadcrumb";
+
 const page = (): React.ReactElement => (
-  <div>
-    Tenants page
-  </div>
+  <>
+    <Breadcrumb />
+    Periods page
+  </>
 );
 
 export default page;
