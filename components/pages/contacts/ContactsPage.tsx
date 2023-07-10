@@ -21,7 +21,7 @@ const ContactsPage = ({ dataSource }: Props) => {
     const router = useRouter();
 
     const handleDouleClick = useCallback(({ data }: any) => {
-        router.push(`./contacts/${data.id}/contact`)
+        router.push(`./contacts/${data.id}/contactInfo`)
     }, [router])
 
     const addRowButton = (): React.ReactElement => {
