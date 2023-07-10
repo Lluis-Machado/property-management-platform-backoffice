@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useState } from 'react';
+import { FC, memo, useCallback, useState } from 'react';
 
 // libraries imports
 import { Button } from 'pg-components';
@@ -13,27 +13,24 @@ export type TreeViewPopupType = 'Move to' | 'Copy to';
 interface Props {
     dataSource: any[];
     onHiding: () => void;
-    onSubmit: (id: string) => void;
+    onSubmit: (node: any) => void;
     onShown: () => void;
     type: TreeViewPopupType;
     visible: boolean;
 };
 
-const itemRender = (params: any): React.ReactElement => {
-    if (!params.isDirectory) return <></>;
-    return (
-        <div className='flex flex-row items-center text-center gap-4'>
-            <FontAwesomeIcon icon={faFolder} />
-            <p>
-                {params.name}
-            </p>
-        </div>
-    );
-};
+const itemRender = (params: any): React.ReactElement => (
+    <div className='flex flex-row items-center text-center gap-4'>
+        <FontAwesomeIcon icon={faFolder} />
+        <p>
+            {params.name}
+        </p>
+    </div>
+);
 
-const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, visible }: Props): React.ReactElement => {
+const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ dataSource, onHiding, onShown, onSubmit, type, visible }): React.ReactElement {
     const [selectedNode, setSelectedNode] = useState<any>(null);
-    
+
     const handleHiding = useCallback(() => {
         setSelectedNode(null);
         onHiding();
@@ -45,10 +42,9 @@ const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, visible 
                 dataSource={dataSource}
                 disabledExpr='disabled'
                 displayExpr='name'
-                hasItemsExpr='isDirectory'
                 id='treeviewPopup'
                 itemRender={itemRender}
-                itemsExpr='items'
+                itemsExpr='childFolders'
                 keyExpr='id'
                 onItemClick={({ itemData }) => setSelectedNode(itemData)}
                 searchEnabled
@@ -58,7 +54,7 @@ const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, visible 
                 <div className='flex flex-row gap-2 justify-end w-3/4'>
                     <Button
                         disabled={selectedNode === null}
-                        onClick={() => { onSubmit(selectedNode.uuid); handleHiding() }}
+                        onClick={() => { onSubmit(selectedNode); handleHiding() }}
                         text={type.replace(' to', '')}
                         type='submit'
                     />
@@ -86,6 +82,6 @@ const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, visible 
             width='80vw'
         />
     );
-};
+});
 
 export default TreeViewPopup;

@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useRef } from 'react';
+import { FC, memo, useCallback, useRef } from 'react';
 
 // Librares imports
 import { Button, Input } from 'pg-components';
@@ -18,7 +18,7 @@ interface Props {
     visible: boolean;
 };
 
-const FormPopup = ({ elementName, onHiding, onShown, onSubmit, type, visible }: Props): React.ReactElement => {
+const FormPopup: FC<Props> = memo(function FormPopup({ elementName, onHiding, onShown, onSubmit, type, visible }): React.ReactElement {
     const PopupRef = useRef<Popup>(null);
 
     const FolderNameForm = useCallback(({ submitText }: { submitText: string }): React.ReactElement => {
@@ -96,6 +96,6 @@ const FormPopup = ({ elementName, onHiding, onShown, onSubmit, type, visible }: 
             width='80vw'
         />
     );
-};
+});
 
 export default FormPopup;
