@@ -1,7 +1,7 @@
 'use client'
 
 // React imports
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
 import { faChartSimple, faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -88,4 +88,4 @@ export const Breadcrumb = (): React.ReactElement => {
     );
 };
 
-export default Breadcrumb;
+export default memo(Breadcrumb);
