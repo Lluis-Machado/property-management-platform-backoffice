@@ -7,11 +7,11 @@ import { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
 // Local imports
-import '../../datagrid.css';
+import './datagrid.css';
 import { Locale } from '@/i18n-config';
 import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 import { PopupVisibility } from '@/lib/types/Popups';
-import FixedAssetsDatagrid from './FixedAssetsDatagrid';
+import DataGrid from './DataGrid';
 
 // Dynamic imports
 const Popup = dynamic(() => import('../../../popups/PopupInfo'));
@@ -51,7 +51,7 @@ const FixedAssetsWrapper = ({ dataSource, lang, years }: Props): React.ReactElem
     }, []);
     return (
         <>
-            <FixedAssetsDatagrid
+            <DataGrid
                 dataSource={dataSource}
                 onDepreciationClick={handleDepreciationClick}
                 onInvoiceClick={handleInvoiceClick}

@@ -57,7 +57,7 @@ const AddContactPage = ({ initialValues }: Props) => {
                 updateSuccessToast(toastId, "Contact created correctly!");
                 router.push('/private/contacts')
 
-            } catch (error: any) {
+            } catch (error: unknown) {
                 console.error(error)
                 if (error instanceof ApiCallError) {
                     updateErrorToast(toastId, error.message);

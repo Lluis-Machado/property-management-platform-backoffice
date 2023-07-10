@@ -1,18 +1,22 @@
 // local imports
-import PropertyWrapper from "@/components/datagrid/propertiesOwnersDatagrid/PropertyWrapper"
+import Breadcrumb from "@/components/breadcrumb/Breadcrumb";
+import PropertyPage from "@/components/pages/properties/property/PropertyPage"
+import { getApiData } from "@/lib/utils/apiCalls";
 
 interface Props {
   params: { id: string }
 }
 
-const page = ({ params: { id } }: Props): React.ReactElement => {
+const Property = async ({ params: { id } }: Props) => {
+  const data = await getApiData(`/properties/properties/${id}`, 'Error while getting property info')
+  const contactData = await getApiData('/contacts/contacts', 'Error while getting contacts');
 
   return (
     <>
-      <div className='text-l text-secondary-500 mb-3'>{`Properties / ${id}/ Property Info`}</div>
-      <PropertyWrapper id = {id} />
+      <Breadcrumb />
+      <PropertyPage id={id} initialValues={data} contactData={contactData} />
     </>
   )
 }
 
-export default page
+export default Property

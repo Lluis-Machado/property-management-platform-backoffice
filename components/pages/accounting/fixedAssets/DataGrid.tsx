@@ -7,34 +7,37 @@ import { useCallback } from 'react';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { usePathname } from 'next/navigation';
-import DataGrid, { Column, Paging, SearchPanel, HeaderFilter, Pager, Export, Editing, Toolbar, Item } from 'devextreme-react/data-grid';
+import { DataGrid as DxDataGrid, Column, Paging, SearchPanel, HeaderFilter, Pager, Export, Editing } from 'devextreme-react/data-grid';
 import { Locale } from '@/i18n-config';
-
 
 // Local imports
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
-import PreviewFileCellRender from '../../PreviewFileCellRender';
-import YearSelector from '../../YearSelector';
+import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
+import YearSelector from '@/components/datagrid/YearSelector';
 
 interface Props {
     dataSource: any[];
     onDepreciationClick: (name: string, depreciation: []) => void;
     onInvoiceClick: (title: string, url: string) => void;
-    selectedProperty: string;
     onYearChange: (year: string) => void;
-    lang: Locale;
+    selectedProperty: string;
     selectedYear: string;
+    lang: Locale;
     years: string[];
 };
 
-const FixedAssetsDatagrid = ({
+const DataGrid = ({
     dataSource,
     onDepreciationClick,
     onInvoiceClick,
     onYearChange,
+    selectedProperty,
+    selectedYear,
+    lang,
     years
 }: Props): React.ReactElement => {
     const pathName = usePathname();
+
 
     const DepreciationsCellRender = useCallback(({ row }: any): React.ReactElement => (
         <div
@@ -58,7 +61,7 @@ const FixedAssetsDatagrid = ({
 
     return (
         <>
-            <DataGrid
+            <DxDataGrid
                 dataSource={dataSource}
                 keyExpr='ID'
                 showRowLines
@@ -82,14 +85,6 @@ const FixedAssetsDatagrid = ({
                     showInfo
                     showNavigationButtons
                 />
-                <Toolbar>
-                    <Item location={"center"} render={YearSelect} />
-                    <Item name='addRowButton' />
-                    <Item name='revertButton' />
-                    <Item name='saveButton' />
-                    <Item name='exportButton' />
-                    <Item name='searchPanel' />
-                </Toolbar>
 
                 <Editing
                     mode="batch"
@@ -157,9 +152,9 @@ const FixedAssetsDatagrid = ({
                     cellRender={InvoiceCellRender}
                     width={100}
                 />
-            </DataGrid>
+            </DxDataGrid>
         </>
     )
 }
 
-export default FixedAssetsDatagrid
+export default DataGrid
