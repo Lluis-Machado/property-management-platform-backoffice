@@ -4,23 +4,22 @@
 import { useState, memo, useCallback, useEffect } from 'react';
 
 // Local imports
-import { Invoice } from '@/lib/types/invoices';
 import PopupPreview from '@/components/popups/PopupPreview';
-import DataGrid from './DataGrid';
+import ARDataGrid from './DataGrid';
+import { PopupVisibility } from '@/lib/types/Popups';
 import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 import { Locale } from '@/i18n-config';
-import { PopupVisibility } from '@/lib/types/Popups';
+import { Invoice } from '@/lib/types/invoices';
 
 interface Props {
     data: Invoice[];
     lang: Locale;
 };
 
-const IncomeWrapper = ({ data, lang }: Props) => {
+const ARInvoicesPage = ({ data, lang }: Props) => {
     const [invoiceURL, setInvoiceURL] = useState<string>('#');
     const [popupVisibility, setPopupVisibility] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
     const [popupTitle, setPopupTitle] = useState<string>('');
-
 
     useEffect(() => {
         localeDevExtreme(lang)
@@ -35,7 +34,7 @@ const IncomeWrapper = ({ data, lang }: Props) => {
     return (
         <>
             {/* Data Grid */}
-            <DataGrid
+            <ARDataGrid
                 dataSource={data}
                 onInvoiceClick={onClickHandler}
                 lang={lang}
@@ -55,4 +54,4 @@ const IncomeWrapper = ({ data, lang }: Props) => {
     );
 };
 
-export default memo(IncomeWrapper);
+export default memo(ARInvoicesPage);
