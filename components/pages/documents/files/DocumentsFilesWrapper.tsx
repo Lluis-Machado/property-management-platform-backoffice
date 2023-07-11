@@ -18,14 +18,6 @@ export const DocumentsFilesWrapper = ({ dataSource }: Props): React.ReactElement
     const [archives, setArchives] = useState<any[]>(dataSource);
     const [selectedFolderContent, setSelectedFolderContent] = useState<any[] | undefined>(undefined);
 
-    const handleArchiveSelected = useCallback(async (archiveId: string) => {
-        const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${archiveId}/folders`, { cache: 'no-cache' })
-        if (!resp.ok) throw new ApiCallError(`Error while getting archive: ${archiveId} folders`);
-        const data = await resp.json();
-
-        setArchives(p => p.map(archive => archive.id === archiveId ? { ...archive, childFolders: data } : archive));
-    }, []);
-
     const handleFolderSelected = useCallback(async (archiveId: string, folderId: string) => {
         const params = new URLSearchParams({ folderId })
         const resp = await fetch(
@@ -39,8 +31,6 @@ export const DocumentsFilesWrapper = ({ dataSource }: Props): React.ReactElement
 
     return (
         <TreeView
-            dataSource={archives}
-            onArchiveSelected={handleArchiveSelected}
             onFolderSelected={handleFolderSelected}
         />
         // <SplitPane

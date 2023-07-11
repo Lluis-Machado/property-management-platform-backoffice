@@ -34,7 +34,7 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
     return (
         <DxContextMenu
             ref={ContextMenuRef}
-            target='#ArchiveTreeview .dx-treeview-item'
+            target='#TreeviewArchive .dx-treeview-item'
             onItemClick={({ itemIndex }) => actions[itemIndex as keyof typeof actions]()}
         >
             <Item closeMenuOnClick icon='newfolder' text='New directory' />

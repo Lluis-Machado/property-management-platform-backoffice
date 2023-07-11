@@ -3,32 +3,23 @@ import { FC, memo, useCallback, useState } from 'react';
 
 // libraries imports
 import { Button } from 'pg-components';
-import { faFolder } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Popup from 'devextreme-react/popup';
 import TreeView from 'devextreme-react/tree-view';
+import { Node } from 'devextreme/ui/tree_view';
 
 export type TreeViewPopupType = 'Move to' | 'Copy to';
 
 interface Props {
-    dataSource: any[];
+    createChildren: (parentNode: Node<any>) => any[] | PromiseLike<any>;
+    itemRender: (params: any) => React.ReactElement;
     onHiding: () => void;
-    onSubmit: (node: any) => void;
     onShown: () => void;
+    onSubmit: (node: any) => void;
     type: TreeViewPopupType;
     visible: boolean;
 };
 
-const itemRender = (params: any): React.ReactElement => (
-    <div className='flex flex-row items-center text-center gap-4'>
-        <FontAwesomeIcon icon={faFolder} />
-        <p>
-            {params.name}
-        </p>
-    </div>
-);
-
-const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ dataSource, onHiding, onShown, onSubmit, type, visible }): React.ReactElement {
+const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ createChildren, itemRender, onHiding, onShown, onSubmit, type, visible }): React.ReactElement {
     const [selectedNode, setSelectedNode] = useState<any>(null);
 
     const handleHiding = useCallback(() => {
@@ -39,16 +30,12 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ dataSource, onHid
     const ContentRender = useCallback((): React.ReactElement => (
         <div className='flex flex-col gap-4'>
             <TreeView
-                dataSource={dataSource}
-                disabledExpr='disabled'
-                displayExpr='name'
-                id='treeviewPopup'
+                createChildren={createChildren}
+                dataStructure='plain'
+                id='TreeviewPopup'
                 itemRender={itemRender}
-                itemsExpr='childFolders'
-                keyExpr='id'
                 onItemClick={({ itemData }) => setSelectedNode(itemData)}
                 searchEnabled
-                searchExpr='name'
             />
             <div className='flex justify-end'>
                 <div className='flex flex-row gap-2 justify-end w-3/4'>
@@ -67,7 +54,7 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ dataSource, onHid
                 </div>
             </div>
         </div>
-    ), [dataSource, handleHiding, onSubmit, selectedNode, type]);
+    ), [createChildren, handleHiding, itemRender, onSubmit, selectedNode, type]);
 
     return (
         <Popup
