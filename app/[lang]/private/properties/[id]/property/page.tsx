@@ -1,7 +1,7 @@
 // local imports
 import Breadcrumb from "@/components/breadcrumb/Breadcrumb";
 import PropertyPage from "@/components/pages/properties/property/PropertyPage"
-import { getApiData } from "@/lib/utils/apiCalls";
+import { getApiData } from "@/lib/utils/getApiData";
 
 interface Props {
   params: { id: string }

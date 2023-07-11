@@ -1,6 +1,6 @@
 // Local imports
 import PropertiesPage from '@/components/pages/properties/PropertiesPage';
-import { getApiData } from '@/lib/utils/apiCalls';
+import { getApiData } from '@/lib/utils/getApiData';
 
 export default async function Properties() {
     const data = await getApiData('/properties/properties', 'Error while getting property info');

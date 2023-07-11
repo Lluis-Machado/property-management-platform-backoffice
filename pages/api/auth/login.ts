@@ -10,18 +10,46 @@ async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
     const { username, password } = req.body
 
     console.log('username y password: ', username, password)
+    console.log('LLAMANDO A URL: ', `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/auth/Token?username=${username}&password=${password}`)
+
+    const tokenRes = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/auth/Token?username=${username}&password=${password}`);
+
+    console.log('TOKEN RES: ', { tokenRes })
+
+    if (!tokenRes.ok) {
+        console.log('HA IDO MAL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        return res.status(tokenRes.status).json({
+            error: 'Invalid username or password.'
+        })
+    }
+
+    const tokenData: TokenRes = await tokenRes.json();
+    console.log('TOKEN DATA: ', tokenData)
+
+    const decoded = jwt_decode<TokenPayload>(tokenData.access_token);
+    console.log('decoded token', decoded)
+
+    const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/auth/Users/${decoded.sub}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,
+        }
+    });
+
+    if (!userRes.ok)
+        return res.status(userRes.status).json({
+            error: 'Error getting the user, check your user permissions.'
+        })
+
+    const { user_id, email, name, nickname, picture }: Auth0User = await userRes.json();
 
     const user: User = {
-        token: {
-            access_token: 'eydsfdfsdfDSFREFGOEKGEORGKEGOK%4ogtk090k593409kt430k3fkfek',
-            expires_in: 8600,
-            token_type: "Bearer"
-        },
-        id: 'auth0|user_id',
-        email: 'test@plattesgroup.net',
-        name: 'Test',
-        nickname: 'test user',
-        picture: 'https://ui-avatars.com/api/?name=Jon+Snow&background=0D8ABC&color=fff&size=128',
+        token: tokenData,
+        id: user_id,
+        email,
+        name,
+        nickname,
+        picture,
         password: undefined,  // Ensure that password is removed
         isLoggedIn: true
     };

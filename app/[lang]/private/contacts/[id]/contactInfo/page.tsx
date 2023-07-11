@@ -1,7 +1,7 @@
 // Local imports
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import ContactPage from '@/components/pages/contacts/ContactPage';
-import { getApiData } from '@/lib/utils/apiCalls';
+import { getApiData } from '@/lib/utils/getApiData';
 
 interface Props {
     params: { id: string };

@@ -1,6 +1,6 @@
 // Local imports
 import ContactsPage from '@/components/pages/contacts/ContactsPage';
-import { getApiData } from '@/lib/utils/apiCalls';
+import { getApiData } from '@/lib/utils/getApiData';
 
 const Contacts = async () => {
     const data = await getApiData('/contacts/contacts', 'Error while getting contacts');
