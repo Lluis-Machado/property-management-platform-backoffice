@@ -4,14 +4,15 @@
 // Libraries imports
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import DataGrid, { Column, Paging, SearchPanel, Pager, Editing, Lookup, Summary, TotalItem } from 'devextreme-react/data-grid';
+import DataGrid, { Column, Paging, SearchPanel, Pager, Editing, Lookup } from 'devextreme-react/data-grid';
 
 // Local imports
+import { ContactData } from '@/lib/types/contactData';
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
-import contacts from './contacts.json';
 
 interface Props {
-    dataSource: any[];
+    dataSource: any;
+    contactData: ContactData[];
 };
 
 const MainContactCellRender = ({ value }: any): React.ReactElement => (
@@ -21,12 +22,11 @@ const MainContactCellRender = ({ value }: any): React.ReactElement => (
     />
 );
 
-const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
-
-
+const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
+    const data = dataSource.ownerships;
     return (
         <DataGrid
-            dataSource={dataSource}
+            dataSource={data}
             keyExpr='id'
             showRowLines
             showBorders
@@ -56,38 +56,33 @@ const PropertiesOwnersDatagrid = ({ dataSource }: Props) => {
             />
             <Column
                 dataField='contactId'
-                caption='Contact'
+                caption='First Name'
                 editCellComponent={OwnerDropdownComponent}
             >
                 <Lookup
-                    dataSource={contacts}
+                    dataSource={contactData}
                     valueExpr="id"
-                    displayExpr="full_name"
+                    displayExpr="firstName"
                 />
             </Column>
             <Column
-                dataField='percentage'
+                dataField='contactDetail.lastName'
+                dataType='string'
+                caption='Last Name'
+            />
+            <Column
+                dataField='share'
                 dataType='number'
                 caption='Percentage %'
                 width={150}
             />
             <Column
-                dataField='main_contact'
+                dataField='mainOwnership'
                 dataType='boolean'
                 caption='Main Contact Person'
                 width={150}
                 cellRender={MainContactCellRender}
             />
-            {/* <MasterDetail
-                enabled={true}
-                component={PropertiesOwnerMasterDetail}
-            /> */}
-            <Summary>
-                <TotalItem
-                    column="percentage"
-                    summaryType="sum"
-                />
-            </Summary>
         </DataGrid>
     )
 }

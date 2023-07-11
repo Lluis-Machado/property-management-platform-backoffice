@@ -49,7 +49,8 @@ export const routes: Route[] = [
         icon: faAddressBook,
         name: 'Contacts',
         children: [
-            { name: 'Contact Info', path: 'contact' },
+            { name: 'Contact Info', path: 'contactInfo' },
+            { name: 'Properties', path: 'properties' },
         ]
     },
     {

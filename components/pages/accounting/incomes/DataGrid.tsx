@@ -1,16 +1,16 @@
 'use client'
 
 // React imports
-import { useCallback } from 'react';
+import { useCallback, memo } from 'react';
 
 // Libraries imports
-import { Invoice } from '@/lib/types/invoices';
-import { DataGrid as DxDataGrid, Column, Paging, SearchPanel, Pager, Export, Editing, HeaderFilter } from 'devextreme-react/data-grid';
-import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
-import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
-import { Locale } from '@/i18n-config';
+import DataGrid, { Column, Paging, SearchPanel, Pager, Export, Editing, HeaderFilter } from 'devextreme-react/data-grid';
 
 // Local imports
+import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
+import PreviewFileCellRender from '@/components/datagrid/PreviewFileCellRender';
+import { Invoice } from '@/lib/types/invoices';
+import { Locale } from '@/i18n-config';
 
 interface Props {
   dataSource: Invoice[];
@@ -18,7 +18,7 @@ interface Props {
   lang: Locale;
 }
 
-const DataGrid = ({ dataSource, onInvoiceClick, lang }: Props): React.ReactElement => {
+const ARDataGrid = ({ dataSource, onInvoiceClick, lang }: Props): React.ReactElement => {
 
   const InvoiceCellRender = useCallback(({ row }: any): React.ReactElement => (
     <PreviewFileCellRender
@@ -26,10 +26,9 @@ const DataGrid = ({ dataSource, onInvoiceClick, lang }: Props): React.ReactEleme
       url={row.data.url}
     />
   ), [onInvoiceClick]);
-    console.log(dataSource)
+
   return (
-    <>
-      <DxDataGrid
+      <DataGrid
         dataSource={dataSource}
         keyExpr='id'
         showRowLines
@@ -114,10 +113,8 @@ const DataGrid = ({ dataSource, onInvoiceClick, lang }: Props): React.ReactEleme
           cellRender={InvoiceCellRender}
           width={120}
         />
-      </DxDataGrid>
-    </>
-
+      </DataGrid>
   )
 }
 
-export default DataGrid
+export default memo(ARDataGrid)

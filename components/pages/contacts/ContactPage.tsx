@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button, Input } from 'pg-components';
 import { Formik, Form, FormikHelpers } from 'formik';
 import { memo, useCallback, useState } from 'react';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faFileLines, faReceipt, faRefresh, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 
 // Local imports
@@ -16,6 +16,7 @@ import { ApiCallError } from '@/lib/utils/errors';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { ContactData } from '@/lib/types/contactData';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
+import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 
 interface Props {
     initialValues: ContactData;
@@ -54,6 +55,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
 
                 console.log('TODO CORRECTO, valores de vuelta: ', data)
                 updateSuccessToast(toastId, "Contact updated correctly!");
+                router.refresh();
 
             } catch (error: unknown) {
                 console.error(error)
@@ -66,7 +68,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 setIsLoading(false);
                 setSubmitting(false);
             }
-        }, [contactId]
+        }, [contactId, initialValues]
     )
 
     const handleDelete = useCallback(
@@ -83,7 +85,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 if (!resp.ok) throw new ApiCallError('Error while deleting a contact');
 
                 updateSuccessToast(toastId, "Contact deleted correctly!");
-                router.push('/private/contacts/', { shallow: true })
+                router.push('/private/contacts')
 
             } catch (error: unknown) {
                 console.error(error)
@@ -119,11 +121,27 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                     </span>
                 </div>
                 {/* Cards with actions */}
-                <div className='flex flex-row items-center'>
-                    {initialValues.lastName}
+                <div className='flex flex-row items-center gap-4'>
+                    <SimpleLinkCard
+                        href={`/private/documents?contactId=${contactId}`}
+                        text='Documents'
+                        faIcon={faFileLines}
+                    />
+                    <SimpleLinkCard
+                        href={`/private/taxes/${contactId}/declarations`}
+                        text='Declarations'
+                        faIcon={faReceipt}
+                    />
                 </div>
-                {/* Delete contact button */}
-                <div className='w-10 self-end'>
+                {/* Button toolbar */}
+                <div className='flex flex-row self-center gap-4'>
+                    <Button
+                        elevated
+                        onClick={() => router.refresh()}
+                        type='button'
+                        icon={faRefresh}
+                        style='secondary'
+                    />
                     <Button
                         elevated
                         onClick={() => setConfirmationVisible(true)}
@@ -137,6 +155,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
             <Formik
                 initialValues={initialValues}
                 onSubmit={handleSubmit}
+                enableReinitialize
             >
                 <Form>
                     <GroupItem cols={3} caption={'Contact Information'} >

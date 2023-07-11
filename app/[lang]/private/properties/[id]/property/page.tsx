@@ -1,18 +1,23 @@
 // local imports
-import PropertyWrapper from "@/components/pages/properties/property/PropertyWrapper"
+import Breadcrumb from "@/components/breadcrumb/Breadcrumb";
+import PropertyPage from "@/components/pages/properties/property/PropertyPage"
+import { Locale } from "@/i18n-config";
+import { getApiData } from "@/lib/utils/getApiData";
 
 interface Props {
-  params: { id: string }
-}
+  params: { lang: Locale, id: string }
+};
 
-const page = ({ params: { id } }: Props): React.ReactElement => {
+const Property = async ({ params: { id } }: Props) => {
+  const data = await getApiData(`/properties/properties/${id}`, 'Error while getting property info')
+  const contactData = await getApiData('/contacts/contacts', 'Error while getting contacts');
 
   return (
     <>
-      <div className='text-l text-secondary-500 mb-3'>{`Properties / ${id}/ Property Info`}</div>
-      <PropertyWrapper id = {id} />
+      <Breadcrumb />
+      <PropertyPage id={id} initialValues={data} contactData={contactData} />
     </>
   )
 }
 
-export default page
+export default Property

@@ -1,14 +1,21 @@
 // Local imports
-import data from '@/components/pages/properties/data.json';
-import PropertiesWrapper from '@/components/pages/properties/PropertiesWrapper';
+import PropertiesPage from '@/components/pages/properties/PropertiesPage';
+import { Locale } from '@/i18n-config';
+import { getApiData } from '@/lib/utils/getApiData';
 
-const Properties = (): React.ReactElement => (
-    <>
-        <div className='text-l text-secondary-500 mt-4'>
-            Select a property
-        </div>
-        <PropertiesWrapper dataSource={data} />
-    </>
-);
+interface Props {
+    params: { lang: Locale }
+};
 
-export default Properties;
+export default async function Properties() {
+    const data = await getApiData('/properties/properties', 'Error while getting property info');
+
+    return (
+        <>
+            <div className='text-lg text-secondary-500 mt-4'>
+                Select a property
+            </div>
+            <PropertiesPage dataSource={data} />
+        </>
+    )
+};
