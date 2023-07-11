@@ -38,7 +38,6 @@ const DataGrid = ({
 }: Props): React.ReactElement => {
     const pathName = usePathname();
 
-
     const DepreciationsCellRender = useCallback(({ row }: any): React.ReactElement => (
         <div
             onClick={() => onDepreciationClick(row.data.name, row.data.depreciation)}

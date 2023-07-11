@@ -24,7 +24,7 @@ interface Props {
     years: string[];
 };
 
-const FixedAssetsWrapper = ({ dataSource, lang, years }: Props): React.ReactElement => {
+const FixedAssetsPage = ({ dataSource, lang, years }: Props): React.ReactElement => {
     const [depreciationPopupVisibility, setDepreciationPopupVisiblity] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
     const [invoicePopupVisibility, setInvoicePopupVisibility] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
     const [selectedFixedAsset, setSelectedFixedAsset] = useState<{ name: string, depreciation: any[] }>({ name: '', depreciation: [] });
@@ -84,4 +84,4 @@ const FixedAssetsWrapper = ({ dataSource, lang, years }: Props): React.ReactElem
     )
 }
 
-export default FixedAssetsWrapper
+export default FixedAssetsPage

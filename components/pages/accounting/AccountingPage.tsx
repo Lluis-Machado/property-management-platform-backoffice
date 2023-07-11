@@ -1,23 +1,34 @@
+'use client'
+
+import { memo, useCallback } from 'react';
+
+// Library imports
+import { useRouter } from 'next/navigation';
 import DataGrid, { Column as DxColumn, SearchPanel, Toolbar, Item, Pager } from 'devextreme-react/data-grid';
 
 interface Props {
     dataSource: any[];
-    handleDouleClick: ({ data }: any) => void;
 };
 
-// TODO: Esto no se deberia llamar Datagrid, demasiado generico
-const Datagrid = ({ dataSource, handleDouleClick }: Props): React.ReactElement => {
+const AccountingPage = ({ dataSource }: Props): React.ReactElement => {
+    const router = useRouter();
+
+    const handleDoubleClick = useCallback(({ data }: any) => {
+        router.push(`./accounting/${data.id}/incomes`)
+    }, [router])
+
     return (
         <DataGrid
-            allowColumnResizing={true}
-            columnHidingEnabled={false}
             columnMinWidth={100}
             dataSource={dataSource}
             focusedRowEnabled
-            keyExpr='name'
+            keyExpr='id'
+            onRowDblClick={handleDoubleClick}
+            columnHidingEnabled={false}
+            rowAlternationEnabled
+            allowColumnResizing
             showBorders
             showRowLines
-            onRowDblClick={handleDouleClick}
         >
             <SearchPanel
                 searchVisibleColumnsOnly={false}
@@ -41,20 +52,8 @@ const Datagrid = ({ dataSource, handleDouleClick }: Props): React.ReactElement =
                 dataType='string'
                 hidingPriority={0}
             />
-            <DxColumn
-                caption='Contact Person'
-                dataField='primary_contact'
-                dataType='string'
-                hidingPriority={1}
-            />
-            <DxColumn
-                caption='Address'
-                dataField='address'
-                dataType='string'
-                hidingPriority={2}
-            />
         </DataGrid>
-    )
-}
+    );
+};
 
-export default Datagrid
+export default memo(AccountingPage);

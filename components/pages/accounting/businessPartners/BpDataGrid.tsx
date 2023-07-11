@@ -1,15 +1,15 @@
 'use client'
 
 // Libraries imports
-import { DataGrid as DxDataGrid,  Column, Paging, SearchPanel, Pager, Export, Editing } from 'devextreme-react/data-grid';
+import DataGrid, { Column, Paging, SearchPanel, Pager, Export, Editing } from 'devextreme-react/data-grid';
 
 interface Props {
     dataSource: any[];
 };
 
-const DataGrid = ({ dataSource }: Props) => {
+const BpDataGrid = ({ dataSource }: Props) => {
     return (
-        <DxDataGrid
+        <DataGrid
             dataSource={dataSource}
             keyExpr='id'
             showRowLines
@@ -70,8 +70,8 @@ const DataGrid = ({ dataSource }: Props) => {
                 width={150}
                 cellRender={ViewExpensesCellRender}
             /> */}
-        </DxDataGrid>
+        </DataGrid>
     );
 };
 
-export default DataGrid;
+export default BpDataGrid;
