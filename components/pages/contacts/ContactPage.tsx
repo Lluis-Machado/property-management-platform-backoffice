@@ -3,10 +3,10 @@
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Button, Input } from 'pg-components';
+import { Button, Input, Tabs } from 'pg-components';
 import { Formik, Form, FormikHelpers } from 'formik';
 import { memo, useCallback, useState } from 'react';
-import { faFileLines, faReceipt, faRefresh, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faFileLines, faHouseChimneyUser, faReceipt, faRefresh, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 
 // Local imports
@@ -17,6 +17,7 @@ import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { ContactData } from '@/lib/types/contactData';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
+import ContactPropertiesPage from './ContactPropertiesPage';
 
 interface Props {
     initialValues: ContactData;

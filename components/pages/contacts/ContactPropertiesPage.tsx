@@ -1,80 +1,20 @@
-'use client'
-
-// React imports
-import { useCallback } from 'react';
-
-// Libraries imports
-import { useRouter } from 'next/navigation';
-import DataGrid, { Column, Paging, SearchPanel, Pager, Lookup } from 'devextreme-react/data-grid';
+import { Locale } from '@/i18n-config';
+import { getApiData } from '@/lib/utils/getApiData';
+import ContactPropertiesDG from './ContactPropertiesDG';
 
 interface Props {
-  ownershipData: any;
-  propertiesData: any;
+  lang: Locale;
+  id: string;
 };
 
-const ContactPropertiesPage = ({ ownershipData, propertiesData }: Props) => {
+const ContactPropertiesPage = async ({ id }: Props) => {
+  const properties = await getApiData(`/properties/properties`, 'Error while getting properties info');
+  const ownerships = await getApiData(`/ownership/ownership`, 'Error while getting ownerships info');
 
-  const router = useRouter();
-
-  const handleDoubleClick = useCallback(({ data }: any) => {
-    router.push(`/private/properties/${data.propertyId}/property`)
-  }, [router])
+  const filteredOwnerships = ownerships.filter((obj: any) => obj.contactId === id);
 
   return (
-    <DataGrid
-      columnMinWidth={100}
-      dataSource={ownershipData}
-      focusedRowEnabled
-      keyExpr='id'
-      onRowDblClick={handleDoubleClick}
-      columnHidingEnabled={false}
-      rowAlternationEnabled
-      allowColumnResizing
-      showBorders
-      showRowLines
-    >
-      <SearchPanel visible searchVisibleColumnsOnly={false} width={400} />
-      <Paging defaultPageSize={20} />
-      <Pager
-        visible={true}
-        displayMode={'compact'}
-        showInfo
-        showNavigationButtons
-      />
-
-      {/* <Editing
-        mode="batch"
-        allowUpdating
-        allowAdding
-        allowDeleting
-        useIcons
-        startEditAction={'dblClick'}
-        newRowPosition='first'
-      /> */}
-
-      <Column
-        dataField='propertyId'
-        caption='Property Name'
-      >
-        <Lookup
-          dataSource={propertiesData}
-          valueExpr="id"
-          displayExpr="name"
-        />
-      </Column>
-      <Column
-        dataField='share'
-        dataType='number'
-        caption='Property share (%)'
-      // width={150}
-      />
-      <Column
-        dataField='mainOwnership'
-        dataType='boolean'
-        caption='Main Contact Person'
-      // width={150}
-      />
-    </DataGrid>
+    <ContactPropertiesDG ownershipData={filteredOwnerships} propertiesData={properties} />
   )
 }
 
