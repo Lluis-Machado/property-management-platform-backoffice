@@ -1,6 +1,11 @@
 // Local imports
 import PropertiesPage from '@/components/pages/properties/PropertiesPage';
+import { Locale } from '@/i18n-config';
 import { getApiData } from '@/lib/utils/getApiData';
+
+interface Props {
+    params: { lang: Locale }
+};
 
 export default async function Properties() {
     const data = await getApiData('/properties/properties', 'Error while getting property info');

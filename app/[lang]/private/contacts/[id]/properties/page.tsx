@@ -1,10 +1,11 @@
 // Local imports
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import ContactPropertiesPage from '@/components/pages/contacts/ContactPropertiesPage';
+import { Locale } from '@/i18n-config';
 import { getApiData } from '@/lib/utils/getApiData';
 
 interface Props {
-    params: { id: string };
+    params: { lang: Locale, id: string }
 };
 
 const ContactProperties = async ({ params: { id } }: Props) => {
