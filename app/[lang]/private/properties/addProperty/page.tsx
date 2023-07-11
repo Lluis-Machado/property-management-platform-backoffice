@@ -1,8 +1,9 @@
 // Local imports
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddPropertyPage from '@/components/pages/properties/AddPropertyPage';
+import { Locale } from '@/i18n-config';
 import { PropertyInterface } from '@/lib/types/propertyInfo';
-import { getApiData } from '@/lib/utils/apiCalls';
+import { getApiData } from '@/lib/utils/getApiData';
 
 const initialValues: PropertyInterface = {
     name: "",
@@ -43,6 +44,10 @@ const initialValues: PropertyInterface = {
     parentProperty: "",
     id: "",
     childProperties: [],
+};
+
+interface Props {
+    params: { lang: Locale }
 };
 
 const AddProperty = async () => {

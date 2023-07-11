@@ -108,12 +108,12 @@ const DetailTemplate = (props: any) => {
             onSubmit={() => { }}
         >
             <Form>
-                <GroupItem cols={2}>
+                <GroupItem cols={3}>
                     <Input name='addressLine1' label='Address Line 1' readOnly />
                     <Input name='addressLine2' label='Address Line 2' readOnly />
+                    <Input name='birthDay' label='Birth Day' readOnly />
                     <Input name='phoneNumber' label='Phone Number' readOnly />
                     <Input name='mobilePhoneNumber' label='Mobile Phone Number' readOnly />
-                    <Input name='birthDay' label='Birth Day' readOnly />
                     <Input name='city' label='City' readOnly />
                     <Input name='state' label='State' readOnly />
                     <Input name='postalCode' label='Postal Code' readOnly />

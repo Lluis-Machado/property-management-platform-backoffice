@@ -15,7 +15,7 @@ interface Props {
     searchParams: { searchParams: any };
 };
 
-const ExpensesWrapper = ({ data, lang , searchParams }: Props): React.ReactElement => {
+const ExpensesPage = ({ data, lang , searchParams }: Props): React.ReactElement => {
     const [invoiceVisibility, setInvoiceVisibility] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
     const [invoicePreviewTitle, setInvoicePreviewTitle] = useState<string>('');
     const [invoicePreviewURL, setInvoicePreviewURL] = useState<string>('');
@@ -46,4 +46,4 @@ const ExpensesWrapper = ({ data, lang , searchParams }: Props): React.ReactEleme
     );
 };
 
-export default ExpensesWrapper;
+export default ExpensesPage;
