@@ -7,26 +7,36 @@ import { memo, useCallback, useState } from "react";
 import { FormikHelpers } from "formik";
 import { ApiCallError } from "@/lib/utils/errors";
 import { useRouter } from 'next/navigation';
-import { ContactData } from "@/lib/types/contactData";
 import { toast } from "react-toastify";
+import { Formik, Form } from 'formik';
+import { Button, Input, Select } from 'pg-components';
 
 //local imports
-import { PropertyInterface } from "@/lib/types/propertyInfo";
+import { ContactData } from "@/lib/types/contactData";
+import { PropertyCreate } from "@/lib/types/propertyInfo";
 import { updateErrorToast, updateSuccessToast } from "@/lib/utils/customToasts";
-import PropertyFormInfo from "@/components/pages/properties/property/PropertyFormInfo";
+import GroupItem from '@/components/layoutComponent/GroupItem';
 
 interface Props {
-  initialValues: PropertyInterface;
+  initialValues: PropertyCreate;
   contactData: ContactData[];
 }
 
 const AddPropertyPage = ({ initialValues, contactData }: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [formattedContacts, setFormattedContacts] = useState<{ label: string; value: string }[]>(
+    contactData.map(({ firstName, lastName, id }) => {
+      return {
+        label: `${firstName} ${lastName}`,
+        value: `${id}`,
+      };
+    })
+  );
 
   const router = useRouter();
 
   const handleSubmit = useCallback(
-    async (values: PropertyInterface, { setSubmitting }: FormikHelpers<PropertyInterface>) => {
+    async (values: PropertyCreate, { setSubmitting }: FormikHelpers<PropertyCreate>) => {
       console.log("Valores a enviar: ", values)
 
       if (values === initialValues) {
@@ -43,16 +53,7 @@ const AddPropertyPage = ({ initialValues, contactData }: Props) => {
         const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties`,
           {
             method: 'POST',
-            body: JSON.stringify({
-              ...values,
-              "ownerships": [
-                {
-                  "contactId": values.mainContact,
-                  "mainOwnership": true,
-                  "share": 100
-                }
-              ],
-            }),
+            body: JSON.stringify(values),
             headers: { 'Content-type': 'application/json; charset=UTF-8' }
           }
         )
@@ -83,7 +84,80 @@ const AddPropertyPage = ({ initialValues, contactData }: Props) => {
   )
 
   return (
-    <PropertyFormInfo initialValues={initialValues} contactData={contactData} handleSubmit={handleSubmit} isLoading={isLoading} />
+    <Formik
+      initialValues={initialValues}
+      onSubmit={handleSubmit}
+    >
+      <Form>
+        <GroupItem caption='Property Information' cols={4}>
+          <Input
+            name="name"
+            label="Name"
+            readOnly={isLoading}
+          />
+          <Input
+            name="type"
+            label="Type"
+            readOnly={isLoading}
+          />
+          <Input
+            name="cadastreRef"
+            label="Catastral Reference"
+            readOnly={isLoading}
+          />
+          <Select
+            inputsList={formattedContacts}
+            name='mainOwnerId'
+            label='Main Owner'
+            size='large'
+            isSearchable
+          />
+        </GroupItem>
+        <GroupItem caption='Address Information' cols={4}>
+          <Input
+            name="address.addressLine1"
+            label="Address line 1"
+            readOnly={isLoading}
+          />
+          <Input
+            name="address.addressLine2"
+            label="Address line 2"
+            readOnly={isLoading}
+          />
+          <Input
+            name="address.postalCode"
+            label="Postal Code"
+            readOnly={isLoading}
+          />
+          <Input
+            name="address.city"
+            label="City"
+            readOnly={isLoading}
+          />
+          <Input
+            name="address.state"
+            label="State"
+            readOnly={isLoading}
+          />
+          <Input
+            name="address.country"
+            label="Country"
+            readOnly={isLoading}
+          />
+        </GroupItem>
+        <div className='flex justify-end'>
+          <div className='flex flex-row justify-between gap-2'>
+            <Button
+              elevated
+              type='submit'
+              text='Submit Changes'
+              disabled={isLoading}
+              isLoading={isLoading}
+            />
+          </div>
+        </div>
+      </Form>
+    </Formik>
   )
 }
 

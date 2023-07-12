@@ -140,32 +140,32 @@ const AddContactPage = ({ initialValues }: Props) => {
                 </GroupItem>
                 <GroupItem cols={3} caption={'Adress Information'} >
                     <Input
-                        name="addressLine1"
+                        name="address.addressLine1"
                         label={"Address line"}
                         readOnly={isLoading}
                     />
                     <Input
-                        name="addressLine2"
+                        name="address.addressLine2"
                         label={"Address line 2"}
                         readOnly={isLoading}
                     />
                     <Input
-                        name="city"
+                        name="address.city"
                         label={"City"}
                         readOnly={isLoading}
                     />
                     <Input
-                        name="state"
+                        name="address.state"
                         label={"State"}
                         readOnly={isLoading}
                     />
                     <Input
-                        name="postalCode"
+                        name="address.postalCode"
                         label={"Postal code"}
                         readOnly={isLoading}
                     />
                     <Input
-                        name="country"
+                        name="address.country"
                         label={"Country"}
                         readOnly={isLoading}
                     />

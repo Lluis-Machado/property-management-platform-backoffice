@@ -13,7 +13,7 @@ export const getApiData = async (path: string, errorMsg: string) => {
         headers: {
             'Authorization': `${user.token.token_type} ${user.token.access_token}`,
         },
-        next: { revalidate: 3 } 
+        next: { revalidate: 1 } 
     })
     if (!resp.ok) throw new ApiCallError(errorMsg);
     return resp.json()

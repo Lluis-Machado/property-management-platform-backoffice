@@ -2,15 +2,13 @@
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddPropertyPage from '@/components/pages/properties/AddPropertyPage';
 import { Locale } from '@/i18n-config';
-import { PropertyInterface } from '@/lib/types/propertyInfo';
+import { PropertyCreate } from '@/lib/types/propertyInfo';
 import { getApiData } from '@/lib/utils/getApiData';
 
-const initialValues: PropertyInterface = {
+const initialValues: PropertyCreate = {
     name: "",
     type: "",
-    typeOfUse: [
-        0
-    ],
+    typeOfUse: [0],
     address: {
         addressLine1: "",
         addressLine2: "",
@@ -21,28 +19,9 @@ const initialValues: PropertyInterface = {
     },
     cadastreRef: "",
     comments: "",
-    mainContact: {
-        firstName: "",
-        lastName: "",
-        id: ""
-    },
-    ownerships: [
-        {
-            id: "",
-            contactId: "",
-            propertyId: "",
-            mainOwnership: true,
-            contactDetail: {
-                firstName: "",
-                lastName: "",
-                id: ""
-            },
-            share: 100,
-            deleted: false
-        }
-    ],
-    parentProperty: "",
-    id: "",
+    mainOwnerId: "",
+    mainOwnerType: "Contact",
+    parentPropertyId: null,
     childProperties: [],
 };
 

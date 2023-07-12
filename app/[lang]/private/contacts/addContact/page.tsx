@@ -13,12 +13,14 @@ const initialValues: ContactData = {
     email: '',
     phoneNumber: '',
     mobilePhoneNumber: '',
-    addressLine1: '',
-    addressLine2: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    country: ''
+    address: {
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: ''
+    }
 }
 
 interface Props {

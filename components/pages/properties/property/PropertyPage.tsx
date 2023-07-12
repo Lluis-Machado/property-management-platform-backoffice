@@ -1,11 +1,11 @@
 'use client'
 
 // React imports
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 // Libraries imports
 import { Button, Tabs } from "pg-components";
-import { faFileLines, faNoteSticky, faReceipt, faUserGroup, faWarehouse, faTrash, faRefresh } from "@fortawesome/free-solid-svg-icons";
+import { faFileLines, faNoteSticky, faReceipt, faUserGroup, faWarehouse, faTrash, faRefresh, faPencil, faXmark } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FormikHelpers } from "formik";
@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 
 // Local imports
 import { ApiCallError } from "@/lib/utils/errors";
-import { PropertyInterface } from "@/lib/types/propertyInfo";
+import { PropertyData } from "@/lib/types/propertyInfo";
 import PropertiesOwnersDatagrid from "./PropertiesOwnersDatagrid";
 import PropertyTextArea from "@/components/textArea/PropertyTextArea";
 import PropertySidePropertiesDatagrid from "./PropertySidePropertiesDatagrid";
@@ -26,18 +26,19 @@ import SimpleLinkCard from "@/components/cards/SimpleLinkCard";
 
 interface Props {
     id: string;
-    initialValues: PropertyInterface;
+    initialValues: PropertyData;
     contactData: ContactData[];
 };
 
 const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactElement => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] = useState<boolean>(false);
 
     const router = useRouter();
 
     const handleSubmit = useCallback(
-        async (values: PropertyInterface, { setSubmitting }: FormikHelpers<PropertyInterface>) => {
+        async (values: PropertyData, { setSubmitting }: FormikHelpers<PropertyData>) => {
             console.log("Valores a enviar: ", values)
 
             if (values === initialValues) {
@@ -52,24 +53,13 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                 const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties/${id}`,
                     {
                         method: 'PATCH',
-                        body: JSON.stringify({
-                            ...values,
-                            // FOR EACH 
-                            "ownerships": [
-
-                                {
-                                    "contactId": values.mainContact,
-                                    "mainOwnership": true,
-                                    "share": 100
-                                }
-                            ],
-                        }),
+                        body: JSON.stringify(values),
                         headers: { 'Content-type': 'application/json; charset=UTF-8' }
                     }
                 )
 
                 if (!resp.ok) throw new ApiCallError('Error while updating a property');
-                const data: PropertyInterface = await resp.json();
+                const data: PropertyData = await resp.json();
 
                 console.log('TODO CORRECTO, valores de vuelta: ', data)
                 updateSuccessToast(toastId, "Property updated correctly!");
@@ -105,7 +95,7 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                 updateSuccessToast(toastId, "Property deleted correctly!");
                 router.push('/private/properties')
 
-            }catch (error: unknown) {
+            } catch (error: unknown) {
                 console.error(error)
                 if (error instanceof ApiCallError) {
                     updateErrorToast(toastId, error.message);
@@ -130,6 +120,15 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                     <span className='text-4xl tracking-tight text-zinc-900'>
                         {initialValues.name}
                     </span>
+                    <button
+                        className="flex items-center border-2 rounded-md p-2 cursor-pointer hover:shadow-md hover:border-primary-500 transition-all"
+                        onClick={() => setIsEditing(prev => !prev)}
+                    >
+                        <FontAwesomeIcon
+                            icon={isEditing ? faXmark : faPencil}
+                            className='text-primary-500'
+                        />
+                    </button>
                 </div>
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
@@ -168,7 +167,13 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                 </div>
             </div>
             {/* Property form */}
-            <PropertyFormInfo initialValues={initialValues} contactData={contactData} handleSubmit={handleSubmit} isLoading={isLoading} />
+            <PropertyFormInfo
+                initialValues={initialValues}
+                contactData={contactData}
+                handleSubmit={handleSubmit}
+                isLoading={isLoading}
+                isEditing={isEditing}
+            />
             <Tabs
                 dataSource={[
                     {
