@@ -1,13 +1,11 @@
 'use client'
 
 // React imports
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 // Libraries imports
 import { Button, Tabs } from "pg-components";
-import { faFileLines, faNoteSticky, faReceipt, faUserGroup, faWarehouse, faTrash, faRefresh, faPencil, faXmark } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileLines, faNoteSticky, faReceipt, faUserGroup, faWarehouse, faTrash, faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { FormikHelpers } from "formik";
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
@@ -23,6 +21,7 @@ import { ContactData } from "@/lib/types/contactData";
 import { updateErrorToast, updateSuccessToast } from "@/lib/utils/customToasts";
 import PropertyFormInfo from "@/components/pages/properties/property/PropertyFormInfo"
 import SimpleLinkCard from "@/components/cards/SimpleLinkCard";
+import EditButton from "@/components/buttons/EditButton";
 
 interface Props {
     id: string;
@@ -120,15 +119,10 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                     <span className='text-4xl tracking-tight text-zinc-900'>
                         {initialValues.name}
                     </span>
-                    <button
-                        className="flex items-center border-2 rounded-md p-2 cursor-pointer hover:shadow-md hover:border-primary-500 transition-all"
-                        onClick={() => setIsEditing(prev => !prev)}
-                    >
-                        <FontAwesomeIcon
-                            icon={isEditing ? faXmark : faPencil}
-                            className='text-primary-500'
-                        />
-                    </button>
+                    <EditButton
+                        isEditing={isEditing}
+                        setIsEditing={setIsEditing}
+                    />
                 </div>
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
