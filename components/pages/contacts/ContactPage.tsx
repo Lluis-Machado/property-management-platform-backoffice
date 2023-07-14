@@ -3,26 +3,26 @@
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Button, Input, Select } from 'pg-components';
-import { Formik, Form, FormikHelpers, FormikProps } from 'formik';
+import { Button } from 'pg-components';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { faFileLines, faReceipt, faRefresh, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faFileLines, faPencil, faReceipt, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
+import Form, {
+    GroupItem, Item
+} from 'devextreme-react/form';
 
 // Local imports
-import GroupItem from '@/components/layoutComponent/GroupItem';
-import DatePicker from '@/components/datepicker/DatePicker';
 import { ApiCallError } from '@/lib/utils/errors';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { ContactData } from '@/lib/types/contactData';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
-import EditButton from '@/components/buttons/EditButton';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 
 interface Props {
-    initialValues: ContactData;
+    contactData: ContactData;
     contactId: string;
     token: TokenRes;
     lang: Locale;
@@ -33,21 +33,26 @@ interface SelectInput {
     value: string;
 }
 
-const ContactPage = ({ contactId, initialValues, token, lang }: Props) => {
+const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] = useState<boolean>(false);
     const [countries, setCountries] = useState<SelectInput[] | undefined>(undefined);
     const [states, setStates] = useState<SelectInput[] | undefined>(undefined);
-    const [selectedCountry, setSelectedCountry] = useState(initialValues.address.country)
+    // Importante desestructurar contactData para que no se copie por referencia
+    const [initialValues, setInitialValues] = useState<ContactData>(structuredClone(contactData));
 
-    const formikRef = useRef<FormikProps<ContactData>>(null);
+    const [fetchingStates, setFetchingStates] = useState(false);
+    const [fetchingCountries, setFetchingCountries] = useState(false);
+
+    const formRef = useRef<Form>(null)
 
     const router = useRouter();
 
     // Use effect for getting countries when editing
     useEffect(() => {
         if (isEditing) {
+            setFetchingCountries(true);
             fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries?languageCode=${lang}`, {
                 method: 'GET',
                 headers: {
@@ -67,44 +72,44 @@ const ContactPage = ({ contactId, initialValues, token, lang }: Props) => {
                     setCountries(countries)
                 })
                 .catch((e) => console.error('Error while getting the countries'))
+                .finally(() => setFetchingCountries(false))
         }
     }, [isEditing])
 
-    useEffect(() => {
-        if (isEditing) {
-            fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${selectedCountry}/states?languageCode=${lang}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `${token.token_type} ${token.access_token}`,
-                },
-                cache: 'no-store'
+    const handleCountryChange = (countryId: number) => {
+        setFetchingStates(true);
+        fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `${token.token_type} ${token.access_token}`,
+            },
+            cache: 'no-store'
+        })
+            .then((resp) => resp.json())
+            .then((data: any) => {
+                console.log('STATES: ', data)
+                let states = [];
+                for (const state of data) {
+                    states.push({
+                        label: state.name,
+                        value: state.id
+                    })
+                }
+                setStates(states)
             })
-                .then((resp) => resp.json())
-                .then((data: any) => {
-                    console.log('bruh: ', data)
-                    let states = [];
-                    for (const state of data) {
-                        states.push({
-                            label: state.name,
-                            value: state.id
-                        })
-                    }
-                    setStates(states)
-                })
-                .catch((e) => console.error('Error while getting the states'))
-        }
-    }, [selectedCountry])
-
-    const handleChangeCountry = (country: string) => {
-        setSelectedCountry(country);
-        return true;
+            .catch((e) => console.error('Error while getting the states'))
+            .finally(() => setFetchingStates(false))
     }
 
     const handleSubmit = useCallback(
-        async (values: ContactData, { setSubmitting }: FormikHelpers<ContactData>) => {
-            console.log("Valores a enviar: ", values)
+        async () => {
+            // const values = formRef.current?.props.formData;
+            const values = contactData;
 
-            if (values === initialValues) {
+            console.log("Valores a enviar: ", values)
+            console.log("initialValues: ", initialValues)
+
+            if (JSON.stringify(values) === JSON.stringify(initialValues)) {
                 toast.warning('Change at least one field')
                 return;
             }
@@ -126,7 +131,7 @@ const ContactPage = ({ contactId, initialValues, token, lang }: Props) => {
 
                 console.log('TODO CORRECTO, valores de vuelta: ', data)
                 updateSuccessToast(toastId, "Contact updated correctly!");
-                router.refresh();
+                setInitialValues(data);
 
             } catch (error: unknown) {
                 console.error(error)
@@ -137,9 +142,8 @@ const ContactPage = ({ contactId, initialValues, token, lang }: Props) => {
                 }
             } finally {
                 setIsLoading(false);
-                setSubmitting(false);
             }
-        }, [contactId, initialValues]
+        }, [contactId, contactData, initialValues]
     )
 
     const handleDelete = useCallback(
@@ -190,10 +194,6 @@ const ContactPage = ({ contactId, initialValues, token, lang }: Props) => {
                     <span className='text-4xl tracking-tight text-zinc-900'>
                         {initialValues.firstName} {initialValues.lastName}
                     </span>
-                    <EditButton
-                        isEditing={isEditing}
-                        setIsEditing={setIsEditing}
-                    />
                 </div>
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
@@ -212,10 +212,9 @@ const ContactPage = ({ contactId, initialValues, token, lang }: Props) => {
                 <div className='flex flex-row self-center gap-4'>
                     <Button
                         elevated
-                        onClick={() => router.refresh()}
+                        onClick={() => setIsEditing(prev => !prev)}
                         type='button'
-                        icon={faRefresh}
-                        style='secondary'
+                        icon={isEditing ? faXmark : faPencil}
                     />
                     <Button
                         elevated
@@ -227,110 +226,74 @@ const ContactPage = ({ contactId, initialValues, token, lang }: Props) => {
                 </div>
             </div>
             {/* Contact form */}
-            <Formik
-                innerRef={formikRef}
-                initialValues={initialValues}
-                onSubmit={handleSubmit}
+            <Form
+                ref={formRef}
+                formData={contactData}
+                labelMode={'floating'}
+                readOnly={isLoading || !isEditing}
             >
-                {({ values }) => (
-                    <Form>
-                        {handleChangeCountry(values.address.country)}
-                        <GroupItem cols={3} caption={'Contact Information'} >
-                            <Input
-                                name="firstName"
-                                label={"First name"}
-                                readOnly={isLoading || !isEditing}
-                            />
-                            <Input
-                                name="lastName"
-                                label={"Last name"}
-                                readOnly={isLoading || !isEditing}
-                            />
-                            <DatePicker
-                                name='birthDay'
-                                label='Birth date'
-                                defaultValue={initialValues.birthDay ?? undefined}
-                                isClearable
-                                readOnly={isLoading || !isEditing}
-                            />
-                            <Input
-                                name="nif"
-                                label={"NIF"}
-                                readOnly={isLoading || !isEditing}
-                            />
-                        </GroupItem>
-                        <GroupItem cols={3} caption={'Address Information'} >
-                            <Input
-                                name="address.addressLine1"
-                                label={"Address line"}
-                                readOnly={isLoading || !isEditing}
-                            />
-                            <Input
-                                name="address.addressLine2"
-                                label={"Address line 2"}
-                                readOnly={isLoading || !isEditing}
-                            />
-                            <Select
-                                name='address.country'
-                                label={"Country"}
-                                size='large'
-                                inputsList={countries}
-                                defaultValue={{ label: initialValues.address.country, value: initialValues.address.country }}
-                                readOnly={isLoading || !isEditing}
-                                isSearchable
-                            />
-                            <Select
-                                name='address.state'
-                                label={"State"}
-                                size='large'
-                                inputsList={states}
-                                defaultValue={{ label: initialValues.address.state, value: initialValues.address.state }}
-                                readOnly={isLoading || !isEditing}
-                                isSearchable
-                            />
-                            <Input
-                                name="address.city"
-                                label={"City"}
-                                readOnly={isLoading || !isEditing}
-                            />
-                            <Input
-                                name="address.postalCode"
-                                label={"Postal code"}
-                                readOnly={isLoading || !isEditing}
-                            />
-                            <Input
-                                name="email"
-                                label={"Email"}
-                                readOnly={isLoading || !isEditing}
-                            />
-                            <Input
-                                name="phoneNumber"
-                                label={"Phone number"}
-                                readOnly={isLoading || !isEditing}
-                            />
-                            <Input
-                                name="mobilePhoneNumber"
-                                label={"Mobile phone number"}
-                                readOnly={isLoading || !isEditing}
-                            />
-                        </GroupItem>
-                        <div className='flex justify-end py-4'>
-                            <div className='flex flex-row justify-between gap-2'>
-                                {
-                                    isEditing &&
-                                    <Button
-                                        elevated
-                                        type='submit'
-                                        text='Submit Changes'
-                                        disabled={isLoading}
-                                        isLoading={isLoading}
-                                    />
-                                }
-                            </div>
-                        </div>
-                    </Form>
-                )}
-            </Formik>
+                <GroupItem colCount={4} caption="Contact Information">
+                    <Item dataField="firstName" label={{ text: "First name" }} />
+                    <Item dataField="lastName" label={{ text: "Last name" }} />
+                    <Item
+                        dataField="birthDay"
+                        label={{ text: 'Birth date' }}
+                        editorType='dxDateBox'
+                        editorOptions={{
+                            displayFormat: dateFormat,
+                            showClearButton: true
+                        }}
+                    />
+                    <Item dataField="nif" label={{ text: "NIF" }} />
+                </GroupItem>
+                <GroupItem colCount={4} caption="Address Information">
+                    <Item dataField="address.addressLine1" label={{ text: "Address line" }} />
+                    <Item dataField="address.addressLine2" label={{ text: "Address line 2" }} />
+                    <Item
+                        dataField="address.country"
+                        label={{ text: "Country" }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: countries,
+                            displayExpr: "label",
+                            valueExpr: "value",
+                            searchEnabled: true,
+                            onValueChanged: (e: any) => handleCountryChange(e.value)
+                        }}
+                    />
+                    <Item
+                        dataField="address.state"
+                        label={{ text: "State" }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: states,
+                            displayExpr: "label",
+                            valueExpr: "value",
+                            searchEnabled: true
+                        }}
+                    />
+                    <Item dataField="address.city" label={{ text: "City" }} />
+                    <Item dataField="address.postalCode" label={{ text: "Postal code" }} />
+                    <Item dataField="email" label={{ text: "Email" }} />
+                    <Item dataField="phoneNumber" label={{ text: "Phone number" }} />
+                    <Item dataField="mobilePhoneNumber" label={{ text: "Mobile phone number" }} />
+                </GroupItem>
+            </Form>
+            {
+                isEditing &&
+                <div className='flex justify-end py-4'>
+                    <div className='flex flex-row justify-between gap-2'>
+                        <Button
+                            elevated
+                            type='button'
+                            text='Submit Changes'
+                            disabled={isLoading}
+                            isLoading={isLoading}
+                            onClick={handleSubmit}
+                        />
+                    </div>
+                </div>
+            }
         </div>
     );
 };

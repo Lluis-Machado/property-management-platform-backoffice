@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 
 // Libraries imports
 import { Button, Tabs } from "pg-components";
-import { faFileLines, faNoteSticky, faReceipt, faUserGroup, faWarehouse, faTrash, faRefresh } from "@fortawesome/free-solid-svg-icons";
+import { faFileLines, faNoteSticky, faReceipt, faUserGroup, faWarehouse, faTrash, faRefresh, faXmark, faPencil } from "@fortawesome/free-solid-svg-icons";
 import { FormikHelpers } from "formik";
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
@@ -119,10 +119,6 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                     <span className='text-4xl tracking-tight text-zinc-900'>
                         {initialValues.name}
                     </span>
-                    <EditButton
-                        isEditing={isEditing}
-                        setIsEditing={setIsEditing}
-                    />
                 </div>
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
@@ -144,6 +140,13 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                 </div>
                 {/* Button toolbar */}
                 <div className='flex flex-row self-center gap-4'>
+                    <Button
+                        elevated
+                        onClick={() => setIsEditing(prev => !prev)}
+                        type='button'
+                        icon={isEditing ? faXmark : faPencil}
+                        style='outline'
+                    />
                     <Button
                         elevated
                         onClick={() => router.refresh()}

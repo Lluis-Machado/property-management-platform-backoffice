@@ -1,3 +1,5 @@
+'server-only'
+
 import { cookies } from "next/headers";
 import { User } from "../types/user";
 import { getRequestCookie } from "./getRequestCookie";

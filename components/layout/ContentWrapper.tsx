@@ -1,7 +1,7 @@
 'use client'
 
 // React imports
-import { FC, memo, useEffect } from 'react';
+import { useEffect } from 'react';
 
 // Local imports
 import { Locale } from '@/i18n-config';
@@ -12,7 +12,7 @@ interface Props {
     lang: Locale
 };
 
-export const ContentWrapper: FC<Props> = memo(function ContentWrapper({ children, lang }) {
+export function ContentWrapper({ children, lang }: Props) {
 
     useEffect(() => {
         localeDevExtreme(lang);
@@ -25,4 +25,4 @@ export const ContentWrapper: FC<Props> = memo(function ContentWrapper({ children
             </div>
         </section>
     );
-});
+};

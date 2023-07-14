@@ -1,0 +1,16 @@
+{
+    "items": [
+        {
+            "key": "$base-accent",
+            "value": "#b99f6c"
+        }
+    ],
+    "baseTheme": "generic.light",
+    "outputColorScheme": "pg-theme",
+    "makeSwatch": false,
+    "version": "22.2.6",
+    "widgets": [
+        "DataGrid"
+    ],
+    "removeExternalResources": false
+}
