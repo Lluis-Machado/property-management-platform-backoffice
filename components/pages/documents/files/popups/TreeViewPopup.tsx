@@ -11,7 +11,6 @@ export type TreeViewPopupType = 'Move to' | 'Copy to';
 
 interface Props {
     createChildren: (parentNode: Node<any>) => any[] | PromiseLike<any>;
-    itemRender: (params: any) => React.ReactElement;
     onHiding: () => void;
     onShown: () => void;
     onSubmit: (node: any) => void;
@@ -19,7 +18,7 @@ interface Props {
     visible: boolean;
 };
 
-const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ createChildren, itemRender, onHiding, onShown, onSubmit, type, visible }): React.ReactElement {
+const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ createChildren, onHiding, onShown, onSubmit, type, visible }): React.ReactElement {
     const [selectedNode, setSelectedNode] = useState<any>(null);
 
     const handleHiding = useCallback(() => {
@@ -33,7 +32,6 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ createChildren, i
                 createChildren={createChildren}
                 dataStructure='plain'
                 id='TreeviewPopup'
-                itemRender={itemRender}
                 onItemClick={({ itemData }) => setSelectedNode(itemData)}
                 searchEnabled
             />
@@ -54,7 +52,7 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ createChildren, i
                 </div>
             </div>
         </div>
-    ), [createChildren, handleHiding, itemRender, onSubmit, selectedNode, type]);
+    ), [createChildren, handleHiding, onSubmit, selectedNode, type]);
 
     return (
         <Popup
@@ -67,6 +65,8 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ createChildren, i
             title={type}
             visible={visible}
             width='80vw'
+            container='#content'
+            dragEnabled={false}
         />
     );
 });

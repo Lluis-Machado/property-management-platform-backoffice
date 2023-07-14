@@ -84,7 +84,9 @@ const FormPopup: FC<Props> = memo(function FormPopup({ elementName, onHiding, on
 
     return (
         <Popup
+            container='#content'
             contentRender={ContentRender}
+            dragEnabled={false}
             height='auto'
             hideOnOutsideClick
             maxWidth={340}
