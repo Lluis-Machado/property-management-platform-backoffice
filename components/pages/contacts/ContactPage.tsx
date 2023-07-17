@@ -39,11 +39,8 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
     const [confirmationVisible, setConfirmationVisible] = useState<boolean>(false);
     const [countries, setCountries] = useState<SelectInput[] | undefined>(undefined);
     const [states, setStates] = useState<SelectInput[] | undefined>(undefined);
-    // Importante desestructurar contactData para que no se copie por referencia
+    // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<ContactData>(structuredClone(contactData));
-
-    const [fetchingStates, setFetchingStates] = useState(false);
-    const [fetchingCountries, setFetchingCountries] = useState(false);
 
     const formRef = useRef<Form>(null)
 
@@ -52,7 +49,6 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
     // Use effect for getting countries when editing
     useEffect(() => {
         if (isEditing) {
-            setFetchingCountries(true);
             fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries?languageCode=${lang}`, {
                 method: 'GET',
                 headers: {
@@ -72,12 +68,10 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
                     setCountries(countries)
                 })
                 .catch((e) => console.error('Error while getting the countries'))
-                .finally(() => setFetchingCountries(false))
         }
     }, [isEditing])
 
     const handleCountryChange = (countryId: number) => {
-        setFetchingStates(true);
         fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`, {
             method: 'GET',
             headers: {
@@ -98,7 +92,6 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
                 setStates(states)
             })
             .catch((e) => console.error('Error while getting the states'))
-            .finally(() => setFetchingStates(false))
     }
 
     const handleSubmit = useCallback(
@@ -107,7 +100,7 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
             const values = contactData;
 
             console.log("Valores a enviar: ", values)
-            console.log("initialValues: ", initialValues)
+            console.log(JSON.stringify(values))
 
             if (JSON.stringify(values) === JSON.stringify(initialValues)) {
                 toast.warning('Change at least one field')
@@ -279,10 +272,11 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
                     <Item dataField="mobilePhoneNumber" label={{ text: "Mobile phone number" }} />
                 </GroupItem>
             </Form>
-            {
-                isEditing &&
-                <div className='flex justify-end py-4'>
-                    <div className='flex flex-row justify-between gap-2'>
+            <div className='h-[2rem]'>
+            <div className='flex justify-end'>
+                <div className='flex flex-row justify-between gap-2'>
+                    {
+                    isEditing &&
                         <Button
                             elevated
                             type='button'
@@ -290,10 +284,11 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
                             disabled={isLoading}
                             isLoading={isLoading}
                             onClick={handleSubmit}
-                        />
-                    </div>
+                            />
+                    }
                 </div>
-            }
+            </div>
+                            </div>
         </div>
     );
 };
