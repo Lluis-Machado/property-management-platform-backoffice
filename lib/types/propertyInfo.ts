@@ -1,44 +1,44 @@
-export interface PropertyInterface {
-    ownerships: Ownership[]
-    childProperties: any[]
-    name: string
-    type: string
-    typeOfUse: number[]
-    address: Address
-    cadastreRef: string
-    comments: string
-    mainContact: MainContact
-    parentProperty: any
-    id: string
+export interface PropertyCreate {
+    name: string;
+    type: string;
+    typeOfUse: number[];
+    address: Address;
+    cadastreRef: string;
+    comments: string;
+    mainOwnerId: string;
+    mainOwnerType: string;
+    childProperties: string[];
+    parentPropertyId: string | null;
 }
 
-interface Ownership {
-    id: string
-    contactId: string
-    propertyId: string
-    share: number
-    mainOwnership: boolean
-    contactDetail: ContactDetail
-    deleted: boolean
+export interface PropertyData {
+    id: string;
+    name: string;
+    type: string;
+    typeOfUse: number[];
+    address: Address;
+    cadastreRef: string;
+    comments: string;
+    mainOwner: MainOwner;
+    parentProperty: ParentProperty;
 }
 
-interface ContactDetail {
-    firstName: string
-    lastName: string
-    id: string
+interface MainOwner {
+    id: string;
+    ownerName: string;
+    ownerType: string;
+}
+
+interface ParentProperty {
+    id: string;
+    propertyName: string;
 }
 
 interface Address {
-    addressLine1: string
-    addressLine2: string
-    city: string
-    state: string
-    postalCode: string
-    country: string
-}
-
-interface MainContact {
-    firstName: string
-    lastName: string
-    id: string
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
 }

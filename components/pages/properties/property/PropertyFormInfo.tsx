@@ -8,17 +8,18 @@ import { Button, Input, Select } from 'pg-components';
 
 // Local imports
 import { ContactData } from '@/lib/types/contactData';
-import { PropertyInterface } from '@/lib/types/propertyInfo';
+import { PropertyData } from '@/lib/types/propertyInfo';
 import GroupItem from '@/components/layoutComponent/GroupItem';
 
 interface Props {
-    initialValues: PropertyInterface;
+    initialValues: PropertyData;
     contactData: ContactData[];
     handleSubmit: any;
     isLoading?: boolean;
+    isEditing?: boolean;
 };
 
-const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading }: Props) => {
+const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading, isEditing }: Props) => {
     const [formattedContacts, setFormattedContacts] = useState<{ label: string; value: string }[]>(
         contactData.map(({ firstName, lastName, id }) => {
             return {
@@ -39,75 +40,82 @@ const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading 
                         <Input
                             name="name"
                             label="Name"
-                            readOnly={isLoading}
+                            readOnly={isLoading || !isEditing}
                         />
                         <Input
                             name="type"
                             label="Type"
-                            readOnly={isLoading}
+                            readOnly={isLoading || !isEditing}
                         />
                         <Input
                             name="cadastreRef"
                             label="Catastral Reference"
-                            readOnly={isLoading}
+                            readOnly={isLoading || !isEditing}
                         />
                         <Select
                             inputsList={formattedContacts}
-                            name='mainContact'
-                            label='Main Contact'
+                            name='mainOwnerId'
+                            label='Main Owner'
                             size='large'
                             defaultValue={{
-                                value: initialValues.mainContact.id,
-                                label: `${initialValues.mainContact.firstName} ${initialValues.mainContact.lastName}`
+                                label: initialValues.mainOwner.ownerName,
+                                value: initialValues.mainOwner.id
                             }}
                             isSearchable
+                            readOnly={isLoading || !isEditing}
                         />
                     </GroupItem>
                     <GroupItem caption='Address Information' cols={4}>
                         <Input
                             name="address.addressLine1"
                             label="Address line 1"
-                            readOnly={isLoading}
+                            readOnly={isLoading || !isEditing}
                         />
                         <Input
                             name="address.addressLine2"
                             label="Address line 2"
-                            readOnly={isLoading}
+                            readOnly={isLoading || !isEditing}
                         />
                         <Input
                             name="address.postalCode"
                             label="Postal Code"
-                            readOnly={isLoading}
+                            readOnly={isLoading || !isEditing}
                         />
                         <Input
                             name="address.city"
                             label="City"
-                            readOnly={isLoading}
+                            readOnly={isLoading || !isEditing}
                         />
                         <Input
                             name="address.state"
                             label="State"
-                            readOnly={isLoading}
+                            readOnly={isLoading || !isEditing}
                         />
                         <Input
                             name="address.country"
                             label="Country"
-                            readOnly={isLoading}
+                            readOnly={isLoading || !isEditing}
                         />
                     </GroupItem>
-                    <div className='flex justify-end'>
-                        <div className='flex flex-row justify-between gap-2'>
+                </Form>
+            </Formik>
+            <div className='h-[2rem]'>
+                <div className='flex justify-end'>
+                    <div className='flex flex-row justify-between gap-2'>
+                        {
+                            isEditing &&
                             <Button
                                 elevated
-                                type='submit'
+                                type='button'
                                 text='Submit Changes'
                                 disabled={isLoading}
                                 isLoading={isLoading}
+                                onClick={handleSubmit}
                             />
-                        </div>
+                        }
                     </div>
-                </Form>
-            </Formik>
+                </div>
+            </div>
         </div >
     )
 }

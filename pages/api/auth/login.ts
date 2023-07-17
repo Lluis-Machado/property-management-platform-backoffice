@@ -10,9 +10,9 @@ async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
     const { username, password } = req.body
 
     console.log('username y password: ', username, password)
-    console.log('LLAMANDO A URL: ', `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/auth/Token?username=${username}&password=${password}`)
+    console.log('LLAMANDO A URL: ', `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/auth/Token/GetBackofficeToken?username=${username}&password=${password}`)
 
-    const tokenRes = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/auth/Token?username=${username}&password=${password}`);
+    const tokenRes = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/auth/Token/GetBackofficeToken?username=${username}&password=${password}`);
 
     console.log('TOKEN RES: ', { tokenRes })
 

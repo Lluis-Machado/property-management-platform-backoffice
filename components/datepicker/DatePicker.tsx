@@ -2,7 +2,7 @@ import { Field, FieldProps } from 'formik';
 import { FormError } from 'pg-components';
 import DateBox from 'devextreme-react/date-box';
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { DateTime } from 'luxon';
 
@@ -54,7 +54,7 @@ const DatePicker = ({
     const [menuIsOpen, setMenuIsOpen] = useState(false);
     const [currentValue, setCurrentValue] = useState(defaultValue);
 
-    const labelMenuIsOpenClasses = (): string => {
+    const labelMenuIsOpenClasses = useCallback((): string => {
         if (menuIsOpen) {
             const requiredClasses = required ? 'text-pink-500' : 'text-primary-500';
             return classNames('text-xs -top-2', requiredClasses);
@@ -62,7 +62,7 @@ const DatePicker = ({
             const textClasses = currentValue ? '-top-2 text-xs' : 'top-3 text-base';
             return classNames('text-slate-400', textClasses);
         }
-    };
+    }, [menuIsOpen, required, currentValue])
 
     return (
         <div className='w-full relative cursor-pointer'>
@@ -72,7 +72,7 @@ const DatePicker = ({
                         <DateBox
                             {...field}
                             type="date"
-                            className='h-12'
+                            className={classNames('h-12', readOnly && 'read-only')}
                             //@ts-ignore
                             displayFormat={dateFormat}
                             defaultValue={defaultValue}

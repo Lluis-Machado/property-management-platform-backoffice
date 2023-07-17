@@ -1,3 +1,12 @@
+interface Address {
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+}
+
 export interface ContactData {
     id: string;
     firstName: string;
@@ -7,10 +16,5 @@ export interface ContactData {
     email: string;
     phoneNumber: string;
     mobilePhoneNumber: string;
-    addressLine1: string;
-    addressLine2: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
+    address: Address;
 }

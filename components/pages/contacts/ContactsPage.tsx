@@ -101,23 +101,23 @@ const ContactsPage = ({ dataSource }: Props) => {
 export default memo(ContactsPage);
 
 const DetailTemplate = (props: any) => {
-    const { birthDay, phoneNumber, mobilePhoneNumber, addressLine1, addressLine2, city, state, postalCode, country } = props.data.data;
+    const { birthDay, phoneNumber, mobilePhoneNumber, address } = props.data.data;
     return (
         <Formik
-            initialValues={{ birthDay, phoneNumber, mobilePhoneNumber, addressLine1, addressLine2, city, state, postalCode, country }}
+            initialValues={{ birthDay, phoneNumber, mobilePhoneNumber, address }}
             onSubmit={() => { }}
         >
             <Form>
                 <GroupItem cols={3}>
-                    <Input name='addressLine1' label='Address Line 1' readOnly />
-                    <Input name='addressLine2' label='Address Line 2' readOnly />
-                    <Input name='birthDay' label='Birth Day' readOnly />
+                    <Input name='address.addressLine1' label='Address Line 1' readOnly />
+                    <Input name='address.addressLine2' label='Address Line 2' readOnly />
+                    <Input name='address.city' label='City' readOnly />
+                    <Input name='address.state' label='State' readOnly />
+                    <Input name='address.postalCode' label='Postal Code' readOnly />
+                    <Input name='address.country' label='Country' readOnly />
+                    <Input name='birthDay' label='Birth Date' readOnly />
                     <Input name='phoneNumber' label='Phone Number' readOnly />
                     <Input name='mobilePhoneNumber' label='Mobile Phone Number' readOnly />
-                    <Input name='city' label='City' readOnly />
-                    <Input name='state' label='State' readOnly />
-                    <Input name='postalCode' label='Postal Code' readOnly />
-                    <Input name='country' label='Country' readOnly />
                 </GroupItem>
             </Form>
         </Formik>

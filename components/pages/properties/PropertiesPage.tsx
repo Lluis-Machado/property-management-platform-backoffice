@@ -9,9 +9,10 @@ import DataGrid, { Column, SearchPanel, Toolbar, Item, Pager } from 'devextreme-
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
+import { PropertyData } from '@/lib/types/propertyInfo';
 
 interface Props {
-    dataSource: any[];
+    dataSource: PropertyData[];
 };
 
 const PropertiesPage = ({ dataSource }: Props): React.ReactElement => {
@@ -35,15 +36,15 @@ const PropertiesPage = ({ dataSource }: Props): React.ReactElement => {
         )
     };
 
-    const addressCellRender = (e: any) => {
+    const addressCellRender = (e: PropertyData) => {
         const { addressLine1, city, country, state, postalCode } = e.address;
         const parts = [addressLine1, postalCode && `${postalCode} - ${city}`, state, country];
         return parts.filter(Boolean).join(', ');
     };
 
-    const mainContactCellRender = (e: any) => {
-        const { firstName, lastName } = e.mainContact
-        return `${firstName ?? ''} ${lastName ?? ''}`
+    const mainContactCellRender = (e: PropertyData) => {
+        const { ownerName } = e.mainOwner
+        return `${ownerName ?? ''}`
     }
 
     return (

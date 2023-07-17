@@ -50,7 +50,6 @@ export const routes: Route[] = [
         name: 'Contacts',
         children: [
             { name: 'Contact Info', path: 'contactInfo' },
-            { name: 'Properties', path: 'properties' },
         ]
     },
     {
