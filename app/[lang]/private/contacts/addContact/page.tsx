@@ -13,7 +13,7 @@ const initialValues: ContactData = {
     firstName: '',
     lastName: '',
     birthDay: null,
-    nif: '',
+    nif: null,
     email: '',
     phoneNumber: '',
     mobilePhoneNumber: '',

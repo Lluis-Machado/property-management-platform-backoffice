@@ -8,7 +8,8 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { faFileLines, faPencil, faReceipt, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import Form, {
-    GroupItem, Item
+    EmailRule,
+    GroupItem, Item, RequiredRule, StringLengthRule
 } from 'devextreme-react/form';
 
 // Local imports
@@ -21,6 +22,7 @@ import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { SelectData } from '@/lib/types/selectData';
+import { formatDate } from '@/lib/utils/formatDateFromJS';
 
 interface Props {
     contactData: ContactData;
@@ -90,7 +92,9 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
 
     const handleSubmit = useCallback(
         async () => {
-            // const values = formRef.current?.props.formData;
+            const res = formRef.current!.instance.validate(); 
+            if (!res.isValid) return;
+
             const values = contactData;
 
             console.log("Valores a enviar: ", values)
@@ -104,11 +108,16 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
             setIsLoading(true)
             const toastId = toast.loading("Updating contact...");
 
+            if (!values.nif) values.nif = null;
+
             try {
                 const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactData.id}`,
                     {
                         method: 'PATCH',
-                        body: JSON.stringify(values),
+                        body: JSON.stringify({
+                            ...values,
+                            birthDay: formatDate(values.birthDay)
+                        }),
                         headers: { 'Content-type': 'application/json; charset=UTF-8' }
                     }
                 )
@@ -218,10 +227,14 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                 formData={contactData}
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
+                showValidationSummary
             >
                 <GroupItem colCount={4} caption="Contact Information">
                     <Item dataField="firstName" label={{ text: "First name" }} />
-                    <Item dataField="lastName" label={{ text: "Last name" }} />
+                    <Item dataField="lastName" label={{ text: "Last name" }} >
+                        <RequiredRule message="Last name is required" />
+                        <StringLengthRule min={3} message="Last name have at least 2 letters" />
+                    </Item>
                     <Item
                         dataField="birthDay"
                         label={{ text: 'Birth date' }}
@@ -261,9 +274,11 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                     />
                     <Item dataField="address.city" label={{ text: "City" }} />
                     <Item dataField="address.postalCode" label={{ text: "Postal code" }} />
-                    <Item dataField="email" label={{ text: "Email" }} />
-                    <Item dataField="phoneNumber" label={{ text: "Phone number" }} />
-                    <Item dataField="mobilePhoneNumber" label={{ text: "Mobile phone number" }} />
+                    <Item dataField="email" label={{ text: "Email" }} >
+                        <EmailRule message="Email is invalid" />
+                    </Item>
+                    <Item dataField="phoneNumber" label={{ text: "Phone number" }} editorOptions={{ mask: '+(0000) 000-00-00-00' }} />
+                    <Item dataField="mobilePhoneNumber" label={{ text: "Mobile phone number" }} editorOptions={{ mask: '+(0000) 000-00-00-00' }} />
                 </GroupItem>
             </Form>
             <div className='h-[2rem]'>

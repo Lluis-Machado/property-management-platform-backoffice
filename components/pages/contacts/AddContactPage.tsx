@@ -1,12 +1,13 @@
 'use client'
 
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import { Button } from 'pg-components';
 import { toast } from 'react-toastify';
 import Form, {
-    GroupItem, Item
+    EmailRule,
+    GroupItem, Item, RequiredRule, StringLengthRule
 } from 'devextreme-react/form';
 
 // Local imports
@@ -17,6 +18,7 @@ import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { Locale } from '@/i18n-config';
 import { TokenRes } from '@/lib/types/token';
 import { SelectData } from '@/lib/types/selectData';
+import { formatDate } from '@/lib/utils/formatDateFromJS';
 
 interface Props {
     contactData: ContactData;
@@ -30,6 +32,8 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
     const [states, setStates] = useState<SelectData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<ContactData>(structuredClone(contactData));
+
+    const formRef = useRef<Form>(null)
 
     const router = useRouter();
 
@@ -57,7 +61,11 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
 
     const handleSubmit = useCallback(
         async () => {
+            const res = formRef.current!.instance.validate(); 
+            if (!res.isValid) return;
+
             const values = contactData;
+            
             console.log("Valores a enviar: ", values)
             console.log("Valores a enviar en JSON: ", JSON.stringify(values))
 
@@ -70,11 +78,16 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
 
             const toastId = toast.loading("Creating contact...");
 
+            if (!values.nif) values.nif = null;
+
             try {
                 const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts`,
                     {
                         method: 'POST',
-                        body: JSON.stringify(values),
+                        body: JSON.stringify({
+                            ...values,
+                            birthDay: formatDate(values.birthDay)
+                        }),
                         headers: { 'Content-type': 'application/json; charset=UTF-8' }
                     }
                 );
@@ -106,13 +119,18 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
     return (
         <div>
             <Form
+                ref={formRef}
                 formData={contactData}
                 labelMode={'floating'}
                 readOnly={isLoading}
+                showValidationSummary
             >
                 <GroupItem colCount={4} caption="Contact Information">
                     <Item dataField="firstName" label={{ text: "First name" }} />
-                    <Item dataField="lastName" label={{ text: "Last name" }} />
+                    <Item dataField="lastName" label={{ text: "Last name" }} >
+                        <RequiredRule message="Last name is required" />
+                        <StringLengthRule min={3} message="Last name have at least 2 letters" />
+                    </Item>
                     <Item
                         dataField="birthDay"
                         label={{ text: 'Birth date' }}
@@ -152,9 +170,11 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                     />
                     <Item dataField="address.city" label={{ text: "City" }} />
                     <Item dataField="address.postalCode" label={{ text: "Postal code" }} />
-                    <Item dataField="email" label={{ text: "Email" }} />
-                    <Item dataField="phoneNumber" label={{ text: "Phone number" }} />
-                    <Item dataField="mobilePhoneNumber" label={{ text: "Mobile phone number" }} />
+                    <Item dataField="email" label={{ text: "Email" }}>
+                        <EmailRule message="Email is invalid" />
+                    </Item>
+                    <Item dataField="phoneNumber" label={{ text: "Phone number" }} editorOptions={{ mask: '+(0000) 000-00-00-00' }} />
+                    <Item dataField="mobilePhoneNumber" label={{ text: "Mobile phone number" }} editorOptions={{ mask: '+(0000) 000-00-00-00' }} />
                 </GroupItem>
             </Form>
             <div className='h-[2rem]'>
