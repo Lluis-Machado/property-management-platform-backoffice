@@ -20,25 +20,20 @@ import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import { SelectData } from '@/lib/types/selectData';
 
 interface Props {
     contactData: ContactData;
-    contactId: string;
     token: TokenRes;
     lang: Locale;
 }
 
-interface SelectInput {
-    label: string;
-    value: string;
-}
-
-const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
+const ContactPage = ({ contactData, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] = useState<boolean>(false);
-    const [countries, setCountries] = useState<SelectInput[] | undefined>(undefined);
-    const [states, setStates] = useState<SelectInput[] | undefined>(undefined);
+    const [countries, setCountries] = useState<SelectData[] | undefined>(undefined);
+    const [states, setStates] = useState<SelectData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<ContactData>(structuredClone(contactData));
 
@@ -71,7 +66,7 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
         }
     }, [isEditing])
 
-    const handleCountryChange = (countryId: number) => {
+    const handleCountryChange = useCallback((countryId: number) => {
         fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`, {
             method: 'GET',
             headers: {
@@ -81,7 +76,6 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
         })
             .then((resp) => resp.json())
             .then((data: any) => {
-                console.log('STATES: ', data)
                 let states = [];
                 for (const state of data) {
                     states.push({
@@ -92,7 +86,7 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
                 setStates(states)
             })
             .catch((e) => console.error('Error while getting the states'))
-    }
+    }, [lang, token])
 
     const handleSubmit = useCallback(
         async () => {
@@ -111,7 +105,7 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
             const toastId = toast.loading("Updating contact...");
 
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactData.id}`,
                     {
                         method: 'PATCH',
                         body: JSON.stringify(values),
@@ -136,14 +130,14 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
             } finally {
                 setIsLoading(false);
             }
-        }, [contactId, contactData, initialValues]
+        }, [contactData, initialValues]
     )
 
     const handleDelete = useCallback(
         async () => {
             const toastId = toast.loading("Deleting contact...");
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactData.id}`,
                     {
                         method: 'DELETE',
                         headers: { 'Content-type': 'application/json; charset=UTF-8' }
@@ -163,7 +157,7 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
                     updateErrorToast(toastId, "There was an unexpected error, contact admin");
                 }
             }
-        }, [contactId, router]
+        }, [contactData, router]
     )
 
     return (
@@ -191,12 +185,12 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
                     <SimpleLinkCard
-                        href={`/private/documents?contactId=${contactId}`}
+                        href={`/private/documents?contactId=${contactData.id}`}
                         text='Documents'
                         faIcon={faFileLines}
                     />
                     <SimpleLinkCard
-                        href={`/private/taxes/${contactId}/declarations`}
+                        href={`/private/taxes/${contactData.id}/declarations`}
                         text='Declarations'
                         faIcon={faReceipt}
                     />
@@ -273,22 +267,22 @@ const ContactPage = ({ contactId, contactData, token, lang }: Props) => {
                 </GroupItem>
             </Form>
             <div className='h-[2rem]'>
-            <div className='flex justify-end'>
-                <div className='flex flex-row justify-between gap-2'>
-                    {
-                    isEditing &&
-                        <Button
-                            elevated
-                            type='button'
-                            text='Submit Changes'
-                            disabled={isLoading}
-                            isLoading={isLoading}
-                            onClick={handleSubmit}
+                <div className='flex justify-end'>
+                    <div className='flex flex-row justify-between gap-2'>
+                        {
+                            isEditing &&
+                            <Button
+                                elevated
+                                type='button'
+                                text='Submit Changes'
+                                disabled={isLoading}
+                                isLoading={isLoading}
+                                onClick={handleSubmit}
                             />
-                    }
+                        }
+                    </div>
                 </div>
             </div>
-                            </div>
         </div>
     );
 };

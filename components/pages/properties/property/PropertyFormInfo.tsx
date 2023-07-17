@@ -97,22 +97,25 @@ const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading,
                             readOnly={isLoading || !isEditing}
                         />
                     </GroupItem>
-                    <div className='flex justify-end'>
-                        <div className='flex flex-row justify-between gap-2'>
-                            {
-                                isEditing &&
-                                <Button
-                                    elevated
-                                    type='submit'
-                                    text='Submit Changes'
-                                    disabled={isLoading}
-                                    isLoading={isLoading}
-                                />
-                            }
-                        </div>
-                    </div>
                 </Form>
             </Formik>
+            <div className='h-[2rem]'>
+                <div className='flex justify-end'>
+                    <div className='flex flex-row justify-between gap-2'>
+                        {
+                            isEditing &&
+                            <Button
+                                elevated
+                                type='button'
+                                text='Submit Changes'
+                                disabled={isLoading}
+                                isLoading={isLoading}
+                                onClick={handleSubmit}
+                            />
+                        }
+                    </div>
+                </div>
+            </div>
         </div >
     )
 }

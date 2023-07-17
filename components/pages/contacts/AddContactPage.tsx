@@ -1,34 +1,67 @@
 'use client'
 
+import { memo, useCallback, useState } from 'react';
 // Libraries imports
-import { Button, Input } from 'pg-components';
-import { Formik, Form, FormikHelpers } from 'formik';
+import { useRouter } from 'next/navigation';
+import { Button } from 'pg-components';
 import { toast } from 'react-toastify';
+import Form, {
+    GroupItem, Item
+} from 'devextreme-react/form';
 
 // Local imports
-import GroupItem from '@/components/layoutComponent/GroupItem';
-import DatePicker from '@/components/datepicker/DatePicker';
-import { memo, useCallback, useState } from 'react';
 import { ApiCallError } from '@/lib/utils/errors';
-import { useRouter } from 'next/navigation';
 import { ContactData } from '@/lib/types/contactData';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import { Locale } from '@/i18n-config';
+import { TokenRes } from '@/lib/types/token';
+import { SelectData } from '@/lib/types/selectData';
 
 interface Props {
-    initialValues: ContactData;
+    contactData: ContactData;
+    countries: SelectData[];
+    token: TokenRes;
+    lang: Locale;
 }
 
-const AddContactPage = ({ initialValues }: Props) => {
+const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [states, setStates] = useState<SelectData[] | undefined>(undefined);
+    // Importante para que no se copie por referencia
+    const [initialValues, setInitialValues] = useState<ContactData>(structuredClone(contactData));
 
     const router = useRouter();
 
+    const handleCountryChange = useCallback((countryId: number) => {
+        fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `${token.token_type} ${token.access_token}`,
+            },
+            cache: 'no-store'
+        })
+            .then((resp) => resp.json())
+            .then((data: any) => {
+                let states = [];
+                for (const state of data) {
+                    states.push({
+                        label: state.name,
+                        value: state.id
+                    })
+                }
+                setStates(states)
+            })
+            .catch((e) => console.error('Error while getting the states'))
+    }, [lang, token])
+
     const handleSubmit = useCallback(
-        async (values: ContactData, { setSubmitting }: FormikHelpers<ContactData>) => {
+        async () => {
+            const values = contactData;
             console.log("Valores a enviar: ", values)
             console.log("Valores a enviar en JSON: ", JSON.stringify(values))
 
-            if (values === initialValues) {
+            if (JSON.stringify(values) === JSON.stringify(initialValues)) {
                 toast.warning('Change at least one field')
                 return;
             }
@@ -66,139 +99,79 @@ const AddContactPage = ({ initialValues }: Props) => {
                 }
             } finally {
                 setIsLoading(false);
-                setSubmitting(false);
             }
         }, [router]
     )
 
     return (
-        <Formik
-            initialValues={initialValues}
-            onSubmit={handleSubmit}
-        >
-            <Form>
-                <GroupItem cols={3} caption={'Contact Information'} >
-                    <Input
-                        name="firstName"
-                        label={"First name"}
-                        readOnly={isLoading}
+        <div>
+            <Form
+                formData={contactData}
+                labelMode={'floating'}
+                readOnly={isLoading}
+            >
+                <GroupItem colCount={4} caption="Contact Information">
+                    <Item dataField="firstName" label={{ text: "First name" }} />
+                    <Item dataField="lastName" label={{ text: "Last name" }} />
+                    <Item
+                        dataField="birthDay"
+                        label={{ text: 'Birth date' }}
+                        editorType='dxDateBox'
+                        editorOptions={{
+                            displayFormat: dateFormat,
+                            showClearButton: true
+                        }}
                     />
-                    <Input
-                        name="lastName"
-                        label={"Last name"}
-                        readOnly={isLoading}
-                    />
-                    <DatePicker
-                        name='birthDay'
-                        label='Birth date'
-                        defaultValue={initialValues.birthDay ?? undefined}
-                        isClearable
-                        readOnly={isLoading}
-                    />
-                    {/* <Select
-                            name='taxResidence'
-                            label='Tax residence'
-                            size='large'
-                            inputsList={[
-                                { label: 'Germany', value: 'de' },
-                                { label: 'Spain', value: 'es' },
-                                { label: 'France', value: 'fr' },
-                                { label: 'Russia', value: 'ru' },
-                                { label: 'Italy', value: 'it' },
-                            ]}
-                            defaultValue={{ label: 'Germany', value: 'de' }}
-                        /> */}
-                    {/* <Input
-                            name="idCardNumber"
-                            label={"ID card number"}
-                        /> */}
-                    {/* <DatePicker
-                            name="idCardExpDate"
-                            label={"ID card expiration date"}
-                            defaultValue={initialValues.idCardExpDate ?? undefined}
-                            isClearable
-                        /> */}
-                    {/* <Input
-                            name="passportNum"
-                            label={"Passport Number"}
-                            />
-                        <DatePicker
-                        name='passportExpDate'
-                            label={"Passport expiration date"}
-                            defaultValue={initialValues.passportExpDate ?? undefined}
-                            isClearable
-                        /> */}
-                    <Input
-                        name="nif"
-                        label={"NIF"}
-                        readOnly={isLoading}
-                    />
-                    {/* <Input
-                            name="companyNumber"
-                            label={"Company number"}
-                        /> */}
+                    <Item dataField="nif" label={{ text: "NIF" }} />
                 </GroupItem>
-                <GroupItem cols={3} caption={'Adress Information'} >
-                    <Input
-                        name="address.addressLine1"
-                        label={"Address line"}
-                        readOnly={isLoading}
+                <GroupItem colCount={4} caption="Address Information">
+                    <Item dataField="address.addressLine1" label={{ text: "Address line" }} />
+                    <Item dataField="address.addressLine2" label={{ text: "Address line 2" }} />
+                    <Item
+                        dataField="address.country"
+                        label={{ text: "Country" }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: countries,
+                            displayExpr: "label",
+                            valueExpr: "value",
+                            searchEnabled: true,
+                            onValueChanged: (e: any) => handleCountryChange(e.value)
+                        }}
                     />
-                    <Input
-                        name="address.addressLine2"
-                        label={"Address line 2"}
-                        readOnly={isLoading}
+                    <Item
+                        dataField="address.state"
+                        label={{ text: "State" }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: states,
+                            displayExpr: "label",
+                            valueExpr: "value",
+                            searchEnabled: true
+                        }}
                     />
-                    <Input
-                        name="address.city"
-                        label={"City"}
-                        readOnly={isLoading}
-                    />
-                    <Input
-                        name="address.state"
-                        label={"State"}
-                        readOnly={isLoading}
-                    />
-                    <Input
-                        name="address.postalCode"
-                        label={"Postal code"}
-                        readOnly={isLoading}
-                    />
-                    <Input
-                        name="address.country"
-                        label={"Country"}
-                        readOnly={isLoading}
-                    />
-
-                    <Input
-                        name="email"
-                        label={"Email"}
-                        readOnly={isLoading}
-                    />
-                    <Input
-                        name="phoneNumber"
-                        label={"Phone number"}
-                        readOnly={isLoading}
-                    />
-                    <Input
-                        name="mobilePhoneNumber"
-                        label={"Mobile phone number"}
-                        readOnly={isLoading}
-                    />
+                    <Item dataField="address.city" label={{ text: "City" }} />
+                    <Item dataField="address.postalCode" label={{ text: "Postal code" }} />
+                    <Item dataField="email" label={{ text: "Email" }} />
+                    <Item dataField="phoneNumber" label={{ text: "Phone number" }} />
+                    <Item dataField="mobilePhoneNumber" label={{ text: "Mobile phone number" }} />
                 </GroupItem>
-                <div className='flex justify-end py-4'>
+            </Form>
+            <div className='h-[2rem]'>
+                <div className='flex justify-end'>
                     <div className='flex flex-row justify-between gap-2'>
                         <Button
                             elevated
-                            type='submit'
+                            type='button'
                             text='Submit Changes'
                             disabled={isLoading}
                             isLoading={isLoading}
+                            onClick={handleSubmit}
                         />
                     </div>
                 </div>
-            </Form>
-        </Formik>
+            </div>
+        </div>
     );
 };
 

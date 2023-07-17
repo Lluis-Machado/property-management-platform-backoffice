@@ -4,42 +4,66 @@
 import { memo, useCallback, useState } from "react";
 
 // Libraries imports
-import { FormikHelpers } from "formik";
 import { ApiCallError } from "@/lib/utils/errors";
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
-import { Formik, Form } from 'formik';
-import { Button, Input, Select } from 'pg-components';
+import { Button } from 'pg-components';
+import Form, {
+  GroupItem, Item
+} from 'devextreme-react/form';
 
 //local imports
-import { ContactData } from "@/lib/types/contactData";
 import { PropertyCreate } from "@/lib/types/propertyInfo";
 import { updateErrorToast, updateSuccessToast } from "@/lib/utils/customToasts";
-import GroupItem from '@/components/layoutComponent/GroupItem';
+import { TokenRes } from "@/lib/types/token";
+import { Locale } from "@/i18n-config";
+import { SelectData } from "@/lib/types/selectData";
 
 interface Props {
-  initialValues: PropertyCreate;
-  contactData: ContactData[];
+  propertyData: PropertyCreate;
+  contacts: SelectData[];
+  countries: SelectData[];
+  token: TokenRes;
+  lang: Locale;
 }
 
-const AddPropertyPage = ({ initialValues, contactData }: Props) => {
+const AddPropertyPage = ({ propertyData, contacts, countries, token, lang }: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [formattedContacts, setFormattedContacts] = useState<{ label: string; value: string }[]>(
-    contactData.map(({ firstName, lastName, id }) => {
-      return {
-        label: `${firstName} ${lastName}`,
-        value: `${id}`,
-      };
-    })
-  );
+  const [states, setStates] = useState<SelectData[] | undefined>(undefined);
+  // Importante para que no se copie por referencia
+  const [initialValues, setInitialValues] = useState<PropertyCreate>(structuredClone(propertyData));
 
   const router = useRouter();
 
+  const handleCountryChange = useCallback((countryId: number) => {
+    fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `${token.token_type} ${token.access_token}`,
+        },
+        cache: 'no-store'
+    })
+        .then((resp) => resp.json())
+        .then((data: any) => {
+            let states = [];
+            for (const state of data) {
+                states.push({
+                    label: state.name,
+                    value: state.id
+                })
+            }
+            setStates(states)
+        })
+        .catch((e) => console.error('Error while getting the states'))
+}, [lang, token])
+
   const handleSubmit = useCallback(
-    async (values: PropertyCreate, { setSubmitting }: FormikHelpers<PropertyCreate>) => {
+    async () => {
+      const values = propertyData;
+
       console.log("Valores a enviar: ", values)
 
-      if (values === initialValues) {
+      if (JSON.stringify(values) === JSON.stringify(initialValues)) {
         toast.warning('Change at least one field')
         return;
       }
@@ -78,86 +102,78 @@ const AddPropertyPage = ({ initialValues, contactData }: Props) => {
         }
       } finally {
         setIsLoading(false);
-        setSubmitting(false);
       }
-    }, [router, initialValues]
+    }, [router, propertyData, initialValues]
   )
 
   return (
-    <Formik
-      initialValues={initialValues}
-      onSubmit={handleSubmit}
-    >
-      <Form>
-        <GroupItem caption='Property Information' cols={4}>
-          <Input
-            name="name"
-            label="Name"
-            readOnly={isLoading}
-          />
-          <Input
-            name="type"
-            label="Type"
-            readOnly={isLoading}
-          />
-          <Input
-            name="cadastreRef"
-            label="Catastral Reference"
-            readOnly={isLoading}
-          />
-          <Select
-            inputsList={formattedContacts}
-            name='mainOwnerId'
-            label='Main Owner'
-            size='large'
-            isSearchable
+    <div>
+      <Form
+        formData={propertyData}
+        labelMode={'floating'}
+        readOnly={isLoading}
+      >
+        <GroupItem colCount={4} caption="Property Information">
+          <Item dataField="name" label={{ text: "Name" }} />
+          <Item dataField="type" label={{ text: "Type" }} />
+          <Item dataField="cadastreRef" label={{ text: "Catastral Reference" }} />
+          <Item
+            dataField="mainOwnerId"
+            label={{ text: "Main Owner" }}
+            editorType='dxSelectBox'
+            editorOptions={{
+              items: contacts,
+              displayExpr: "label",
+              valueExpr: "value",
+              searchEnabled: true
+            }}
           />
         </GroupItem>
-        <GroupItem caption='Address Information' cols={4}>
-          <Input
-            name="address.addressLine1"
-            label="Address line 1"
-            readOnly={isLoading}
+        <GroupItem colCount={4} caption="Address Information">
+          <Item dataField="address.addressLine1" label={{ text: "Address line" }} />
+          <Item dataField="address.addressLine2" label={{ text: "Address line 2" }} />
+          <Item
+            dataField="address.country"
+            label={{ text: "Country" }}
+            editorType='dxSelectBox'
+            editorOptions={{
+              items: countries,
+              displayExpr: "label",
+              valueExpr: "value",
+              searchEnabled: true,
+              onValueChanged: (e: any) => handleCountryChange(e.value)
+            }}
           />
-          <Input
-            name="address.addressLine2"
-            label="Address line 2"
-            readOnly={isLoading}
+          <Item
+            dataField="address.state"
+            label={{ text: "State" }}
+            editorType='dxSelectBox'
+            editorOptions={{
+              items: states,
+              displayExpr: "label",
+              valueExpr: "value",
+              searchEnabled: true
+            }}
           />
-          <Input
-            name="address.postalCode"
-            label="Postal Code"
-            readOnly={isLoading}
-          />
-          <Input
-            name="address.city"
-            label="City"
-            readOnly={isLoading}
-          />
-          <Input
-            name="address.state"
-            label="State"
-            readOnly={isLoading}
-          />
-          <Input
-            name="address.country"
-            label="Country"
-            readOnly={isLoading}
-          />
+          <Item dataField="address.city" label={{ text: "City" }} />
+          <Item dataField="address.postalCode" label={{ text: "Postal code" }} />
         </GroupItem>
+      </Form>
+      <div className='h-[2rem]'>
         <div className='flex justify-end'>
           <div className='flex flex-row justify-between gap-2'>
             <Button
               elevated
-              type='submit'
+              type='button'
               text='Submit Changes'
               disabled={isLoading}
               isLoading={isLoading}
+              onClick={handleSubmit}
             />
           </div>
         </div>
-      </Form>
-    </Formik>
+      </div>
+    </div>
   )
 }
 

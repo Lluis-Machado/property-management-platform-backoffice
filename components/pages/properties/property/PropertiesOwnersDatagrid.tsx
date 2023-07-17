@@ -7,12 +7,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DataGrid, { Column, Paging, SearchPanel, Pager, Editing, Lookup } from 'devextreme-react/data-grid';
 
 // Local imports
-import { ContactData } from '@/lib/types/contactData';
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
+import { SelectData } from '@/lib/types/selectData';
 
 interface Props {
     dataSource: any;
-    contactData: ContactData[];
+    contactData: SelectData[];
 };
 
 const MainContactCellRender = ({ value }: any): React.ReactElement => (
@@ -61,8 +61,8 @@ const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
             >
                 <Lookup
                     dataSource={contactData}
-                    valueExpr="id"
-                    displayExpr="firstName"
+                    valueExpr="value"
+                    displayExpr="label"
                 />
             </Column>
             <Column

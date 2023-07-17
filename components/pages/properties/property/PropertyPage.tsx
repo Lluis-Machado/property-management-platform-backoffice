@@ -1,14 +1,16 @@
 'use client'
 
 // React imports
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 // Libraries imports
 import { Button, Tabs } from "pg-components";
-import { faFileLines, faNoteSticky, faReceipt, faUserGroup, faWarehouse, faTrash, faRefresh, faXmark, faPencil } from "@fortawesome/free-solid-svg-icons";
-import { FormikHelpers } from "formik";
+import { faFileLines, faNoteSticky, faReceipt, faUserGroup, faWarehouse, faTrash, faXmark, faPencil } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
+import Form, {
+    GroupItem, Item
+} from 'devextreme-react/form';
 
 // Local imports
 import { ApiCallError } from "@/lib/utils/errors";
@@ -19,28 +21,82 @@ import PropertySidePropertiesDatagrid from "./PropertySidePropertiesDatagrid";
 import ConfirmDeletePopup from "@/components/popups/ConfirmDeletePopup";
 import { ContactData } from "@/lib/types/contactData";
 import { updateErrorToast, updateSuccessToast } from "@/lib/utils/customToasts";
-import PropertyFormInfo from "@/components/pages/properties/property/PropertyFormInfo"
 import SimpleLinkCard from "@/components/cards/SimpleLinkCard";
-import EditButton from "@/components/buttons/EditButton";
+import { SelectData } from "@/lib/types/selectData";
+import { TokenRes } from '@/lib/types/token';
+import { Locale } from '@/i18n-config';
 
 interface Props {
-    id: string;
-    initialValues: PropertyData;
-    contactData: ContactData[];
+    propertyData: PropertyData;
+    contacts: SelectData[];
+    token: TokenRes;
+    lang: Locale;
 };
 
-const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactElement => {
+const PropertyPage = ({ propertyData, contacts, token, lang }: Props): React.ReactElement => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] = useState<boolean>(false);
+    const [countries, setCountries] = useState<SelectData[] | undefined>(undefined);
+    const [states, setStates] = useState<SelectData[] | undefined>(undefined);
+    // Importante para que no se copie por referencia
+    const [initialValues, setInitialValues] = useState<PropertyData>(structuredClone(propertyData));
 
     const router = useRouter();
 
+    // Use effect for getting countries when editing
+    useEffect(() => {
+        if (isEditing) {
+            fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries?languageCode=${lang}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `${token.token_type} ${token.access_token}`,
+                },
+                cache: 'no-store'
+            })
+                .then((resp) => resp.json())
+                .then((data: any) => {
+                    let countries = [];
+                    for (const country of data) {
+                        countries.push({
+                            label: country.name,
+                            value: country.id
+                        })
+                    }
+                    setCountries(countries)
+                })
+                .catch((e) => console.error('Error while getting the countries'))
+        }
+    }, [isEditing])
+
+    const handleCountryChange = useCallback((countryId: number) => {
+        fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `${token.token_type} ${token.access_token}`,
+            },
+            cache: 'no-store'
+        })
+            .then((resp) => resp.json())
+            .then((data: any) => {
+                let states = [];
+                for (const state of data) {
+                    states.push({
+                        label: state.name,
+                        value: state.id
+                    })
+                }
+                setStates(states)
+            })
+            .catch((e) => console.error('Error while getting the states'))
+    }, [lang, token])
+
     const handleSubmit = useCallback(
-        async (values: PropertyData, { setSubmitting }: FormikHelpers<PropertyData>) => {
+        async () => {
+            const values = propertyData;
             console.log("Valores a enviar: ", values)
 
-            if (values === initialValues) {
+            if (JSON.stringify(values) === JSON.stringify(initialValues)) {
                 toast.warning('Change at least one field')
                 return;
             }
@@ -49,7 +105,7 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
             const toastId = toast.loading("Updating property...");
 
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties/${id}`,
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties/${propertyData.id}`,
                     {
                         method: 'PATCH',
                         body: JSON.stringify(values),
@@ -73,16 +129,15 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                 }
             } finally {
                 setIsLoading(false);
-                setSubmitting(false);
             }
-        }, [id, initialValues]
+        }, [propertyData]
     )
 
     const handleDelete = useCallback(
         async () => {
             const toastId = toast.loading("Deleting property...");
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties/${id}`,
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties/${propertyData.id}`,
                     {
                         method: 'DELETE',
                         headers: { 'Content-type': 'application/json; charset=UTF-8' }
@@ -102,7 +157,7 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                     updateErrorToast(toastId, "There was an unexpected error, contact admin");
                 }
             }
-        }, [id, router]
+        }, [propertyData, router]
     )
 
     return (
@@ -117,23 +172,23 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                 {/* Contact avatar and name */}
                 <div className='flex ml-5 gap-5 items-center'>
                     <span className='text-4xl tracking-tight text-zinc-900'>
-                        {initialValues.name}
+                        {propertyData.name}
                     </span>
                 </div>
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
                     <SimpleLinkCard
-                        href={`/private/documents?propertyId=${id}`}
+                        href={`/private/documents?propertyId=${propertyData.id}`}
                         text='Documents'
                         faIcon={faFileLines}
                     />
                     <SimpleLinkCard
-                        href={`/private/accounting/${id}/incomes`}
+                        href={`/private/accounting/${propertyData.id}/incomes`}
                         text='AR Invoices'
                         faIcon={faReceipt}
                     />
                     <SimpleLinkCard
-                        href={`/private/accounting/${id}/expenses`}
+                        href={`/private/accounting/${propertyData.id}/expenses`}
                         text='AP Invoices'
                         faIcon={faReceipt}
                     />
@@ -145,14 +200,6 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                         onClick={() => setIsEditing(prev => !prev)}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
-                        style='outline'
-                    />
-                    <Button
-                        elevated
-                        onClick={() => router.refresh()}
-                        type='button'
-                        icon={faRefresh}
-                        style='secondary'
                     />
                     <Button
                         elevated
@@ -164,22 +211,84 @@ const PropertyPage = ({ id, initialValues, contactData }: Props): React.ReactEle
                 </div>
             </div>
             {/* Property form */}
-            <PropertyFormInfo
-                initialValues={initialValues}
-                contactData={contactData}
-                handleSubmit={handleSubmit}
-                isLoading={isLoading}
-                isEditing={isEditing}
-            />
+            <Form
+                formData={propertyData}
+                labelMode={'floating'}
+                readOnly={isLoading || !isEditing}
+            >
+                <GroupItem colCount={4} caption="Property Information">
+                    <Item dataField="name" label={{ text: "Name" }} />
+                    <Item dataField="type" label={{ text: "Type" }} />
+                    <Item dataField="cadastreRef" label={{ text: "Catastral Reference" }} />
+                    <Item
+                        dataField="mainOwnerId"
+                        label={{ text: "Main Owner" }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: contacts,
+                            displayExpr: "label",
+                            valueExpr: "value",
+                            searchEnabled: true
+                        }}
+                    />
+                </GroupItem>
+                <GroupItem colCount={4} caption="Address Information">
+                    <Item dataField="address.addressLine1" label={{ text: "Address line" }} />
+                    <Item dataField="address.addressLine2" label={{ text: "Address line 2" }} />
+                    <Item
+                        dataField="address.country"
+                        label={{ text: "Country" }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: countries,
+                            displayExpr: "label",
+                            valueExpr: "value",
+                            searchEnabled: true,
+                            onValueChanged: (e: any) => handleCountryChange(e.value)
+                        }}
+                    />
+                    <Item
+                        dataField="address.state"
+                        label={{ text: "State" }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: states,
+                            displayExpr: "label",
+                            valueExpr: "value",
+                            searchEnabled: true
+                        }}
+                    />
+                    <Item dataField="address.city" label={{ text: "City" }} />
+                    <Item dataField="address.postalCode" label={{ text: "Postal code" }} />
+                </GroupItem>
+            </Form>
+            <div className='h-[2rem]'>
+                <div className='flex justify-end'>
+                    <div className='flex flex-row justify-between gap-2'>
+                        {
+                            isEditing &&
+                            <Button
+                                elevated
+                                type='button'
+                                text='Submit Changes'
+                                disabled={isLoading}
+                                isLoading={isLoading}
+                                onClick={handleSubmit}
+                            />
+                        }
+                    </div>
+                </div>
+            </div>
+            {/* Tabs */}
             <Tabs
                 dataSource={[
                     {
-                        children: <PropertiesOwnersDatagrid dataSource={initialValues} contactData={contactData} />,
+                        children: <PropertiesOwnersDatagrid dataSource={propertyData} contactData={contacts} />,
                         icon: faUserGroup,
                         title: 'Owners'
                     },
                     {
-                        children: <PropertySidePropertiesDatagrid dataSource={initialValues} />,
+                        children: <PropertySidePropertiesDatagrid dataSource={propertyData} />,
                         icon: faWarehouse,
                         title: 'Side properties'
                     },

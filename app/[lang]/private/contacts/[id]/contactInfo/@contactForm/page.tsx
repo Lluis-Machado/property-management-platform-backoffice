@@ -13,7 +13,7 @@ const ContactForm = async ({ params: { lang, id } }: Props) => {
     const user = await getUser();
 
     return (
-        <ContactPage contactData={data} contactId={id} token={user.token} lang={lang} />
+        <ContactPage contactData={data} token={user.token} lang={lang} />
     )
 };
 
