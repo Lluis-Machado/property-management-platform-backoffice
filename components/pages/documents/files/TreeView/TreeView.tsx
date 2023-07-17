@@ -2,14 +2,13 @@
 import { FC, memo, useCallback, useRef, useState } from 'react';
 
 // Libraries imports
-import { Node } from 'devextreme/ui/tree_view';
+import { ItemClickEvent, Node } from 'devextreme/ui/tree_view';
 import { toast } from 'react-toastify';
 import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
 import dynamic from 'next/dynamic';
 
 // Local imports
-import './TreeView.css';
-import { ApiCallError } from '@/lib/utils/errors';
+import { Archive, Folder } from '@/lib/types/documentsAPI';
 import { copyFolder, deleteArchive, moveFolder, newFolder, renameFolder, renameArchive, uploadFilesToArchive, uploadFilesToFolder, deleteFolder } from '@/lib/utils/apiDocuments';
 import { FormPopupType } from '../popups/FormPopup';
 import { PopupVisibility } from '@/lib/types/Popups';
@@ -21,45 +20,20 @@ const FailedUploadPopup = dynamic(() => import('../popups/FailedUploadPopup'));
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
 const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 
-const createChildren = async (parentNode: Node<any>) => {
-    const documentsUrl = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents`;
-
-    // Archive
-    if (!parentNode) {
-        const resp = await fetch(`${documentsUrl}/archives`, { cache: 'no-cache' })
-        if (!resp.ok) throw new ApiCallError('Error while getting archives');
-        const data = await resp.json();
-        return data.map((elem: any) => ({ ...elem, text: elem.name }));
-    };
-
-    const { itemData }: any = parentNode;
-
-    // Top level folder
-    if (!itemData.hasOwnProperty('archiveId')) {
-        const folderId = itemData.id;
-        const resp = await fetch(`${documentsUrl}/${folderId}/folders`, { cache: 'no-cache' })
-        if (!resp.ok) throw new ApiCallError(`Error while getting archive: ${folderId} folders`);
-        const data = await resp.json();
-        return data.map((folder: any) => ({ ...folder, parentId: folder.archiveId, text: folder.name }));
-    };
-
-    // Sub folders
-    return itemData.childFolders.map((folder: any) => ({ ...folder, text: folder.name }));
-};
-
 const isArchive = (item: any) => !item?.hasOwnProperty('archiveId') || false;
 
 interface Props {
-    onFolderSelected: (archiveId: string, folderId: string) => void;
+    archives: any[];
+    onItemSelected: (archiveId: string, folderId?: string) => void;
 };
 
-const TreeView: FC<Props> = memo(function TreeView({ onFolderSelected }): React.ReactElement {
+const TreeView: FC<Props> = memo(function TreeView({ archives, onItemSelected }): React.ReactElement {
 
     const UploadFileFormRef = useRef<HTMLFormElement>(null);
     const UploadFileInputRef = useRef<HTMLInputElement>(null);
     const TreeViewRef = useRef<DxTreeView>(null);
 
-    const [selectedTreeItem, setSelectedTreeItem] = useState<any>(undefined);
+    const [selectedTreeItem, setSelectedTreeItem] = useState<TreeItem<Archive | Folder> | undefined>(undefined);
 
     const [formPopupStatus, setFormPopupStatus] = useState<{
         folderName?: string;
@@ -85,52 +59,105 @@ const TreeView: FC<Props> = memo(function TreeView({ onFolderSelected }): React.
         visibility: { hasBeenOpen: false, visible: false },
     });
 
-    const handleOnItemClick = useCallback(({ itemData }: any) => {
-        setSelectedTreeItem(itemData);
-
-        if (itemData.hasOwnProperty('archiveId')) {
-            onFolderSelected(itemData.archiveId, itemData.id);
-        }
-    }, [onFolderSelected]);
+    const handleOnItemClick = useCallback(({ itemData }: ItemClickEvent<TreeItem<Archive | Folder>>) => {
+        if (itemData) {
+            setSelectedTreeItem(itemData as TreeItem<Archive | Folder>);
+            const { data } = itemData;
+            isArchive(data)
+                ? onItemSelected(data.id)
+                : onItemSelected(data.archiveId, data.id)
+        };
+    }, [onItemSelected]);
 
     const handleFormPopupEvent = useCallback((type: FormPopupType) => {
-        const folderName = type === 'New directory' ? 'Untitled directory' : selectedTreeItem.name;
+        const folderName = type === 'New directory' ? 'Untitled directory' : selectedTreeItem!.data.name;
         setFormPopupStatus(p => ({ folderName, type, visibility: { ...p.visibility, visible: true } }));
     }, [selectedTreeItem]);
 
-    const handleRefreshEvent = useCallback(() => {
+    const handleRefreshEvent = useCallback(async () => {
         // TODO: hacer llamada.
     }, []);
 
     const handleFormPopupSubmit = useCallback((value?: string) => {
+        const handleNewDirectory = async () => {
+            if (!selectedTreeItem || !value) return;
 
-        const handleNewDirectory = () => newFolder({
-            archiveId,
-            body: {
-                name: value!,
-                parentId: isSelectedItemAnArchive ? null : selectedTreeItem.id
-            }
-        });
+            // Update DB
+            const response = await newFolder({
+                archiveId,
+                body: {
+                    name: value,
+                    parentId: isSelectedItemAnArchive ? null : data.id
+                }
+            });
 
-        const handleRename = () => (
-            isSelectedItemAnArchive
-                ? renameArchive(archiveId, value!)
-                : renameFolder(
+            // Update local
+            if (response.ok) {
+                const newFolder: Folder = await response.json();
+
+                selectedTreeItem.items.push({
+                    data: newFolder,
+                    disabled: false,
+                    expanded: false,
+                    hasItems: false,
+                    id: newFolder.id,
+                    items: [],
+                    parentId: newFolder.parentId,
+                    selected: false,
+                    text: newFolder.name,
+                    visible: true,
+                });
+
+                if (!isSelectedItemAnArchive) {
+                    let dataFCF = (data as Folder).childFolders;
+                    dataFCF = Array.isArray(dataFCF) ? dataFCF : [];
+                    dataFCF.push(newFolder);
+                };
+
+                const treeInstance = TreeViewRef.current!.instance;
+                treeInstance.option('dataSource', archives);
+                treeInstance.repaint();
+            };
+        };
+
+        const handleRename = async () => {
+            if (!selectedTreeItem || !value) return;
+
+            // Update DB
+            const ok = isSelectedItemAnArchive
+                ? await renameArchive(archiveId, value)
+                : await renameFolder(
                     archiveId,
-                    selectedTreeItem.id,
+                    data.id,
                     {
                         archiveId,
-                        name: value!,
-                        parentId: selectedTreeItem.parentId,
+                        name: value,
+                        parentId: (data as Folder).parentId,
                     }
-                )
-        );
+                );
 
-        const handleDelete = () => (
-            isSelectedItemAnArchive
-                ? deleteArchive(archiveId)
-                : deleteFolder(archiveId, selectedTreeItem.id)
-        )
+            // Update local
+            if (ok) {
+                selectedTreeItem.text = value;
+                data.name = value;
+                TreeViewRef.current!.instance.repaint();
+            };
+        };
+
+        const handleDelete = async () => {
+            if (!selectedTreeItem) return;
+
+            // Update DB
+            const ok = isSelectedItemAnArchive
+                ? await deleteArchive(archiveId)
+                : await deleteFolder(archiveId, data.id);
+
+            // Update local
+            if (ok) {
+                selectedTreeItem.visible = false;
+                TreeViewRef.current!.instance.repaint();
+            };
+        };
 
         const events = {
             'New directory': handleNewDirectory,
@@ -138,18 +165,20 @@ const TreeView: FC<Props> = memo(function TreeView({ onFolderSelected }): React.
             'Delete': handleDelete,
         };
 
-        const isSelectedItemAnArchive = isArchive(selectedTreeItem);
-        const archiveId = isSelectedItemAnArchive ? selectedTreeItem.id : selectedTreeItem.archiveId
+        const { data } = selectedTreeItem!;
+        const isSelectedItemAnArchive = isArchive(data);
+        const archiveId = isSelectedItemAnArchive ? (data as Archive).id : (data as Folder).archiveId;
+
         events[formPopupStatus.type]();
-    }, [formPopupStatus.type, selectedTreeItem]);
+    }, [archives, formPopupStatus.type, selectedTreeItem]);
 
     const handleTreeViewPopupSubmit = useCallback(async (destinationNode: any) => {
 
         const updateAzure = async () => {
-            const body = { name: selectedTreeItem.name, parentId: newParentId };
+            const body = { name: selectedTreeItem!.data.name, parentId: newParentId };
             return treeViewPopupStatus.type === 'Copy to'
                 ? copyFolder({ archiveId: newArchiveId, body })
-                : moveFolder(newArchiveId, { ...body, archiveId: newArchiveId }, selectedTreeItem.id);
+                : moveFolder(newArchiveId, { ...body, archiveId: newArchiveId }, selectedTreeItem!.data.id);
         };
 
         const updateLocal = (nodes: any[]) => {
@@ -189,7 +218,7 @@ const TreeView: FC<Props> = memo(function TreeView({ onFolderSelected }): React.
                 return null;
             };
 
-            const deletedNode = iterateOverNodes(selectedTreeItem.id, 'Delete');
+            const deletedNode = iterateOverNodes(selectedTreeItem!.data.id, 'Delete');
             iterateOverNodes(destinationNode.id, 'Add');
             return nodes;
         };
@@ -198,7 +227,6 @@ const TreeView: FC<Props> = memo(function TreeView({ onFolderSelected }): React.
         const newParentId = isArchive(destinationNode) ? destinationNode.id : null;
 
         const response = await updateAzure();
-        console.log("🚀 ~ file: TreeView.tsx:201 ~ handleTreeViewPopupSubmit ~ response:", response);
     }, [selectedTreeItem, treeViewPopupStatus]);
 
     const handleFileInputOnChange = useCallback(async () => {
@@ -207,10 +235,11 @@ const TreeView: FC<Props> = memo(function TreeView({ onFolderSelected }): React.
             if (!fileInput?.files) return [];
 
             const selectedFiles = [...fileInput.files];
+            const { data } = selectedTreeItem!;
 
-            return isArchive(selectedTreeItem)
-                ? await uploadFilesToArchive(selectedTreeItem.id, selectedFiles)
-                : await uploadFilesToFolder(selectedTreeItem.archiveId, selectedTreeItem.id, selectedFiles);
+            return isArchive(data)
+                ? await uploadFilesToArchive(data.id, selectedFiles)
+                : await uploadFilesToFolder((data as Folder).archiveId, data.id, selectedFiles);
         };
 
         const handleResponse = (response: any[]) => {
@@ -248,13 +277,13 @@ const TreeView: FC<Props> = memo(function TreeView({ onFolderSelected }): React.
     return (
         <>
             <DxTreeView
-                createChildren={createChildren}
-                dataStructure='plain'
+                dataSource={archives}
                 id='TreeviewArchive'
                 onItemClick={handleOnItemClick}
-                onItemContextMenu={({ itemData }) => setSelectedTreeItem(itemData)}
+                onItemContextMenu={({ itemData }) => setSelectedTreeItem(itemData as TreeItem<Archive | Folder>)}
                 ref={TreeViewRef}
                 searchEnabled
+                dataStructure='tree'
             />
             <ContextMenu
                 isArchive={isArchive(selectedTreeItem)}
@@ -280,7 +309,7 @@ const TreeView: FC<Props> = memo(function TreeView({ onFolderSelected }): React.
             {
                 (treeViewPopupStatus.visibility.visible || treeViewPopupStatus.visibility.hasBeenOpen) &&
                 <TreeViewPopup
-                    createChildren={createChildren}
+                    createChildren={(parentNode: Node<any>) => { return ([]) }}
                     onHiding={() => setTreeViewPopupStatus(p => ({ ...p, visibility: { ...p.visibility, visible: false } }))}
                     onShown={() => setTreeViewPopupStatus(p => ({ ...p, visibility: { ...p.visibility, hasBeenOpen: true } }))}
                     onSubmit={handleTreeViewPopupSubmit}

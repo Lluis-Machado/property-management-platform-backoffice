@@ -10,28 +10,33 @@ import { ApiCallError } from '@/lib/utils/errors';
 const className = 'border border-primary-500/50';
 
 interface Props {
-    dataSource: any[];
+    archives: any[];
 };
 
-export const DocumentsFilesWrapper = ({ dataSource }: Props): React.ReactElement => {
+export const DocumentsFilesWrapper = ({ archives }: Props): React.ReactElement => {
 
-    const [archives, setArchives] = useState<any[]>(dataSource);
-    const [selectedFolderContent, setSelectedFolderContent] = useState<any[] | undefined>(undefined);
+    const [selectedFolder, setSelectedFolder] = useState<any[] | undefined>(undefined);
+    const [selectedArchive, setSelectedArchive] = useState(undefined);
 
-    const handleFolderSelected = useCallback(async (archiveId: string, folderId: string) => {
-        const params = new URLSearchParams({ folderId })
-        const resp = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${archiveId}/documents?${params}`,
-            { cache: 'no-cache', }
-        );
-        if (!resp.ok) throw new ApiCallError(`Error while getting archive: ${archiveId}, folder: ${folderId} documents`);
+    const handleTreeViewItemSelected = useCallback(async (archiveId: string, folderId?: string) => {
+        let endpoint = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${archiveId}/documents`;
+        let errorMessage = `Error while getting archive {${archiveId}} documents`;
+
+        if (folderId) {
+            endpoint = `${endpoint}?${new URLSearchParams({ folderId })}`;
+            errorMessage = `Error while getting archive {${archiveId}}, folder {${folderId}} documents`;
+        };
+
+        const resp = await fetch(endpoint, { cache: 'no-cache' });
+        if (!resp.ok) throw new ApiCallError(errorMessage);
         const aux = await resp.json();
-        setSelectedFolderContent(aux);
+        folderId ? setSelectedFolder(aux) : setSelectedArchive(aux);
     }, []);
 
     return (
         <TreeView
-            onFolderSelected={handleFolderSelected}
+            archives={archives}
+            onItemSelected={handleTreeViewItemSelected}
         />
         // <SplitPane
         // visible={isFileDetailsVisible}

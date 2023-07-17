@@ -107,7 +107,7 @@ interface Folder {
     archiveId: string,
     body: {
         name: string,
-        parentId: string
+        parentId: string | null
     },
 };
 
@@ -135,10 +135,10 @@ export const addFolder = async ({ archiveId, body }: Folder, log: 'New' | 'Copy'
         method: 'POST'
     }), { ...messages[log] });
 
-    return response.ok;
+    return response;
 };
 
-export const renameFolder = async (archiveId: string, folderId: string, body: { archiveId: string, name: string, parentId: string }) => {
+export const renameFolder = async (archiveId: string, folderId: string, body: { archiveId: string, name: string, parentId: string | null }) => {
     const endPoint = `${BASE_END_POINT}/${archiveId}/folders/${folderId}`;
     const response = await toast.promise(fetch(endPoint, {
         body: JSON.stringify(body),
