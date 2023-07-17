@@ -1,7 +1,7 @@
 'use client'
 
 // React imports
-import { FC, memo, useEffect } from 'react';
+import { useEffect } from 'react';
 
 // Local imports
 import { Locale } from '@/i18n-config';
@@ -12,17 +12,17 @@ interface Props {
     lang: Locale
 };
 
-export const ContentWrapper: FC<Props> = memo(function ContentWrapper({ children, lang }) {
+export function ContentWrapper({ children, lang }: Props) {
 
     useEffect(() => {
         localeDevExtreme(lang);
     }, [lang]);
 
     return (
-        <section className='overflow-x-hidden' id='content'>
+        <section className='overflow-x-hidden h-full' id='content'>
             <div className='m-4'>
                 {children}
             </div>
         </section>
     );
-});
+};

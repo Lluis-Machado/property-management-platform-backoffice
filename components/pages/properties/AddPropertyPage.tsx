@@ -4,32 +4,66 @@
 import { memo, useCallback, useState } from "react";
 
 // Libraries imports
-import { FormikHelpers } from "formik";
 import { ApiCallError } from "@/lib/utils/errors";
 import { useRouter } from 'next/navigation';
-import { ContactData } from "@/lib/types/contactData";
 import { toast } from "react-toastify";
+import { Button } from 'pg-components';
+import Form, {
+  GroupItem, Item
+} from 'devextreme-react/form';
 
 //local imports
-import { PropertyInterface } from "@/lib/types/propertyInfo";
+import { PropertyCreate } from "@/lib/types/propertyInfo";
 import { updateErrorToast, updateSuccessToast } from "@/lib/utils/customToasts";
-import PropertyFormInfo from "@/components/pages/properties/property/PropertyFormInfo";
+import { TokenRes } from "@/lib/types/token";
+import { Locale } from "@/i18n-config";
+import { SelectData } from "@/lib/types/selectData";
 
 interface Props {
-  initialValues: PropertyInterface;
-  contactData: ContactData[];
+  propertyData: PropertyCreate;
+  contacts: SelectData[];
+  countries: SelectData[];
+  token: TokenRes;
+  lang: Locale;
 }
 
-const AddPropertyPage = ({ initialValues, contactData }: Props) => {
+const AddPropertyPage = ({ propertyData, contacts, countries, token, lang }: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [states, setStates] = useState<SelectData[] | undefined>(undefined);
+  // Importante para que no se copie por referencia
+  const [initialValues, setInitialValues] = useState<PropertyCreate>(structuredClone(propertyData));
 
   const router = useRouter();
 
+  const handleCountryChange = useCallback((countryId: number) => {
+    fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `${token.token_type} ${token.access_token}`,
+        },
+        cache: 'no-store'
+    })
+        .then((resp) => resp.json())
+        .then((data: any) => {
+            let states = [];
+            for (const state of data) {
+                states.push({
+                    label: state.name,
+                    value: state.id
+                })
+            }
+            setStates(states)
+        })
+        .catch((e) => console.error('Error while getting the states'))
+}, [lang, token])
+
   const handleSubmit = useCallback(
-    async (values: PropertyInterface, { setSubmitting }: FormikHelpers<PropertyInterface>) => {
+    async () => {
+      const values = propertyData;
+
       console.log("Valores a enviar: ", values)
 
-      if (values === initialValues) {
+      if (JSON.stringify(values) === JSON.stringify(initialValues)) {
         toast.warning('Change at least one field')
         return;
       }
@@ -43,16 +77,7 @@ const AddPropertyPage = ({ initialValues, contactData }: Props) => {
         const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties`,
           {
             method: 'POST',
-            body: JSON.stringify({
-              ...values,
-              "ownerships": [
-                {
-                  "contactId": values.mainContact,
-                  "mainOwnership": true,
-                  "share": 100
-                }
-              ],
-            }),
+            body: JSON.stringify(values),
             headers: { 'Content-type': 'application/json; charset=UTF-8' }
           }
         )
@@ -77,13 +102,78 @@ const AddPropertyPage = ({ initialValues, contactData }: Props) => {
         }
       } finally {
         setIsLoading(false);
-        setSubmitting(false);
       }
-    }, [router, initialValues]
+    }, [router, propertyData, initialValues]
   )
 
   return (
-    <PropertyFormInfo initialValues={initialValues} contactData={contactData} handleSubmit={handleSubmit} isLoading={isLoading} />
+    <div>
+      <Form
+        formData={propertyData}
+        labelMode={'floating'}
+        readOnly={isLoading}
+      >
+        <GroupItem colCount={4} caption="Property Information">
+          <Item dataField="name" label={{ text: "Name" }} />
+          <Item dataField="type" label={{ text: "Type" }} />
+          <Item dataField="cadastreRef" label={{ text: "Catastral Reference" }} />
+          <Item
+            dataField="mainOwnerId"
+            label={{ text: "Main Owner" }}
+            editorType='dxSelectBox'
+            editorOptions={{
+              items: contacts,
+              displayExpr: "label",
+              valueExpr: "value",
+              searchEnabled: true
+            }}
+          />
+        </GroupItem>
+        <GroupItem colCount={4} caption="Address Information">
+          <Item dataField="address.addressLine1" label={{ text: "Address line" }} />
+          <Item dataField="address.addressLine2" label={{ text: "Address line 2" }} />
+          <Item
+            dataField="address.country"
+            label={{ text: "Country" }}
+            editorType='dxSelectBox'
+            editorOptions={{
+              items: countries,
+              displayExpr: "label",
+              valueExpr: "value",
+              searchEnabled: true,
+              onValueChanged: (e: any) => handleCountryChange(e.value)
+            }}
+          />
+          <Item
+            dataField="address.state"
+            label={{ text: "State" }}
+            editorType='dxSelectBox'
+            editorOptions={{
+              items: states,
+              displayExpr: "label",
+              valueExpr: "value",
+              searchEnabled: true
+            }}
+          />
+          <Item dataField="address.city" label={{ text: "City" }} />
+          <Item dataField="address.postalCode" label={{ text: "Postal code" }} />
+        </GroupItem>
+      </Form>
+      <div className='h-[2rem]'>
+        <div className='flex justify-end'>
+          <div className='flex flex-row justify-between gap-2'>
+            <Button
+              elevated
+              type='button'
+              text='Submit Changes'
+              disabled={isLoading}
+              isLoading={isLoading}
+              onClick={handleSubmit}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

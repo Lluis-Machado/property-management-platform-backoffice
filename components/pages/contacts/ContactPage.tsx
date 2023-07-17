@@ -3,37 +3,100 @@
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Button, Input } from 'pg-components';
-import { Formik, Form, FormikHelpers } from 'formik';
-import { memo, useCallback, useState } from 'react';
-import { faFileLines, faReceipt, faRefresh, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Button } from 'pg-components';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { faFileLines, faPencil, faReceipt, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
+import Form, {
+    GroupItem, Item
+} from 'devextreme-react/form';
 
 // Local imports
-import GroupItem from '@/components/layoutComponent/GroupItem';
-import DatePicker from '@/components/datepicker/DatePicker';
 import { ApiCallError } from '@/lib/utils/errors';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { ContactData } from '@/lib/types/contactData';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
+import { TokenRes } from '@/lib/types/token';
+import { Locale } from '@/i18n-config';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import { SelectData } from '@/lib/types/selectData';
 
 interface Props {
-    initialValues: ContactData;
-    contactId: string;
+    contactData: ContactData;
+    token: TokenRes;
+    lang: Locale;
 }
 
-const ContactPage = ({ contactId, initialValues }: Props) => {
+const ContactPage = ({ contactData, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] = useState<boolean>(false);
+    const [countries, setCountries] = useState<SelectData[] | undefined>(undefined);
+    const [states, setStates] = useState<SelectData[] | undefined>(undefined);
+    // Importante para que no se copie por referencia
+    const [initialValues, setInitialValues] = useState<ContactData>(structuredClone(contactData));
+
+    const formRef = useRef<Form>(null)
 
     const router = useRouter();
 
-    const handleSubmit = useCallback(
-        async (values: ContactData, { setSubmitting }: FormikHelpers<ContactData>) => {
-            console.log("Valores a enviar: ", values)
+    // Use effect for getting countries when editing
+    useEffect(() => {
+        if (isEditing) {
+            fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries?languageCode=${lang}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `${token.token_type} ${token.access_token}`,
+                },
+                cache: 'no-store'
+            })
+                .then((resp) => resp.json())
+                .then((data: any) => {
+                    let countries = [];
+                    for (const country of data) {
+                        countries.push({
+                            label: country.name,
+                            value: country.id
+                        })
+                    }
+                    setCountries(countries)
+                })
+                .catch((e) => console.error('Error while getting the countries'))
+        }
+    }, [isEditing])
 
-            if (values === initialValues) {
+    const handleCountryChange = useCallback((countryId: number) => {
+        fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `${token.token_type} ${token.access_token}`,
+            },
+            cache: 'no-store'
+        })
+            .then((resp) => resp.json())
+            .then((data: any) => {
+                let states = [];
+                for (const state of data) {
+                    states.push({
+                        label: state.name,
+                        value: state.id
+                    })
+                }
+                setStates(states)
+            })
+            .catch((e) => console.error('Error while getting the states'))
+    }, [lang, token])
+
+    const handleSubmit = useCallback(
+        async () => {
+            // const values = formRef.current?.props.formData;
+            const values = contactData;
+
+            console.log("Valores a enviar: ", values)
+            console.log(JSON.stringify(values))
+
+            if (JSON.stringify(values) === JSON.stringify(initialValues)) {
                 toast.warning('Change at least one field')
                 return;
             }
@@ -42,7 +105,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
             const toastId = toast.loading("Updating contact...");
 
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactData.id}`,
                     {
                         method: 'PATCH',
                         body: JSON.stringify(values),
@@ -55,7 +118,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
 
                 console.log('TODO CORRECTO, valores de vuelta: ', data)
                 updateSuccessToast(toastId, "Contact updated correctly!");
-                router.refresh();
+                setInitialValues(data);
 
             } catch (error: unknown) {
                 console.error(error)
@@ -66,16 +129,15 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 }
             } finally {
                 setIsLoading(false);
-                setSubmitting(false);
             }
-        }, [contactId, initialValues]
+        }, [contactData, initialValues]
     )
 
     const handleDelete = useCallback(
         async () => {
             const toastId = toast.loading("Deleting contact...");
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactId}`,
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactData.id}`,
                     {
                         method: 'DELETE',
                         headers: { 'Content-type': 'application/json; charset=UTF-8' }
@@ -95,7 +157,7 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                     updateErrorToast(toastId, "There was an unexpected error, contact admin");
                 }
             }
-        }, [contactId, router]
+        }, [contactData, router]
     )
 
     return (
@@ -123,12 +185,12 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
                     <SimpleLinkCard
-                        href={`/private/documents?contactId=${contactId}`}
+                        href={`/private/documents?contactId=${contactData.id}`}
                         text='Documents'
                         faIcon={faFileLines}
                     />
                     <SimpleLinkCard
-                        href={`/private/taxes/${contactId}/declarations`}
+                        href={`/private/taxes/${contactData.id}/declarations`}
                         text='Declarations'
                         faIcon={faReceipt}
                     />
@@ -137,10 +199,9 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 <div className='flex flex-row self-center gap-4'>
                     <Button
                         elevated
-                        onClick={() => router.refresh()}
+                        onClick={() => setIsEditing(prev => !prev)}
                         type='button'
-                        icon={faRefresh}
-                        style='secondary'
+                        icon={isEditing ? faXmark : faPencil}
                     />
                     <Button
                         elevated
@@ -152,134 +213,76 @@ const ContactPage = ({ contactId, initialValues }: Props) => {
                 </div>
             </div>
             {/* Contact form */}
-            <Formik
-                initialValues={initialValues}
-                onSubmit={handleSubmit}
-                enableReinitialize
+            <Form
+                ref={formRef}
+                formData={contactData}
+                labelMode={'floating'}
+                readOnly={isLoading || !isEditing}
             >
-                <Form>
-                    <GroupItem cols={3} caption={'Contact Information'} >
-                        <Input
-                            name="firstName"
-                            label={"First name"}
-                            readOnly={isLoading}
-                        />
-                        <Input
-                            name="lastName"
-                            label={"Last name"}
-                            readOnly={isLoading}
-                        />
-                        <DatePicker
-                            name='birthDay'
-                            label='Birth date'
-                            defaultValue={initialValues.birthDay ?? undefined}
-                            isClearable
-                            readOnly={isLoading}
-                        />
-                        {/* <Select
-                            name='taxResidence'
-                            label='Tax residence'
-                            size='large'
-                            inputsList={[
-                                { label: 'Germany', value: 'de' },
-                                { label: 'Spain', value: 'es' },
-                                { label: 'France', value: 'fr' },
-                                { label: 'Russia', value: 'ru' },
-                                { label: 'Italy', value: 'it' },
-                            ]}
-                            defaultValue={{ label: 'Germany', value: 'de' }}
-                        /> */}
-                        {/* <Input
-                            name="idCardNumber"
-                            label={"ID card number"}
-                        /> */}
-                        {/* <DatePicker
-                            name="idCardExpDate"
-                            label={"ID card expiration date"}
-                            defaultValue={initialValues.idCardExpDate ?? undefined}
-                            isClearable
-                        /> */}
-                        {/* <Input
-                            name="passportNum"
-                            label={"Passport Number"}
-                            />
-                        <DatePicker
-                        name='passportExpDate'
-                            label={"Passport expiration date"}
-                            defaultValue={initialValues.passportExpDate ?? undefined}
-                            isClearable
-                        /> */}
-                        <Input
-                            name="nif"
-                            label={"NIF"}
-                            readOnly={isLoading}
-                        />
-                        {/* <Input
-                            name="companyNumber"
-                            label={"Company number"}
-                        /> */}
-                    </GroupItem>
-                    <GroupItem cols={3} caption={'Address Information'} >
-                        <Input
-                            name="addressLine1"
-                            label={"Address line"}
-                            readOnly={isLoading}
-                        />
-                        <Input
-                            name="addressLine2"
-                            label={"Address line 2"}
-                            readOnly={isLoading}
-                        />
-                        <Input
-                            name="city"
-                            label={"City"}
-                            readOnly={isLoading}
-                        />
-                        <Input
-                            name="state"
-                            label={"State"}
-                            readOnly={isLoading}
-                        />
-                        <Input
-                            name="postalCode"
-                            label={"Postal code"}
-                            readOnly={isLoading}
-                        />
-                        <Input
-                            name="country"
-                            label={"Country"}
-                            readOnly={isLoading}
-                        />
-
-                        <Input
-                            name="email"
-                            label={"Email"}
-                            readOnly={isLoading}
-                        />
-                        <Input
-                            name="phoneNumber"
-                            label={"Phone number"}
-                            readOnly={isLoading}
-                        />
-                        <Input
-                            name="mobilePhoneNumber"
-                            label={"Mobile phone number"}
-                            readOnly={isLoading}
-                        />
-                    </GroupItem>
-                    <div className='flex justify-end py-4'>
-                        <div className='flex flex-row justify-between gap-2'>
+                <GroupItem colCount={4} caption="Contact Information">
+                    <Item dataField="firstName" label={{ text: "First name" }} />
+                    <Item dataField="lastName" label={{ text: "Last name" }} />
+                    <Item
+                        dataField="birthDay"
+                        label={{ text: 'Birth date' }}
+                        editorType='dxDateBox'
+                        editorOptions={{
+                            displayFormat: dateFormat,
+                            showClearButton: true
+                        }}
+                    />
+                    <Item dataField="nif" label={{ text: "NIF" }} />
+                </GroupItem>
+                <GroupItem colCount={4} caption="Address Information">
+                    <Item dataField="address.addressLine1" label={{ text: "Address line" }} />
+                    <Item dataField="address.addressLine2" label={{ text: "Address line 2" }} />
+                    <Item
+                        dataField="address.country"
+                        label={{ text: "Country" }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: countries,
+                            displayExpr: "label",
+                            valueExpr: "value",
+                            searchEnabled: true,
+                            onValueChanged: (e: any) => handleCountryChange(e.value)
+                        }}
+                    />
+                    <Item
+                        dataField="address.state"
+                        label={{ text: "State" }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: states,
+                            displayExpr: "label",
+                            valueExpr: "value",
+                            searchEnabled: true
+                        }}
+                    />
+                    <Item dataField="address.city" label={{ text: "City" }} />
+                    <Item dataField="address.postalCode" label={{ text: "Postal code" }} />
+                    <Item dataField="email" label={{ text: "Email" }} />
+                    <Item dataField="phoneNumber" label={{ text: "Phone number" }} />
+                    <Item dataField="mobilePhoneNumber" label={{ text: "Mobile phone number" }} />
+                </GroupItem>
+            </Form>
+            <div className='h-[2rem]'>
+                <div className='flex justify-end'>
+                    <div className='flex flex-row justify-between gap-2'>
+                        {
+                            isEditing &&
                             <Button
                                 elevated
-                                type='submit'
+                                type='button'
                                 text='Submit Changes'
                                 disabled={isLoading}
                                 isLoading={isLoading}
+                                onClick={handleSubmit}
                             />
-                        </div>
+                        }
                     </div>
-                </Form>
-            </Formik>
+                </div>
+            </div>
         </div>
     );
 };
