@@ -2,8 +2,6 @@
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddPropertyPage from '@/components/pages/properties/AddPropertyPage';
 import { Locale } from '@/i18n-config';
-import { ContactData } from '@/lib/types/contactData';
-import { CountryData } from '@/lib/types/countriesData';
 import { PropertyCreate } from '@/lib/types/propertyInfo';
 import { SelectData } from '@/lib/types/selectData';
 import { getApiData } from '@/lib/utils/getApiData';

@@ -3,8 +3,6 @@ import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddContactPage from '@/components/pages/contacts/AddContactPage';
 import { Locale } from '@/i18n-config';
 import { ContactData } from '@/lib/types/contactData';
-import { CountryData } from '@/lib/types/countriesData';
-import { SelectData } from '@/lib/types/selectData';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getUser } from '@/lib/utils/getUser';
 

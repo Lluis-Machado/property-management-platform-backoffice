@@ -1,7 +1,7 @@
 'use client';
 
 // React imports
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 // Libraries imports
 import { Button, Tabs } from 'pg-components';
