@@ -6,10 +6,8 @@ import { memo, useCallback } from 'react';
 // Library imports
 import { useRouter } from 'next/navigation';
 import DataGrid, { Column, SearchPanel, Toolbar, Item, Pager } from 'devextreme-react/data-grid';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Link from 'next/link';
 import { PropertyData } from '@/lib/types/propertyInfo';
+import AddRowButton from '@/components/buttons/AddRowButton';
 
 interface Props {
     dataSource: PropertyData[];
@@ -23,18 +21,6 @@ const PropertiesPage = ({ dataSource }: Props): React.ReactElement => {
     const handleDoubleClick = useCallback(({ data }: any) => {
         router.push(`./properties/${data.id}/property`)
     }, [router])
-
-    const addRowButton = (): React.ReactElement => {
-        return (
-            <Link
-                href={`/private/properties/addProperty`}
-                className='cursor-pointer p-2.5 flex flex-row items-center border rounded-md text-gray-500 border-slate-300
-                hover:border-primary-200 hover:text-primary-500 active:border-primary-500 active:text-primary-700'
-            >
-                <FontAwesomeIcon icon={faPlus} />
-            </Link>
-        )
-    };
 
     const addressCellRender = (e: PropertyData) => {
         const { addressLine1, city, country, state, postalCode } = e.address;
@@ -73,7 +59,9 @@ const PropertiesPage = ({ dataSource }: Props): React.ReactElement => {
             />
 
             <Toolbar>
-                <Item render={addRowButton} />
+                <Item>
+                    <AddRowButton href={`/private/properties/addProperty`} />
+                </Item>
                 <Item name='searchPanel' />
             </Toolbar>
 
