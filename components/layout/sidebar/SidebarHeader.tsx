@@ -5,16 +5,16 @@ import Image from 'next/image';
 import Logo from '@/public/WuF_White.png';
 
 export const SidebarHeader = (): React.ReactElement => (
-    <div className='h-header flex flex-row items-center'>
-        <div className='w-sidebar-icon absolute right-0'>
+    <div className='flex h-header flex-row items-center'>
+        <div className='absolute right-0 w-sidebar-icon'>
             <Image
                 src={Logo}
                 alt='Company Logo'
-                className='w-full text-xl text-primary-500 cursor-pointer flex p-2 select-none'
+                className='flex w-full cursor-pointer select-none p-2 text-xl text-primary-500'
                 loading='eager'
                 quality={13}
                 priority
             />
         </div>
     </div>
-)
+);

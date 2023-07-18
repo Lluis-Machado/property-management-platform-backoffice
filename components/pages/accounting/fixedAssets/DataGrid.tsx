@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 // React imports
 import { useCallback } from 'react';
@@ -7,7 +7,16 @@ import { useCallback } from 'react';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { usePathname } from 'next/navigation';
-import { DataGrid as DxDataGrid, Column, Paging, SearchPanel, HeaderFilter, Pager, Export, Editing } from 'devextreme-react/data-grid';
+import {
+    DataGrid as DxDataGrid,
+    Column,
+    Paging,
+    SearchPanel,
+    HeaderFilter,
+    Pager,
+    Export,
+    Editing,
+} from 'devextreme-react/data-grid';
 import { Locale } from '@/i18n-config';
 
 // Local imports
@@ -24,7 +33,7 @@ interface Props {
     selectedYear: string;
     lang: Locale;
     years: string[];
-};
+}
 
 const DataGrid = ({
     dataSource,
@@ -34,29 +43,40 @@ const DataGrid = ({
     selectedProperty,
     selectedYear,
     lang,
-    years
+    years,
 }: Props): React.ReactElement => {
     const pathName = usePathname();
 
-    const DepreciationsCellRender = useCallback(({ row }: any): React.ReactElement => (
-        <div
-            onClick={() => onDepreciationClick(row.data.name, row.data.depreciation)}
-            className='cursor-pointer text-primary-500 row-focused-state md:hover:scale-125 md:transition-transform'
-        >
-            <FontAwesomeIcon icon={faCircleInfo} />
-        </div>
-    ), [onDepreciationClick]);
+    const DepreciationsCellRender = useCallback(
+        ({ row }: any): React.ReactElement => (
+            <div
+                onClick={() =>
+                    onDepreciationClick(row.data.name, row.data.depreciation)
+                }
+                className='row-focused-state cursor-pointer text-primary-500 md:transition-transform md:hover:scale-125'
+            >
+                <FontAwesomeIcon icon={faCircleInfo} />
+            </div>
+        ),
+        [onDepreciationClick]
+    );
 
-    const InvoiceCellRender = useCallback(({ data }: { data: any }): React.ReactElement => (
-        <PreviewFileCellRender
-            onClick={() => onInvoiceClick(data.name, data.url)}
-            url={data.url}
-        />
-    ), [onInvoiceClick]);
+    const InvoiceCellRender = useCallback(
+        ({ data }: { data: any }): React.ReactElement => (
+            <PreviewFileCellRender
+                onClick={() => onInvoiceClick(data.name, data.url)}
+                url={data.url}
+            />
+        ),
+        [onInvoiceClick]
+    );
 
-    const YearSelect = useCallback((): React.ReactElement => (
-        <YearSelector years={years} onSelectionChanged={onYearChange} />
-    ), [onYearChange, years]);
+    const YearSelect = useCallback(
+        (): React.ReactElement => (
+            <YearSelector years={years} onSelectionChanged={onYearChange} />
+        ),
+        [onYearChange, years]
+    );
 
     return (
         <>
@@ -74,7 +94,11 @@ const DataGrid = ({
             >
                 <HeaderFilter visible />
                 <Export enabled={true} />
-                <SearchPanel visible searchVisibleColumnsOnly={false} width={400} />
+                <SearchPanel
+                    visible
+                    searchVisibleColumnsOnly={false}
+                    width={400}
+                />
                 <Paging defaultPageSize={18} />
                 <Pager
                     visible={true}
@@ -86,7 +110,7 @@ const DataGrid = ({
                 />
 
                 <Editing
-                    mode="batch"
+                    mode='batch'
                     allowUpdating
                     allowAdding
                     allowDeleting
@@ -153,7 +177,7 @@ const DataGrid = ({
                 />
             </DxDataGrid>
         </>
-    )
-}
+    );
+};
 
-export default DataGrid
+export default DataGrid;

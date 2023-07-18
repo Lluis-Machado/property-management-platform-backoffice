@@ -1,7 +1,3 @@
-const page = (): React.ReactElement => (
-  <div>
-    Settings page
-  </div>
-);
+const page = (): React.ReactElement => <div>Settings page</div>;
 
 export default page;

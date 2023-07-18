@@ -4,20 +4,23 @@ import { Locale } from '@/i18n-config';
 import { getApiData } from '@/lib/utils/getApiData';
 
 interface Props {
-    params: { lang: Locale }
-};
+    params: { lang: Locale };
+}
 
 const Contacts = async () => {
-    const data = await getApiData('/contacts/contacts', 'Error while getting contacts');
+    const data = await getApiData(
+        '/contacts/contacts',
+        'Error while getting contacts'
+    );
 
     return (
         <>
-            <div className='text-lg text-secondary-500 mt-4'>
+            <div className='mt-4 text-lg text-secondary-500'>
                 Select a contact
             </div>
             <ContactsPage dataSource={data} />
         </>
-    )
+    );
 };
 
 export default Contacts;

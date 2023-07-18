@@ -1,26 +1,39 @@
-'use client'
+'use client';
 
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from 'pg-components';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { faFileLines, faPencil, faReceipt, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+    faFileLines,
+    faPencil,
+    faReceipt,
+    faTrash,
+    faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import Form, {
-    GroupItem, Item
+    EmailRule,
+    GroupItem,
+    Item,
+    RequiredRule,
+    StringLengthRule,
 } from 'devextreme-react/form';
 
 // Local imports
-import { ApiCallError } from '@/lib/utils/errors';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { ContactData } from '@/lib/types/contactData';
-import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
+import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { SelectData } from '@/lib/types/selectData';
+import { formatDate } from '@/lib/utils/formatDateFromJS';
+import { customError } from '@/lib/utils/customError';
+import { apiDelete } from '@/lib/utils/apiDelete';
+import { apiPatch } from '@/lib/utils/apiPatch';
 
 interface Props {
     contactData: ContactData;
@@ -31,134 +44,136 @@ interface Props {
 const ContactPage = ({ contactData, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [confirmationVisible, setConfirmationVisible] = useState<boolean>(false);
-    const [countries, setCountries] = useState<SelectData[] | undefined>(undefined);
+    const [confirmationVisible, setConfirmationVisible] =
+        useState<boolean>(false);
+    const [countries, setCountries] = useState<SelectData[] | undefined>(
+        undefined
+    );
     const [states, setStates] = useState<SelectData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<ContactData>(structuredClone(contactData));
+    const [initialValues, setInitialValues] = useState<ContactData>(
+        structuredClone(contactData)
+    );
 
-    const formRef = useRef<Form>(null)
+    const formRef = useRef<Form>(null);
 
     const router = useRouter();
 
     // Use effect for getting countries when editing
     useEffect(() => {
         if (isEditing) {
-            fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries?languageCode=${lang}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `${token.token_type} ${token.access_token}`,
-                },
-                cache: 'no-store'
-            })
+            fetch(
+                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries?languageCode=${lang}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `${token.token_type} ${token.access_token}`,
+                    },
+                    cache: 'no-store',
+                }
+            )
                 .then((resp) => resp.json())
                 .then((data: any) => {
                     let countries = [];
                     for (const country of data) {
                         countries.push({
                             label: country.name,
-                            value: country.id
-                        })
+                            value: country.id,
+                        });
                     }
-                    setCountries(countries)
+                    setCountries(countries);
                 })
-                .catch((e) => console.error('Error while getting the countries'))
+                .catch((e) =>
+                    console.error('Error while getting the countries')
+                );
         }
-    }, [isEditing])
+    }, [isEditing, lang, token]);
 
-    const handleCountryChange = useCallback((countryId: number) => {
-        fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `${token.token_type} ${token.access_token}`,
-            },
-            cache: 'no-store'
-        })
-            .then((resp) => resp.json())
-            .then((data: any) => {
-                let states = [];
-                for (const state of data) {
-                    states.push({
-                        label: state.name,
-                        value: state.id
-                    })
+    const handleCountryChange = useCallback(
+        (countryId: number) => {
+            fetch(
+                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `${token.token_type} ${token.access_token}`,
+                    },
+                    cache: 'no-store',
                 }
-                setStates(states)
-            })
-            .catch((e) => console.error('Error while getting the states'))
-    }, [lang, token])
-
-    const handleSubmit = useCallback(
-        async () => {
-            // const values = formRef.current?.props.formData;
-            const values = contactData;
-
-            console.log("Valores a enviar: ", values)
-            console.log(JSON.stringify(values))
-
-            if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-                toast.warning('Change at least one field')
-                return;
-            }
-
-            setIsLoading(true)
-            const toastId = toast.loading("Updating contact...");
-
-            try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactData.id}`,
-                    {
-                        method: 'PATCH',
-                        body: JSON.stringify(values),
-                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
+            )
+                .then((resp) => resp.json())
+                .then((data: any) => {
+                    let states = [];
+                    for (const state of data) {
+                        states.push({
+                            label: state.name,
+                            value: state.id,
+                        });
                     }
-                )
+                    setStates(states);
+                })
+                .catch((e) => console.error('Error while getting the states'));
+        },
+        [lang, token]
+    );
 
-                if (!resp.ok) throw new ApiCallError('Error while updating a contact');
-                const data: ContactData = await resp.json();
+    const handleSubmit = useCallback(async () => {
+        const res = formRef.current!.instance.validate();
+        if (!res.isValid) return;
 
-                console.log('TODO CORRECTO, valores de vuelta: ', data)
-                updateSuccessToast(toastId, "Contact updated correctly!");
-                setInitialValues(data);
+        const values = structuredClone(contactData);
 
-            } catch (error: unknown) {
-                console.error(error)
-                if (error instanceof ApiCallError) {
-                    updateErrorToast(toastId, error.message);
-                } else {
-                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
-                }
-            } finally {
-                setIsLoading(false);
-            }
-        }, [contactData, initialValues]
-    )
+        console.log('Valores a enviar: ', values);
+        console.log(JSON.stringify(values));
 
-    const handleDelete = useCallback(
-        async () => {
-            const toastId = toast.loading("Deleting contact...");
-            try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactData.id}`,
-                    {
-                        method: 'DELETE',
-                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
-                    }
-                )
+        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
+            toast.warning('Change at least one field');
+            return;
+        }
 
-                if (!resp.ok) throw new ApiCallError('Error while deleting a contact');
+        setIsLoading(true);
+        const toastId = toast.loading('Updating contact...');
 
-                updateSuccessToast(toastId, "Contact deleted correctly!");
-                router.push('/private/contacts')
+        if (!values.nif) values.nif = null;
 
-            } catch (error: unknown) {
-                console.error(error)
-                if (error instanceof ApiCallError) {
-                    updateErrorToast(toastId, error.message);
-                } else {
-                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
-                }
-            }
-        }, [contactData, router]
-    )
+        try {
+            const valuesToSend: ContactData = {
+                ...values,
+                birthDay: formatDate(values.birthDay),
+            };
+
+            const data = await apiPatch(
+                `/contacts/contacts/${contactData.id}`,
+                valuesToSend,
+                token,
+                'Error while updating a contact'
+            );
+
+            console.log('TODO CORRECTO, valores de vuelta: ', data);
+            updateSuccessToast(toastId, 'Contact updated correctly!');
+            setInitialValues(data);
+        } catch (error: unknown) {
+            customError(error, toastId);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [contactData, initialValues, token]);
+
+    const handleDelete = useCallback(async () => {
+        const toastId = toast.loading('Deleting contact...');
+        try {
+            await apiDelete(
+                `/contacts/contacts/${contactData.id}`,
+                token,
+                'Error while deleting a contact'
+            );
+
+            updateSuccessToast(toastId, 'Contact deleted correctly!');
+            router.push('/private/contacts');
+        } catch (error: unknown) {
+            customError(error, toastId);
+        }
+    }, [contactData, router, token]);
 
     return (
         <div className='mt-4'>
@@ -168,11 +183,11 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                 onClose={() => setConfirmationVisible(false)}
                 onConfirm={handleDelete}
             />
-            <div className='flex my-6 w-full justify-between'>
+            <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
-                <div className='flex ml-5 gap-5 items-center'>
+                <div className='ml-5 flex items-center gap-5'>
                     <Image
-                        className='rounded-full select-none'
+                        className='select-none rounded-full'
                         src={`https://ui-avatars.com/api/?name=${initialValues.firstName}+${initialValues.lastName}&background=random&size=128`}
                         alt='user avatar with name initials'
                         width={64}
@@ -196,10 +211,10 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                     />
                 </div>
                 {/* Button toolbar */}
-                <div className='flex flex-row self-center gap-4'>
+                <div className='flex flex-row gap-4 self-center'>
                     <Button
                         elevated
-                        onClick={() => setIsEditing(prev => !prev)}
+                        onClick={() => setIsEditing((prev) => !prev)}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
                     />
@@ -218,59 +233,88 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                 formData={contactData}
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
+                showValidationSummary
             >
-                <GroupItem colCount={4} caption="Contact Information">
-                    <Item dataField="firstName" label={{ text: "First name" }} />
-                    <Item dataField="lastName" label={{ text: "Last name" }} />
+                <GroupItem colCount={4} caption='Contact Information'>
                     <Item
-                        dataField="birthDay"
+                        dataField='firstName'
+                        label={{ text: 'First name' }}
+                    />
+                    <Item dataField='lastName' label={{ text: 'Last name' }}>
+                        <RequiredRule message='Last name is required' />
+                        <StringLengthRule
+                            min={3}
+                            message='Last name have at least 2 letters'
+                        />
+                    </Item>
+                    <Item
+                        dataField='birthDay'
                         label={{ text: 'Birth date' }}
                         editorType='dxDateBox'
                         editorOptions={{
                             displayFormat: dateFormat,
-                            showClearButton: true
+                            showClearButton: true,
                         }}
                     />
-                    <Item dataField="nif" label={{ text: "NIF" }} />
+                    <Item dataField='nif' label={{ text: 'NIF' }} />
                 </GroupItem>
-                <GroupItem colCount={4} caption="Address Information">
-                    <Item dataField="address.addressLine1" label={{ text: "Address line" }} />
-                    <Item dataField="address.addressLine2" label={{ text: "Address line 2" }} />
+                <GroupItem colCount={4} caption='Address Information'>
                     <Item
-                        dataField="address.country"
-                        label={{ text: "Country" }}
+                        dataField='address.addressLine1'
+                        label={{ text: 'Address line' }}
+                    />
+                    <Item
+                        dataField='address.addressLine2'
+                        label={{ text: 'Address line 2' }}
+                    />
+                    <Item
+                        dataField='address.country'
+                        label={{ text: 'Country' }}
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: countries,
-                            displayExpr: "label",
-                            valueExpr: "value",
+                            displayExpr: 'label',
+                            valueExpr: 'value',
                             searchEnabled: true,
-                            onValueChanged: (e: any) => handleCountryChange(e.value)
+                            onValueChanged: (e: any) =>
+                                handleCountryChange(e.value),
                         }}
                     />
                     <Item
-                        dataField="address.state"
-                        label={{ text: "State" }}
+                        dataField='address.state'
+                        label={{ text: 'State' }}
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: states,
-                            displayExpr: "label",
-                            valueExpr: "value",
-                            searchEnabled: true
+                            displayExpr: 'label',
+                            valueExpr: 'value',
+                            searchEnabled: true,
                         }}
                     />
-                    <Item dataField="address.city" label={{ text: "City" }} />
-                    <Item dataField="address.postalCode" label={{ text: "Postal code" }} />
-                    <Item dataField="email" label={{ text: "Email" }} />
-                    <Item dataField="phoneNumber" label={{ text: "Phone number" }} />
-                    <Item dataField="mobilePhoneNumber" label={{ text: "Mobile phone number" }} />
+                    <Item dataField='address.city' label={{ text: 'City' }} />
+                    <Item
+                        dataField='address.postalCode'
+                        label={{ text: 'Postal code' }}
+                    />
+                    <Item dataField='email' label={{ text: 'Email' }}>
+                        <EmailRule message='Email is invalid' />
+                    </Item>
+                    <Item
+                        dataField='phoneNumber'
+                        label={{ text: 'Phone number' }}
+                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
+                    />
+                    <Item
+                        dataField='mobilePhoneNumber'
+                        label={{ text: 'Mobile phone number' }}
+                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
+                    />
                 </GroupItem>
             </Form>
             <div className='h-[2rem]'>
                 <div className='flex justify-end'>
                     <div className='flex flex-row justify-between gap-2'>
-                        {
-                            isEditing &&
+                        {isEditing && (
                             <Button
                                 elevated
                                 type='button'
@@ -279,7 +323,7 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                                 isLoading={isLoading}
                                 onClick={handleSubmit}
                             />
-                        }
+                        )}
                     </div>
                 </div>
             </div>

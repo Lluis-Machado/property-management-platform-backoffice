@@ -6,9 +6,9 @@ export interface Route {
     icon: IconProp;
     name: string;
     children: RouteChildren[];
-};
+}
 
 interface RouteChildren {
     name: string;
     path: string;
-};
+}

@@ -1,5 +1,10 @@
 import {
-    faAddressBook, faCalculator, faCog, faFileAlt, faHouse, faReceipt
+    faAddressBook,
+    faCalculator,
+    faCog,
+    faFileAlt,
+    faHouse,
+    faReceipt,
 } from '@fortawesome/free-solid-svg-icons';
 
 // Local imports
@@ -13,7 +18,7 @@ export const routes: Route[] = [
         children: [
             { name: 'Archives', path: 'archives' },
             { name: 'Documents', path: 'files' },
-        ]
+        ],
     },
     {
         path: 'accounting',
@@ -26,31 +31,25 @@ export const routes: Route[] = [
             { name: 'Fixed Assets', path: 'fixedAssets' },
             { name: 'Loans', path: 'loans' },
             { name: 'Periods', path: 'periods' },
-        ]
+        ],
     },
     {
         path: 'taxes',
         icon: faCalculator,
         name: 'Taxes',
-        children: [
-            { name: 'Declarations', path: 'declarations' },
-        ]
+        children: [{ name: 'Declarations', path: 'declarations' }],
     },
     {
         path: 'properties',
         icon: faHouse,
         name: 'Properties',
-        children: [
-            { name: 'Property Info', path: 'property' },
-        ]
+        children: [{ name: 'Property Info', path: 'property' }],
     },
     {
         path: 'contacts',
         icon: faAddressBook,
         name: 'Contacts',
-        children: [
-            { name: 'Contact Info', path: 'contactInfo' },
-        ]
+        children: [{ name: 'Contact Info', path: 'contactInfo' }],
     },
     {
         path: 'administration',
@@ -59,6 +58,6 @@ export const routes: Route[] = [
         children: [
             { name: 'Settings', path: 'settings' },
             { name: 'Users', path: 'users' },
-        ]
+        ],
     },
 ];

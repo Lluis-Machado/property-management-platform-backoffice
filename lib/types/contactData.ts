@@ -12,7 +12,7 @@ export interface ContactData {
     firstName: string;
     lastName: string;
     birthDay: string | null;
-    nif: string;
+    nif: string | null;
     email: string;
     phoneNumber: string;
     mobilePhoneNumber: string;
