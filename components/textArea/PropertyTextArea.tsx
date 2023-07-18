@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
 // React imports
 import { useCallback, useRef, useState } from 'react';
 
 // Libraries imports
 import TextArea from 'devextreme-react/text-area';
-import { Button } from "pg-components"
+import { Button } from 'pg-components';
 import { toast } from 'react-toastify';
 
 // Local imports
@@ -20,40 +20,42 @@ interface Props {
     propertyData: PropertyData;
     token: TokenRes;
     lang: Locale;
-};
+}
 
 const PropertyTextArea = ({ propertyData, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const textareaRef = useRef<TextArea>(null);
 
-    const handleSubmit = useCallback(
-        async () => {
-            const values = structuredClone(propertyData);
-            values.comments = textareaRef.current?.instance.option('value') || '';
+    const handleSubmit = useCallback(async () => {
+        const values = structuredClone(propertyData);
+        values.comments = textareaRef.current?.instance.option('value') || '';
 
-            console.log("Valores a enviar: ", values)
+        console.log('Valores a enviar: ', values);
 
-            if (values.comments === propertyData.comments) {
-                toast.warning('You can not save the same comments as before')
-                return;
-            }
+        if (values.comments === propertyData.comments) {
+            toast.warning('You can not save the same comments as before');
+            return;
+        }
 
-            setIsLoading(true)
-            const toastId = toast.loading("Updating comments...");
+        setIsLoading(true);
+        const toastId = toast.loading('Updating comments...');
 
-            try {
-                const data = await apiPatch(`/properties/properties/${propertyData.id}`, values, token, 'Error while updating a property');
+        try {
+            const data = await apiPatch(
+                `/properties/properties/${propertyData.id}`,
+                values,
+                token,
+                'Error while updating a property'
+            );
 
-                console.log('TODO CORRECTO, valores de vuelta: ', data)
-                updateSuccessToast(toastId, "Comments updated correctly!");
-
-            } catch (error: unknown) {
-                customError(error, toastId);
-            } finally {
-                setIsLoading(false);
-            }
-        }, [propertyData]
-    )
+            console.log('TODO CORRECTO, valores de vuelta: ', data);
+            updateSuccessToast(toastId, 'Comments updated correctly!');
+        } catch (error: unknown) {
+            customError(error, toastId);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [propertyData]);
 
     return (
         <>
@@ -65,7 +67,7 @@ const PropertyTextArea = ({ propertyData, token, lang }: Props) => {
                 readOnly={isLoading}
                 autoResizeEnabled
             />
-            <div className='flex justify-end mt-4'>
+            <div className='mt-4 flex justify-end'>
                 <div className='flex flex-row justify-between gap-2'>
                     <Button
                         elevated
@@ -78,7 +80,7 @@ const PropertyTextArea = ({ propertyData, token, lang }: Props) => {
                 </div>
             </div>
         </>
-    )
-}
+    );
+};
 
-export default PropertyTextArea
+export default PropertyTextArea;

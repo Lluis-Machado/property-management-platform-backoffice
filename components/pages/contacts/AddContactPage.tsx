@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { memo, useCallback, useRef, useState } from 'react';
 // Libraries imports
@@ -7,7 +7,10 @@ import { Button } from 'pg-components';
 import { toast } from 'react-toastify';
 import Form, {
     EmailRule,
-    GroupItem, Item, RequiredRule, StringLengthRule
+    GroupItem,
+    Item,
+    RequiredRule,
+    StringLengthRule,
 } from 'devextreme-react/form';
 
 // Local imports
@@ -32,75 +35,85 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [states, setStates] = useState<SelectData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<ContactData>(structuredClone(contactData));
+    const [initialValues, setInitialValues] = useState<ContactData>(
+        structuredClone(contactData)
+    );
 
-    const formRef = useRef<Form>(null)
+    const formRef = useRef<Form>(null);
 
     const router = useRouter();
 
-    const handleCountryChange = useCallback((countryId: number) => {
-        fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `${token.token_type} ${token.access_token}`,
-            },
-            cache: 'no-store'
-        })
-            .then((resp) => resp.json())
-            .then((data: any) => {
-                let states = [];
-                for (const state of data) {
-                    states.push({
-                        label: state.name,
-                        value: state.id
-                    })
+    const handleCountryChange = useCallback(
+        (countryId: number) => {
+            fetch(
+                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `${token.token_type} ${token.access_token}`,
+                    },
+                    cache: 'no-store',
                 }
-                setStates(states)
-            })
-            .catch((e) => console.error('Error while getting the states'))
-    }, [lang, token])
+            )
+                .then((resp) => resp.json())
+                .then((data: any) => {
+                    let states = [];
+                    for (const state of data) {
+                        states.push({
+                            label: state.name,
+                            value: state.id,
+                        });
+                    }
+                    setStates(states);
+                })
+                .catch((e) => console.error('Error while getting the states'));
+        },
+        [lang, token]
+    );
 
-    const handleSubmit = useCallback(
-        async () => {
-            const res = formRef.current!.instance.validate();
-            if (!res.isValid) return;
+    const handleSubmit = useCallback(async () => {
+        const res = formRef.current!.instance.validate();
+        if (!res.isValid) return;
 
-            const values = structuredClone(contactData);
+        const values = structuredClone(contactData);
 
-            console.log("Valores a enviar: ", values)
-            console.log("Valores a enviar en JSON: ", JSON.stringify(values))
+        console.log('Valores a enviar: ', values);
+        console.log('Valores a enviar en JSON: ', JSON.stringify(values));
 
-            if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-                toast.warning('Change at least one field')
-                return;
-            }
+        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
+            toast.warning('Change at least one field');
+            return;
+        }
 
-            setIsLoading(true)
+        setIsLoading(true);
 
-            const toastId = toast.loading("Creating contact...");
+        const toastId = toast.loading('Creating contact...');
 
-            if (!values.nif) values.nif = null;
+        if (!values.nif) values.nif = null;
 
-            try {
-                const valuesToSend: ContactData = {
-                    ...values,
-                    birthDay: formatDate(values.birthDay)
-                }
-                
-                const data = await apiPost('/contacts/contacts', valuesToSend, token, 'Error while creating a property');
+        try {
+            const valuesToSend: ContactData = {
+                ...values,
+                birthDay: formatDate(values.birthDay),
+            };
 
-                console.log('TODO CORRECTO, valores de vuelta: ', data);
+            const data = await apiPost(
+                '/contacts/contacts',
+                valuesToSend,
+                token,
+                'Error while creating a property'
+            );
 
-                updateSuccessToast(toastId, "Contact created correctly!");
-                router.push('/private/contacts')
+            console.log('TODO CORRECTO, valores de vuelta: ', data);
 
-            } catch (error: unknown) {
-                customError(error, toastId);
-            } finally {
-                setIsLoading(false);
-            }
-        }, [router]
-    )
+            updateSuccessToast(toastId, 'Contact created correctly!');
+            router.push('/private/contacts');
+        } catch (error: unknown) {
+            customError(error, toastId);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [router]);
 
     return (
         <div>
@@ -111,56 +124,80 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                 readOnly={isLoading}
                 showValidationSummary
             >
-                <GroupItem colCount={4} caption="Contact Information">
-                    <Item dataField="firstName" label={{ text: "First name" }} />
-                    <Item dataField="lastName" label={{ text: "Last name" }} >
-                        <RequiredRule message="Last name is required" />
-                        <StringLengthRule min={3} message="Last name have at least 2 letters" />
+                <GroupItem colCount={4} caption='Contact Information'>
+                    <Item
+                        dataField='firstName'
+                        label={{ text: 'First name' }}
+                    />
+                    <Item dataField='lastName' label={{ text: 'Last name' }}>
+                        <RequiredRule message='Last name is required' />
+                        <StringLengthRule
+                            min={3}
+                            message='Last name have at least 2 letters'
+                        />
                     </Item>
                     <Item
-                        dataField="birthDay"
+                        dataField='birthDay'
                         label={{ text: 'Birth date' }}
                         editorType='dxDateBox'
                         editorOptions={{
                             displayFormat: dateFormat,
-                            showClearButton: true
+                            showClearButton: true,
                         }}
                     />
-                    <Item dataField="nif" label={{ text: "NIF" }} />
+                    <Item dataField='nif' label={{ text: 'NIF' }} />
                 </GroupItem>
-                <GroupItem colCount={4} caption="Address Information">
-                    <Item dataField="address.addressLine1" label={{ text: "Address line" }} />
-                    <Item dataField="address.addressLine2" label={{ text: "Address line 2" }} />
+                <GroupItem colCount={4} caption='Address Information'>
                     <Item
-                        dataField="address.country"
-                        label={{ text: "Country" }}
+                        dataField='address.addressLine1'
+                        label={{ text: 'Address line' }}
+                    />
+                    <Item
+                        dataField='address.addressLine2'
+                        label={{ text: 'Address line 2' }}
+                    />
+                    <Item
+                        dataField='address.country'
+                        label={{ text: 'Country' }}
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: countries,
-                            displayExpr: "label",
-                            valueExpr: "value",
+                            displayExpr: 'label',
+                            valueExpr: 'value',
                             searchEnabled: true,
-                            onValueChanged: (e: any) => handleCountryChange(e.value)
+                            onValueChanged: (e: any) =>
+                                handleCountryChange(e.value),
                         }}
                     />
                     <Item
-                        dataField="address.state"
-                        label={{ text: "State" }}
+                        dataField='address.state'
+                        label={{ text: 'State' }}
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: states,
-                            displayExpr: "label",
-                            valueExpr: "value",
-                            searchEnabled: true
+                            displayExpr: 'label',
+                            valueExpr: 'value',
+                            searchEnabled: true,
                         }}
                     />
-                    <Item dataField="address.city" label={{ text: "City" }} />
-                    <Item dataField="address.postalCode" label={{ text: "Postal code" }} />
-                    <Item dataField="email" label={{ text: "Email" }}>
-                        <EmailRule message="Email is invalid" />
+                    <Item dataField='address.city' label={{ text: 'City' }} />
+                    <Item
+                        dataField='address.postalCode'
+                        label={{ text: 'Postal code' }}
+                    />
+                    <Item dataField='email' label={{ text: 'Email' }}>
+                        <EmailRule message='Email is invalid' />
                     </Item>
-                    <Item dataField="phoneNumber" label={{ text: "Phone number" }} editorOptions={{ mask: '+(0000) 000-00-00-00' }} />
-                    <Item dataField="mobilePhoneNumber" label={{ text: "Mobile phone number" }} editorOptions={{ mask: '+(0000) 000-00-00-00' }} />
+                    <Item
+                        dataField='phoneNumber'
+                        label={{ text: 'Phone number' }}
+                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
+                    />
+                    <Item
+                        dataField='mobilePhoneNumber'
+                        label={{ text: 'Mobile phone number' }}
+                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
+                    />
                 </GroupItem>
             </Form>
             <div className='h-[2rem]'>

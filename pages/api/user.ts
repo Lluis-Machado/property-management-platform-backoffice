@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { withSessionRoute } from "@/lib/ironSession/withSession";
+import { NextApiRequest, NextApiResponse } from 'next';
+import { withSessionRoute } from '@/lib/ironSession/withSession';
 
 export default withSessionRoute(userRoute);
 
@@ -12,6 +12,6 @@ async function userRoute(req: NextApiRequest, res: NextApiResponse) {
         });
     else
         res.status(401).json({
-            error: 'User not found.'
+            error: 'User not found.',
         });
 }

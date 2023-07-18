@@ -21,25 +21,29 @@ const PreviewFileCellRender = ({ onClick, url }: Props): React.ReactElement => {
         if (validUrl) {
             onClick();
         } else {
-            import('./FileNotAvailableAlert').then(module => module.fileNotAvailable());
+            import('./FileNotAvailableAlert').then((module) =>
+                module.fileNotAvailable()
+            );
             alert('No file available');
         }
         event.stopPropagation();
     };
 
     return (
-        <div className='flex justify-start md:justify-center select-none'>
+        <div className='flex select-none justify-start md:justify-center'>
             <motion.span
                 title={iconDesc}
                 onClick={onClickHandler}
-                whileHover={validUrl ? { scale: 1.25 } : { rotateZ: [0, 45, -45, 0] }}
+                whileHover={
+                    validUrl ? { scale: 1.25 } : { rotateZ: [0, 45, -45, 0] }
+                }
                 transition={validUrl ? { type: 'spring' } : undefined}
                 className={classnames}
             >
                 <FontAwesomeIcon icon={faFile} />
             </motion.span>
         </div>
-    )
+    );
 };
 
 export default PreviewFileCellRender;

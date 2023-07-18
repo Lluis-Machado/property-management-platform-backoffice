@@ -1,17 +1,22 @@
-'use client'
+'use client';
 // React imports
 
 // Libraries imports
-import DataGrid, { Column, Paging, SearchPanel, Pager, Editing } from 'devextreme-react/data-grid';
+import DataGrid, {
+    Column,
+    Paging,
+    SearchPanel,
+    Pager,
+    Editing,
+} from 'devextreme-react/data-grid';
 
 // Local imports
 
 interface Props {
     dataSource: any;
-};
+}
 
 const PropertySidePropertiesDatagrid = ({ dataSource }: Props) => {
-
     const data = dataSource.childProperties;
     // console.log(data)
 
@@ -36,7 +41,7 @@ const PropertySidePropertiesDatagrid = ({ dataSource }: Props) => {
                 showNavigationButtons
             />
             <Editing
-                mode="batch"
+                mode='batch'
                 allowUpdating
                 allowAdding
                 allowDeleting
@@ -44,13 +49,9 @@ const PropertySidePropertiesDatagrid = ({ dataSource }: Props) => {
                 startEditAction={'dblClick'}
                 newRowPosition='first'
             />
-            <Column
-                dataField='name'
-                dataType='string'
-                caption='Name'
-            />
+            <Column dataField='name' dataType='string' caption='Name' />
         </DataGrid>
-    )
-}
+    );
+};
 
-export default PropertySidePropertiesDatagrid
+export default PropertySidePropertiesDatagrid;

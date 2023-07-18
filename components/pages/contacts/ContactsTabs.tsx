@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import ContactPropertiesDG from '@/components/pages/contacts/ContactPropertiesDG';
 import { Locale } from '@/i18n-config';
@@ -10,17 +10,22 @@ interface Props {
 }
 
 const ContactsTabs = ({ lang }: Props) => {
-  return (
-    <Tabs
+    return (
+        <Tabs
             dataSource={[
                 {
                     title: 'Properties',
-                    children: <ContactPropertiesDG ownershipData={undefined} propertiesData={undefined} />,
-                    icon: faHouseUser
-                }
+                    children: (
+                        <ContactPropertiesDG
+                            ownershipData={undefined}
+                            propertiesData={undefined}
+                        />
+                    ),
+                    icon: faHouseUser,
+                },
             ]}
         />
-  )
-}
+    );
+};
 
-export default ContactsTabs
+export default ContactsTabs;

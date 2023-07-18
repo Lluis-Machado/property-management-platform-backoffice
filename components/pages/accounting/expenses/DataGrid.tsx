@@ -1,15 +1,28 @@
-'use client'
+'use client';
 
 // React imports
 import { useCallback, useEffect, useRef } from 'react';
 
 // Libraries imports
-import { faCheck, faXmark, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import {
+    faCheck,
+    faXmark,
+    faCircleInfo,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { usePathname } from 'next/navigation';
 import { Locale } from '@/i18n-config';
 import { Tooltip } from 'devextreme-react/tooltip';
-import { DataGrid as DxDataGrid, Column, Paging, SearchPanel, Pager, Export, Editing, HeaderFilter } from 'devextreme-react/data-grid';
+import {
+    DataGrid as DxDataGrid,
+    Column,
+    Paging,
+    SearchPanel,
+    Pager,
+    Export,
+    Editing,
+    HeaderFilter,
+} from 'devextreme-react/data-grid';
 import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
 
@@ -19,20 +32,48 @@ import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 const ContentTooltip = ({ value }: { value: string }): React.ReactElement => {
     switch (value) {
         case 'BAT':
-            return (<><strong>BAT</strong> - Beschränkt abzugsfähige Kosten pro vermieteten Tag</>);
+            return (
+                <>
+                    <strong>BAT</strong> - Beschränkt abzugsfähige Kosten pro
+                    vermieteten Tag
+                </>
+            );
         case 'BAV':
-            return (<><strong>BAV</strong> - Beschränkt abzugsfähige Kosten für das gesamte Jahr</>);
+            return (
+                <>
+                    <strong>BAV</strong> - Beschränkt abzugsfähige Kosten für
+                    das gesamte Jahr
+                </>
+            );
         case 'UAT':
-            return (<><strong>UAT</strong> - Unbeschränkt abzugsfähige Kosten pro vermieteten Tag</>);
+            return (
+                <>
+                    <strong>UAT</strong> - Unbeschränkt abzugsfähige Kosten pro
+                    vermieteten Tag
+                </>
+            );
         case 'UAV':
-            return (<><strong>UAV</strong> - Unbeschränkt abzugsfähige Kosten für das gesamte Jahr</>);
+            return (
+                <>
+                    <strong>UAV</strong> - Unbeschränkt abzugsfähige Kosten für
+                    das gesamte Jahr
+                </>
+            );
         case 'NA':
-            return (<><strong>NA</strong> - Nicht abzugsfähige Kosten</>);
+            return (
+                <>
+                    <strong>NA</strong> - Nicht abzugsfähige Kosten
+                </>
+            );
         case 'Aktiv':
-            return (<><strong>Aktiv</strong> - Aktivierungspflichtige Kosten</>);
+            return (
+                <>
+                    <strong>Aktiv</strong> - Aktivierungspflichtige Kosten
+                </>
+            );
         default:
-            return <></>
-    };
+            return <></>;
+    }
 };
 
 const CostTypeCellRender = ({ value, rowIndex }: any): React.ReactElement => (
@@ -41,7 +82,7 @@ const CostTypeCellRender = ({ value, rowIndex }: any): React.ReactElement => (
         <span id={value + rowIndex}>
             <FontAwesomeIcon
                 icon={faCircleInfo}
-                className='text-primary-500 row-focused-state cursor-pointer'
+                className='row-focused-state cursor-pointer text-primary-500'
                 size='sm'
             />
         </span>
@@ -59,7 +100,7 @@ const CostTypeCellRender = ({ value, rowIndex }: any): React.ReactElement => (
 const ReverseChargeCellRender = ({ value }: any): React.ReactElement => (
     <FontAwesomeIcon
         icon={value === true ? faCheck : faXmark}
-        className='text-primary-500 row-focused-state'
+        className='row-focused-state text-primary-500'
     />
 );
 
@@ -68,15 +109,19 @@ interface Props {
     onInvoiceClick: (title: string, url: string) => void;
     params: any;
     lang: Locale;
-};
+}
 
-
-const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.ReactElement => {
+const DataGrid = ({
+    dataSource,
+    onInvoiceClick,
+    params,
+    lang,
+}: Props): React.ReactElement => {
     const dataGridRef = useRef<DxDataGrid>(null);
     const pathName = usePathname();
 
     useEffect(() => {
-        localeDevExtreme(lang)
+        localeDevExtreme(lang);
     }, [lang]);
 
     const getBasePath = useCallback(() => {
@@ -86,21 +131,26 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
             return pathName.substring(0, lastIndex);
         }
         return pathName;
-    }, [pathName])
+    }, [pathName]);
 
-    const InvoiceCellRender = useCallback(({ data }: { data: any }): React.ReactElement => (
-        <PreviewFileCellRender
-            onClick={() => onInvoiceClick(data.invoiceNumber, data.url)}
-            url={data.url}
-        />
-    ), [onInvoiceClick]);
+    const InvoiceCellRender = useCallback(
+        ({ data }: { data: any }): React.ReactElement => (
+            <PreviewFileCellRender
+                onClick={() => onInvoiceClick(data.invoiceNumber, data.url)}
+                url={data.url}
+            />
+        ),
+        [onInvoiceClick]
+    );
 
     return (
         <DxDataGrid
             dataSource={dataSource}
             keyExpr='id'
             showRowLines
-            defaultFilterValue={params.bp ? ['businessPartner', '=', params.bp] : undefined}
+            defaultFilterValue={
+                params.bp ? ['businessPartner', '=', params.bp] : undefined
+            }
             allowColumnResizing
             rowAlternationEnabled
             focusedRowEnabled
@@ -124,7 +174,7 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
             />
 
             <Editing
-                mode="batch"
+                mode='batch'
                 allowUpdating
                 allowAdding
                 allowDeleting
@@ -172,7 +222,7 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
                 dataType='date'
                 width={100}
                 //@ts-ignore
-                format={dateFormat}                
+                format={dateFormat}
             />
             <Column
                 caption='Service end date'
@@ -213,10 +263,9 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
                 <HeaderFilter
                     dataSource={[
                         { text: '✓', value: true },
-                        { text: '🞩', value: false }
+                        { text: '🞩', value: false },
                     ]}
                 />
-
             </Column>
             <Column
                 alignment='center'
@@ -226,7 +275,7 @@ const DataGrid = ({ dataSource, onInvoiceClick, params, lang }: Props): React.Re
                 width={100}
             />
         </DxDataGrid>
-    )
-}
+    );
+};
 
-export default DataGrid
+export default DataGrid;

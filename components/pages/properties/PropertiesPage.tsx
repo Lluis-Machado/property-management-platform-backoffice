@@ -1,37 +1,50 @@
-'use client'
+'use client';
 
 // React imports
 import { memo, useCallback } from 'react';
 
 // Library imports
 import { useRouter } from 'next/navigation';
-import DataGrid, { Column, SearchPanel, Toolbar, Item, Pager } from 'devextreme-react/data-grid';
+import DataGrid, {
+    Column,
+    SearchPanel,
+    Toolbar,
+    Item,
+    Pager,
+} from 'devextreme-react/data-grid';
 import { PropertyData } from '@/lib/types/propertyInfo';
 import AddRowButton from '@/components/buttons/AddRowButton';
 
 interface Props {
     dataSource: PropertyData[];
-};
+}
 
 const PropertiesPage = ({ dataSource }: Props): React.ReactElement => {
-
-    console.log(dataSource)
+    console.log(dataSource);
     const router = useRouter();
 
-    const handleDoubleClick = useCallback(({ data }: any) => {
-        router.push(`./properties/${data.id}/property`)
-    }, [router])
+    const handleDoubleClick = useCallback(
+        ({ data }: any) => {
+            router.push(`./properties/${data.id}/property`);
+        },
+        [router]
+    );
 
     const addressCellRender = (e: PropertyData) => {
         const { addressLine1, city, country, state, postalCode } = e.address;
-        const parts = [addressLine1, postalCode && `${postalCode} - ${city}`, state, country];
+        const parts = [
+            addressLine1,
+            postalCode && `${postalCode} - ${city}`,
+            state,
+            country,
+        ];
         return parts.filter(Boolean).join(', ');
     };
 
     const mainContactCellRender = (e: PropertyData) => {
-        const { ownerName } = e.mainOwner
-        return `${ownerName ?? ''}`
-    }
+        const { ownerName } = e.mainOwner;
+        return `${ownerName ?? ''}`;
+    };
 
     return (
         <DataGrid
@@ -46,11 +59,7 @@ const PropertiesPage = ({ dataSource }: Props): React.ReactElement => {
             showBorders
             showRowLines
         >
-            <SearchPanel
-                searchVisibleColumnsOnly={false}
-                visible
-                width={350}
-            />
+            <SearchPanel searchVisibleColumnsOnly={false} visible width={350} />
             <Pager
                 allowedPageSizes='auto'
                 showInfo
@@ -65,11 +74,7 @@ const PropertiesPage = ({ dataSource }: Props): React.ReactElement => {
                 <Item name='searchPanel' />
             </Toolbar>
 
-            <Column
-                caption='Name'
-                dataField='name'
-                dataType='string'
-            />
+            <Column caption='Name' dataField='name' dataType='string' />
             <Column
                 caption='Address'
                 dataType='string'
@@ -88,7 +93,7 @@ const PropertiesPage = ({ dataSource }: Props): React.ReactElement => {
                 dataType='string'
             />
         </DataGrid>
-    )
-}
+    );
+};
 
 export default memo(PropertiesPage);

@@ -1,10 +1,17 @@
-'use client'
+'use client';
 // React imports
 
 // Libraries imports
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import DataGrid, { Column, Paging, SearchPanel, Pager, Editing, Lookup } from 'devextreme-react/data-grid';
+import DataGrid, {
+    Column,
+    Paging,
+    SearchPanel,
+    Pager,
+    Editing,
+    Lookup,
+} from 'devextreme-react/data-grid';
 
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
@@ -13,12 +20,12 @@ import { SelectData } from '@/lib/types/selectData';
 interface Props {
     dataSource: any;
     contactData: SelectData[];
-};
+}
 
 const MainContactCellRender = ({ value }: any): React.ReactElement => (
     <FontAwesomeIcon
         icon={value === true ? faCheck : faXmark}
-        className='text-primary-600 row-focused-state'
+        className='row-focused-state text-primary-600'
     />
 );
 
@@ -46,7 +53,7 @@ const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
             />
 
             <Editing
-                mode="batch"
+                mode='batch'
                 allowUpdating
                 allowAdding
                 allowDeleting
@@ -61,8 +68,8 @@ const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
             >
                 <Lookup
                     dataSource={contactData}
-                    valueExpr="value"
-                    displayExpr="label"
+                    valueExpr='value'
+                    displayExpr='label'
                 />
             </Column>
             <Column
@@ -84,7 +91,7 @@ const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
                 cellRender={MainContactCellRender}
             />
         </DataGrid>
-    )
-}
+    );
+};
 
-export default PropertiesOwnersDatagrid
+export default PropertiesOwnersDatagrid;

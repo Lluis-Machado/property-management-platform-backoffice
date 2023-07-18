@@ -1,30 +1,37 @@
-'use client'
+'use client';
 // React imports
-import { memo, useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react';
 
 // Libraries imports
-import DataGrid, { Column, Scrolling, SearchPanel, Selection } from 'devextreme-react/data-grid'
-import DropDownBox from 'devextreme-react/drop-down-box'
+import DataGrid, {
+    Column,
+    Scrolling,
+    SearchPanel,
+    Selection,
+} from 'devextreme-react/data-grid';
+import DropDownBox from 'devextreme-react/drop-down-box';
 
 const OwnerDropdownComponent = (props: any) => {
-    const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([props.data.value])
-    const [isDropDownOpened, setIsDropDownOpened] = useState<boolean>(false)
+    const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([
+        props.data.value,
+    ]);
+    const [isDropDownOpened, setIsDropDownOpened] = useState<boolean>(false);
 
     useEffect(() => {
-        if(props.data.value) setSelectedRowKeys([props.data.value])
-    }, [props.data.value])
+        if (props.data.value) setSelectedRowKeys([props.data.value]);
+    }, [props.data.value]);
 
     const handleSelectionChange = (e: any) => {
-        setSelectedRowKeys([e.selectedRowKeys])
-        setIsDropDownOpened(false)
-        props.data.setValue(selectedRowKeys[0])
-    }
+        setSelectedRowKeys([e.selectedRowKeys]);
+        setIsDropDownOpened(false);
+        props.data.setValue(selectedRowKeys[0]);
+    };
 
     const handleOptionChange = (e: any) => {
-        if (e.name === 'opened') setIsDropDownOpened(e.value)
-    }
+        if (e.name === 'opened') setIsDropDownOpened(e.value);
+    };
 
-    const contentRender = () =>
+    const contentRender = () => (
         <DataGrid
             dataSource={props.data.column.lookup.dataSource}
             keyExpr='id'
@@ -37,25 +44,26 @@ const OwnerDropdownComponent = (props: any) => {
             onSelectionChanged={handleSelectionChange}
         >
             <SearchPanel visible />
-            <Column dataField="firstName" />
-            <Column dataField="lastName" />
-            <Column dataField="nif" caption='DNI/NIE' />
-            <Column dataField="email" />
-            <Scrolling mode="virtual" />
-            <Selection mode="single" />
+            <Column dataField='firstName' />
+            <Column dataField='lastName' />
+            <Column dataField='nif' caption='DNI/NIE' />
+            <Column dataField='email' />
+            <Scrolling mode='virtual' />
+            <Selection mode='single' />
         </DataGrid>
+    );
 
     return (
         <DropDownBox
             dataSource={props.data.column.lookup.dataSource}
             value={selectedRowKeys[0]}
-            displayExpr="full_name"
-            valueExpr="id"
+            displayExpr='full_name'
+            valueExpr='id'
             opened={isDropDownOpened}
             contentRender={contentRender}
             onOptionChanged={handleOptionChange}
         />
     );
-}
+};
 
-export default memo(OwnerDropdownComponent)
+export default memo(OwnerDropdownComponent);

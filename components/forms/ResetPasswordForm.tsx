@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 // React imports
 import { useState } from 'react';
@@ -21,7 +21,7 @@ interface Props {
         emailInputLabel: string;
         backToLoginButton: string;
         submitButton: string;
-    }
+    };
     searchParams: any;
 }
 
@@ -31,27 +31,29 @@ const ResetPasswordForm = ({ dictionary, searchParams }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const initialValues = {
-        username: searchParams?.email || ''
-    }
+        username: searchParams?.email || '',
+    };
 
     const handleSubmit = async (
         { username }: typeof initialValues,
         formikHelpers: FormikHelpers<typeof initialValues>
     ) => {
-        setIsLoading(true)
+        setIsLoading(true);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/Users/resetPassword?email=${username}`);
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/Users/resetPassword?email=${username}`
+            );
 
-            setError('')
+            setError('');
 
             if (response.ok) setMessage('Email sent! Check your email.');
-            else throw new ApiCallError('Invalid email.')
+            else throw new ApiCallError('Invalid email.');
         } catch (err: any) {
             console.error(err); // TODO: Delete this
-            (err instanceof ApiCallError) && setError(err.message)
+            err instanceof ApiCallError && setError(err.message);
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
             formikHelpers.setSubmitting(false);
         }
     };
@@ -60,18 +62,22 @@ const ResetPasswordForm = ({ dictionary, searchParams }: Props) => {
         <>
             <Loading isLoading={isLoading} />
 
-            <p className="mb-12 text-md text-center text-gray-400">
+            <p className='text-md mb-12 text-center text-gray-400'>
                 {dictionary.description}
             </p>
 
             <Formik
                 initialValues={initialValues}
                 validationSchema={Yup.object().shape({
-                    username: Yup.string().required('Username can not be empty.').email(),
-                    password: Yup.string().required('Password can not be empty.'),
+                    username: Yup.string()
+                        .required('Username can not be empty.')
+                        .email(),
+                    password: Yup.string().required(
+                        'Password can not be empty.'
+                    ),
                 })}
                 onSubmit={handleSubmit}
-                className="space-y-3"
+                className='space-y-3'
             >
                 <FormikForm>
                     <Alert
@@ -86,33 +92,33 @@ const ResetPasswordForm = ({ dictionary, searchParams }: Props) => {
                         type='danger'
                     />
 
-                    <GroupItem cols={1} >
+                    <GroupItem cols={1}>
                         <Input
-                            name="username"
+                            name='username'
                             label={dictionary.emailInputLabel}
                             icon={faUser}
                             required
                         />
                     </GroupItem>
 
-                    <div className="flex items-center justify-end mt-2">
-                        <div className="text-sm">
-                            <Link href="./" className="font-semibold text-secondary-500 hover:text-secondary-300">
+                    <div className='mt-2 flex items-center justify-end'>
+                        <div className='text-sm'>
+                            <Link
+                                href='./'
+                                className='font-semibold text-secondary-500 hover:text-secondary-300'
+                            >
                                 {dictionary.backToLoginButton}
                             </Link>
                         </div>
                     </div>
 
-                    <div className="flex justify-center mt-4">
-                        <Button
-                            type='submit'
-                            text={dictionary.submitButton}
-                        />
+                    <div className='mt-4 flex justify-center'>
+                        <Button type='submit' text={dictionary.submitButton} />
                     </div>
                 </FormikForm>
             </Formik>
         </>
-    )
-}
+    );
+};
 
-export default ResetPasswordForm
+export default ResetPasswordForm;

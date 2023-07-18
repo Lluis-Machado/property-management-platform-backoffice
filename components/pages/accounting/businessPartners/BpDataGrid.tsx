@@ -1,11 +1,18 @@
-'use client'
+'use client';
 
 // Libraries imports
-import DataGrid, { Column, Paging, SearchPanel, Pager, Export, Editing } from 'devextreme-react/data-grid';
+import DataGrid, {
+    Column,
+    Paging,
+    SearchPanel,
+    Pager,
+    Export,
+    Editing,
+} from 'devextreme-react/data-grid';
 
 interface Props {
     dataSource: any[];
-};
+}
 
 const BpDataGrid = ({ dataSource }: Props) => {
     return (
@@ -33,7 +40,7 @@ const BpDataGrid = ({ dataSource }: Props) => {
             />
 
             <Editing
-                mode="batch"
+                mode='batch'
                 allowUpdating
                 allowAdding
                 allowDeleting
@@ -42,11 +49,7 @@ const BpDataGrid = ({ dataSource }: Props) => {
                 startEditAction={'dblClick'}
             />
 
-            <Column
-                dataField='name'
-                dataType='string'
-                caption='Name'
-            />
+            <Column dataField='name' dataType='string' caption='Name' />
             <Column
                 dataField='vatNumber'
                 dataType='number'
@@ -58,11 +61,7 @@ const BpDataGrid = ({ dataSource }: Props) => {
                 dataType='string'
                 caption='Phone Number'
             />
-            <Column
-                dataField='address'
-                dataType='string'
-                caption='Address'
-            />
+            <Column dataField='address' dataType='string' caption='Address' />
             {/* <Column
                 caption='View Expenses'
                 alignment='center'

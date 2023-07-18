@@ -6,20 +6,20 @@ import esMessages from 'devextreme/localization/messages/es.json';
 
 // Local imports
 import { Locale } from '@/i18n-config';
-  
+
 export const localeDevExtreme = (lang: Locale) => {
     switch (lang) {
         case 'de':
-            loadMessages(deMessages)
-            locale(lang)
+            loadMessages(deMessages);
+            locale(lang);
             break;
         case 'es':
-            loadMessages(esMessages)
-            locale(lang)
+            loadMessages(esMessages);
+            locale(lang);
             break;
         default:
-            loadMessages(enMessages)
+            loadMessages(enMessages);
             locale('en');
             break;
-    };
+    }
 };

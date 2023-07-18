@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 // React imports
 import { FC, memo, useCallback, useState } from 'react';
@@ -18,12 +18,15 @@ const SidebarTooltip = dynamic(() => import('./SidebarTooltip'));
 
 interface Props {
     route: Route;
-};
+}
 
 export const SidebarItem: FC<Props> = memo(function SidebarItem({ route }) {
     const pathName = usePathname();
     const [isOver, setIsOver] = useState<boolean>(false);
-    const itemIsActualRoute = useCallback(() => pathName?.includes(`/private/${route.path}`), [pathName, route.path]);
+    const itemIsActualRoute = useCallback(
+        () => pathName?.includes(`/private/${route.path}`),
+        [pathName, route.path]
+    );
 
     return (
         <li
@@ -33,30 +36,31 @@ export const SidebarItem: FC<Props> = memo(function SidebarItem({ route }) {
         >
             {/* Tooltip */}
             <AnimatePresence>
-                {
-                    isOver &&
+                {isOver && (
                     <SidebarTooltip
                         onMouseEnter={() => setIsOver(true)}
                         onMouseLeave={() => setIsOver(false)}
                         route={route}
                     />
-                }
+                )}
             </AnimatePresence>
             {/* Item */}
             <Link
                 href={`/private/${route.path}`}
                 className={`
-                    h-header flex flex-row items-center transition-all
+                    flex h-header flex-row items-center transition-all
                     hover:border-l-8 hover:border-l-primary-500 hover:bg-primary-200 hover:text-secondary-500
                     active:border-l-primary-700 active:bg-primary-400
-                    ${itemIsActualRoute() && ' border-l-8 border-l-primary-700 bg-primary-400 text-secondary-500'}`
-                }
+                    ${
+                        itemIsActualRoute() &&
+                        ' border-l-8 border-l-primary-700 bg-primary-400 text-secondary-500'
+                    }`}
                 onMouseEnter={() => setIsOver(true)}
             >
                 <div className='w-full'>
                     <FontAwesomeIcon
                         icon={route.icon}
-                        className='w-full flex text-xl'
+                        className='flex w-full text-xl'
                     />
                 </div>
             </Link>

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 // React imports
 import { useState } from 'react';
@@ -15,24 +15,22 @@ import ContextMenu from './ContextMenu/ContextMenu';
 const itemRender = (params: any): React.ReactElement => {
     if (!params.isDirectory) return <></>;
     return (
-        <div className='flex flex-row items-center text-center gap-4'>
+        <div className='flex flex-row items-center gap-4 text-center'>
             <FontAwesomeIcon icon={faFolder} />
-            <p>
-                {params.name}
-            </p>
+            <p>{params.name}</p>
         </div>
     );
 };
 
 interface Props {
     dataSource: any;
-};
+}
 
 export const TreeView = ({ dataSource }: Props): React.ReactElement => {
     const [selectedTreeItem, setSelectedTreeItem] = useState<any>(undefined);
 
     return (
-        <div className='w-full relative'>
+        <div className='relative w-full'>
             <DxTreeView
                 dataSource={dataSource}
                 displayExpr='name'
@@ -41,7 +39,9 @@ export const TreeView = ({ dataSource }: Props): React.ReactElement => {
                 itemRender={itemRender}
                 itemsExpr='items'
                 keyExpr='id'
-                onItemContextMenu={({ itemData }) => setSelectedTreeItem(itemData)}
+                onItemContextMenu={({ itemData }) =>
+                    setSelectedTreeItem(itemData)
+                }
                 searchEnabled
                 searchExpr={['name', 'uuid']}
             />

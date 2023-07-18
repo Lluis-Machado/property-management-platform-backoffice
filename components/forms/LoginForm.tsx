@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 // React imports
 import { useState } from 'react';
@@ -36,35 +36,35 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
     const initialValues = {
         username: '',
         password: '',
-    }
+    };
 
     const handleSubmit = async (
         { username, password }: typeof initialValues,
         formikHelpers: FormikHelpers<typeof initialValues>
     ) => {
-        console.log('username y pass: ', username, password)
-        setIsLoading(true)
+        console.log('username y pass: ', username, password);
+        setIsLoading(true);
         try {
-
-            const response = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password })
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
             });
 
-            console.log(response)
+            console.log(response);
 
-            if (response.ok) return router.push("/private");
+            if (response.ok) return router.push('/private');
             else {
-                const data = await response.json()
-                throw new ApiCallError(data?.error || 'An error has occurred, contact admin')
+                const data = await response.json();
+                throw new ApiCallError(
+                    data?.error || 'An error has occurred, contact admin'
+                );
             }
-
         } catch (err) {
             console.error(err); // TODO: Delete this
-            (err instanceof ApiCallError) && setError(err.message)
+            err instanceof ApiCallError && setError(err.message);
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
             formikHelpers.setSubmitting(false);
         }
     };
@@ -75,11 +75,15 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
             <Formik
                 initialValues={initialValues}
                 validationSchema={Yup.object().shape({
-                    username: Yup.string().required('Username can not be empty.').email(),
-                    password: Yup.string().required('Password can not be empty.'),
+                    username: Yup.string()
+                        .required('Username can not be empty.')
+                        .email(),
+                    password: Yup.string().required(
+                        'Password can not be empty.'
+                    ),
                 })}
                 onSubmit={handleSubmit}
-                className="space-y-3"
+                className='space-y-3'
             >
                 <FormikForm>
                     <Alert
@@ -87,39 +91,39 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
                         isVisible={error !== '' && true}
                         type='danger'
                     />
-                    <GroupItem cols={1} >
+                    <GroupItem cols={1}>
                         <Input
-                            name="username"
+                            name='username'
                             label={dictionary.emailInputLabel}
                             icon={faUser}
                             required
                         />
 
                         <PasswordInput
-                            name="password"
+                            name='password'
                             label={dictionary.passwordInputLabel}
                             required
                         />
                     </GroupItem>
 
-                    <div className="flex items-center justify-end mt-4">
-                        <div className="text-sm">
-                            <Link href={`./reset-password`} className="font-semibold text-secondary-500 hover:text-secondary-300">
+                    <div className='mt-4 flex items-center justify-end'>
+                        <div className='text-sm'>
+                            <Link
+                                href={`./reset-password`}
+                                className='font-semibold text-secondary-500 hover:text-secondary-300'
+                            >
                                 {dictionary.forgotPasswordLink}
                             </Link>
                         </div>
                     </div>
 
-                    <div className="flex justify-center mt-4">
-                        <Button
-                            type='submit'
-                            text={dictionary.submitButton}
-                        />
+                    <div className='mt-4 flex justify-center'>
+                        <Button type='submit' text={dictionary.submitButton} />
                     </div>
                 </FormikForm>
             </Formik>
         </>
-    )
-}
+    );
+};
 
-export default LoginForm
+export default LoginForm;

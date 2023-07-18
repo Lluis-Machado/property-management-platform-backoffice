@@ -17,21 +17,26 @@ interface Props {
     onShown: () => void;
     type: TreeViewPopupType;
     visible: boolean;
-};
+}
 
 const itemRender = (params: any): React.ReactElement => {
     if (!params.isDirectory) return <></>;
     return (
-        <div className='flex flex-row items-center text-center gap-4'>
+        <div className='flex flex-row items-center gap-4 text-center'>
             <FontAwesomeIcon icon={faFolder} />
-            <p>
-                {params.name}
-            </p>
+            <p>{params.name}</p>
         </div>
     );
 };
 
-export const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, visible }: Props): React.ReactElement => {
+export const TreeViewPopup = ({
+    dataSource,
+    onHiding,
+    onShown,
+    onSubmit,
+    type,
+    visible,
+}: Props): React.ReactElement => {
     const [selectedNode, setSelectedNode] = useState<any>(null);
 
     const handleHiding = useCallback(() => {
@@ -39,39 +44,45 @@ export const TreeViewPopup = ({ dataSource, onHiding, onShown, onSubmit, type, v
         onHiding();
     }, [onHiding]);
 
-    const ContentRender = useCallback((): React.ReactElement => (
-        <div className='flex flex-col gap-4'>
-            <TreeView
-                dataSource={dataSource}
-                disabledExpr='disabled'
-                displayExpr='name'
-                hasItemsExpr='isDirectory'
-                id='treeview'
-                itemRender={itemRender}
-                itemsExpr='items'
-                keyExpr='id'
-                onItemClick={({ itemData }) => setSelectedNode(itemData)}
-                searchEnabled
-                searchExpr='name'
-            />
-            <div className='flex justify-end'>
-                <div className='flex flex-row gap-2 justify-end w-3/4'>
-                    <Button
-                        disabled={selectedNode === null}
-                        onClick={() => { onSubmit(selectedNode.uuid); handleHiding() }}
-                        text={type.replace(' to', '')}
-                        type='submit'
-                    />
-                    <Button
-                        onClick={handleHiding}
-                        style='outline'
-                        text='Cancel'
-                        type='button'
-                    />
+    const ContentRender = useCallback(
+        (): React.ReactElement => (
+            <div className='flex flex-col gap-4'>
+                <TreeView
+                    dataSource={dataSource}
+                    disabledExpr='disabled'
+                    displayExpr='name'
+                    hasItemsExpr='isDirectory'
+                    id='treeview'
+                    itemRender={itemRender}
+                    itemsExpr='items'
+                    keyExpr='id'
+                    onItemClick={({ itemData }) => setSelectedNode(itemData)}
+                    searchEnabled
+                    searchExpr='name'
+                />
+                <div className='flex justify-end'>
+                    <div className='flex w-3/4 flex-row justify-end gap-2'>
+                        <Button
+                            disabled={selectedNode === null}
+                            onClick={() => {
+                                onSubmit(selectedNode.uuid);
+                                handleHiding();
+                            }}
+                            text={type.replace(' to', '')}
+                            type='submit'
+                        />
+                        <Button
+                            onClick={handleHiding}
+                            style='outline'
+                            text='Cancel'
+                            type='button'
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
-    ), [dataSource, handleHiding, onSubmit, selectedNode, type]);
+        ),
+        [dataSource, handleHiding, onSubmit, selectedNode, type]
+    );
 
     return (
         <Popup

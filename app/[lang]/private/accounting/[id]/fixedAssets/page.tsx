@@ -5,12 +5,15 @@ import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import { getApiData } from '@/lib/utils/getApiData';
 
 interface Props {
-    params: { lang: Locale, id: string }
-};
+    params: { lang: Locale; id: string };
+}
 
 export default async function FixedAssets({ params: { lang, id } }: Props) {
-    const data = await getApiData(`/accounting/tenants/${id}/fixedAssets/2023?includeDeleted=false`, 'Error while getting fixed assets');
-    
+    const data = await getApiData(
+        `/accounting/tenants/${id}/fixedAssets/2023?includeDeleted=false`,
+        'Error while getting fixed assets'
+    );
+
     return (
         <>
             <Breadcrumb />
@@ -21,5 +24,5 @@ export default async function FixedAssets({ params: { lang, id } }: Props) {
                 years={['2023', '2022']}
             />
         </>
-    )
-};
+    );
+}
