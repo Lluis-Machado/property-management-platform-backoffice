@@ -19,12 +19,14 @@ import PropertiesOwnersDatagrid from "./PropertiesOwnersDatagrid";
 import PropertyTextArea from "@/components/textArea/PropertyTextArea";
 import PropertySidePropertiesDatagrid from "./PropertySidePropertiesDatagrid";
 import ConfirmDeletePopup from "@/components/popups/ConfirmDeletePopup";
-import { ContactData } from "@/lib/types/contactData";
 import { updateErrorToast, updateSuccessToast } from "@/lib/utils/customToasts";
 import SimpleLinkCard from "@/components/cards/SimpleLinkCard";
 import { SelectData } from "@/lib/types/selectData";
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
+import { customError } from "@/lib/utils/customError";
+import { apiDelete } from "@/lib/utils/apiDelete";
+import { apiPatch } from "@/lib/utils/apiPatch";
 
 interface Props {
     propertyData: PropertyData;
@@ -93,7 +95,7 @@ const PropertyPage = ({ propertyData, contacts, token, lang }: Props): React.Rea
 
     const handleSubmit = useCallback(
         async () => {
-            const values = propertyData;
+            const values = structuredClone(propertyData);
             console.log("Valores a enviar: ", values)
 
             if (JSON.stringify(values) === JSON.stringify(initialValues)) {
@@ -105,28 +107,13 @@ const PropertyPage = ({ propertyData, contacts, token, lang }: Props): React.Rea
             const toastId = toast.loading("Updating property...");
 
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties/${propertyData.id}`,
-                    {
-                        method: 'PATCH',
-                        body: JSON.stringify(values),
-                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
-                    }
-                )
-
-                if (!resp.ok) throw new ApiCallError('Error while updating a property');
-                const data: PropertyData = await resp.json();
+                const data = await apiPatch(`/properties/properties/${propertyData.id}`, values, token, 'Error while updating a property');
 
                 console.log('TODO CORRECTO, valores de vuelta: ', data)
                 updateSuccessToast(toastId, "Property updated correctly!");
-                router.refresh();
 
             } catch (error: unknown) {
-                console.error(error)
-                if (error instanceof ApiCallError) {
-                    updateErrorToast(toastId, error.message);
-                } else {
-                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
-                }
+                customError(error, toastId);
             } finally {
                 setIsLoading(false);
             }
@@ -137,25 +124,13 @@ const PropertyPage = ({ propertyData, contacts, token, lang }: Props): React.Rea
         async () => {
             const toastId = toast.loading("Deleting property...");
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties/${propertyData.id}`,
-                    {
-                        method: 'DELETE',
-                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
-                    }
-                )
-
-                if (!resp.ok) throw new ApiCallError('Error while deleting a property');
+                await apiDelete(`/properties/properties/${propertyData.id}`, token, 'Error while deleting a property')
 
                 updateSuccessToast(toastId, "Property deleted correctly!");
                 router.push('/private/properties')
 
             } catch (error: unknown) {
-                console.error(error)
-                if (error instanceof ApiCallError) {
-                    updateErrorToast(toastId, error.message);
-                } else {
-                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
-                }
+                customError(error, toastId);
             }
         }, [propertyData, router]
     )
@@ -293,7 +268,7 @@ const PropertyPage = ({ propertyData, contacts, token, lang }: Props): React.Rea
                         title: 'Side properties'
                     },
                     {
-                        children: <PropertyTextArea />,
+                        children: <PropertyTextArea propertyData={propertyData} token={token} lang={lang} />,
                         icon: faNoteSticky,
                         title: 'Comments'
                     }

@@ -19,6 +19,8 @@ import { Locale } from '@/i18n-config';
 import { TokenRes } from '@/lib/types/token';
 import { SelectData } from '@/lib/types/selectData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
+import { customError } from '@/lib/utils/customError';
+import { apiPost } from '@/lib/utils/apiPost';
 
 interface Props {
     contactData: ContactData;
@@ -61,11 +63,11 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
 
     const handleSubmit = useCallback(
         async () => {
-            const res = formRef.current!.instance.validate(); 
+            const res = formRef.current!.instance.validate();
             if (!res.isValid) return;
 
-            const values = contactData;
-            
+            const values = structuredClone(contactData);
+
             console.log("Valores a enviar: ", values)
             console.log("Valores a enviar en JSON: ", JSON.stringify(values))
 
@@ -81,22 +83,12 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
             if (!values.nif) values.nif = null;
 
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts`,
-                    {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            ...values,
-                            birthDay: formatDate(values.birthDay)
-                        }),
-                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
-                    }
-                );
-
-                if (!resp.ok) {
-                    const responseMsg = await resp.text()
-                    throw new ApiCallError(responseMsg);
+                const valuesToSend: ContactData = {
+                    ...values,
+                    birthDay: formatDate(values.birthDay)
                 }
-                const data = await resp.json();
+                
+                const data = await apiPost('/contacts/contacts', valuesToSend, token, 'Error while creating a property');
 
                 console.log('TODO CORRECTO, valores de vuelta: ', data);
 
@@ -104,12 +96,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                 router.push('/private/contacts')
 
             } catch (error: unknown) {
-                console.error(error)
-                if (error instanceof ApiCallError) {
-                    updateErrorToast(toastId, error.message);
-                } else {
-                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
-                }
+                customError(error, toastId);
             } finally {
                 setIsLoading(false);
             }

@@ -18,6 +18,8 @@ import { updateErrorToast, updateSuccessToast } from "@/lib/utils/customToasts";
 import { TokenRes } from "@/lib/types/token";
 import { Locale } from "@/i18n-config";
 import { SelectData } from "@/lib/types/selectData";
+import { customError } from "@/lib/utils/customError";
+import { apiPost } from "@/lib/utils/apiPost";
 
 interface Props {
   propertyData: PropertyCreate;
@@ -59,7 +61,7 @@ const AddPropertyPage = ({ propertyData, contacts, countries, token, lang }: Pro
 
   const handleSubmit = useCallback(
     async () => {
-      const values = propertyData;
+      const values = structuredClone(propertyData);
 
       console.log("Valores a enviar: ", values)
 
@@ -73,20 +75,7 @@ const AddPropertyPage = ({ propertyData, contacts, countries, token, lang }: Pro
       const toastId = toast.loading("Creating property...");
 
       try {
-
-        const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties`,
-          {
-            method: 'POST',
-            body: JSON.stringify(values),
-            headers: { 'Content-type': 'application/json; charset=UTF-8' }
-          }
-        )
-
-        if (!resp.ok) {
-          const responseMsg = await resp.text()
-          throw new ApiCallError(responseMsg);
-        }
-        const data = await resp.json();
+        const data = await apiPost('/properties/properties', values, token, 'Error while creating a property')
 
         console.log('TODO CORRECTO, valores de vuelta: ', data)
 
@@ -94,12 +83,7 @@ const AddPropertyPage = ({ propertyData, contacts, countries, token, lang }: Pro
         router.push('/private/properties')
 
       } catch (error: unknown) {
-        console.error(error)
-        if (error instanceof ApiCallError) {
-          updateErrorToast(toastId, error.message);
-        } else {
-          updateErrorToast(toastId, "There was an unexpected error, contact admin");
-        }
+        customError(error, toastId);
       } finally {
         setIsLoading(false);
       }

@@ -23,6 +23,9 @@ import { Locale } from '@/i18n-config';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { SelectData } from '@/lib/types/selectData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
+import { customError } from '@/lib/utils/customError';
+import { apiDelete } from '@/lib/utils/apiDelete';
+import { apiPatch } from '@/lib/utils/apiPatch';
 
 interface Props {
     contactData: ContactData;
@@ -95,7 +98,7 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
             const res = formRef.current!.instance.validate(); 
             if (!res.isValid) return;
 
-            const values = contactData;
+            const values = structuredClone(contactData);
 
             console.log("Valores a enviar: ", values)
             console.log(JSON.stringify(values))
@@ -111,31 +114,20 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
             if (!values.nif) values.nif = null;
 
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactData.id}`,
-                    {
-                        method: 'PATCH',
-                        body: JSON.stringify({
-                            ...values,
-                            birthDay: formatDate(values.birthDay)
-                        }),
-                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
-                    }
-                )
+                const valuesToSend: ContactData = {
+                    ...values,
+                    birthDay: formatDate(values.birthDay)
+                }
 
-                if (!resp.ok) throw new ApiCallError('Error while updating a contact');
-                const data: ContactData = await resp.json();
+                const data = await apiPatch(`/contacts/contacts/${contactData.id}`, valuesToSend, token, 'Error while updating a contact');
+
 
                 console.log('TODO CORRECTO, valores de vuelta: ', data)
                 updateSuccessToast(toastId, "Contact updated correctly!");
                 setInitialValues(data);
 
             } catch (error: unknown) {
-                console.error(error)
-                if (error instanceof ApiCallError) {
-                    updateErrorToast(toastId, error.message);
-                } else {
-                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
-                }
+                customError(error, toastId);
             } finally {
                 setIsLoading(false);
             }
@@ -146,25 +138,13 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
         async () => {
             const toastId = toast.loading("Deleting contact...");
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${contactData.id}`,
-                    {
-                        method: 'DELETE',
-                        headers: { 'Content-type': 'application/json; charset=UTF-8' }
-                    }
-                )
-
-                if (!resp.ok) throw new ApiCallError('Error while deleting a contact');
+                await apiDelete(`/contacts/contacts/${contactData.id}`, token, 'Error while deleting a contact')
 
                 updateSuccessToast(toastId, "Contact deleted correctly!");
                 router.push('/private/contacts')
 
             } catch (error: unknown) {
-                console.error(error)
-                if (error instanceof ApiCallError) {
-                    updateErrorToast(toastId, error.message);
-                } else {
-                    updateErrorToast(toastId, "There was an unexpected error, contact admin");
-                }
+                customError(error, toastId);
             }
         }, [contactData, router]
     )
