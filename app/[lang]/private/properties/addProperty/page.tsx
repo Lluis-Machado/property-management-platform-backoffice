@@ -17,9 +17,9 @@ const initialValues: PropertyCreate = {
         addressLine1: '',
         addressLine2: '',
         city: '',
-        state: '',
+        state: null,
         postalCode: '',
-        country: '',
+        country: null,
     },
     cadastreRef: '',
     comments: '',
@@ -34,15 +34,14 @@ interface Props {
 }
 
 const AddProperty = async ({ params: { lang } }: Props) => {
-    const user = await getUser();
-    const contactData: ContactData[] = await getApiData(
-        '/contacts/contacts',
-        'Error while getting contacts'
-    );
-    const countriesData: CountryData[] = await getApiData(
-        `/countries/countries?languageCode=${lang}`,
-        'Error while getting contacts'
-    );
+    const [user, contactData, countriesData] = await Promise.all([
+        getUser(),
+        getApiData('/contacts/contacts', 'Error while getting contacts'),
+        getApiData(
+            `/countries/countries?languageCode=${lang}`,
+            'Error while getting countries'
+        ),
+    ]);
 
     let contacts: SelectData[] = [];
     for (const contact of contactData) {
@@ -52,21 +51,13 @@ const AddProperty = async ({ params: { lang } }: Props) => {
         });
     }
 
-    let countries: SelectData[] = [];
-    for (const country of countriesData) {
-        countries.push({
-            label: `${country.name} - ${country.countryCode}`,
-            value: country.id,
-        });
-    }
-
     return (
         <>
             <Breadcrumb />
             <AddPropertyPage
                 propertyData={initialValues}
                 contacts={contacts}
-                countries={countries}
+                countries={countriesData}
                 token={user.token}
                 lang={lang}
             />

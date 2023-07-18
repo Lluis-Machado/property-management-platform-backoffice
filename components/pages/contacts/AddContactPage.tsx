@@ -162,8 +162,8 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: countries,
-                            displayExpr: 'label',
-                            valueExpr: 'value',
+                            displayExpr: 'name',
+                            valueExpr: 'id',
                             searchEnabled: true,
                             onValueChanged: (e: any) =>
                                 handleCountryChange(e.value),

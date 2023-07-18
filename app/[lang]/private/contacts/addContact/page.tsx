@@ -32,19 +32,13 @@ interface Props {
 }
 
 const AddContact = async ({ params: { lang } }: Props) => {
-    const user = await getUser();
-    const countriesData: CountryData[] = await getApiData(
-        `/countries/countries?languageCode=${lang}`,
-        'Error while getting contacts'
-    );
-
-    let countries: SelectData[] = [];
-    for (const country of countriesData) {
-        countries.push({
-            label: `${country.name} - ${country.countryCode}`,
-            value: country.id,
-        });
-    }
+    const [user, countries] = await Promise.all([
+        getUser(),
+        getApiData(
+            `/countries/countries?languageCode=${lang}`,
+            'Error while getting countries'
+        ),
+    ]);
 
     return (
         <>

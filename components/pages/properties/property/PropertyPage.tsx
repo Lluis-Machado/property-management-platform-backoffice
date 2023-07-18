@@ -33,10 +33,12 @@ import { Locale } from '@/i18n-config';
 import { customError } from '@/lib/utils/customError';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
+import { CountryData } from '@/lib/types/countriesData';
 
 interface Props {
     propertyData: PropertyData;
     contacts: SelectData[];
+    countries: CountryData[];
     token: TokenRes;
     lang: Locale;
 }
@@ -44,6 +46,7 @@ interface Props {
 const PropertyPage = ({
     propertyData,
     contacts,
+    countries,
     token,
     lang,
 }: Props): React.ReactElement => {
@@ -51,9 +54,6 @@ const PropertyPage = ({
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
-    const [countries, setCountries] = useState<SelectData[] | undefined>(
-        undefined
-    );
     const [states, setStates] = useState<SelectData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<PropertyData>(
@@ -61,36 +61,6 @@ const PropertyPage = ({
     );
 
     const router = useRouter();
-
-    // Use effect for getting countries when editing
-    useEffect(() => {
-        if (isEditing) {
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
-                .then((resp) => resp.json())
-                .then((data: any) => {
-                    let countries = [];
-                    for (const country of data) {
-                        countries.push({
-                            label: country.name,
-                            value: country.id,
-                        });
-                    }
-                    setCountries(countries);
-                })
-                .catch((e) =>
-                    console.error('Error while getting the countries')
-                );
-        }
-    }, [isEditing, lang, token]);
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
@@ -255,8 +225,8 @@ const PropertyPage = ({
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: countries,
-                            displayExpr: 'label',
-                            valueExpr: 'value',
+                            displayExpr: 'name',
+                            valueExpr: 'id',
                             searchEnabled: true,
                             onValueChanged: (e: any) =>
                                 handleCountryChange(e.value),

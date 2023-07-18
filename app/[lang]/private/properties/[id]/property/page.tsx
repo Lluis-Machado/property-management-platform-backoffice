@@ -11,15 +11,18 @@ interface Props {
 }
 
 const Property = async ({ params: { id, lang } }: Props) => {
-    const user = await getUser();
-    const data = await getApiData(
-        `/properties/properties/${id}`,
-        'Error while getting property info'
-    );
-    const contactData = await getApiData(
-        '/contacts/contacts',
-        'Error while getting contacts'
-    );
+    const [user, propertyData, contactData, countriesData] = await Promise.all([
+        getUser(),
+        getApiData(
+            `/properties/properties/${id}`,
+            'Error while getting property info'
+        ),
+        getApiData('/contacts/contacts', 'Error while getting contacts'),
+        getApiData(
+            `/countries/countries?languageCode=${lang}`,
+            'Error while getting countries'
+        ),
+    ]);
 
     let contacts: SelectData[] = [];
     for (const contact of contactData) {
@@ -33,10 +36,11 @@ const Property = async ({ params: { id, lang } }: Props) => {
         <>
             <Breadcrumb />
             <PropertyPage
-                propertyData={data}
+                propertyData={propertyData}
                 lang={lang}
                 token={user.token}
                 contacts={contacts}
+                countries={countriesData}
             />
         </>
     );

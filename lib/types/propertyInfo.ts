@@ -18,6 +18,7 @@ export interface PropertyData {
     typeOfUse: number[];
     address: Address;
     cadastreRef: string;
+    cadastreUrl: string;
     comments: string;
     mainOwner: MainOwner;
     parentProperty: ParentProperty;
@@ -38,7 +39,7 @@ interface Address {
     addressLine1: string;
     addressLine2: string;
     city: string;
-    state: string;
+    state: number | null;
     postalCode: string;
-    country: string;
+    country: number | null;
 }

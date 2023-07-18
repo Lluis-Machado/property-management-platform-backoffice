@@ -9,13 +9,17 @@ interface Props {
 }
 
 const ContactForm = async ({ params: { lang, id } }: Props) => {
-    const data = await getApiData(
-        `/contacts/contacts/${id}`,
-        'Error while getting contact info'
-    );
-    const user = await getUser();
+    const [user, contactData] = await Promise.all([
+        getUser(),
+        getApiData(
+            `/contacts/contacts/${id}`,
+            'Error while getting contact info'
+        ),
+    ]);
 
-    return <ContactPage contactData={data} token={user.token} lang={lang} />;
+    return (
+        <ContactPage contactData={contactData} token={user.token} lang={lang} />
+    );
 };
 
 export default ContactForm;
