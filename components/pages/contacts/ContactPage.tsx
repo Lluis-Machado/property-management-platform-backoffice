@@ -13,10 +13,9 @@ import Form, {
 } from 'devextreme-react/form';
 
 // Local imports
-import { ApiCallError } from '@/lib/utils/errors';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { ContactData } from '@/lib/types/contactData';
-import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
+import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';

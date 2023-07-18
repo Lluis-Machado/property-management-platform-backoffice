@@ -13,13 +13,12 @@ import Form, {
 } from 'devextreme-react/form';
 
 // Local imports
-import { ApiCallError } from "@/lib/utils/errors";
 import { PropertyData } from "@/lib/types/propertyInfo";
 import PropertiesOwnersDatagrid from "./PropertiesOwnersDatagrid";
 import PropertyTextArea from "@/components/textArea/PropertyTextArea";
 import PropertySidePropertiesDatagrid from "./PropertySidePropertiesDatagrid";
 import ConfirmDeletePopup from "@/components/popups/ConfirmDeletePopup";
-import { updateErrorToast, updateSuccessToast } from "@/lib/utils/customToasts";
+import { updateSuccessToast } from "@/lib/utils/customToasts";
 import SimpleLinkCard from "@/components/cards/SimpleLinkCard";
 import { SelectData } from "@/lib/types/selectData";
 import { TokenRes } from '@/lib/types/token';

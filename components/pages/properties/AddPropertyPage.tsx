@@ -4,7 +4,6 @@
 import { memo, useCallback, useState } from "react";
 
 // Libraries imports
-import { ApiCallError } from "@/lib/utils/errors";
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
 import { Button } from 'pg-components';
@@ -14,7 +13,7 @@ import Form, {
 
 //local imports
 import { PropertyCreate } from "@/lib/types/propertyInfo";
-import { updateErrorToast, updateSuccessToast } from "@/lib/utils/customToasts";
+import { updateSuccessToast } from "@/lib/utils/customToasts";
 import { TokenRes } from "@/lib/types/token";
 import { Locale } from "@/i18n-config";
 import { SelectData } from "@/lib/types/selectData";
