@@ -113,7 +113,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [router]);
+    }, [contactData, initialValues, token, router]);
 
     return (
         <div>

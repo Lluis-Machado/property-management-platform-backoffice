@@ -87,7 +87,7 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                     console.error('Error while getting the countries')
                 );
         }
-    }, [isEditing]);
+    }, [isEditing, lang, token]);
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
@@ -157,7 +157,7 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [contactData, initialValues]);
+    }, [contactData, initialValues, token]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting contact...');
@@ -173,7 +173,7 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
         } catch (error: unknown) {
             customError(error, toastId);
         }
-    }, [contactData, router]);
+    }, [contactData, router, token]);
 
     return (
         <div className='mt-4'>

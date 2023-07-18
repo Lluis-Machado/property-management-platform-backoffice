@@ -90,7 +90,7 @@ const PropertyPage = ({
                     console.error('Error while getting the countries')
                 );
         }
-    }, [isEditing]);
+    }, [isEditing, lang, token]);
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
@@ -147,7 +147,7 @@ const PropertyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [propertyData]);
+    }, [propertyData, initialValues, token]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting property...');
@@ -163,7 +163,7 @@ const PropertyPage = ({
         } catch (error: unknown) {
             customError(error, toastId);
         }
-    }, [propertyData, router]);
+    }, [propertyData, router, token]);
 
     return (
         <div className='mt-4'>

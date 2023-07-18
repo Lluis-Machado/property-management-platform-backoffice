@@ -33,7 +33,7 @@ const ConfirmDeletePopup = ({
                 </div>
             </div>
         ),
-        [onClose]
+        [onClose, onConfirm]
     );
 
     const titleComponent = useCallback(
@@ -42,7 +42,7 @@ const ConfirmDeletePopup = ({
                 {message || 'Are you sure you want to delete this record?'}
             </div>
         ),
-        []
+        [message]
     );
 
     return (

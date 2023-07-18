@@ -55,7 +55,7 @@ const PropertyTextArea = ({ propertyData, token, lang }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [propertyData]);
+    }, [propertyData, token]);
 
     return (
         <>

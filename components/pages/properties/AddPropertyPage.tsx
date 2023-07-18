@@ -101,7 +101,7 @@ const AddPropertyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [router, propertyData, initialValues]);
+    }, [router, propertyData, initialValues, token]);
 
     return (
         <div>
