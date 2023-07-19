@@ -1,6 +1,7 @@
 // Local imports
 import ContactsPage from '@/components/pages/contacts/ContactsPage';
 import { Locale } from '@/i18n-config';
+import { ContactData } from '@/lib/types/contactData';
 import { getApiData } from '@/lib/utils/getApiData';
 
 interface Props {
@@ -8,7 +9,7 @@ interface Props {
 }
 
 const Contacts = async () => {
-    const data = await getApiData(
+    const data = await getApiData<ContactData[]>(
         '/contacts/contacts',
         'Error while getting contacts'
     );

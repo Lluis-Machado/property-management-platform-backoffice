@@ -4,8 +4,8 @@ import AddContactPage from '@/components/pages/contacts/AddContactPage';
 import { Locale } from '@/i18n-config';
 import { ContactData } from '@/lib/types/contactData';
 import { CountryData } from '@/lib/types/countriesData';
-import { SelectData } from '@/lib/types/selectData';
 import { getApiData } from '@/lib/utils/getApiData';
+import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
 const initialValues: ContactData = {
@@ -32,19 +32,13 @@ interface Props {
 }
 
 const AddContact = async ({ params: { lang } }: Props) => {
-    const user = await getUser();
-    const countriesData: CountryData[] = await getApiData(
-        `/countries/countries?languageCode=${lang}`,
-        'Error while getting contacts'
-    );
-
-    let countries: SelectData[] = [];
-    for (const country of countriesData) {
-        countries.push({
-            label: `${country.name} - ${country.countryCode}`,
-            value: country.id,
-        });
-    }
+    const [user, countries] = await Promise.all([
+        getUser(),
+        getApiDataWithCache<CountryData[]>(
+            `/countries/countries?languageCode=${lang}`,
+            'Error while getting countries'
+        ),
+    ]);
 
     return (
         <>

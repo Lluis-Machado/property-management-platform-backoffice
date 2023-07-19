@@ -4,3 +4,11 @@ export interface CountryData {
     languageCode: 'es' | 'de' | 'en';
     name: string;
 }
+
+export interface StateData {
+    id: number;
+    countryId: number;
+    languageCode: string;
+    stateCode: string;
+    name: string;
+}

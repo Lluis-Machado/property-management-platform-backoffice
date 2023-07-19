@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default async function Accounting() {
-    const data = await getApiData(
+    const data = await getApiData<any>(
         '/accounting/tenants?includeDeleted=false',
         'Error while getting tenants'
     );

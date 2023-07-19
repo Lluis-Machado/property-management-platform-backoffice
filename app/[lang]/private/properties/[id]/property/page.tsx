@@ -2,8 +2,12 @@
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import PropertyPage from '@/components/pages/properties/property/PropertyPage';
 import { Locale } from '@/i18n-config';
+import { ContactData } from '@/lib/types/contactData';
+import { CountryData, StateData } from '@/lib/types/countriesData';
+import { PropertyData } from '@/lib/types/propertyInfo';
 import { SelectData } from '@/lib/types/selectData';
 import { getApiData } from '@/lib/utils/getApiData';
+import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
 interface Props {
@@ -11,15 +15,29 @@ interface Props {
 }
 
 const Property = async ({ params: { id, lang } }: Props) => {
-    const user = await getUser();
-    const data = await getApiData(
-        `/properties/properties/${id}`,
-        'Error while getting property info'
-    );
-    const contactData = await getApiData(
-        '/contacts/contacts',
-        'Error while getting contacts'
-    );
+    const [user, propertyData, contactData, countriesData] = await Promise.all([
+        getUser(),
+        getApiData<PropertyData>(
+            `/properties/properties/${id}`,
+            'Error while getting property info'
+        ),
+        getApiData<ContactData[]>(
+            '/contacts/contacts',
+            'Error while getting contacts'
+        ),
+        getApiDataWithCache<CountryData[]>(
+            `/countries/countries?languageCode=${lang}`,
+            'Error while getting countries'
+        ),
+    ]);
+
+    let statesData: StateData[] = [];
+    if (propertyData.address.country) {
+        statesData = await getApiDataWithCache(
+            `/countries/countries/${propertyData.address.country}/states?languageCode=${lang}`,
+            'Error while getting states'
+        );
+    }
 
     let contacts: SelectData[] = [];
     for (const contact of contactData) {
@@ -33,10 +51,12 @@ const Property = async ({ params: { id, lang } }: Props) => {
         <>
             <Breadcrumb />
             <PropertyPage
-                propertyData={data}
+                propertyData={propertyData}
                 lang={lang}
                 token={user.token}
                 contacts={contacts}
+                countries={countriesData}
+                initialStates={statesData}
             />
         </>
     );
