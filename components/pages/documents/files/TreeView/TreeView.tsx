@@ -1,5 +1,5 @@
 // React imports
-import { FC, memo, useCallback, useRef, useState } from 'react';
+import { FC, memo, useCallback, useMemo, useRef, useState } from 'react';
 
 // Libraries imports
 import { ItemClickEvent, Node } from 'devextreme/ui/tree_view';
@@ -274,6 +274,33 @@ const TreeView: FC<Props> = memo(function TreeView({ archives, onItemSelected })
         UploadFileFormRef.current!.reset();
     }, [selectedTreeItem]);
 
+    const dataSourceWithDisabled = useMemo(() => {
+        const dataSource = TreeViewRef.current?.instance.option('dataSource') as any[] | undefined;
+        if (!dataSource?.length) return [];
+        return dataSource.map(archive => {
+            if (selectedTreeItem && archive.id === (selectedTreeItem.data as Folder).archiveId) {
+                const clone = structuredClone(archive);
+                const stack = [clone];
+
+                while (stack.length > 0) {
+                    const node = stack.pop();
+
+                    for (const child of node.items) {
+                        if (node && child.id === selectedTreeItem.id) {
+                            node.disabled = true;
+                            child.disabled = true;
+                            return clone;
+                        } else {
+                            stack.push(...node.items);
+                        };
+                    };
+                };
+            } else {
+                return archive;
+            };
+        });
+    }, [selectedTreeItem]);
+
     return (
         <>
             <DxTreeView
@@ -286,7 +313,7 @@ const TreeView: FC<Props> = memo(function TreeView({ archives, onItemSelected })
                 dataStructure='tree'
             />
             <ContextMenu
-                isArchive={isArchive(selectedTreeItem)}
+                isArchive={isArchive(selectedTreeItem?.data) ?? true}
                 onDirectoryCopy={() => setTreeViewPopupStatus(p => ({ type: 'Copy to', visibility: { ...p.visibility, visible: true } }))}
                 onDirectoryDelete={() => handleFormPopupEvent('Delete')}
                 onDirectoryMove={() => setTreeViewPopupStatus(p => ({ type: 'Move to', visibility: { ...p.visibility, visible: true } }))}
@@ -309,7 +336,7 @@ const TreeView: FC<Props> = memo(function TreeView({ archives, onItemSelected })
             {
                 (treeViewPopupStatus.visibility.visible || treeViewPopupStatus.visibility.hasBeenOpen) &&
                 <TreeViewPopup
-                    createChildren={(parentNode: Node<any>) => { return ([]) }}
+                    dataSource={dataSourceWithDisabled}
                     onHiding={() => setTreeViewPopupStatus(p => ({ ...p, visibility: { ...p.visibility, visible: false } }))}
                     onShown={() => setTreeViewPopupStatus(p => ({ ...p, visibility: { ...p.visibility, hasBeenOpen: true } }))}
                     onSubmit={handleTreeViewPopupSubmit}

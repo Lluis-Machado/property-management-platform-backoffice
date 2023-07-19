@@ -5,12 +5,11 @@ import { FC, memo, useCallback, useState } from 'react';
 import { Button } from 'pg-components';
 import Popup from 'devextreme-react/popup';
 import TreeView from 'devextreme-react/tree-view';
-import { Node } from 'devextreme/ui/tree_view';
 
 export type TreeViewPopupType = 'Move to' | 'Copy to';
 
 interface Props {
-    createChildren: (parentNode: Node<any>) => any[] | PromiseLike<any>;
+    dataSource: any[];
     onHiding: () => void;
     onShown: () => void;
     onSubmit: (node: any) => void;
@@ -18,7 +17,7 @@ interface Props {
     visible: boolean;
 };
 
-const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ createChildren, onHiding, onShown, onSubmit, type, visible }): React.ReactElement {
+const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ dataSource, onHiding, onShown, onSubmit, type, visible }): React.ReactElement {
     const [selectedNode, setSelectedNode] = useState<any>(null);
 
     const handleHiding = useCallback(() => {
@@ -29,8 +28,7 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ createChildren, o
     const ContentRender = useCallback((): React.ReactElement => (
         <div className='flex flex-col gap-4'>
             <TreeView
-                createChildren={createChildren}
-                dataStructure='plain'
+                dataSource={dataSource}
                 id='TreeviewPopup'
                 onItemClick={({ itemData }) => setSelectedNode(itemData)}
                 searchEnabled
@@ -52,7 +50,7 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ createChildren, o
                 </div>
             </div>
         </div>
-    ), [createChildren, handleHiding, onSubmit, selectedNode, type]);
+    ), [dataSource, handleHiding, onSubmit, selectedNode, type]);
 
     return (
         <Popup
@@ -65,6 +63,7 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ createChildren, o
             title={type}
             visible={visible}
             width='80vw'
+            maxHeight='85vh'
             container='#content'
             dragEnabled={false}
         />
