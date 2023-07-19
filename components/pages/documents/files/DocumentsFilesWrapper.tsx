@@ -9,8 +9,6 @@ import { FileManager } from './fileManager/FileManager';
 import SplitPane from '@/components/splitPane/SplitPane';
 import TreeView from './treeView/TreeView';
 
-const className = 'border border-primary-500/50';
-
 interface Props {
     archives: any[];
 }

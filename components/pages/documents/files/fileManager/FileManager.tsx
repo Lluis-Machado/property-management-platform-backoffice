@@ -111,6 +111,29 @@ export const FileManager = ({ dataSource, folderId }: Props) => {
         [selectedFiles]
     );
 
+    const handleFormPopupSubmit = useCallback(
+        (value?: string) => {
+            const handleRename = async () => {
+                if (!value) return;
+            };
+
+            const handleDelete = async () => {
+                console.log('delete file');
+            };
+
+            const events = {
+                'New directory': () => {
+                    throw new Error('Invalid action for files');
+                },
+                Rename: handleRename,
+                Delete: handleDelete,
+            };
+
+            events[formPopupStatus.type]();
+        },
+        [formPopupStatus.type]
+    );
+
     return (
         <>
             <DataGrid
