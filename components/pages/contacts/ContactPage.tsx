@@ -4,7 +4,7 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from 'pg-components';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 import {
     faFileLines,
     faPencil,
@@ -29,27 +29,34 @@ import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
-import { SelectData } from '@/lib/types/selectData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
+import { CountryData, StateData } from '@/lib/types/countriesData';
 
 interface Props {
     contactData: ContactData;
+    countriesData: CountryData[];
+    initialStates: StateData[];
     token: TokenRes;
     lang: Locale;
 }
 
-const ContactPage = ({ contactData, token, lang }: Props) => {
+const ContactPage = ({
+    contactData,
+    countriesData,
+    initialStates,
+    token,
+    lang,
+}: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
-    const [countries, setCountries] = useState<SelectData[] | undefined>(
-        undefined
+    const [states, setStates] = useState<StateData[] | undefined>(
+        initialStates
     );
-    const [states, setStates] = useState<SelectData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<ContactData>(
         structuredClone(contactData)
@@ -58,36 +65,6 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
-
-    // Use effect for getting countries when editing
-    useEffect(() => {
-        if (isEditing) {
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
-                .then((resp) => resp.json())
-                .then((data: any) => {
-                    let countries = [];
-                    for (const country of data) {
-                        countries.push({
-                            label: country.name,
-                            value: country.id,
-                        });
-                    }
-                    setCountries(countries);
-                })
-                .catch((e) =>
-                    console.error('Error while getting the countries')
-                );
-        }
-    }, [isEditing, lang, token]);
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
@@ -102,19 +79,12 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                 }
             )
                 .then((resp) => resp.json())
-                .then((data: any) => {
-                    let states = [];
-                    for (const state of data) {
-                        states.push({
-                            label: state.name,
-                            value: state.id,
-                        });
-                    }
-                    setStates(states);
-                })
+                .then((data: StateData[]) => setStates(data))
                 .catch((e) => console.error('Error while getting the states'));
+            // Ensure state is removed
+            contactData.address.state = null;
         },
-        [lang, token]
+        [lang, token, contactData.address]
     );
 
     const handleSubmit = useCallback(async () => {
@@ -272,9 +242,9 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                         label={{ text: 'Country' }}
                         editorType='dxSelectBox'
                         editorOptions={{
-                            items: countries,
-                            displayExpr: 'label',
-                            valueExpr: 'value',
+                            items: countriesData,
+                            displayExpr: 'name',
+                            valueExpr: 'id',
                             searchEnabled: true,
                             onValueChanged: (e: any) =>
                                 handleCountryChange(e.value),
@@ -286,8 +256,8 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: states,
-                            displayExpr: 'label',
-                            valueExpr: 'value',
+                            displayExpr: 'name',
+                            valueExpr: 'id',
                             searchEnabled: true,
                         }}
                     />

@@ -154,7 +154,7 @@ const PropertyPage = ({
                 {/* Contact avatar and name */}
                 <div className='ml-5 flex items-center gap-5'>
                     <span className='text-4xl tracking-tight text-zinc-900'>
-                        {propertyData.name}
+                        {initialValues.name}
                     </span>
                 </div>
                 {/* Cards with actions */}
