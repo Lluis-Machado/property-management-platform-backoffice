@@ -2,9 +2,12 @@
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddPropertyPage from '@/components/pages/properties/AddPropertyPage';
 import { Locale } from '@/i18n-config';
+import { ContactData } from '@/lib/types/contactData';
+import { CountryData } from '@/lib/types/countriesData';
 import { PropertyCreate } from '@/lib/types/propertyInfo';
 import { SelectData } from '@/lib/types/selectData';
 import { getApiData } from '@/lib/utils/getApiData';
+import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
 const initialValues: PropertyCreate = {
@@ -34,8 +37,11 @@ interface Props {
 const AddProperty = async ({ params: { lang } }: Props) => {
     const [user, contactData, countriesData] = await Promise.all([
         getUser(),
-        getApiData('/contacts/contacts', 'Error while getting contacts'),
-        getApiData(
+        getApiData<ContactData[]>(
+            '/contacts/contacts',
+            'Error while getting contacts'
+        ),
+        getApiDataWithCache<CountryData[]>(
             `/countries/countries?languageCode=${lang}`,
             'Error while getting countries'
         ),

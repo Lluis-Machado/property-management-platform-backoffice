@@ -18,9 +18,10 @@ import {
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Form, { GroupItem, Item } from 'devextreme-react/form';
+import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
 
 // Local imports
-import { PropertyData } from '@/lib/types/propertyInfo';
+import { PropertyCreate, PropertyData } from '@/lib/types/propertyInfo';
 import PropertiesOwnersDatagrid from './PropertiesOwnersDatagrid';
 import PropertyTextArea from '@/components/textArea/PropertyTextArea';
 import PropertySidePropertiesDatagrid from './PropertySidePropertiesDatagrid';
@@ -33,12 +34,13 @@ import { Locale } from '@/i18n-config';
 import { customError } from '@/lib/utils/customError';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
-import { CountryData } from '@/lib/types/countriesData';
+import { CountryData, StateData } from '@/lib/types/countriesData';
 
 interface Props {
     propertyData: PropertyData;
     contacts: SelectData[];
     countries: CountryData[];
+    initialStates: StateData[];
     token: TokenRes;
     lang: Locale;
 }
@@ -47,6 +49,7 @@ const PropertyPage = ({
     propertyData,
     contacts,
     countries,
+    initialStates,
     token,
     lang,
 }: Props): React.ReactElement => {
@@ -54,7 +57,12 @@ const PropertyPage = ({
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
-    const [states, setStates] = useState<SelectData[] | undefined>(undefined);
+    const [states, setStates] = useState<StateData[] | undefined>(
+        initialStates
+    );
+    const [cadastreRef, setCadastreRef] = useState<string>(
+        propertyData.cadastreRef
+    );
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
@@ -75,24 +83,16 @@ const PropertyPage = ({
                 }
             )
                 .then((resp) => resp.json())
-                .then((data: any) => {
-                    let states = [];
-                    for (const state of data) {
-                        states.push({
-                            label: state.name,
-                            value: state.id,
-                        });
-                    }
-                    setStates(states);
-                })
+                .then((data: StateData[]) => setStates(data))
                 .catch((e) => console.error('Error while getting the states'));
+            // Ensure state is removed
+            propertyData.address.state = null;
         },
         [lang, token]
     );
 
     const handleSubmit = useCallback(async () => {
         const values = structuredClone(propertyData);
-        console.log('Valores a enviar: ', values);
 
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             toast.warning('Change at least one field');
@@ -103,9 +103,16 @@ const PropertyPage = ({
         const toastId = toast.loading('Updating property...');
 
         try {
+            const dataToSend: PropertyData = {
+                ...values,
+                cadastreRef,
+            };
+            console.log('Valores a enviar: ', dataToSend);
+            console.log('Valores a enviar JSON: ', JSON.stringify(dataToSend));
+
             const data = await apiPatch(
                 `/properties/properties/${propertyData.id}`,
-                values,
+                dataToSend,
                 token,
                 'Error while updating a property'
             );
@@ -194,21 +201,32 @@ const PropertyPage = ({
                 <GroupItem colCount={4} caption='Property Information'>
                     <Item dataField='name' label={{ text: 'Name' }} />
                     <Item dataField='type' label={{ text: 'Type' }} />
-                    <Item
-                        dataField='cadastreRef'
-                        label={{ text: 'Catastral Reference' }}
-                    />
-                    <Item
-                        dataField='mainOwnerId'
-                        label={{ text: 'Main Owner' }}
-                        editorType='dxSelectBox'
-                        editorOptions={{
-                            items: contacts,
-                            displayExpr: 'label',
-                            valueExpr: 'value',
-                            searchEnabled: true,
-                        }}
-                    />
+                    <Item>
+                        <TextBox
+                            defaultValue={cadastreRef}
+                            label='Catastral Reference'
+                            onValueChange={(e) => setCadastreRef(e)}
+                            readOnly={isLoading || !isEditing}
+                        >
+                            <TextBoxButton
+                                name='catasterBtn'
+                                location='after'
+                                options={{
+                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
+                                    type: 'default',
+                                    onClick: () =>
+                                        propertyData.cadastreUrl &&
+                                        window.open(
+                                            propertyData.cadastreUrl,
+                                            '_blank'
+                                        ),
+                                    disabled: propertyData.cadastreUrl
+                                        ? false
+                                        : true,
+                                }}
+                            />
+                        </TextBox>
+                    </Item>
                 </GroupItem>
                 <GroupItem colCount={4} caption='Address Information'>
                     <Item
@@ -238,8 +256,8 @@ const PropertyPage = ({
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: states,
-                            displayExpr: 'label',
-                            valueExpr: 'value',
+                            displayExpr: 'name',
+                            valueExpr: 'id',
                             searchEnabled: true,
                         }}
                     />

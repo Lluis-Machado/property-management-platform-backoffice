@@ -4,7 +4,8 @@ import { cookies } from 'next/headers';
 import { ApiCallError } from './errors';
 import { getRequestCookie } from './getRequestCookie';
 
-export const getApiData = async <T>(
+// IMPORTANT: This call has 30 days of cache
+export const getApiDataWithCache = async <T>(
     path: string,
     errorMsg: string
 ): Promise<T> => {
@@ -17,7 +18,7 @@ export const getApiData = async <T>(
         headers: {
             Authorization: `${user.token.token_type} ${user.token.access_token}`,
         },
-        cache: 'no-store',
+        next: { revalidate: 2592000 }, // 30 days cache
     });
     if (!resp.ok) throw new ApiCallError(errorMsg);
     return resp.json();

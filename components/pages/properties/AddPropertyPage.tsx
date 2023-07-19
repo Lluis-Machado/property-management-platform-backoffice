@@ -17,11 +17,12 @@ import { Locale } from '@/i18n-config';
 import { SelectData } from '@/lib/types/selectData';
 import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
+import { CountryData } from '@/lib/types/countriesData';
 
 interface Props {
     propertyData: PropertyCreate;
     contacts: SelectData[];
-    countries: SelectData[];
+    countries: CountryData[];
     token: TokenRes;
     lang: Locale;
 }
@@ -73,8 +74,6 @@ const AddPropertyPage = ({
     const handleSubmit = useCallback(async () => {
         const values = structuredClone(propertyData);
 
-        console.log('Valores a enviar: ', values);
-
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             toast.warning('Change at least one field');
             return;
@@ -85,6 +84,8 @@ const AddPropertyPage = ({
         const toastId = toast.loading('Creating property...');
 
         try {
+            console.log('Valores a enviar: ', values);
+            console.log('Valores a enviar JSON: ', JSON.stringify(values));
             const data = await apiPost(
                 '/properties/properties',
                 values,
