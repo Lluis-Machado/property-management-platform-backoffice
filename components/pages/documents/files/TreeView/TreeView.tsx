@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 
 // Local imports
 import { Archive, Folder } from '@/lib/types/documentsAPI';
-import { copyFolder, deleteArchive, moveFolder, newFolder, renameFolder, renameArchive, uploadFilesToArchive, uploadFilesToFolder, deleteFolder } from '@/lib/utils/apiDocuments';
+import { deleteArchive, moveFolder, newFolder, renameFolder, renameArchive, uploadFilesToArchive, uploadFilesToFolder, deleteFolder, copyFolder } from '@/lib/utils/apiDocuments';
 import { FormPopupType } from '../popups/FormPopup';
 import { PopupVisibility } from '@/lib/types/Popups';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
@@ -20,7 +20,7 @@ const FailedUploadPopup = dynamic(() => import('../popups/FailedUploadPopup'));
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
 const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 
-const isArchive = (item: any) => !item?.hasOwnProperty('archiveId') || false;
+const isArchive = (item: any): item is Archive => !item?.hasOwnProperty('archiveId') || false;
 
 interface Props {
     archives: any[];
@@ -87,7 +87,7 @@ const TreeView: FC<Props> = memo(function TreeView({ archives, onItemSelected })
                 archiveId,
                 body: {
                     name: value,
-                    parentId: isSelectedItemAnArchive ? null : data.id
+                    parentId: isSelectedItemAnArchive ? null : (data as Folder).id
                 }
             });
 
@@ -128,7 +128,7 @@ const TreeView: FC<Props> = memo(function TreeView({ archives, onItemSelected })
                 ? await renameArchive(archiveId, value)
                 : await renameFolder(
                     archiveId,
-                    data.id,
+                    (data as Folder).id,
                     {
                         archiveId,
                         name: value,
@@ -150,11 +150,11 @@ const TreeView: FC<Props> = memo(function TreeView({ archives, onItemSelected })
             // Update DB
             const ok = isSelectedItemAnArchive
                 ? await deleteArchive(archiveId)
-                : await deleteFolder(archiveId, data.id);
+                : await deleteFolder(archiveId, (data as Folder).id);
 
             // Update local
             if (ok) {
-                selectedTreeItem.visible = false;
+                selectedTreeItem.visible = false; // FAst way to hide it, proper solution would be find node in tree and delete it.
                 TreeViewRef.current!.instance.repaint();
             };
         };
@@ -175,58 +175,82 @@ const TreeView: FC<Props> = memo(function TreeView({ archives, onItemSelected })
     const handleTreeViewPopupSubmit = useCallback(async (destinationNode: any) => {
 
         const updateAzure = async () => {
-            const body = { name: selectedTreeItem!.data.name, parentId: newParentId };
-            return treeViewPopupStatus.type === 'Copy to'
-                ? copyFolder({ archiveId: newArchiveId, body })
-                : moveFolder(newArchiveId, { ...body, archiveId: newArchiveId }, selectedTreeItem!.data.id);
-        };
+            let name = selectedData.name;
 
-        const updateLocal = (nodes: any[]) => {
+            if (isCopyTo) {
+                const isTopLevelFolderDuplicate = selectedData.parentId === null && isDestinationArchive && selectedData.archiveId === destinationData.id;
+                const isSubfolderDuplicate = selectedData.archiveId === destinationData.archiveId && selectedData.parentId === destinationData.id;
 
-            const iterateOverNodes = (compareId: string, type: 'Delete' | 'Add') => {
-                for (const elem of nodes || []) {
-                    const stack = [elem];
-
-                    while (stack.length > 0) {
-                        const { children, items }: any = stack.pop();
-
-                        if (Array.isArray(children)) {
-                            const index = children.findIndex((item: any) => item.itemData.id === compareId);
-                            if (index === -1) {
-                                stack.push(...children);
-                                break;
-                            };
-
-                            if (type === 'Delete') {
-                                const selectedNode = structuredClone(children[index]);
-                                children.splice(index, 1);
-                                items.splice(index, 1);
-                                return selectedNode
-                            } else {
-                                const aux = children[index];
-
-                                deletedNode.parent = aux;
-                                deletedNode.itemData.archiveId = newArchiveId;
-                                deletedNode.itemData.parentId = newParentId;
-
-                                aux.children.push(deletedNode);
-                                aux.items.push(deletedNode);
-                            }
-                        };
-                    };
-                };
-                return null;
+                if (isTopLevelFolderDuplicate || isSubfolderDuplicate) name += ' - copy';
             };
 
-            const deletedNode = iterateOverNodes(selectedTreeItem!.data.id, 'Delete');
-            iterateOverNodes(destinationNode.id, 'Add');
-            return nodes;
+
+            const body = { archiveId: newArchiveId, name, parentId: newParentId };
+            return isCopyTo
+                ? copyFolder(selectedData.archiveId, selectedData.id, { ...body })
+                : moveFolder(newArchiveId, selectedData.id, { ...body });
         };
 
-        const newArchiveId = isArchive(destinationNode) ? destinationNode.archiveId : destinationNode.id;
-        const newParentId = isArchive(destinationNode) ? destinationNode.id : null;
+        const updateLocal = () => {
+
+            const addFolder = () => dataSource?.map(archive => {
+                if (
+                    (isDestinationArchive && destinationData.id !== archive.data.id) ||
+                    (!isDestinationArchive && destinationData.archiveId !== archive.data.id)
+                ) return archive;
+
+                const clone = structuredClone(archive);
+                const stack = [clone];
+
+                while (stack.length > 0) {
+                    const node = stack.pop();
+
+                    if (node.data.id === destinationData.id) {
+                        node.items.push({
+                            data: responseData,
+                            disabled: false,
+                            expanded: false,
+                            hasItems: false,
+                            id: responseData.id,
+                            items: [],
+                            parentId: isDestinationArchive ? responseData.archiveId: responseData.parentId,
+                            selected: false,
+                            text: responseData.name,
+                            visible: true
+                        });
+                        if (!isArchive(node.data)) {
+                            let dataFCF = (node.data as Folder).childFolders;
+                            dataFCF = Array.isArray(dataFCF) ? dataFCF : [];
+                            dataFCF.push(responseData);
+                        };
+                        return clone;
+                    };
+
+                    stack.push(...node.items);
+                };
+            });
+
+
+            TreeViewRef.current?.instance.option('dataSource', addFolder());
+            TreeViewRef.current?.instance.repaint();
+        };
+
+        const dataSource = TreeViewRef.current?.instance.option('dataSource') as any[] | undefined;
+        if (!dataSource || !selectedTreeItem) return;
+
+        const selectedData = selectedTreeItem.data as Folder;
+        const { data: destinationData } = destinationNode;
+        const isDestinationArchive = isArchive(destinationData);
+
+        const newArchiveId = isDestinationArchive ? destinationData.id : (destinationData as Folder).archiveId;
+        const newParentId = isDestinationArchive ? undefined : destinationData.id;
+
+        const isCopyTo = treeViewPopupStatus.type === 'Copy to';
+
 
         const response = await updateAzure();
+        const responseData: Folder = await response.json();
+        updateLocal();
     }, [selectedTreeItem, treeViewPopupStatus]);
 
     const handleFileInputOnChange = useCallback(async () => {
@@ -239,7 +263,7 @@ const TreeView: FC<Props> = memo(function TreeView({ archives, onItemSelected })
 
             return isArchive(data)
                 ? await uploadFilesToArchive(data.id, selectedFiles)
-                : await uploadFilesToFolder((data as Folder).archiveId, data.id, selectedFiles);
+                : await uploadFilesToFolder((data as Folder).archiveId, (data as Folder).id, selectedFiles);
         };
 
         const handleResponse = (response: any[]) => {
@@ -275,31 +299,37 @@ const TreeView: FC<Props> = memo(function TreeView({ archives, onItemSelected })
     }, [selectedTreeItem]);
 
     const dataSourceWithDisabled = useMemo(() => {
+
         const dataSource = TreeViewRef.current?.instance.option('dataSource') as any[] | undefined;
-        if (!dataSource?.length) return [];
-        return dataSource.map(archive => {
-            if (selectedTreeItem && archive.id === (selectedTreeItem.data as Folder).archiveId) {
-                const clone = structuredClone(archive);
-                const stack = [clone];
+        if (!dataSource?.length || !selectedTreeItem) return [];
 
-                while (stack.length > 0) {
-                    const node = stack.pop();
+        const { data } = selectedTreeItem;
 
-                    for (const child of node.items) {
-                        if (node && child.id === selectedTreeItem.id) {
-                            node.disabled = true;
-                            child.disabled = true;
-                            return clone;
-                        } else {
-                            stack.push(...node.items);
-                        };
+        const analyzeArchive = (archive: any) => {
+            // Not the selected folder archive
+            if (archive.id !== (data as Folder).archiveId) return archive;
+
+            const clone = structuredClone(archive);
+            const stack = [clone];
+            const isMoving = treeViewPopupStatus.type === 'Move to';
+
+            while (stack.length > 0) {
+                const node = stack.pop();
+
+                for (const child of node.items) {
+                    if (child.id === data.id) {
+                        if (isMoving) node.disabled = true;
+                        child.disabled = true;
+                        return clone;
                     };
+
+                    stack.push(...node.items);
                 };
-            } else {
-                return archive;
             };
-        });
-    }, [selectedTreeItem]);
+        };
+
+        return dataSource.map(analyzeArchive);
+    }, [selectedTreeItem, treeViewPopupStatus.type]);
 
     return (
         <>

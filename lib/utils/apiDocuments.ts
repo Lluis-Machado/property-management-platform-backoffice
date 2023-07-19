@@ -111,29 +111,19 @@ interface Folder {
     },
 };
 
-export const newFolder = async (params: Folder) => addFolder({ ...params }, 'New');
-export const copyFolder = async (params: Folder) => addFolder({ ...params }, 'Copy');
-export const addFolder = async ({ archiveId, body }: Folder, log: 'New' | 'Copy') => {
-    const messages = {
-        'New': {
-            pending: 'Creating folder',
-            success: 'Folder created',
-            error: 'Error creating folder'
-        },
-        'Copy': {
-            pending: 'Copying folder',
-            success: 'Folder copied',
-            error: 'Error copying folder'
-        },
-    };
 
+export const newFolder = async ({ archiveId, body }: Folder) => {
     const endPoint = `${BASE_END_POINT}/${archiveId}/folders`;
     const response = await toast.promise(fetch(endPoint, {
         body: JSON.stringify(body),
         cache: 'no-cache',
         headers: { 'Content-Type': 'application/json' },
         method: 'POST'
-    }), { ...messages[log] });
+    }), {
+        pending: 'Creating folder',
+        success: 'Folder created',
+        error: 'Error creating folder'
+    });
 
     return response;
 };
@@ -153,7 +143,22 @@ export const renameFolder = async (archiveId: string, folderId: string, body: { 
     return response.ok;
 };
 
-export const moveFolder = async (archiveId: string, body: { archiveId: string, name: string, parentId?: string }, folderId: string) => {
+export const copyFolder = async (archiveId: string, folderId: string, body: { archiveId: string, name: string, parentId?: string }) => {
+    const endPoint = `${BASE_END_POINT}/${archiveId}/folders/${folderId}/copy`;
+    const response = await toast.promise(fetch(endPoint, {
+        body: JSON.stringify(body),
+        cache: 'no-cache',
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST'
+    }), {
+        pending: 'Copying folder',
+        success: 'Folder copied',
+        error: 'Error copying folder'
+    });
+    return response;
+}
+
+export const moveFolder = async (archiveId: string, folderId: string, body: { archiveId: string, name: string, parentId?: string }) => {
     const endPoint = `${BASE_END_POINT}/${archiveId}/folders/${folderId}`;
     const response = await toast.promise(fetch(endPoint, {
         body: JSON.stringify(body),
@@ -165,7 +170,7 @@ export const moveFolder = async (archiveId: string, body: { archiveId: string, n
         success: 'Folder moved',
         error: 'Error moving folder'
     });
-    return response.ok;
+    return response;
 };
 
 export const deleteFolder = async (archiveId: string, folderId: string) => {
