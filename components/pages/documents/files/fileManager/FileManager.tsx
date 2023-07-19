@@ -97,12 +97,13 @@ export const FileManager = ({ dataSource, folderId }: Props) => {
 
     const handleFormPopupEvent = useCallback(
         (type: FormPopupType) => {
-            const folderName =
-                type === 'New directory'
-                    ? 'Untitled directory'
-                    : selectedFiles[0].name;
+            if (type === 'New directory') throw new Error('Value not valid');
+            const fileName =
+                selectedFiles.length === 1
+                    ? selectedFiles[0].name
+                    : `${selectedFiles.length} items`;
             setFormPopupStatus((p) => ({
-                folderName,
+                fileName,
                 type,
                 visibility: { ...p.visibility, visible: true },
             }));
@@ -117,7 +118,7 @@ export const FileManager = ({ dataSource, folderId }: Props) => {
                 onSelectedFile={setSelectedFiles}
                 onFileCopy={() => handleCopyMoveToEvent('Copy to')}
                 onFileDelete={() => {
-                    handleFormPopupEvent('Rename');
+                    handleFormPopupEvent('Delete');
                 }}
                 onFileDownload={() => {}}
                 onFileMove={() => handleCopyMoveToEvent('Move to')}
