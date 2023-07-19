@@ -7,12 +7,13 @@ import MainLayout from '@/components/layout/MainLayout';
 interface Props {
     children: React.ReactNode;
     params: { lang: Locale };
-};
+}
 
-const RootLayout = ({ children, params: { lang } }: Props): React.ReactElement => (
-    <MainLayout lang={lang}>
-        {children}
-    </MainLayout>
+const RootLayout = ({
+    children,
+    params: { lang },
+}: Props): React.ReactElement => (
+    <MainLayout lang={lang}>{children}</MainLayout>
 );
 
 export default RootLayout;

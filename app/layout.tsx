@@ -7,18 +7,18 @@ import './globals.css';
 import { barlow } from '@/lib/utils/mainFont';
 
 export const metadata: Metadata = {
-  description: 'WuF Backoffice Platform',
-  title: 'WuF - Backoffice',
+    description: 'WuF Backoffice Platform',
+    title: 'WuF - Backoffice',
 };
 
 interface Props {
-  children: React.ReactNode;
-};
+    children: React.ReactNode;
+}
 
 const RootLayout = ({ children }: Props): React.ReactElement => (
-  <html className={`${barlow.variable}`}>
-    <body> {children} </body>
-  </html>
+    <html className={`${barlow.variable}`}>
+        <body> {children} </body>
+    </html>
 );
 
 export default RootLayout;

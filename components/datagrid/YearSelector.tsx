@@ -5,10 +5,15 @@ import { Select } from 'pg-components';
 interface Props {
     years: string[];
     onSelectionChanged: (year: string) => void;
-};
+}
 
-const YearSelector = ({ years, onSelectionChanged }: Props): React.ReactElement => {
-    const initialValues = years.map(year => { return { label: year, value: year } });
+const YearSelector = ({
+    years,
+    onSelectionChanged,
+}: Props): React.ReactElement => {
+    const initialValues = years.map((year) => {
+        return { label: year, value: year };
+    });
     return (
         <Formik
             initialValues={{ selectedYear: initialValues[0].value }}

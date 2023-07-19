@@ -1,5 +1,5 @@
 // React imports
-import { useCallback } from 'react'
+import { useCallback } from 'react';
 
 // Libraries imports
 import { Button } from 'pg-components';
@@ -8,30 +8,38 @@ import { Popup, Position } from 'devextreme-react/popup';
 interface PopupProps {
     isVisible: boolean;
     onClose: () => void;
-};
+}
 
 const ChangePwPopup = ({ isVisible, onClose }: PopupProps) => {
-    const contentRender = useCallback(() => (
-        <div className='flex flex-col gap-4 justify-center items-center'>
-            <p className='text-lg'>You will receive an email to change your password</p>
-            <div className='flex gap-4 w-full'>
-                <Button text='Cancel' style='outline' onClick={onClose} />
-                <Button
-                    text='Continue'
-                    onClick={() => {
-                        window.alert('Sending email to change password...')
-                        onClose()
-                    }}
-                />
+    const contentRender = useCallback(
+        () => (
+            <div className='flex flex-col items-center justify-center gap-4'>
+                <p className='text-lg'>
+                    You will receive an email to change your password
+                </p>
+                <div className='flex w-full gap-4'>
+                    <Button text='Cancel' style='outline' onClick={onClose} />
+                    <Button
+                        text='Continue'
+                        onClick={() => {
+                            window.alert('Sending email to change password...');
+                            onClose();
+                        }}
+                    />
+                </div>
             </div>
-        </div>
-    ), [onClose]);
+        ),
+        [onClose]
+    );
 
-    const titleComponent = useCallback(() => (
-        <div className='flex font-bold text-2xl text-secondary-500 justify-center items-center'>
-            Change Password
-        </div>
-    ), []);
+    const titleComponent = useCallback(
+        () => (
+            <div className='flex items-center justify-center text-2xl font-bold text-secondary-500'>
+                Change Password
+            </div>
+        ),
+        []
+    );
 
     return (
         <Popup

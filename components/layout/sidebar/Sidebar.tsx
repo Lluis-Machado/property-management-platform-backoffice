@@ -5,13 +5,13 @@ import { SidebarItemsList } from './SidebarItemsList';
 
 const Sidebar = (): React.ReactElement => {
     return (
-        <div className='flex flex-col h-full'>
+        <div className='flex h-full flex-col'>
             <SidebarHeader />
             <hr className='border-primary-500/50' />
             <SidebarItemsList Routes={routes} />
             <hr className='border-primary-500/50' />
-            <div className='flex flex-grow relative'>
-                <p className='absolute whitespace-nowrap text-xl font-bold tracking-sidebar-wide origin-bottom-left transform left-[80%] bottom-5 -rotate-90 select-none'>
+            <div className='relative flex flex-grow'>
+                <p className='absolute bottom-5 left-[80%] origin-bottom-left -rotate-90 transform select-none whitespace-nowrap text-xl font-bold tracking-sidebar-wide'>
                     BACK OFFICE
                 </p>
             </div>

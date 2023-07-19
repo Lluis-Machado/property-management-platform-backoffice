@@ -21,10 +21,10 @@ interface TableProperties {
     /**
      * Show totals at bottom of table.
      */
-    totalsRow?: boolean,
+    totalsRow?: boolean;
     /**
      * Extra style properties.
-     * 
+     *
      * Check: https://github.com/exceljs/exceljs#table-style-properties.
      * Check: https://github.com/exceljs/exceljs#table-style-themes.
      */
@@ -37,7 +37,7 @@ interface TableProperties {
      * Rows of data.
      */
     // rows?: any;
-};
+}
 
 interface StyleProperties {
     /**
@@ -60,7 +60,7 @@ interface StyleProperties {
      * Alternate columns shown with background colour
      */
     showColumnStripes?: boolean;
-};
+}
 
 interface TableColumnProperties {
     /**
@@ -83,9 +83,19 @@ interface TableColumnProperties {
      * Optional formula for custom functions.
      */
     totalsRowFormula?: any;
-};
+}
 
-type totalFunctions = 'none' | 'average' | 'countNums' | 'count' | 'max' | 'min' | 'stdDev' | 'var' | 'sum' | 'custom';
+type totalFunctions =
+    | 'none'
+    | 'average'
+    | 'countNums'
+    | 'count'
+    | 'max'
+    | 'min'
+    | 'stdDev'
+    | 'var'
+    | 'sum'
+    | 'custom';
 
 export interface Column extends TableColumnProperties {
     /**
@@ -96,7 +106,7 @@ export interface Column extends TableColumnProperties {
      * Type of data that has the column.
      */
     type?: 'boolean' | 'date' | 'currency' | 'percentage';
-};
+}
 
 export interface ExportExcelProps {
     /**
@@ -108,9 +118,13 @@ export interface ExportExcelProps {
         sheetName: string;
     };
     tableProperties: TableProperties;
-};
+}
 
-export const exportExcel = async ({ dataSource, fileProperties, tableProperties }: ExportExcelProps) => {
+export const exportExcel = async ({
+    dataSource,
+    fileProperties,
+    tableProperties,
+}: ExportExcelProps) => {
     const { Workbook } = await import('exceljs');
 
     const workbook: any = new Workbook();
@@ -118,23 +132,22 @@ export const exportExcel = async ({ dataSource, fileProperties, tableProperties 
 
     /**
      * For adding the table to the excel.
-     * 
+     *
      * https://github.com/exceljs/exceljs#tables
      */
     const addTable = () => {
         /**
          * Method to insert the row values in the proper order so it coincides qith the columns order.
-         * 
+         *
          * @returns Rows of data.
          */
-        const getRows = () => (
-            dataSource.map(element => (
+        const getRows = () =>
+            dataSource.map((element) =>
                 columns.reduce((row: any[], column) => {
                     row.push(element[column.dataField] ?? '');
                     return row;
                 }, [])
-            ))
-        );
+            );
 
         const { columns, ref, ...rest } = tableProperties;
         worksheet.addTable({
@@ -151,23 +164,23 @@ export const exportExcel = async ({ dataSource, fileProperties, tableProperties 
     const columnsAutoWidth = () => {
         for (const column of worksheet.columns) {
             const lengths = column.values.map((v: any) => v.toString().length);
-            const maxLength = Math.max(...lengths.filter((e: any) => !isNaN(e))) + 5;
+            const maxLength =
+                Math.max(...lengths.filter((e: any) => !isNaN(e))) + 5;
             column.width = maxLength;
-        };
+        }
     };
 
     /**
      * Function that customize the datagrid appearance.
-     * 
+     *
      * https://github.com/exceljs/exceljs#styles
      */
     const customizeAppearance = () => {
-
         /**
          * Function for setting the proper format to the cell.
-         * 
-         * @param cell 
-         * @param cellColumnNumber 
+         *
+         * @param cell
+         * @param cellColumnNumber
          */
         const customizeNumFmt = (cell: any, cellColumnNumber: number) => {
             const col = tableProperties.columns[cellColumnNumber - 1];
@@ -183,41 +196,44 @@ export const exportExcel = async ({ dataSource, fileProperties, tableProperties 
             }
         };
 
-        worksheet.eachRow({ includeEmpty: true }, (row: any, rowNumber: any) => {
-            row.eachCell((cell: any, colNumber: any) => {
-                // numFmt
-                customizeNumFmt(cell, colNumber);
+        worksheet.eachRow(
+            { includeEmpty: true },
+            (row: any, rowNumber: any) => {
+                row.eachCell((cell: any, colNumber: any) => {
+                    // numFmt
+                    customizeNumFmt(cell, colNumber);
 
-                // font
-                cell.font = {
-                    name: 'Bahnschrift Condensed',
-                    color: { argb: 'fbfbfd' },
-                };
+                    // font
+                    cell.font = {
+                        name: 'Bahnschrift Condensed',
+                        color: { argb: 'fbfbfd' },
+                    };
 
-                // alignment
+                    // alignment
 
-                // border
-                const borderStyle = { style: 'thin', color: { argb: 'fbfbfd' } };
-                cell.border = {
-                    top: borderStyle,
-                    left: borderStyle,
-                    bottom: borderStyle,
-                    right: borderStyle
-                };
+                    // border
+                    const borderStyle = {
+                        style: 'thin',
+                        color: { argb: 'fbfbfd' },
+                    };
+                    cell.border = {
+                        top: borderStyle,
+                        left: borderStyle,
+                        bottom: borderStyle,
+                        right: borderStyle,
+                    };
 
-                //fill
-                cell.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: {
-                        argb: rowNumber == 1
-                            ? 'b99f6c'
-                            : '274158'
-                    },
-                };
-
-            });
-        });
+                    //fill
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: {
+                            argb: rowNumber == 1 ? 'b99f6c' : '274158',
+                        },
+                    };
+                });
+            }
+        );
     };
 
     addTable();

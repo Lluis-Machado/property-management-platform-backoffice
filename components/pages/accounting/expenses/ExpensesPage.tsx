@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 // React imports
 import { useState } from 'react';
@@ -10,16 +10,25 @@ import PopupPreview from '@/components/popups/PopupPreview';
 import DataGrid from './DataGrid';
 
 interface Props {
-    data: any[]
+    data: any[];
     lang: Locale;
     searchParams: { searchParams: any };
-};
+}
 
-const ExpensesPage = ({ data, lang , searchParams }: Props): React.ReactElement => {
-    const [invoiceVisibility, setInvoiceVisibility] = useState<PopupVisibility>({ hasBeenOpen: false, visible: false });
+const ExpensesPage = ({
+    data,
+    lang,
+    searchParams,
+}: Props): React.ReactElement => {
+    const [invoiceVisibility, setInvoiceVisibility] = useState<PopupVisibility>(
+        {
+            hasBeenOpen: false,
+            visible: false,
+        }
+    );
     const [invoicePreviewTitle, setInvoicePreviewTitle] = useState<string>('');
     const [invoicePreviewURL, setInvoicePreviewURL] = useState<string>('');
-    
+
     return (
         <>
             <DataGrid
@@ -27,21 +36,27 @@ const ExpensesPage = ({ data, lang , searchParams }: Props): React.ReactElement 
                 onInvoiceClick={(title, url) => {
                     setInvoicePreviewTitle(title);
                     setInvoicePreviewURL(url);
-                    setInvoiceVisibility(p => ({ ...p, visible: true }));
+                    setInvoiceVisibility((p) => ({ ...p, visible: true }));
                 }}
                 params={searchParams}
                 lang={lang}
             />
-            {
-                (invoiceVisibility.visible || invoiceVisibility.hasBeenOpen) &&
+            {(invoiceVisibility.visible || invoiceVisibility.hasBeenOpen) && (
                 <PopupPreview
                     fileURL={invoicePreviewURL}
                     isVisible={invoiceVisibility.visible}
-                    onClose={() => setInvoiceVisibility(p => ({ ...p, visible: false }))}
+                    onClose={() =>
+                        setInvoiceVisibility((p) => ({ ...p, visible: false }))
+                    }
                     title={invoicePreviewTitle}
-                    onShown={() => setInvoiceVisibility(p => ({ ...p, hasBeenOpen: true }))}
+                    onShown={() =>
+                        setInvoiceVisibility((p) => ({
+                            ...p,
+                            hasBeenOpen: true,
+                        }))
+                    }
                 />
-            }
+            )}
         </>
     );
 };

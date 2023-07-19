@@ -1,8 +1,8 @@
 export interface TokenRes {
-    access_token: string,
-    expires_in: number,
-    token_type: "Bearer"
-};
+    access_token: string;
+    expires_in: number;
+    token_type: 'Bearer';
+}
 
 export interface TokenPayload {
     iss: string;
@@ -13,4 +13,4 @@ export interface TokenPayload {
     azp: string;
     gty: string;
     permissions: string[];
-};
+}

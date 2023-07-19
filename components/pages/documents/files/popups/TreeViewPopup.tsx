@@ -69,5 +69,3 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ dataSource, onHid
         />
     );
 });
-
-export default TreeViewPopup;

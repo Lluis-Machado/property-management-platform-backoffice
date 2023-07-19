@@ -1,9 +1,9 @@
-import Breadcrumb from '@/components/breadcrumb/Breadcrumb'
+import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 
-export default function Layout (props: {
-    children: React.ReactNode
-    contactForm: React.ReactNode
-    contactTabs: React.ReactNode
+export default function Layout(props: {
+    children: React.ReactNode;
+    contactForm: React.ReactNode;
+    contactTabs: React.ReactNode;
 }) {
     return (
         <>
@@ -12,5 +12,5 @@ export default function Layout (props: {
             {props.contactTabs}
             {props.children}
         </>
-    )
+    );
 }

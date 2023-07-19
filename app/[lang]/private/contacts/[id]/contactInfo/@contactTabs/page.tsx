@@ -2,8 +2,8 @@ import ContactsTabs from '@/components/pages/contacts/ContactsTabs';
 import { Locale } from '@/i18n-config';
 
 interface Props {
-    params: { lang: Locale, id: string }
-};
+    params: { lang: Locale; id: string };
+}
 
 const ContactTabs = async ({ params: { lang, id } }: Props) => {
     // const properties = await getApiData(`/properties/properties`, 'Error while getting properties info');
@@ -11,9 +11,7 @@ const ContactTabs = async ({ params: { lang, id } }: Props) => {
 
     // const filteredOwnerships = ownerships.filter((obj: any) => obj.contactId === id);
 
-    return (
-        <ContactsTabs lang={lang} />
-    )
+    return <ContactsTabs lang={lang} />;
 };
 
-export default ContactTabs
+export default ContactTabs;

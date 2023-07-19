@@ -13,7 +13,7 @@ const initialValues: ContactData = {
     firstName: '',
     lastName: '',
     birthDay: null,
-    nif: '',
+    nif: null,
     email: '',
     phoneNumber: '',
     mobilePhoneNumber: '',
@@ -23,24 +23,27 @@ const initialValues: ContactData = {
         city: '',
         state: '',
         postalCode: '',
-        country: ''
-    }
-}
+        country: '',
+    },
+};
 
 interface Props {
-    params: { lang: Locale }
-};
+    params: { lang: Locale };
+}
 
 const AddContact = async ({ params: { lang } }: Props) => {
     const user = await getUser();
-    const countriesData: CountryData[] = await getApiData(`/countries/countries?languageCode=${lang}`, 'Error while getting contacts');
+    const countriesData: CountryData[] = await getApiData(
+        `/countries/countries?languageCode=${lang}`,
+        'Error while getting contacts'
+    );
 
     let countries: SelectData[] = [];
     for (const country of countriesData) {
         countries.push({
             label: `${country.name} - ${country.countryCode}`,
-            value: country.id
-        })
+            value: country.id,
+        });
     }
 
     return (
@@ -53,7 +56,7 @@ const AddContact = async ({ params: { lang } }: Props) => {
                 token={user.token}
             />
         </>
-    )
+    );
 };
 
-export default AddContact
+export default AddContact;

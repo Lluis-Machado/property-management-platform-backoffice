@@ -9,15 +9,23 @@ import { Popup as DxPopup, Position } from 'devextreme-react/popup';
 interface PopupHeaderProps {
     title: string;
     onClose: () => void;
-};
+}
 
-const HeaderPopup = ({ title, onClose }: PopupHeaderProps): React.ReactElement => (
+const HeaderPopup = ({
+    title,
+    onClose,
+}: PopupHeaderProps): React.ReactElement => (
     <div className='flex justify-between'>
-        <div className='flex font-bold text-2xl text-secondary-500 justify-center items-center'>
+        <div className='flex items-center justify-center text-2xl font-bold text-secondary-500'>
             {title}
         </div>
         <div className='w-12'>
-            <Button icon={faXmark} size={'base'} onClick={onClose} style={'outline'} />
+            <Button
+                icon={faXmark}
+                size={'base'}
+                onClick={onClose}
+                style={'outline'}
+            />
         </div>
     </div>
 );
@@ -28,13 +36,24 @@ interface PopupProps {
     onClose: () => void;
     onShown: () => void;
     title: string;
-};
+}
 
-const PopupPreview = ({ fileURL, isVisible, onClose, onShown, title }: PopupProps): React.ReactElement => {
+const PopupPreview = ({
+    fileURL,
+    isVisible,
+    onClose,
+    onShown,
+    title,
+}: PopupProps): React.ReactElement => {
+    const contentRender = useCallback(
+        () => <iframe className='h-full w-full' src={`${fileURL}#view=Fit`} />,
+        [fileURL]
+    );
 
-    const contentRender = useCallback(() => <iframe className='w-full h-full' src={`${fileURL}#view=Fit`} />, [fileURL]);
-
-    const titleComponent = useCallback(() => <HeaderPopup title={title} onClose={onClose} />, [title, onClose]);
+    const titleComponent = useCallback(
+        () => <HeaderPopup title={title} onClose={onClose} />,
+        [title, onClose]
+    );
 
     return (
         <DxPopup

@@ -1,8 +1,8 @@
-'server-only'
+'server-only';
 
-import { unsealData } from "iron-session";
-import { User } from "@/lib/types/user";
-import { ironConfig } from "@/lib/ironSession/config";
+import { unsealData } from 'iron-session';
+import { User } from '@/lib/types/user';
+import { ironConfig } from '@/lib/ironSession/config';
 
 /**
  * Can be called in page/layout server component.

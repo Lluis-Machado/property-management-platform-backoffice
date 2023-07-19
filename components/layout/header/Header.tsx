@@ -5,7 +5,7 @@ import { HeaderOptions } from './HeaderOptions';
 
 export const Header = ({ lang }: { lang: Locale }): React.ReactElement => {
     return (
-        <div className='flex flex-row h-header justify-between'>
+        <div className='flex h-header flex-row justify-between'>
             {/* Page Selector */}
             <PageSelector />
             {/* Header options */}

@@ -1,4 +1,4 @@
-"use client"
+'use client';
 // React imports
 import { useState } from 'react';
 
@@ -17,10 +17,18 @@ interface Props {
     handleSubmit: any;
     isLoading?: boolean;
     isEditing?: boolean;
-};
+}
 
-const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading, isEditing }: Props) => {
-    const [formattedContacts, setFormattedContacts] = useState<{ label: string; value: string }[]>(
+const PropertyFormInfo = ({
+    initialValues,
+    contactData,
+    handleSubmit,
+    isLoading,
+    isEditing,
+}: Props) => {
+    const [formattedContacts, setFormattedContacts] = useState<
+        { label: string; value: string }[]
+    >(
         contactData.map(({ firstName, lastName, id }) => {
             return {
                 label: `${firstName} ${lastName}`,
@@ -31,25 +39,22 @@ const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading,
 
     return (
         <div>
-            <Formik
-                initialValues={initialValues}
-                onSubmit={handleSubmit}
-            >
+            <Formik initialValues={initialValues} onSubmit={handleSubmit}>
                 <Form>
                     <GroupItem caption='Property Information' cols={4}>
                         <Input
-                            name="name"
-                            label="Name"
+                            name='name'
+                            label='Name'
                             readOnly={isLoading || !isEditing}
                         />
                         <Input
-                            name="type"
-                            label="Type"
+                            name='type'
+                            label='Type'
                             readOnly={isLoading || !isEditing}
                         />
                         <Input
-                            name="cadastreRef"
-                            label="Catastral Reference"
+                            name='cadastreRef'
+                            label='Catastral Reference'
                             readOnly={isLoading || !isEditing}
                         />
                         <Select
@@ -59,7 +64,7 @@ const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading,
                             size='large'
                             defaultValue={{
                                 label: initialValues.mainOwner.ownerName,
-                                value: initialValues.mainOwner.id
+                                value: initialValues.mainOwner.id,
                             }}
                             isSearchable
                             readOnly={isLoading || !isEditing}
@@ -67,33 +72,33 @@ const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading,
                     </GroupItem>
                     <GroupItem caption='Address Information' cols={4}>
                         <Input
-                            name="address.addressLine1"
-                            label="Address line 1"
+                            name='address.addressLine1'
+                            label='Address line 1'
                             readOnly={isLoading || !isEditing}
                         />
                         <Input
-                            name="address.addressLine2"
-                            label="Address line 2"
+                            name='address.addressLine2'
+                            label='Address line 2'
                             readOnly={isLoading || !isEditing}
                         />
                         <Input
-                            name="address.postalCode"
-                            label="Postal Code"
+                            name='address.postalCode'
+                            label='Postal Code'
                             readOnly={isLoading || !isEditing}
                         />
                         <Input
-                            name="address.city"
-                            label="City"
+                            name='address.city'
+                            label='City'
                             readOnly={isLoading || !isEditing}
                         />
                         <Input
-                            name="address.state"
-                            label="State"
+                            name='address.state'
+                            label='State'
                             readOnly={isLoading || !isEditing}
                         />
                         <Input
-                            name="address.country"
-                            label="Country"
+                            name='address.country'
+                            label='Country'
                             readOnly={isLoading || !isEditing}
                         />
                     </GroupItem>
@@ -102,8 +107,7 @@ const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading,
             <div className='h-[2rem]'>
                 <div className='flex justify-end'>
                     <div className='flex flex-row justify-between gap-2'>
-                        {
-                            isEditing &&
+                        {isEditing && (
                             <Button
                                 elevated
                                 type='button'
@@ -112,12 +116,12 @@ const PropertyFormInfo = ({ initialValues, contactData, handleSubmit, isLoading,
                                 isLoading={isLoading}
                                 onClick={handleSubmit}
                             />
-                        }
+                        )}
                     </div>
                 </div>
             </div>
-        </div >
-    )
-}
+        </div>
+    );
+};
 
-export default PropertyFormInfo
+export default PropertyFormInfo;

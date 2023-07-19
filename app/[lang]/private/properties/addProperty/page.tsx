@@ -10,48 +10,54 @@ import { getApiData } from '@/lib/utils/getApiData';
 import { getUser } from '@/lib/utils/getUser';
 
 const initialValues: PropertyCreate = {
-    name: "",
-    type: "",
+    name: '',
+    type: '',
     typeOfUse: [0],
     address: {
-        addressLine1: "",
-        addressLine2: "",
-        city: "",
-        state: "",
-        postalCode: "",
-        country: ""
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: '',
     },
-    cadastreRef: "",
-    comments: "",
-    mainOwnerId: "",
-    mainOwnerType: "Contact",
+    cadastreRef: '',
+    comments: '',
+    mainOwnerId: '',
+    mainOwnerType: 'Contact',
     parentPropertyId: null,
     childProperties: [],
 };
 
 interface Props {
-    params: { lang: Locale }
-};
+    params: { lang: Locale };
+}
 
 const AddProperty = async ({ params: { lang } }: Props) => {
     const user = await getUser();
-    const contactData: ContactData[] = await getApiData('/contacts/contacts', 'Error while getting contacts');
-    const countriesData: CountryData[] = await getApiData(`/countries/countries?languageCode=${lang}`, 'Error while getting contacts');
+    const contactData: ContactData[] = await getApiData(
+        '/contacts/contacts',
+        'Error while getting contacts'
+    );
+    const countriesData: CountryData[] = await getApiData(
+        `/countries/countries?languageCode=${lang}`,
+        'Error while getting contacts'
+    );
 
     let contacts: SelectData[] = [];
     for (const contact of contactData) {
         contacts.push({
             label: `${contact.firstName} ${contact.lastName}`,
-            value: contact.id
-        })
+            value: contact.id,
+        });
     }
 
     let countries: SelectData[] = [];
     for (const country of countriesData) {
         countries.push({
             label: `${country.name} - ${country.countryCode}`,
-            value: country.id
-        })
+            value: country.id,
+        });
     }
 
     return (
@@ -65,7 +71,7 @@ const AddProperty = async ({ params: { lang } }: Props) => {
                 lang={lang}
             />
         </>
-    )
+    );
 };
 
 export default AddProperty;
