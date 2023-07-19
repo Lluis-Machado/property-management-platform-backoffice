@@ -5,7 +5,6 @@ import { useCallback, useState } from 'react';
 
 // Local imports
 import { ApiCallError } from '@/lib/utils/errors';
-import { DetailsWrapper } from './details/DetailsWrapper';
 import { FileManager } from './fileManager/FileManager';
 import SplitPane from '@/components/splitPane/SplitPane';
 import TreeView from './treeView/TreeView';
@@ -40,10 +39,6 @@ export const DocumentsFilesWrapper = ({
     );
 
     return (
-        // <TreeView
-        //     archives={archives}
-        //     onItemSelected={handleTreeViewItemSelected}
-        // />
         <div className='absolute inset-4 border border-primary-500'>
             <SplitPane
                 visible={false}

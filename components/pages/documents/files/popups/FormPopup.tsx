@@ -79,7 +79,7 @@ const FormPopup: FC<Props> = memo(function FormPopup({
 
     const DeleteRender = useCallback(
         (): React.ReactElement => (
-            <div className='flex h-full flex-col justify-between'>
+            <div className='flex h-full flex-col justify-between gap-4'>
                 <p>{`Are you sure you want to delete ${elementName}?`}</p>
                 <div className='flex justify-end'>
                     <div className='flex w-3/4 flex-row justify-end gap-2'>

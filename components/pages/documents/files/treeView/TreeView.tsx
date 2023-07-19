@@ -10,15 +10,15 @@ import dynamic from 'next/dynamic';
 // Local imports
 import { Archive, Folder } from '@/lib/types/documentsAPI';
 import {
+    copyFolder,
     deleteArchive,
+    deleteFolder,
     moveFolder,
     newFolder,
-    renameFolder,
     renameArchive,
+    renameFolder,
     uploadFilesToArchive,
     uploadFilesToFolder,
-    deleteFolder,
-    copyFolder,
 } from '@/lib/utils/apiDocuments';
 import { FormPopupType } from '../popups/FormPopup';
 import { PopupVisibility } from '@/lib/types/Popups';
