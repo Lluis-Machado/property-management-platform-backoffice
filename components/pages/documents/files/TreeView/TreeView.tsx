@@ -2,7 +2,7 @@
 import { FC, memo, useCallback, useMemo, useRef, useState } from 'react';
 
 // Libraries imports
-import { ItemClickEvent, Node } from 'devextreme/ui/tree_view';
+import { ItemClickEvent } from 'devextreme/ui/tree_view';
 import { toast } from 'react-toastify';
 import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
 import dynamic from 'next/dynamic';
