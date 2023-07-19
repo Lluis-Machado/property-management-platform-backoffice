@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default async function FixedAssets({ params: { lang, id } }: Props) {
-    const data = await getApiData(
+    const data = await getApiData<any>(
         `/accounting/tenants/${id}/fixedAssets/2023?includeDeleted=false`,
         'Error while getting fixed assets'
     );

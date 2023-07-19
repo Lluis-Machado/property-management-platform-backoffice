@@ -88,7 +88,7 @@ const PropertyPage = ({
             // Ensure state is removed
             propertyData.address.state = null;
         },
-        [lang, token]
+        [lang, token, propertyData.address]
     );
 
     const handleSubmit = useCallback(async () => {
@@ -124,7 +124,7 @@ const PropertyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [propertyData, initialValues, token]);
+    }, [propertyData, initialValues, token, cadastreRef]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting property...');

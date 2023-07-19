@@ -3,7 +3,9 @@ import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddContactPage from '@/components/pages/contacts/AddContactPage';
 import { Locale } from '@/i18n-config';
 import { ContactData } from '@/lib/types/contactData';
+import { CountryData } from '@/lib/types/countriesData';
 import { getApiData } from '@/lib/utils/getApiData';
+import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
 const initialValues: ContactData = {
@@ -32,7 +34,7 @@ interface Props {
 const AddContact = async ({ params: { lang } }: Props) => {
     const [user, countries] = await Promise.all([
         getUser(),
-        getApiData(
+        getApiDataWithCache<CountryData[]>(
             `/countries/countries?languageCode=${lang}`,
             'Error while getting countries'
         ),

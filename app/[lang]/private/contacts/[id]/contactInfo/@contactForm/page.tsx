@@ -1,6 +1,7 @@
 // Local imports
 import ContactPage from '@/components/pages/contacts/ContactPage';
 import { Locale } from '@/i18n-config';
+import { ContactData } from '@/lib/types/contactData';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getUser } from '@/lib/utils/getUser';
 
@@ -11,7 +12,7 @@ interface Props {
 const ContactForm = async ({ params: { lang, id } }: Props) => {
     const [user, contactData] = await Promise.all([
         getUser(),
-        getApiData(
+        getApiData<ContactData>(
             `/contacts/contacts/${id}`,
             'Error while getting contact info'
         ),
