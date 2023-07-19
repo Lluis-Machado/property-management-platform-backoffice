@@ -1,10 +1,8 @@
 // React imports
-import { useCallback, useState } from 'react';
+import { FC, memo, useCallback, useState } from 'react';
 
 // libraries imports
 import { Button } from 'pg-components';
-import { faFolder } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Popup from 'devextreme-react/popup';
 import TreeView from 'devextreme-react/tree-view';
 
@@ -13,30 +11,20 @@ export type TreeViewPopupType = 'Move to' | 'Copy to';
 interface Props {
     dataSource: any[];
     onHiding: () => void;
-    onSubmit: (id: string) => void;
     onShown: () => void;
+    onSubmit: (node: any) => void;
     type: TreeViewPopupType;
     visible: boolean;
 }
 
-const itemRender = (params: any): React.ReactElement => {
-    if (!params.isDirectory) return <></>;
-    return (
-        <div className='flex flex-row items-center gap-4 text-center'>
-            <FontAwesomeIcon icon={faFolder} />
-            <p>{params.name}</p>
-        </div>
-    );
-};
-
-export const TreeViewPopup = ({
+const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({
     dataSource,
     onHiding,
     onShown,
     onSubmit,
     type,
     visible,
-}: Props): React.ReactElement => {
+}): React.ReactElement {
     const [selectedNode, setSelectedNode] = useState<any>(null);
 
     const handleHiding = useCallback(() => {
@@ -49,23 +37,16 @@ export const TreeViewPopup = ({
             <div className='flex flex-col gap-4'>
                 <TreeView
                     dataSource={dataSource}
-                    disabledExpr='disabled'
-                    displayExpr='name'
-                    hasItemsExpr='isDirectory'
-                    id='treeview'
-                    itemRender={itemRender}
-                    itemsExpr='items'
-                    keyExpr='id'
+                    id='TreeviewPopup'
                     onItemClick={({ itemData }) => setSelectedNode(itemData)}
                     searchEnabled
-                    searchExpr='name'
                 />
                 <div className='flex justify-end'>
                     <div className='flex w-3/4 flex-row justify-end gap-2'>
                         <Button
                             disabled={selectedNode === null}
                             onClick={() => {
-                                onSubmit(selectedNode.uuid);
+                                onSubmit(selectedNode);
                                 handleHiding();
                             }}
                             text={type.replace(' to', '')}
@@ -95,8 +76,11 @@ export const TreeViewPopup = ({
             title={type}
             visible={visible}
             width='80vw'
+            maxHeight='85vh'
+            container='#content'
+            dragEnabled={false}
         />
     );
-};
+});
 
 export default TreeViewPopup;

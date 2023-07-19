@@ -14,9 +14,17 @@ interface Props {
      */
     maxSize?: number;
     /**
-     * Minimum size of any pane.
+     * Minimum size of left pane.
      */
-    minSize?: number;
+    minSizeLeft?: number;
+    /**
+     * Minimum size of center pane.
+     */
+    minSizeCenter?: number;
+    /**
+     * Minimum size of right pane.
+     */
+    minSizeRight?: number;
     /**
      * Resize each view proportionally when resizing container. Default set to true.
      */
@@ -57,23 +65,56 @@ interface Props {
      * Component right panel
      */
     right?: React.ReactElement;
+    /**
+     * Left pane preferred size
+     */
+    leftPanePreferredSize?: number;
+    /**
+     * Center pane preferred size
+     */
+    centerPanePreferredSize?: number;
+    /**
+     * Right pane preferred size
+     */
+    rightPanePreferredSize?: number;
 }
 
-export default function SplitPaneAnimation(Props: Props) {
-    const { proportionalLayout = false, visible, left, center, right } = Props;
+export default function SplitPane(Props: Props) {
+    const {
+        visible,
+        left,
+        center,
+        right,
+        leftPanePreferredSize,
+        centerPanePreferredSize,
+        rightPanePreferredSize,
+        minSizeLeft,
+        minSizeCenter,
+        minSizeRight,
+        ...rest
+    } = Props;
     return (
-        <div className='h-full w-full'>
+        <div className='h-screen'>
             <Allotment
                 className={styles.root + ' ' + styles.splitViewContainer}
-                proportionalLayout={proportionalLayout}
-                {...Props}
+                {...rest}
             >
-                <Allotment.Pane minSize={100}>{left}</Allotment.Pane>
-                <Allotment.Pane className={styles.centerPane}>
+                <Allotment.Pane
+                    preferredSize={leftPanePreferredSize}
+                    minSize={minSizeLeft}
+                >
+                    {left}
+                </Allotment.Pane>
+                <Allotment.Pane
+                    preferredSize={centerPanePreferredSize}
+                    className={styles.centerPane}
+                    minSize={minSizeCenter}
+                >
                     {center}
                 </Allotment.Pane>
                 <Allotment.Pane
-                    minSize={300}
+                    preferredSize={rightPanePreferredSize}
+                    minSize={minSizeRight}
                     visible={visible}
                     className={styles.rightPane}
                 >

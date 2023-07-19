@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useRef } from 'react';
+import { FC, memo, useCallback, useRef } from 'react';
 
 // Librares imports
 import { Button, Input } from 'pg-components';
@@ -10,7 +10,7 @@ import Popup from 'devextreme-react/popup';
 export type FormPopupType = 'New directory' | 'Rename' | 'Delete';
 
 interface Props {
-    folderName?: string;
+    elementName?: string;
     onHiding: () => void;
     onShown: () => void;
     onSubmit: (value?: string) => void;
@@ -18,14 +18,14 @@ interface Props {
     visible: boolean;
 }
 
-const FormPopup = ({
-    folderName,
+const FormPopup: FC<Props> = memo(function FormPopup({
+    elementName,
     onHiding,
     onShown,
     onSubmit,
     type,
     visible,
-}: Props): React.ReactElement => {
+}): React.ReactElement {
     const PopupRef = useRef<Popup>(null);
 
     const FolderNameForm = useCallback(
@@ -38,7 +38,7 @@ const FormPopup = ({
             });
             return (
                 <Formik
-                    initialValues={{ folderName }}
+                    initialValues={{ folderName: elementName }}
                     onSubmit={(values) => {
                         onSubmit(values.folderName);
                         PopupRef.current?.instance.hide();
@@ -64,7 +64,7 @@ const FormPopup = ({
                 </Formik>
             );
         },
-        [folderName, onSubmit]
+        [elementName, onSubmit]
     );
 
     const NewDirectoryRender = useCallback(
@@ -80,7 +80,7 @@ const FormPopup = ({
     const DeleteRender = useCallback(
         (): React.ReactElement => (
             <div className='flex h-full flex-col justify-between'>
-                <p>{`Are you sure you want to delete ${folderName}?`}</p>
+                <p>{`Are you sure you want to delete ${elementName}?`}</p>
                 <div className='flex justify-end'>
                     <div className='flex w-3/4 flex-row justify-end gap-2'>
                         <Button
@@ -99,7 +99,7 @@ const FormPopup = ({
                 </div>
             </div>
         ),
-        [folderName, onSubmit]
+        [elementName, onSubmit]
     );
 
     const ContentRender = useCallback((): React.ReactElement => {
@@ -114,7 +114,9 @@ const FormPopup = ({
 
     return (
         <Popup
+            container='#content'
             contentRender={ContentRender}
+            dragEnabled={false}
             height='auto'
             hideOnOutsideClick
             maxWidth={340}
@@ -126,6 +128,6 @@ const FormPopup = ({
             width='80vw'
         />
     );
-};
+});
 
 export default FormPopup;
