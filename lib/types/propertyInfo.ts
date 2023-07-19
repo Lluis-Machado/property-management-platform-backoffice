@@ -1,3 +1,5 @@
+import { Address } from './address';
+
 export interface PropertyCreate {
     name: string;
     type: string;
@@ -23,13 +25,4 @@ export interface PropertyData {
     mainOwnerType: string;
     parentPropertyId: string;
     id: string;
-}
-
-interface Address {
-    addressLine1: string;
-    addressLine2: string;
-    city: string;
-    state: number | null;
-    postalCode: string;
-    country: number | null;
 }

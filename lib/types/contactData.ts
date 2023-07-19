@@ -1,11 +1,4 @@
-interface Address {
-    addressLine1: string;
-    addressLine2: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-}
+import { Address } from './address';
 
 export interface ContactData {
     id: string;
