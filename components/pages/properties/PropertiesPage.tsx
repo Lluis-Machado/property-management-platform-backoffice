@@ -14,13 +14,18 @@ import DataGrid, {
 } from 'devextreme-react/data-grid';
 import { PropertyData } from '@/lib/types/propertyInfo';
 import AddRowButton from '@/components/buttons/AddRowButton';
+import { ContactData } from '@/lib/types/contactData';
 
 interface Props {
-    dataSource: PropertyData[];
+    propertyData: PropertyData[];
+    contactData: ContactData[];
 }
 
-const PropertiesPage = ({ dataSource }: Props): React.ReactElement => {
-    console.log(dataSource);
+const PropertiesPage = ({
+    propertyData,
+    contactData,
+}: Props): React.ReactElement => {
+    console.log(propertyData);
     const router = useRouter();
 
     const handleDoubleClick = useCallback(
@@ -42,14 +47,16 @@ const PropertiesPage = ({ dataSource }: Props): React.ReactElement => {
     };
 
     const mainContactCellRender = (e: PropertyData) => {
-        const { ownerName } = e.mainOwner;
-        return `${ownerName ?? ''}`;
+        const owner = contactData.filter(
+            (contact) => contact.id === e.mainOwnerId
+        )[0];
+        return `${owner.firstName ?? ''} ${owner.lastName ?? ''}`;
     };
 
     return (
         <DataGrid
             columnMinWidth={100}
-            dataSource={dataSource}
+            dataSource={propertyData}
             focusedRowEnabled
             keyExpr='id'
             onRowDblClick={handleDoubleClick}

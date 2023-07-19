@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default async function ArInvoices({ params: { lang, id } }: Props) {
-    const data = await getApiData(
+    const data = await getApiData<any>(
         `/accounting/tenants/${id}/arinvoices?includeDeleted=false`,
         'Error while getting AR invoices'
     );

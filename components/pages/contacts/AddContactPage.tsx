@@ -23,10 +23,11 @@ import { SelectData } from '@/lib/types/selectData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
+import { CountryData } from '@/lib/types/countriesData';
 
 interface Props {
     contactData: ContactData;
-    countries: SelectData[];
+    countries: CountryData[];
     token: TokenRes;
     lang: Locale;
 }
@@ -162,8 +163,8 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: countries,
-                            displayExpr: 'label',
-                            valueExpr: 'value',
+                            displayExpr: 'name',
+                            valueExpr: 'id',
                             searchEnabled: true,
                             onValueChanged: (e: any) =>
                                 handleCountryChange(e.value),

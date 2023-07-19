@@ -13,7 +13,7 @@ export default async function ApInvoices({
     params: { lang, id },
     searchParams,
 }: Props) {
-    const data = await getApiData(
+    const data = await getApiData<any>(
         `/accounting/tenants/${id}/apinvoices?includeDeleted=false`,
         'Error while getting AP invoices'
     );
