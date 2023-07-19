@@ -1,5 +1,3 @@
 export const FileActions = () => {
-    return (
-        <div>FileActions</div>
-    )
-}
+    return <div>FileActions</div>;
+};

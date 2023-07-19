@@ -15,9 +15,16 @@ interface Props {
     onSubmit: (node: any) => void;
     type: TreeViewPopupType;
     visible: boolean;
-};
+}
 
-const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ dataSource, onHiding, onShown, onSubmit, type, visible }): React.ReactElement {
+const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({
+    dataSource,
+    onHiding,
+    onShown,
+    onSubmit,
+    type,
+    visible,
+}): React.ReactElement {
     const [selectedNode, setSelectedNode] = useState<any>(null);
 
     const handleHiding = useCallback(() => {
@@ -25,32 +32,38 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({ dataSource, onHid
         onHiding();
     }, [onHiding]);
 
-    const ContentRender = useCallback((): React.ReactElement => (
-        <div className='flex flex-col gap-4'>
-            <TreeView
-                dataSource={dataSource}
-                id='TreeviewPopup'
-                onItemClick={({ itemData }) => setSelectedNode(itemData)}
-                searchEnabled
-            />
-            <div className='flex justify-end'>
-                <div className='flex flex-row gap-2 justify-end w-3/4'>
-                    <Button
-                        disabled={selectedNode === null}
-                        onClick={() => { onSubmit(selectedNode); handleHiding() }}
-                        text={type.replace(' to', '')}
-                        type='submit'
-                    />
-                    <Button
-                        onClick={handleHiding}
-                        style='outline'
-                        text='Cancel'
-                        type='button'
-                    />
+    const ContentRender = useCallback(
+        (): React.ReactElement => (
+            <div className='flex flex-col gap-4'>
+                <TreeView
+                    dataSource={dataSource}
+                    id='TreeviewPopup'
+                    onItemClick={({ itemData }) => setSelectedNode(itemData)}
+                    searchEnabled
+                />
+                <div className='flex justify-end'>
+                    <div className='flex w-3/4 flex-row justify-end gap-2'>
+                        <Button
+                            disabled={selectedNode === null}
+                            onClick={() => {
+                                onSubmit(selectedNode);
+                                handleHiding();
+                            }}
+                            text={type.replace(' to', '')}
+                            type='submit'
+                        />
+                        <Button
+                            onClick={handleHiding}
+                            style='outline'
+                            text='Cancel'
+                            type='button'
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
-    ), [dataSource, handleHiding, onSubmit, selectedNode, type]);
+        ),
+        [dataSource, handleHiding, onSubmit, selectedNode, type]
+    );
 
     return (
         <Popup

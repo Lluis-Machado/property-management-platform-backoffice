@@ -5,11 +5,11 @@ interface BaseInterface {
     id: string;
     lastUpdateAt: string;
     lastUpdateByUser: string | null;
-};
+}
 
 export interface Archive extends BaseInterface {
     name: string;
-};
+}
 
 export interface Folder extends BaseInterface {
     archiveId: string;
@@ -17,4 +17,4 @@ export interface Folder extends BaseInterface {
     hasDocuments: boolean;
     name: string;
     parentId: string | null;
-};
+}

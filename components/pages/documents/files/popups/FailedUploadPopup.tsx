@@ -7,46 +7,56 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Popup from 'devextreme-react/popup';
 
 interface Props {
-    files: { fileName: string, status: number }[];
+    files: { fileName: string; status: number }[];
     onHidden: () => void;
     onShown: () => void;
     visible: boolean;
-};
+}
 
-const FailedUploadPopup = ({ files, onHidden, onShown, visible }: Props): React.ReactElement => {
-
+const FailedUploadPopup = ({
+    files,
+    onHidden,
+    onShown,
+    visible,
+}: Props): React.ReactElement => {
     const PopupRef = useRef<Popup>(null);
 
-    const ContentRender = useCallback(() => (
-        <div className='flex flex-col gap-2'>
-            <h2 className='mb-4'>
-                {`The following file${files.length > 1 ? 's' : ''} have failed:`}
-            </h2>
-            <div>
-                {
-                    files.map(({ fileName }) => (
-                        <p key={fileName}>
-                            {fileName}
-                        </p>
-                    ))
-                }
+    const ContentRender = useCallback(
+        () => (
+            <div className='flex flex-col gap-2'>
+                <h2 className='mb-4'>
+                    {`The following file${
+                        files.length > 1 ? 's' : ''
+                    } have failed:`}
+                </h2>
+                <div>
+                    {files.map(({ fileName }) => (
+                        <p key={fileName}>{fileName}</p>
+                    ))}
+                </div>
             </div>
-        </div>
-    ), [files]);
+        ),
+        [files]
+    );
 
-    const TitleRender = useCallback(() => (
-        <div className='flex flex-row text-lg justify-between text-red-400'>
-            <div className='flex flex-row gap-4 items-center text-center'>
-                <FontAwesomeIcon icon={faCircleXmark} />
-                <h2>{`${files.length} failed upload${files.length > 1 ? 's' : ''}`}</h2>
+    const TitleRender = useCallback(
+        () => (
+            <div className='flex flex-row justify-between text-lg text-red-400'>
+                <div className='flex flex-row items-center gap-4 text-center'>
+                    <FontAwesomeIcon icon={faCircleXmark} />
+                    <h2>{`${files.length} failed upload${
+                        files.length > 1 ? 's' : ''
+                    }`}</h2>
+                </div>
+                <FontAwesomeIcon
+                    icon={faXmark}
+                    className='cursor-pointer rounded-sm p-2 hover:bg-slate-100'
+                    onClick={() => PopupRef.current?.instance.hide()}
+                />
             </div>
-            <FontAwesomeIcon
-                icon={faXmark}
-                className='hover:bg-slate-100 rounded-sm cursor-pointer p-2'
-                onClick={() => PopupRef.current?.instance.hide()}
-            />
-        </div>
-    ), [files.length]);
+        ),
+        [files.length]
+    );
 
     return (
         <Popup

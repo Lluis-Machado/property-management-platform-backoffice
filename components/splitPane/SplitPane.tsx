@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
@@ -6,48 +6,48 @@ import styles from './style/splitPane.module.css';
 
 interface Props {
     /**
-    * An array of initial sizes of the panes.
-    */
+     * An array of initial sizes of the panes.
+     */
     defaultSizes?: number[];
     /**
-    * Maximum size of any pane.
-    */
+     * Maximum size of any pane.
+     */
     maxSize?: number;
     /**
-    * Minimum size of left pane.
-    */
+     * Minimum size of left pane.
+     */
     minSizeLeft?: number;
     /**
-    * Minimum size of center pane.
-    */
+     * Minimum size of center pane.
+     */
     minSizeCenter?: number;
     /**
-    * Minimum size of right pane.
-    */
+     * Minimum size of right pane.
+     */
     minSizeRight?: number;
     /**
-    * Resize each view proportionally when resizing container. Default set to true.
-    */
+     * Resize each view proportionally when resizing container. Default set to true.
+     */
     proportionalLayout?: boolean;
     /**
-    * Whether to render a separator between panes. Default set to true.
-    */
+     * Whether to render a separator between panes. Default set to true.
+     */
     separator?: boolean;
     /**
-    * Enable snap to zero for all panes. Default set to false.
-    */
+     * Enable snap to zero for all panes. Default set to false.
+     */
     snap?: boolean;
     /**
-    * Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
-    */
+     * Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
+     */
     vertical?: boolean;
     /**
-    * Callback that is fired whenever the user double clicks a sash
-    */
+     * Callback that is fired whenever the user double clicks a sash
+     */
     onReset?: () => void;
     /**
-    * Callback that is fired whenever the user changes the visibility of a pane by snapping. Note that this will only be called if the new value is different from the current visible prop on the Pane.
-    */
+     * Callback that is fired whenever the user changes the visibility of a pane by snapping. Note that this will only be called if the new value is different from the current visible prop on the Pane.
+     */
     onVisibleChange?: () => void;
     /**
      * 	Whether this pane should be visible.
@@ -58,12 +58,12 @@ interface Props {
      */
     left?: React.ReactElement;
     /**
-   * Component center panel
-   */
+     * Component center panel
+     */
     center?: React.ReactElement;
     /**
-   * Component right panel
-   */
+     * Component right panel
+     */
     right?: React.ReactElement;
     /**
      * Left pane preferred size
@@ -81,9 +81,16 @@ interface Props {
 
 export default function SplitPane(Props: Props) {
     const {
-        visible, left, center, right,
-        leftPanePreferredSize, centerPanePreferredSize, rightPanePreferredSize,
-        minSizeLeft, minSizeCenter, minSizeRight,
+        visible,
+        left,
+        center,
+        right,
+        leftPanePreferredSize,
+        centerPanePreferredSize,
+        rightPanePreferredSize,
+        minSizeLeft,
+        minSizeCenter,
+        minSizeRight,
         ...rest
     } = Props;
     return (
@@ -92,16 +99,28 @@ export default function SplitPane(Props: Props) {
                 className={styles.root + ' ' + styles.splitViewContainer}
                 {...rest}
             >
-                <Allotment.Pane preferredSize={leftPanePreferredSize} minSize={minSizeLeft}>
+                <Allotment.Pane
+                    preferredSize={leftPanePreferredSize}
+                    minSize={minSizeLeft}
+                >
                     {left}
                 </Allotment.Pane>
-                <Allotment.Pane preferredSize={centerPanePreferredSize} className={styles.centerPane} minSize={minSizeCenter}>
+                <Allotment.Pane
+                    preferredSize={centerPanePreferredSize}
+                    className={styles.centerPane}
+                    minSize={minSizeCenter}
+                >
                     {center}
                 </Allotment.Pane>
-                <Allotment.Pane preferredSize={rightPanePreferredSize} minSize={minSizeRight} visible={visible} className={styles.rightPane} >
+                <Allotment.Pane
+                    preferredSize={rightPanePreferredSize}
+                    minSize={minSizeRight}
+                    visible={visible}
+                    className={styles.rightPane}
+                >
                     {right}
                 </Allotment.Pane>
             </Allotment>
         </div>
     );
-};
+}

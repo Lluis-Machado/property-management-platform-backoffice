@@ -1,7 +1,5 @@
-import React from 'react'
+import React from 'react';
 
 export const FileMetaData = () => {
-    return (
-        <div>FileMetaData</div>
-    )
-}
+    return <div>FileMetaData</div>;
+};
