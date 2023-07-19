@@ -20,6 +20,7 @@ import Form, {
     RequiredRule,
     StringLengthRule,
 } from 'devextreme-react/form';
+import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
 
 // Local imports
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
@@ -52,6 +53,12 @@ const ContactPage = ({
 }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [phoneNumber, setPhoneNumber] = useState<string>(
+        contactData.phoneNumber
+    );
+    const [mobilePhoneNumber, setMobilePhoneNumber] = useState<string>(
+        contactData.mobilePhoneNumber
+    );
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
     const [states, setStates] = useState<StateData[] | undefined>(
@@ -110,6 +117,8 @@ const ContactPage = ({
             const valuesToSend: ContactData = {
                 ...values,
                 birthDay: formatDate(values.birthDay),
+                phoneNumber,
+                mobilePhoneNumber,
             };
 
             const data = await apiPatch(
@@ -269,16 +278,60 @@ const ContactPage = ({
                     <Item dataField='email' label={{ text: 'Email' }}>
                         <EmailRule message='Email is invalid' />
                     </Item>
-                    <Item
-                        dataField='phoneNumber'
-                        label={{ text: 'Phone number' }}
-                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
-                    />
-                    <Item
-                        dataField='mobilePhoneNumber'
-                        label={{ text: 'Mobile phone number' }}
-                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
-                    />
+                    <Item>
+                        <TextBox
+                            defaultValue={phoneNumber}
+                            label='Phone number'
+                            onValueChange={(e) => setPhoneNumber(e)}
+                            mask='+(0000) 000-00-00-00'
+                            readOnly={isLoading || !isEditing}
+                        >
+                            <TextBoxButton
+                                name='catasterBtn'
+                                location='after'
+                                options={{
+                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="phoneNumberIcon" height="0.8em" viewBox="0 0 512 512"><style>.phoneNumberIcon{fill:#ffffff}</style><path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/></svg>',
+                                    type: 'default',
+                                    onClick: () =>
+                                        contactData.phoneNumber &&
+                                        window.open(
+                                            `tel:${contactData.phoneNumber}`,
+                                            '_self'
+                                        ),
+                                    disabled: contactData.phoneNumber
+                                        ? false
+                                        : true,
+                                }}
+                            />
+                        </TextBox>
+                    </Item>
+                    <Item>
+                        <TextBox
+                            defaultValue={mobilePhoneNumber}
+                            label='Mobile phone number'
+                            onValueChange={(e) => setMobilePhoneNumber(e)}
+                            mask='+(0000) 000-00-00-00'
+                            readOnly={isLoading || !isEditing}
+                        >
+                            <TextBoxButton
+                                name='catasterBtn'
+                                location='after'
+                                options={{
+                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="phoneNumberIcon" height="0.8em" viewBox="0 0 512 512"><path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/></svg>',
+                                    type: 'default',
+                                    onClick: () =>
+                                        contactData.mobilePhoneNumber &&
+                                        window.open(
+                                            `tel:+${contactData.mobilePhoneNumber}`,
+                                            '_self'
+                                        ),
+                                    disabled: contactData.mobilePhoneNumber
+                                        ? false
+                                        : true,
+                                }}
+                            />
+                        </TextBox>
+                    </Item>
                 </GroupItem>
             </Form>
             <div className='h-[2rem]'>
