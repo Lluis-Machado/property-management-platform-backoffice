@@ -16,9 +16,10 @@ import {
 } from 'devextreme-react/data-grid';
 import Form, { SimpleItem } from 'devextreme-react/form';
 import AddRowButton from '@/components/buttons/AddRowButton';
+import { ContactData } from '@/lib/types/contactData';
 
 interface Props {
-    dataSource: any[];
+    dataSource: ContactData[];
 }
 
 const ContactsPage = ({ dataSource }: Props) => {
@@ -54,7 +55,7 @@ const ContactsPage = ({ dataSource }: Props) => {
 
             <Toolbar>
                 <Item>
-                    <AddRowButton href={`/private/contacts/addContact`} />
+                    <AddRowButton href={`./contacts/addContact`} />
                 </Item>
                 <Item name='searchPanel' />
             </Toolbar>
