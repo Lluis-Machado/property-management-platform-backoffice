@@ -21,9 +21,9 @@ const initialValues: ContactData = {
         addressLine1: '',
         addressLine2: '',
         city: '',
-        state: '',
+        state: null,
         postalCode: '',
-        country: '',
+        country: null,
     },
 };
 
