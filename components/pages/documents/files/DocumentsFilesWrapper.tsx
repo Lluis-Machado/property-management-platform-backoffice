@@ -44,20 +44,22 @@ export const DocumentsFilesWrapper = ({
         //     archives={archives}
         //     onItemSelected={handleTreeViewItemSelected}
         // />
-        <SplitPane
-            visible={false}
-            leftPanePreferredSize={200}
-            rightPanePreferredSize={600}
-            minSizeLeft={100}
-            minSizeCenter={650}
-            minSizeRight={420}
-            left={
-                <TreeView
-                    archives={archives}
-                    onItemSelected={handleTreeViewItemSelected}
-                />
-            }
-            center={<FileManager dataSource={documents!} folderId='1.1' />}
-        />
+        <div className='absolute inset-4 border border-primary-500'>
+            <SplitPane
+                visible={false}
+                leftPanePreferredSize={200}
+                rightPanePreferredSize={600}
+                minSizeLeft={100}
+                minSizeCenter={650}
+                minSizeRight={420}
+                left={
+                    <TreeView
+                        archives={archives}
+                        onItemSelected={handleTreeViewItemSelected}
+                    />
+                }
+                center={<FileManager dataSource={documents!} folderId='1.1' />}
+            />
+        </div>
     );
 };

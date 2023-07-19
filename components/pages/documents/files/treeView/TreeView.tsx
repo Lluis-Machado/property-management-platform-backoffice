@@ -405,7 +405,6 @@ const TreeView: FC<Props> = memo(function TreeView({
                 }
                 ref={TreeViewRef}
                 searchEnabled
-                dataStructure='tree'
             />
             <ContextMenu
                 isArchive={isArchive(selectedTreeItem?.data) ?? true}

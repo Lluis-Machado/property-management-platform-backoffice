@@ -18,7 +18,7 @@ export function ContentWrapper({ children, lang }: Props) {
     }, [lang]);
 
     return (
-        <section className='h-full overflow-x-hidden' id='content'>
+        <section className='relative h-full overflow-x-hidden' id='content'>
             <div className='m-4'>{children}</div>
         </section>
     );
