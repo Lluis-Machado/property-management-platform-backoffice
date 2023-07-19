@@ -25,8 +25,8 @@ const addDisabledKey = (node: any) => {
             currentNode.items.forEach((item: any) => {
                 stack.push(item);
             });
-        };
-    };
+        }
+    }
 };
 
 const updateDisabledStatus = (treeNode: any, id: string): any => {
@@ -44,21 +44,22 @@ const updateDisabledStatus = (treeNode: any, id: string): any => {
                     return updatedClone;
                 } else {
                     stack.push(item);
-                };
-            };
-        };
-    };
+                }
+            }
+        }
+    }
 };
 
 interface Props {
     dataSource: any[];
     folderId: string;
-};
+}
 
 export const FileManager = ({ dataSource, folderId }: Props) => {
-
     const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
-    const [dataSourceWithDisabled, setDataSourceWithDisabled] = useState<any[] | undefined>(undefined);
+    const [dataSourceWithDisabled, setDataSourceWithDisabled] = useState<
+        any[] | undefined
+    >(undefined);
     const [formPopupStatus, setFormPopupStatus] = useState<{
         fileName?: string;
         type: FormPopupType;
@@ -66,62 +67,108 @@ export const FileManager = ({ dataSource, folderId }: Props) => {
     }>({
         fileName: '',
         type: 'Delete',
-        visibility: { hasBeenOpen: false, visible: false }
+        visibility: { hasBeenOpen: false, visible: false },
     });
     const [treeViewPopupStatus, setTreeViewPopupStatus] = useState<{
         type: TreeViewPopupType;
         visibility: PopupVisibility;
     }>({
         type: 'Copy to',
-        visibility: { hasBeenOpen: false, visible: false }
+        visibility: { hasBeenOpen: false, visible: false },
     });
 
-    const handleCopyMoveToEvent = useCallback((type: TreeViewPopupType) => {
-        if (dataSourceWithDisabled === undefined) {
-            dataSource.forEach((item: any) => addDisabledKey(item));
-        };
-        setDataSourceWithDisabled(dataSource.map((item: any) => updateDisabledStatus(item, folderId)));
-        setTreeViewPopupStatus(p => ({ type, visibility: { ...p.visibility, visible: true } }));
-    }, [dataSource, dataSourceWithDisabled, folderId]);
+    const handleCopyMoveToEvent = useCallback(
+        (type: TreeViewPopupType) => {
+            if (dataSourceWithDisabled === undefined) {
+                dataSource.forEach((item: any) => addDisabledKey(item));
+            }
+            setDataSourceWithDisabled(
+                dataSource.map((item: any) =>
+                    updateDisabledStatus(item, folderId)
+                )
+            );
+            setTreeViewPopupStatus((p) => ({
+                type,
+                visibility: { ...p.visibility, visible: true },
+            }));
+        },
+        [dataSource, dataSourceWithDisabled, folderId]
+    );
 
-    const handleFormPopupEvent = useCallback((type: FormPopupType) => {
-        const folderName = type === 'New directory' ? 'Untitled directory' : selectedFiles[0].name;
-        setFormPopupStatus(p => ({ folderName, type, visibility: { ...p.visibility, visible: true } }));
-    }, [selectedFiles]);
+    const handleFormPopupEvent = useCallback(
+        (type: FormPopupType) => {
+            const folderName =
+                type === 'New directory'
+                    ? 'Untitled directory'
+                    : selectedFiles[0].name;
+            setFormPopupStatus((p) => ({
+                folderName,
+                type,
+                visibility: { ...p.visibility, visible: true },
+            }));
+        },
+        [selectedFiles]
+    );
 
     return (
         <>
             <DataGrid
+                dataSource={dataSource}
                 onSelectedFile={setSelectedFiles}
                 onFileCopy={() => handleCopyMoveToEvent('Copy to')}
-                onFileDelete={() => { handleFormPopupEvent('Rename') }}
-                onFileDownload={() => { }}
+                onFileDelete={() => {
+                    handleFormPopupEvent('Rename');
+                }}
+                onFileDownload={() => {}}
                 onFileMove={() => handleCopyMoveToEvent('Move to')}
-                onFileRename={() => { handleFormPopupEvent('Rename') }}
-                onRefresh={() => { }}
+                onFileRename={() => {
+                    handleFormPopupEvent('Rename');
+                }}
+                onRefresh={() => {}}
             />
-            {
-                (formPopupStatus.visibility.visible || formPopupStatus.visibility.hasBeenOpen) &&
+            {(formPopupStatus.visibility.visible ||
+                formPopupStatus.visibility.hasBeenOpen) && (
                 <FormPopup
                     elementName={formPopupStatus.fileName}
-                    onHiding={() => setFormPopupStatus(p => ({ ...p, fileName: '', visibility: { ...p.visibility, visible: false } }))}
-                    onShown={() => setFormPopupStatus(p => ({ ...p, visibility: { ...p.visibility, hasBeenOpen: true } }))}
-                    onSubmit={() => { }}
+                    onHiding={() =>
+                        setFormPopupStatus((p) => ({
+                            ...p,
+                            fileName: '',
+                            visibility: { ...p.visibility, visible: false },
+                        }))
+                    }
+                    onShown={() =>
+                        setFormPopupStatus((p) => ({
+                            ...p,
+                            visibility: { ...p.visibility, hasBeenOpen: true },
+                        }))
+                    }
+                    onSubmit={() => {}}
                     type={formPopupStatus.type}
                     visible={formPopupStatus.visibility.visible}
                 />
-            }
-            {
-                (treeViewPopupStatus.visibility.visible || treeViewPopupStatus.visibility.hasBeenOpen) &&
+            )}
+            {(treeViewPopupStatus.visibility.visible ||
+                treeViewPopupStatus.visibility.hasBeenOpen) && (
                 <TreeViewPopup
                     dataSource={dataSourceWithDisabled!}
-                    onHiding={() => setTreeViewPopupStatus(p => ({ ...p, visibility: { ...p.visibility, visible: false } }))}
-                    onShown={() => setTreeViewPopupStatus(p => ({ ...p, visibility: { ...p.visibility, hasBeenOpen: true } }))}
-                    onSubmit={() => { }}
+                    onHiding={() =>
+                        setTreeViewPopupStatus((p) => ({
+                            ...p,
+                            visibility: { ...p.visibility, visible: false },
+                        }))
+                    }
+                    onShown={() =>
+                        setTreeViewPopupStatus((p) => ({
+                            ...p,
+                            visibility: { ...p.visibility, hasBeenOpen: true },
+                        }))
+                    }
+                    onSubmit={() => {}}
                     type={treeViewPopupStatus.type}
                     visible={treeViewPopupStatus.visibility.visible}
                 />
-            }
+            )}
         </>
     );
 };
