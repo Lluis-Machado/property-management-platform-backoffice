@@ -16,9 +16,20 @@ import DataGrid, {
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
 import { SelectData } from '@/lib/types/selectData';
+import { apiPatch } from '@/lib/utils/apiPatch';
+import { useCallback, useState } from 'react';
+import { TokenRes } from '@/lib/types/token';
+import { toast } from 'react-toastify';
+import { updateSuccessToast } from '@/lib/utils/customToasts';
+import { customError } from '@/lib/utils/customError';
+import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
+import { SavedEvent } from 'devextreme/ui/data_grid';
+import { apiDelete } from '@/lib/utils/apiDelete';
+import { apiPost } from '@/lib/utils/apiPost';
 
 interface Props {
-    dataSource: any;
+    dataSource: OwnershipPropertyData[];
+    token: TokenRes;
     contactData: SelectData[];
 }
 
@@ -29,12 +40,66 @@ const MainContactCellRender = ({ value }: any): React.ReactElement => (
     />
 );
 
-const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
-    const data = dataSource.ownerships;
+const PropertiesOwnersDatagrid = ({
+    dataSource,
+    token,
+    contactData,
+}: Props) => {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const saveEditData = useCallback(
+        async (e: SavedEvent<OwnershipPropertyData, any>) => {
+            console.log(e);
+            const toastId = toast.loading('Updating ownership property');
+            e.changes.map((change) => {
+                if ((change.type = 'update')) {
+                    const values = change.data;
+                    try {
+                        const data = apiPatch(
+                            `/ownership/ownership`,
+                            values,
+                            token,
+                            'Error while updating a ownership property'
+                        );
+
+                        console.log('TODO CORRECTO, valores de vuelta: ', data);
+                        updateSuccessToast(
+                            toastId,
+                            'Ownership updated correctly!'
+                        );
+                    } catch (error: unknown) {
+                        customError(error, toastId);
+                    } finally {
+                        setIsLoading(false);
+                    }
+                } else if ((change.type = 'remove')) {
+                    try {
+                        apiDelete(
+                            `/ownership/ownership/${change.key}`,
+                            token,
+                            'Error while deleting an ownership'
+                        );
+
+                        console.log('TODO CORRECTO, contact deleted');
+                        updateSuccessToast(
+                            toastId,
+                            'Ownership Contact deleted correctly!'
+                        );
+                    } catch (error: unknown) {
+                        customError(error, toastId);
+                    } finally {
+                        setIsLoading(false);
+                    }
+                }
+            });
+        },
+        [token]
+    );
+
     return (
         <DataGrid
-            dataSource={data}
-            keyExpr='id'
+            dataSource={dataSource}
+            keyExpr='ownerId'
             showRowLines
             showBorders
             allowColumnResizing
@@ -42,6 +107,7 @@ const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
             focusedRowEnabled
             columnHidingEnabled={false}
             columnMinWidth={100}
+            onSaved={saveEditData}
         >
             <SearchPanel visible searchVisibleColumnsOnly={false} width={400} />
             <Paging defaultPageSize={5} />
@@ -62,8 +128,8 @@ const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
                 newRowPosition='first'
             />
             <Column
-                dataField='contactId'
-                caption='First Name'
+                dataField='ownerId'
+                caption='Full name'
                 editCellComponent={OwnerDropdownComponent}
             >
                 <Lookup
@@ -73,21 +139,14 @@ const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
                 />
             </Column>
             <Column
-                dataField='contactDetail.lastName'
-                dataType='string'
-                caption='Last Name'
-            />
-            <Column
                 dataField='share'
                 dataType='number'
-                caption='Percentage %'
-                width={150}
+                caption='Property share (%)'
             />
             <Column
                 dataField='mainOwnership'
                 dataType='boolean'
                 caption='Main Contact Person'
-                width={150}
                 cellRender={MainContactCellRender}
             />
         </DataGrid>

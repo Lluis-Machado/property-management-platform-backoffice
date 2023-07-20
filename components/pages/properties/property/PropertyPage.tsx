@@ -35,10 +35,12 @@ import { customError } from '@/lib/utils/customError';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
+import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 
 interface Props {
     propertyData: PropertyData;
     contacts: SelectData[];
+    ownershipData: OwnershipPropertyData[];
     countries: CountryData[];
     initialStates: StateData[];
     token: TokenRes;
@@ -48,6 +50,7 @@ interface Props {
 const PropertyPage = ({
     propertyData,
     contacts,
+    ownershipData,
     countries,
     initialStates,
     token,
@@ -290,7 +293,8 @@ const PropertyPage = ({
                     {
                         children: (
                             <PropertiesOwnersDatagrid
-                                dataSource={propertyData}
+                                dataSource={ownershipData}
+                                token={token}
                                 contactData={contacts}
                             />
                         ),

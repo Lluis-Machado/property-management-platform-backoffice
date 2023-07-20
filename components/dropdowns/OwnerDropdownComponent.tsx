@@ -34,7 +34,7 @@ const OwnerDropdownComponent = (props: any) => {
     const contentRender = () => (
         <DataGrid
             dataSource={props.data.column.lookup.dataSource}
-            keyExpr='id'
+            keyExpr='value'
             remoteOperations={true}
             height={250}
             defaultFocusedRowKey={selectedRowKeys[0]}
@@ -44,10 +44,7 @@ const OwnerDropdownComponent = (props: any) => {
             onSelectionChanged={handleSelectionChange}
         >
             <SearchPanel visible />
-            <Column dataField='firstName' />
-            <Column dataField='lastName' />
-            <Column dataField='nif' caption='DNI/NIE' />
-            <Column dataField='email' />
+            <Column dataField='label' caption='Name' />
             <Scrolling mode='virtual' />
             <Selection mode='single' />
         </DataGrid>
@@ -57,8 +54,8 @@ const OwnerDropdownComponent = (props: any) => {
         <DropDownBox
             dataSource={props.data.column.lookup.dataSource}
             value={selectedRowKeys[0]}
-            displayExpr='full_name'
-            valueExpr='id'
+            displayExpr='label'
+            valueExpr='value'
             opened={isDropDownOpened}
             contentRender={contentRender}
             onOptionChanged={handleOptionChange}
