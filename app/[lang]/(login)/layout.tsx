@@ -1,5 +1,6 @@
 // Libraries imports
 import Image from 'next/image';
+import { ToastContainer } from 'react-toastify';
 
 // Local imports
 import logoPng from '@/public/WUF_BACKOFFICE.png';
@@ -28,6 +29,7 @@ const RootLayout = ({ children }: Props): React.ReactElement => (
                 </p>
             </div>
         </div>
+        <ToastContainer />
     </div>
 );
 

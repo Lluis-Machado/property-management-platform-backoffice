@@ -8,8 +8,8 @@ interface Props {
     params: { lang: Locale };
 }
 
-const Contacts = async () => {
-    const data = await getApiData<ContactData[]>(
+const Contacts = async ({ params: { lang } }: Props) => {
+    const contactData = await getApiData<ContactData[]>(
         '/contacts/contacts',
         'Error while getting contacts'
     );
@@ -19,7 +19,7 @@ const Contacts = async () => {
             <div className='mt-4 text-lg text-secondary-500'>
                 Select a contact
             </div>
-            <ContactsPage dataSource={data} />
+            <ContactsPage dataSource={contactData} />
         </>
     );
 };

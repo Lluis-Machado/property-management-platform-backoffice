@@ -12,20 +12,22 @@ import {
     Pager,
     SearchPanel,
     Toolbar,
+    MasterDetail,
 } from 'devextreme-react/data-grid';
+import Form, { SimpleItem } from 'devextreme-react/form';
 import AddRowButton from '@/components/buttons/AddRowButton';
-import { ContactData } from '@/lib/types/contactData';
+import { CompanyData } from '@/lib/types/companyData';
 
 interface Props {
-    dataSource: ContactData[];
+    dataSource: CompanyData[];
 }
 
-const ContactsPage = ({ dataSource }: Props) => {
+const CompaniesPage = ({ dataSource }: Props) => {
     const router = useRouter();
 
     const handleDouleClick = useCallback(
         ({ data }: any) => {
-            router.push(`./contacts/${data.id}/contactInfo`);
+            router.push(`./companies/${data.id}/companyInfo`);
         },
         [router]
     );
@@ -53,41 +55,25 @@ const ContactsPage = ({ dataSource }: Props) => {
 
             <Toolbar>
                 <Item>
-                    <AddRowButton href={`./contacts/addContact`} />
+                    <AddRowButton href={`./companies/addCompany`} />
                 </Item>
                 <Item name='searchPanel' />
             </Toolbar>
 
+            <Column caption='Company Name' dataField='name' dataType='string' />
+            <Column caption='NIF' dataField='nif' dataType='string' />
+            <Column caption='Email' dataField='email' dataType='string' />
             <Column
-                caption='First Name'
-                dataField='firstName'
+                caption='Phone Number'
+                dataField='phoneNumber'
                 dataType='string'
-                hidingPriority={0}
-            />
-            <Column
-                caption='Last Name'
-                dataField='lastName'
-                dataType='string'
-                hidingPriority={1}
-            />
-            <Column
-                caption='NIF'
-                dataField='nif'
-                dataType='string'
-                hidingPriority={2}
-            />
-            <Column
-                caption='Email'
-                dataField='email'
-                dataType='string'
-                hidingPriority={3}
             />
             {/* <MasterDetail enabled={true} component={DetailTemplate} /> */}
         </DataGrid>
     );
 };
 
-export default memo(ContactsPage);
+export default memo(CompaniesPage);
 
 // const DetailTemplate = (props: any) => {
 //     return (
