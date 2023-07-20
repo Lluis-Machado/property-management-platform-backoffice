@@ -31,6 +31,7 @@ import {
 import { FormPopupType } from '../popups/FormPopup';
 import { isArchive } from '@/lib/utils/documents/utilsDocuments';
 import { PopupVisibility } from '@/lib/types/Popups';
+import { TreeItem } from '@/lib/types/treeView';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import ContextMenu from './ContextMenu';
 
@@ -109,6 +110,51 @@ const TreeView: FC<Props> = memo(function TreeView({
         // TODO: hacer llamada.
     }, []);
 
+    //#region Auxiliar functions
+
+    const isCorrectArchive = useCallback(
+        (archive: any, item: Archive | Folder) => {
+            const isItemArchive = isArchive(item);
+            return (
+                (isItemArchive && archive.data.id === item.id) ||
+                (!isItemArchive &&
+                    archive.data.id === (item as Folder).archiveId)
+            );
+        },
+        []
+    );
+
+    const pushFolderToItems = useCallback(
+        (node: TreeItem<Archive | Folder>, folder: Folder) => {
+            node.items.push({
+                data: folder,
+                disabled: false,
+                expanded: false,
+                hasItems: false,
+                id: folder.id,
+                items: [],
+                parentId: folder.parentId,
+                selected: false,
+                text: folder.name,
+                visible: true,
+            });
+            node.hasItems = true;
+        },
+        []
+    );
+
+    const pushFolderToItemsAndChildFolders = useCallback(
+        (node: TreeItem<Folder>, folder: Folder) => {
+            pushFolderToItems(node, folder);
+            let dataFCF = node.data.childFolders;
+            dataFCF = Array.isArray(dataFCF) ? dataFCF : [];
+            dataFCF.push(folder);
+        },
+        [pushFolderToItems]
+    );
+
+    //#endregion
+
     //#region Form popup submit
 
     const handleNewDirectory = useCallback(
@@ -118,8 +164,6 @@ const TreeView: FC<Props> = memo(function TreeView({
             isSelectedItemAnArchive: boolean,
             data: Archive | Folder
         ) => {
-            if (!selectedTreeItem) return;
-
             // Update DB
             const response = await newFolder({
                 archiveId,
@@ -132,34 +176,57 @@ const TreeView: FC<Props> = memo(function TreeView({
             });
 
             // Update local
-            if (response.ok) {
-                const newFolder: Folder = await response.json();
+            if (!response.ok) return;
 
-                selectedTreeItem.items.push({
-                    data: newFolder,
-                    disabled: false,
-                    expanded: false,
-                    hasItems: false,
-                    id: newFolder.id,
-                    items: [],
-                    parentId: newFolder.parentId,
-                    selected: false,
-                    text: newFolder.name,
-                    visible: true,
-                });
+            const newFolderResponse: Folder = await response.json();
 
-                if (!isSelectedItemAnArchive) {
-                    let dataFCF = (data as Folder).childFolders;
-                    dataFCF = Array.isArray(dataFCF) ? dataFCF : [];
-                    dataFCF.push(newFolder);
+            const treeInstance = treeViewRef.current!.instance;
+            const dataSource = treeInstance.option(
+                'dataSource'
+            ) as TreeItem<Archive>[];
+
+            const updated = dataSource.map((archive) => {
+                // Case 1 - Not the correct archive
+                if (!isCorrectArchive(archive, selectedTreeItem!.data))
+                    return archive;
+
+                // Case 2 - Add folder to archive
+                if (
+                    isSelectedItemAnArchive &&
+                    archive.data.id === newFolderResponse.archiveId
+                ) {
+                    pushFolderToItems(archive, newFolderResponse);
+                    return archive;
                 }
 
-                const treeInstance = treeViewRef.current!.instance;
-                treeInstance.option('dataSource', archives);
-                treeInstance.repaint();
-            }
+                // Case 3 - Add folder to archive sub-folders
+                const stack = [...archive.items];
+
+                while (stack.length) {
+                    const node = stack.pop()!;
+
+                    if (node.data.id !== newFolderResponse.parentId) {
+                        stack.push(...node.items);
+                        continue;
+                    }
+
+                    pushFolderToItemsAndChildFolders(node, newFolderResponse);
+                    stack.length = 0; // Exit the loop
+                }
+
+                return archive;
+            });
+
+            treeInstance.option('dataSource', updated as any[]);
+            treeInstance.repaint();
         },
-        [archives, selectedTreeItem, treeViewRef]
+        [
+            isCorrectArchive,
+            pushFolderToItems,
+            pushFolderToItemsAndChildFolders,
+            selectedTreeItem,
+            treeViewRef,
+        ]
     );
 
     const handleRename = useCallback(
@@ -169,8 +236,6 @@ const TreeView: FC<Props> = memo(function TreeView({
             archiveId: string,
             data: Archive | Folder
         ) => {
-            if (!selectedTreeItem) return;
-
             // Update DB
             const ok = isSelectedItemAnArchive
                 ? await renameArchive(archiveId, value)
@@ -182,7 +247,7 @@ const TreeView: FC<Props> = memo(function TreeView({
 
             // Update local
             if (ok) {
-                selectedTreeItem.text = value;
+                selectedTreeItem!.text = value;
                 data.name = value;
                 treeViewRef.current!.instance.repaint();
             }
@@ -196,20 +261,75 @@ const TreeView: FC<Props> = memo(function TreeView({
             archiveId: string,
             data: Archive | Folder
         ) => {
-            if (!selectedTreeItem) return;
-
             // Update DB
             const ok = isSelectedItemAnArchive
                 ? await deleteArchive(archiveId)
                 : await deleteFolder(archiveId, (data as Folder).id);
 
             // Update local
-            if (ok) {
-                selectedTreeItem.visible = false; // Fast way to hide it, proper solution would be find node in tree and delete it.
-                treeViewRef.current!.instance.repaint();
-            }
+            if (!ok) return;
+
+            const treeInstance = treeViewRef.current!.instance;
+            const dataSource = treeInstance.option(
+                'dataSource'
+            ) as TreeItem<Archive>[];
+
+            const updated: any[] = dataSource
+                .map((archive) => {
+                    // Case 1 - Not the correct archive
+                    if (!isCorrectArchive(archive, selectedTreeItem!.data))
+                        return archive;
+
+                    // Case 2 - Delete archive
+                    if (
+                        isSelectedItemAnArchive &&
+                        archive.data.id === (data as Archive).id
+                    ) {
+                        return null;
+                    }
+
+                    // Case 3 - Delete top level archive folder
+                    if ((data as Folder).parentId === null) {
+                        const items = archive.items.filter(
+                            (item) => item.id !== data.id
+                        );
+                        archive.items = items;
+                        archive.hasItems = items.length > 0;
+                        return archive;
+                    }
+
+                    // Case 4 - Delete folder from archive sub-folders
+                    const stack = [...archive.items];
+
+                    while (stack.length) {
+                        const node = stack.pop()!;
+
+                        if (node.data.id !== (data as Folder).parentId) {
+                            stack.push(...node.items);
+                            continue;
+                        }
+
+                        const items = node.items.filter(
+                            (item) => item.id !== data.id
+                        );
+                        node.items = items;
+                        node.hasItems = items.length > 0;
+
+                        const childFolders = node.data.childFolders.filter(
+                            (child) => child.id !== data.id
+                        );
+                        node.data.childFolders = childFolders;
+
+                        stack.length = 0; // Exit the loop
+                    }
+                    return archive;
+                })
+                .filter((archive) => archive);
+
+            treeInstance.option('items', [...updated]);
+            treeInstance.option('dataSource', [...updated]);
         },
-        [selectedTreeItem, treeViewRef]
+        [isCorrectArchive, selectedTreeItem, treeViewRef]
     );
 
     const handleFormPopupSubmit = useCallback(
@@ -239,6 +359,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                     handleDelete(isSelectedItemAnArchive, archiveId, data),
             };
 
+            if (!selectedTreeItem) return;
             events[formPopupStatus.type]();
         },
         [
@@ -293,60 +414,14 @@ const TreeView: FC<Props> = memo(function TreeView({
         []
     );
 
-    const isCorrectArchive = useCallback(
-        (
-            archive: any,
-            isDestinationArchive: boolean,
-            destinationData: Archive | Folder
-        ) =>
-            (isDestinationArchive && destinationData.id !== archive.data.id) ||
-            (!isDestinationArchive &&
-                (destinationData as Folder).archiveId !== archive.data.id),
-        []
-    );
-
-    const pushFolder = useCallback(
-        (node: any, responseData: Folder, isDestinationArchive: boolean) => {
-            node.items.push({
-                data: responseData,
-                disabled: false,
-                expanded: false,
-                hasItems: false,
-                id: responseData.id,
-                items: [],
-                parentId: isDestinationArchive
-                    ? responseData.archiveId
-                    : responseData.parentId,
-                selected: false,
-                text: responseData.name,
-                visible: true,
-            });
-
-            if (!isArchive(node.data)) {
-                let dataFCF = (node.data as Folder).childFolders;
-                dataFCF = Array.isArray(dataFCF) ? dataFCF : [];
-                dataFCF.push(responseData);
-            }
-        },
-        []
-    );
-
     const addFolder = useCallback(
         (
             dataSource: any[],
             destinationData: Archive | Folder,
-            isDestinationArchive: boolean,
             responseData: Folder
         ) =>
             dataSource?.map((archive) => {
-                if (
-                    isCorrectArchive(
-                        archive,
-                        isDestinationArchive,
-                        destinationData
-                    )
-                )
-                    return archive;
+                if (!isCorrectArchive(archive, destinationData)) return archive;
 
                 const clone = structuredClone(archive);
                 const stack = [clone];
@@ -358,11 +433,11 @@ const TreeView: FC<Props> = memo(function TreeView({
                         continue;
                     }
 
-                    pushFolder(node, responseData, isDestinationArchive);
+                    pushFolderToItemsAndChildFolders(node, responseData);
                     return clone;
                 }
             }),
-        [isCorrectArchive, pushFolder]
+        [isCorrectArchive, pushFolderToItemsAndChildFolders]
     );
 
     const updateLocal = useCallback(
@@ -374,12 +449,7 @@ const TreeView: FC<Props> = memo(function TreeView({
         ) => {
             treeViewRef.current?.instance.option(
                 'dataSource',
-                addFolder(
-                    dataSource,
-                    destinationData,
-                    isDestinationArchive,
-                    responseData
-                )
+                addFolder(dataSource, destinationData, responseData)
             );
             treeViewRef.current?.instance.repaint();
         },
@@ -414,6 +484,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                 newArchiveId,
                 newParentId
             );
+            if (!response.ok) return;
             const responseData: Folder = await response.json();
             updateLocal(
                 dataSource,
@@ -499,13 +570,14 @@ const TreeView: FC<Props> = memo(function TreeView({
                 const node = stack.pop();
 
                 for (const child of node.items) {
-                    if (child.id === data.id) {
-                        if (isMoving) node.disabled = true;
-                        child.disabled = true;
-                        return clone;
+                    if (child.id !== data.id) {
+                        stack.push(...node.items);
+                        continue;
                     }
 
-                    stack.push(...node.items);
+                    if (isMoving) node.disabled = true;
+                    child.disabled = true;
+                    return clone;
                 }
             }
         },
