@@ -100,9 +100,6 @@ const ContactPage = ({
 
         const values = structuredClone(contactData);
 
-        console.log('Valores a enviar: ', values);
-        console.log(JSON.stringify(values));
-
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             toast.warning('Change at least one field');
             return;
@@ -120,6 +117,9 @@ const ContactPage = ({
                 phoneNumber,
                 mobilePhoneNumber,
             };
+
+            console.log('Valores a enviar: ', valuesToSend);
+            console.log(JSON.stringify(valuesToSend));
 
             const data = await apiPatch(
                 `/contacts/contacts/${contactData.id}`,
@@ -280,7 +280,7 @@ const ContactPage = ({
                     </Item>
                     <Item>
                         <TextBox
-                            defaultValue={phoneNumber}
+                            value={phoneNumber}
                             label='Phone number'
                             onValueChange={(e) => setPhoneNumber(e)}
                             mask='+(0000) 000-00-00-00'
@@ -307,7 +307,7 @@ const ContactPage = ({
                     </Item>
                     <Item>
                         <TextBox
-                            defaultValue={mobilePhoneNumber}
+                            value={mobilePhoneNumber}
                             label='Mobile phone number'
                             onValueChange={(e) => setMobilePhoneNumber(e)}
                             mask='+(0000) 000-00-00-00'

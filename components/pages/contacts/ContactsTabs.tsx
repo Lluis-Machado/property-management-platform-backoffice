@@ -2,24 +2,23 @@
 
 import ContactPropertiesDG from '@/components/pages/contacts/ContactPropertiesDG';
 import { Locale } from '@/i18n-config';
+import { OwnershipData } from '@/lib/types/ownershipData';
 import { faHouseUser } from '@fortawesome/free-solid-svg-icons';
 import { Tabs } from 'pg-components';
 
 interface Props {
+    ownershipData: OwnershipData[];
     lang: Locale;
 }
 
-const ContactsTabs = ({ lang }: Props) => {
+const ContactsTabs = ({ ownershipData, lang }: Props) => {
     return (
         <Tabs
             dataSource={[
                 {
                     title: 'Properties',
                     children: (
-                        <ContactPropertiesDG
-                            ownershipData={undefined}
-                            propertiesData={undefined}
-                        />
+                        <ContactPropertiesDG ownershipData={ownershipData} />
                     ),
                     icon: faHouseUser,
                 },
