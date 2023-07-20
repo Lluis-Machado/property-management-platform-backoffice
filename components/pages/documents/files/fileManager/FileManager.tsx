@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useState } from 'react';
+import { RefObject, useCallback, useMemo, useState } from 'react';
 
 // Libraries imports
 import dynamic from 'next/dynamic';
@@ -9,6 +9,7 @@ import { FormPopupType } from '../popups/FormPopup';
 import { PopupVisibility } from '@/lib/types/Popups';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import DataGrid from './dataGrid/DataGrid';
+import TreeView from 'devextreme-react/tree-view';
 
 // Dynamic imports
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
@@ -52,14 +53,12 @@ const updateDisabledStatus = (treeNode: any, id: string): any => {
 
 interface Props {
     dataSource: any[];
-    folderId: string;
+    folder: any;
+    treeViewRef: RefObject<TreeView<any>>;
 }
 
-export const FileManager = ({ dataSource, folderId }: Props) => {
+export const FileManager = ({ dataSource, folder, treeViewRef }: Props) => {
     const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
-    const [dataSourceWithDisabled, setDataSourceWithDisabled] = useState<
-        any[] | undefined
-    >(undefined);
     const [formPopupStatus, setFormPopupStatus] = useState<{
         fileName?: string;
         type: FormPopupType;
@@ -77,23 +76,12 @@ export const FileManager = ({ dataSource, folderId }: Props) => {
         visibility: { hasBeenOpen: false, visible: false },
     });
 
-    const handleCopyMoveToEvent = useCallback(
-        (type: TreeViewPopupType) => {
-            if (dataSourceWithDisabled === undefined) {
-                dataSource.forEach((item: any) => addDisabledKey(item));
-            }
-            setDataSourceWithDisabled(
-                dataSource.map((item: any) =>
-                    updateDisabledStatus(item, folderId)
-                )
-            );
-            setTreeViewPopupStatus((p) => ({
-                type,
-                visibility: { ...p.visibility, visible: true },
-            }));
-        },
-        [dataSource, dataSourceWithDisabled, folderId]
-    );
+    const handleCopyMoveToEvent = useCallback((type: TreeViewPopupType) => {
+        setTreeViewPopupStatus((p) => ({
+            type,
+            visibility: { ...p.visibility, visible: true },
+        }));
+    }, []);
 
     const handleFormPopupEvent = useCallback(
         (type: FormPopupType) => {
@@ -113,8 +101,13 @@ export const FileManager = ({ dataSource, folderId }: Props) => {
 
     const handleFormPopupSubmit = useCallback(
         (value?: string) => {
+            const handleNewDirectory = () => {
+                throw new Error('Invalid action for files');
+            };
+
             const handleRename = async () => {
                 if (!value) return;
+                console.log(selectedFiles);
             };
 
             const handleDelete = async () => {
@@ -122,16 +115,19 @@ export const FileManager = ({ dataSource, folderId }: Props) => {
             };
 
             const events = {
-                'New directory': () => {
-                    throw new Error('Invalid action for files');
-                },
+                'New directory': handleNewDirectory,
                 Rename: handleRename,
                 Delete: handleDelete,
             };
 
             events[formPopupStatus.type]();
         },
-        [formPopupStatus.type]
+        [formPopupStatus.type, selectedFiles]
+    );
+
+    const getTreeViewPopupDataSource = useMemo(
+        () => treeViewRef.current?.instance.option('dataSource') as any[],
+        [treeViewRef]
     );
 
     return (
@@ -140,14 +136,10 @@ export const FileManager = ({ dataSource, folderId }: Props) => {
                 dataSource={dataSource}
                 onSelectedFile={setSelectedFiles}
                 onFileCopy={() => handleCopyMoveToEvent('Copy to')}
-                onFileDelete={() => {
-                    handleFormPopupEvent('Delete');
-                }}
+                onFileDelete={() => handleFormPopupEvent('Delete')}
                 onFileDownload={() => {}}
                 onFileMove={() => handleCopyMoveToEvent('Move to')}
-                onFileRename={() => {
-                    handleFormPopupEvent('Rename');
-                }}
+                onFileRename={() => handleFormPopupEvent('Rename')}
                 onRefresh={() => {}}
             />
             {(formPopupStatus.visibility.visible ||
@@ -167,7 +159,7 @@ export const FileManager = ({ dataSource, folderId }: Props) => {
                             visibility: { ...p.visibility, hasBeenOpen: true },
                         }))
                     }
-                    onSubmit={() => {}}
+                    onSubmit={handleFormPopupSubmit}
                     type={formPopupStatus.type}
                     visible={formPopupStatus.visibility.visible}
                 />
@@ -175,7 +167,7 @@ export const FileManager = ({ dataSource, folderId }: Props) => {
             {(treeViewPopupStatus.visibility.visible ||
                 treeViewPopupStatus.visibility.hasBeenOpen) && (
                 <TreeViewPopup
-                    dataSource={dataSourceWithDisabled!}
+                    dataSource={getTreeViewPopupDataSource}
                     onHiding={() =>
                         setTreeViewPopupStatus((p) => ({
                             ...p,

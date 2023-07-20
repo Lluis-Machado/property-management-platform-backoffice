@@ -117,6 +117,22 @@ export const uploadFilesToFolder = async (
     return await response.json();
 };
 
+export const renameFile = async (
+    archiveId: string,
+    documentId: string,
+    documentName: string
+) => {
+    const params = new URLSearchParams({ documentName });
+    const endPoint = `${BASE_END_POINT}/${archiveId}/documents/${documentId}?${params}`;
+
+    const response = await fetch(endPoint, {
+        cache: 'no-cache',
+        method: 'PATCH',
+    });
+
+    return response.ok;
+};
+
 // FOLDERS
 
 interface Folder {

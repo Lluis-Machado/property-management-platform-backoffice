@@ -1,11 +1,16 @@
 'use client';
 
 // React imports
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+
+// Libraries imports
+import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
 
 // Local imports
 import { ApiCallError } from '@/lib/utils/errors';
+import { Archive, Folder } from '@/lib/types/documentsAPI';
 import { FileManager } from './fileManager/FileManager';
+import { isArchive } from '@/lib/utils/documents/utilsDocuments';
 import SplitPane from '@/components/splitPane/SplitPane';
 import TreeView from './treeView/TreeView';
 
@@ -16,10 +21,20 @@ interface Props {
 export const DocumentsFilesWrapper = ({
     archives,
 }: Props): React.ReactElement => {
+    const [selectedFolder, setSelectedFolder] = useState<
+        Archive | Folder | undefined
+    >(undefined);
     const [documents, setDocuments] = useState<any[] | undefined>(undefined);
 
-    const handleTreeViewItemSelected = useCallback(
-        async (archiveId: string, folderId?: string) => {
+    const handleFolderSelected = useCallback(
+        async (folder: Archive | Folder) => {
+            setSelectedFolder(folder);
+            const isFolderArchive = isArchive(folder);
+            const archiveId = isFolderArchive
+                ? folder.id
+                : (folder as Folder).archiveId;
+            const folderId = isFolderArchive ? null : (folder as Folder).id;
+
             let endpoint = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${archiveId}/documents`;
             let errorMessage = `Error while getting archive {${archiveId}} documents`;
 
@@ -36,6 +51,8 @@ export const DocumentsFilesWrapper = ({
         []
     );
 
+    const TreeViewRef = useRef<DxTreeView>(null);
+
     return (
         <div className='absolute inset-4 border border-primary-500'>
             <SplitPane
@@ -48,10 +65,17 @@ export const DocumentsFilesWrapper = ({
                 left={
                     <TreeView
                         archives={archives}
-                        onItemSelected={handleTreeViewItemSelected}
+                        treeViewRef={TreeViewRef}
+                        onFolderSelected={handleFolderSelected}
                     />
                 }
-                center={<FileManager dataSource={documents!} folderId='1.1' />}
+                center={
+                    <FileManager
+                        dataSource={documents!}
+                        folder={''}
+                        treeViewRef={TreeViewRef}
+                    />
+                }
             />
         </div>
     );

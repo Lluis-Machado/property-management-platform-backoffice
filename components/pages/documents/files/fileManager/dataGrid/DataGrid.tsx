@@ -24,6 +24,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Local imports
 import ContextMenu from './ContextMenu';
+import { formatFileSize } from '@/lib/utils/documents/utilsDocuments';
 
 type ToolBarItemType =
     | 'Download'
@@ -33,7 +34,7 @@ type ToolBarItemType =
     | 'Delete'
     | 'Separator';
 
-const extensionCellRender = ({ data }: any): React.ReactElement => {
+const ExtensionCellRender = ({ data }: any): React.ReactElement => {
     const icon = (ext: string) => {
         switch (ext) {
             case '.jpeg':
@@ -57,8 +58,12 @@ const extensionCellRender = ({ data }: any): React.ReactElement => {
     );
 };
 
-const nameCellRender = ({ data }: any) => (
+const NameCellRender = ({ data }: any): React.ReactElement => (
     <p>{(data.name as string).replace(data.extension, '')}</p>
+);
+
+const SizeCellRender = ({ data }: any): React.ReactElement => (
+    <p>{formatFileSize(data.contentLength)}</p>
 );
 
 interface Props {
@@ -203,19 +208,20 @@ const DataGrid = ({
                 </Toolbar>
                 <Column
                     caption=''
-                    cellRender={extensionCellRender}
+                    cellRender={ExtensionCellRender}
                     dataField='extension'
                     width={30}
                 />
                 <Column
                     caption='Name'
-                    cellRender={nameCellRender}
+                    cellRender={NameCellRender}
                     dataField='name'
                 />
                 <Column
-                    caption='Size (B)'
+                    caption='Size'
                     dataField='contentLength'
                     dataType='number'
+                    cellRender={SizeCellRender}
                 />
                 <Column
                     caption='Created at'
