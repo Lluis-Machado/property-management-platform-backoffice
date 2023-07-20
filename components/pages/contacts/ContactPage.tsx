@@ -136,7 +136,7 @@ const ContactPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [contactData, initialValues, token]);
+    }, [contactData, initialValues, token, mobilePhoneNumber, phoneNumber]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting contact...');

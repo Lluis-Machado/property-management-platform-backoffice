@@ -19,7 +19,7 @@ interface Props {
     params: { lang: Locale };
 }
 
-const AddContact = async ({ params: { lang } }: Props) => {
+const AddCompany = async ({ params: { lang } }: Props) => {
     const [user] = await Promise.all([
         getUser(),
         // getApiDataWithCache<CountryData[]>(
@@ -41,4 +41,4 @@ const AddContact = async ({ params: { lang } }: Props) => {
     );
 };
 
-export default AddContact;
+export default AddCompany;
