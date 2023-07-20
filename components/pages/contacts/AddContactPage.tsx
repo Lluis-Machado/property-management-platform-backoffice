@@ -102,7 +102,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                 '/contacts/contacts',
                 valuesToSend,
                 token,
-                'Error while creating a property'
+                'Error while creating a contact'
             );
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);

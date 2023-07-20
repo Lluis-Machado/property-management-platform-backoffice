@@ -5,4 +5,6 @@ export interface Address {
     state: number | null;
     postalCode: string;
     country: number | null;
+    defaultAddress?: boolean;
+    addressType?: string;
 }
