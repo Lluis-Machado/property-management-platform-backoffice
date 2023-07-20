@@ -160,8 +160,11 @@ const DataGrid = ({
     return (
         <>
             <DxDataGrid
-                dataSource={dataSource}
+                columnAutoWidth
+                dataSource={dataSource ?? []}
+                focusedRowEnabled
                 id='DocumentsDataGrid'
+                keyExpr='id'
                 onContextMenuPreparing={handleRightClick}
                 onSelectionChanged={handleOnSelectionChanged}
                 ref={DataGridRef}
@@ -219,20 +222,20 @@ const DataGrid = ({
                 />
                 <Column
                     caption='Size'
+                    cellRender={SizeCellRender}
                     dataField='contentLength'
                     dataType='number'
-                    cellRender={SizeCellRender}
                 />
                 <Column
                     caption='Created at'
                     dataField='createdAt'
-                    dataType='date'
+                    dataType='datetime'
                 />
                 <Column caption='Created by' dataField='createdByUser' />
                 <Column
                     caption='Updated at'
                     dataField='lastUpdateAt'
-                    dataType='date'
+                    dataType='datetime'
                 />
                 <Column caption='Updated by' dataField='lastUpdateByUser' />
                 <Column
