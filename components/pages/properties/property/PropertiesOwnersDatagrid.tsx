@@ -25,7 +25,6 @@ import { customError } from '@/lib/utils/customError';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { SavedEvent } from 'devextreme/ui/data_grid';
 import { apiDelete } from '@/lib/utils/apiDelete';
-import { apiPost } from '@/lib/utils/apiPost';
 
 interface Props {
     dataSource: OwnershipPropertyData[];

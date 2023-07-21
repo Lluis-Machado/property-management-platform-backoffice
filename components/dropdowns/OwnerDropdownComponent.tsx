@@ -44,7 +44,7 @@ const OwnerDropdownComponent = (props: any) => {
             onSelectionChanged={handleSelectionChange}
         >
             <SearchPanel visible />
-            <Column dataField='label' caption='Name' />
+            <Column dataField='label' caption='Full name' />
             <Scrolling mode='virtual' />
             <Selection mode='single' />
         </DataGrid>
