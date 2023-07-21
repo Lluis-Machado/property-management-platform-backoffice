@@ -659,10 +659,23 @@ const TreeView: FC<Props> = memo(function TreeView({
 
     //#endregion
 
-    //#region Modify tree nodes disabled status for popup
+    //#region Clone tree and modify nodes disabled status for TreeViewPopup
 
+    /**
+     * Clones the tree and modifies the nodes' disabled status for TreeViewPopup.
+     *
+     * @param {TreeItem<Archive>} archive - The archive to analyze.
+     * @param {Archive | Folder} data - The data representing the selected item in the TreeView.
+     * @param {boolean} isMoving - A flag indicating whether the operation is a "Move to" action.
+     *
+     * @returns {any | undefined} - A cloned and modified version of the archive with the disabled status updated.
+     */
     const analyzeArchive = useCallback(
-        (archive: any, data: Archive | Folder, isMoving: boolean) => {
+        (
+            archive: TreeItem<Archive>,
+            data: Archive | Folder,
+            isMoving: boolean
+        ) => {
             // Not the selected folder archive
             if (archive.id !== (data as Folder).archiveId) return archive;
 
@@ -671,6 +684,8 @@ const TreeView: FC<Props> = memo(function TreeView({
 
             while (stack.length > 0) {
                 const node = stack.pop();
+
+                if (!node) continue;
 
                 for (const child of node.items) {
                     if (child.id !== data.id) {
@@ -687,10 +702,15 @@ const TreeView: FC<Props> = memo(function TreeView({
         []
     );
 
+    /**
+     * Creates a new data source by cloning the tree and updating nodes' disabled status for TreeViewPopup.
+     *
+     * @returns {TreeItem<Archive>[]} - An array representing the cloned and modified data source.
+     */
     const dataSourceWithDisabled = useMemo(() => {
         const dataSource = treeViewRef.current?.instance.option(
             'dataSource'
-        ) as any[] | undefined;
+        ) as TreeItem<Archive>[];
 
         if (!dataSource?.length || !selectedTreeItem) return [];
 
