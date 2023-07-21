@@ -470,6 +470,7 @@ const TreeView: FC<Props> = memo(function TreeView({
 
             if (!selectedTreeItem) return;
             events[formPopupStatus.type]();
+            setSelectedTreeItem(undefined);
         },
         [
             formPopupStatus.type,
@@ -578,6 +579,7 @@ const TreeView: FC<Props> = memo(function TreeView({
             if (!isCopyTo) {
                 // Delete original
             }
+            setSelectedTreeItem(undefined);
         },
         [
             handleNewDirectoryUpdateLocal,
