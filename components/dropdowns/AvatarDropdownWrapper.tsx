@@ -1,16 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AvatarDropdown } from 'pg-components';
 
 // Local imports
-import { getUser, signOut } from '@/lib/utils/apiCalls';
+import { signOut } from '@/lib/utils/signOut';
 import { User } from '@/lib/types/user';
 import { Locale } from '@/i18n-config';
 
-const AvatarDropdownWrapper = ({ lang }: { lang: Locale }) => {
-    const [user, setUser] = useState<User | undefined>(undefined);
+interface Props {
+    lang: Locale;
+    user: User;
+}
+
+const AvatarDropdownWrapper = ({ lang, user }: Props) => {
     const router = useRouter();
 
     const navigationItems = [
@@ -23,12 +26,6 @@ const AvatarDropdownWrapper = ({ lang }: { lang: Locale }) => {
             onClick: async () => await signOut().then((_) => router.push('/')),
         },
     ];
-
-    useEffect(() => {
-        getUser()
-            .then((res) => setUser(res))
-            .catch((e) => console.error(e));
-    }, []);
 
     return (
         <div className='mr-5 flex w-auto items-center justify-center'>
