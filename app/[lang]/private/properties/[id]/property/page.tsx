@@ -6,7 +6,6 @@ import { ContactData } from '@/lib/types/contactData';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { PropertyData } from '@/lib/types/propertyInfo';
-import { SelectData } from '@/lib/types/selectData';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
@@ -45,11 +44,11 @@ const Property = async ({ params: { id, lang } }: Props) => {
         );
     }
 
-    let contacts: SelectData[] = [];
+    let contacts: ContactData[] = [];
     for (const contact of contactData) {
         contacts.push({
-            label: `${contact.firstName} ${contact.lastName}`,
-            value: contact.id,
+            ...contact,
+            firstName: `${contact.firstName} ${contact.lastName}`,
         });
     }
 
