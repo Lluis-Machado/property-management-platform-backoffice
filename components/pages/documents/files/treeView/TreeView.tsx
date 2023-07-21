@@ -82,6 +82,12 @@ const TreeView: FC<Props> = memo(function TreeView({
         visibility: { hasBeenOpen: false, visible: false },
     });
 
+    /**
+     * Handles the click event on a tree view item.
+     * Updates the selected tree item and invokes the `onFolderSelected` callback with the selected item's data.
+     *
+     * @param itemData - The data associated with the clicked tree view item.
+     */
     const handleOnItemClick = useCallback(
         ({ itemData }: ItemClickEvent<TreeItem<Archive | Folder>>) => {
             if (!itemData) return;
@@ -91,6 +97,12 @@ const TreeView: FC<Props> = memo(function TreeView({
         [onFolderSelected]
     );
 
+    /**
+     * Handles an event to show a form popup with a specific type.
+     * Sets the appropriate folder name and popup type in the state to display the form popup.
+     *
+     * @param type - The type of the form popup, such as 'New directory', 'Rename' or 'Delete.
+     */
     const handleFormPopupEvent = useCallback(
         (type: FormPopupType) => {
             const folderName =
@@ -420,7 +432,7 @@ const TreeView: FC<Props> = memo(function TreeView({
     );
 
     /**
-     * Handles form submission from a popup for different actions like creating a new directory,
+     * Handles form submission of FormPopup for different actions like creating a new directory,
      * renaming an archive or folder, and deleting an archive or folder.
      *
      * @param value - The value submitted in the form popup, if applicable.
@@ -472,14 +484,26 @@ const TreeView: FC<Props> = memo(function TreeView({
 
     //#region Tree view popup submit
 
+    /**
+     * Handles the submission of a form popup in the tree view, either copying or moving a folder to a new destination.
+     * Updates the database with the appropriate action (copy/move) and returns the API response.
+     *
+     * @param archiveId - The ID of the archive from which the folder is being copied or moved.
+     * @param destinationData - The data representing the destination archive or folder.
+     * @param isCopyTo - A boolean indicating whether the action is to copy the folder (true) or move it (false).
+     * @param isDestinationArchive - A boolean indicating whether the destination node is an archive (true) or a folder (false).
+     * @param parentId - The ID of the parent folder in the destination, if applicable (only for moving folders).
+     * @param selectedData - The data representing the folder to be copied or moved.
+     * @returns A Promise containing the API response for the copy/move action.
+     */
     const handleTreeViewPopupSubmitUpdateDB = useCallback(
         async (
-            selectedData: Folder,
+            archiveId: string,
+            destinationData: Archive | Folder,
             isCopyTo: boolean,
             isDestinationArchive: boolean,
-            destinationData: Archive | Folder,
-            archiveId: string,
-            parentId: string
+            parentId: string,
+            selectedData: Folder
         ) => {
             let name = selectedData.name;
 
@@ -511,6 +535,12 @@ const TreeView: FC<Props> = memo(function TreeView({
         []
     );
 
+    /**
+     * Handles the submission of a form popup in the tree view, either copying or moving a folder to a new destination.
+     * Updates the database and local state accordingly based on the action (copy/move) and the API response.
+     *
+     * @param destinationNode - The destination node data where the folder is to be copied or moved.
+     */
     const handleTreeViewPopupSubmit = useCallback(
         async (destinationNode: any) => {
             if (!selectedTreeItem) return;
@@ -530,12 +560,12 @@ const TreeView: FC<Props> = memo(function TreeView({
 
             // Update DB
             const response = await handleTreeViewPopupSubmitUpdateDB(
-                selectedData,
+                newArchiveId,
+                destinationData,
                 isCopyTo,
                 isDestinationArchive,
-                destinationData,
-                newArchiveId,
-                newParentId
+                newParentId,
+                selectedData
             );
 
             if (!response.ok) return;
@@ -561,6 +591,12 @@ const TreeView: FC<Props> = memo(function TreeView({
 
     //#region Upload file
 
+    /**
+     * Uploads selected files to the server, either to an archive or a folder, based on the currently selected tree item.
+     * If an archive is selected, the files are uploaded to the archive. If a folder is selected, the files are uploaded to that folder within the archive.
+     *
+     * @returns A Promise containing the API response for the file uploads.
+     */
     const uploadFiles = useCallback(async () => {
         const fileInput = UploadFileInputRef.current;
         if (!fileInput?.files) return [];
@@ -577,6 +613,13 @@ const TreeView: FC<Props> = memo(function TreeView({
               );
     }, [selectedTreeItem]);
 
+    /**
+     * Handles the API response after uploading files.
+     * Separates the successful and failed uploads into two arrays.
+     * Displays a toast notification for successful uploads and opens a popup for failed uploads.
+     *
+     * @param response - The API response containing the status of the file uploads.
+     */
     const handleUploadFileResponse = useCallback((response: any[]) => {
         const failUploads: any[] = [];
         const okUploads: any[] = [];
@@ -604,6 +647,10 @@ const TreeView: FC<Props> = memo(function TreeView({
         }
     }, []);
 
+    /**
+     * Handles the `onChange` event of the file input element. Uploads selected files to the server,
+     * displays notifications for successful and failed uploads, and resets the file input element.
+     */
     const handleFileInputOnChange = useCallback(async () => {
         const response = await uploadFiles();
         handleUploadFileResponse(response);
