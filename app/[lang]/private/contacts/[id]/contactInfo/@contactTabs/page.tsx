@@ -13,8 +13,6 @@ const ContactTabs = async ({ params: { lang, id } }: Props) => {
         'Error while getting properties info'
     );
 
-    // const filteredOwnerships = ownerships.filter((obj: any) => obj.contactId === id);
-
     return <ContactsTabs lang={lang} ownershipData={ownershipData} />;
 };
 
