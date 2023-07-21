@@ -31,10 +31,7 @@ const FormPopup: FC<Props> = memo(function FormPopup({
     const FolderNameForm = useCallback(
         ({ submitText }: { submitText: string }): React.ReactElement => {
             const validationSchema = Yup.object().shape({
-                folderName: Yup.string()
-                    .required('Cannot be empty')
-                    .trim()
-                    .matches(/^[a-zA-Z\s]+$/g, 'Only characters are accepted'),
+                folderName: Yup.string().required('Cannot be empty').trim(),
             });
             return (
                 <Formik

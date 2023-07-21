@@ -209,15 +209,15 @@ export const copyFolder = async (
 export const moveFolder = async (
     archiveId: string,
     folderId: string,
-    body: { archiveId: string; name: string; parentId?: string }
+    body: { archiveId: string; parentId?: string }
 ) => {
-    const endPoint = `${BASE_END_POINT}/${archiveId}/folders/${folderId}`;
+    const endPoint = `${BASE_END_POINT}/${archiveId}/folders/${folderId}/move`;
     const response = await toast.promise(
         fetch(endPoint, {
             body: JSON.stringify(body),
             cache: 'no-cache',
             headers: { 'Content-Type': 'application/json' },
-            method: 'PATCH',
+            method: 'POST',
         }),
         {
             pending: 'Moving folder',
