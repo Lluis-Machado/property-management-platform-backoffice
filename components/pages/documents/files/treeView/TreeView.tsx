@@ -138,17 +138,17 @@ const TreeView: FC<Props> = memo(function TreeView({
     );
 
     /**
-     * This method is used to push a new Folder 'folder' into the items array of a given TreeItem 'node',
+     * This method is used to push a new Folder 'folder' into the items array of a given TreeItem 'treeItem',
      * which could represent either an Archive or a Folder.
      *
-     * It also updates the hasItems property of the node to indicate that it has child items.
+     * It also updates the hasItems property of the treeItem to indicate that it has child items.
      *
-     * @param {TreeItem<Archive | Folder>} node - The target TreeItem into which the Folder should be pushed.
      * @param {Folder} folder - The Folder object that needs to be added to the items array of the TreeItem.
+     * @param {TreeItem<Archive | Folder>} treeItem - The target TreeItem into which the Folder should be pushed.
      */
     const pushFolderToItems = useCallback(
-        (node: TreeItem<Archive | Folder>, folder: Folder) => {
-            node.items.push({
+        (folder: Folder, treeItem: TreeItem<Archive | Folder>) => {
+            const newFolderItem: TreeItem<Folder> = {
                 data: folder,
                 disabled: false,
                 expanded: false,
@@ -159,8 +159,10 @@ const TreeView: FC<Props> = memo(function TreeView({
                 selected: false,
                 text: folder.name,
                 visible: true,
-            });
-            node.hasItems = true;
+            };
+
+            treeItem.items.push(newFolderItem);
+            treeItem.hasItems = true;
         },
         []
     );
@@ -168,46 +170,64 @@ const TreeView: FC<Props> = memo(function TreeView({
     /**
      * This method extends the functionality of the pushFolderToItems method by not only pushing
      * the provided folder into the items array of a given TreeItem node but also adding the folder
-     * to the childFolders array of the node's data object.
+     * to the childFolders array of the treeItem's data object.
      *
-     * @param {TreeItem<Folder>} node - The target TreeItem into which the Folder should be pushed.
      * @param {Folder} folder - The Folder object that needs to be added to the items array of the TreeItem and its data.childFolders array.
+     * @param {TreeItem<Folder>} treeItem - The target TreeItem into which the Folder should be pushed.
      */
     const pushFolderToItemsAndChildFolders = useCallback(
-        (node: TreeItem<Folder>, folder: Folder) => {
-            pushFolderToItems(node, folder);
-            let dataFCF = node.data.childFolders;
-            dataFCF = Array.isArray(dataFCF) ? dataFCF : [];
-            dataFCF.push(folder);
+        (folder: Folder, treeItem: TreeItem<Folder>) => {
+            pushFolderToItems(folder, treeItem);
+            treeItem.data.childFolders = [
+                ...(treeItem.data.childFolders || []),
+                folder,
+            ];
         },
         [pushFolderToItems]
     );
 
     /**
-     * This method should be called after a successfull creation or copy of a Folder to the database.
+     * Method for getting the actual TreeView dataSource, modify each archive according to 'processArchive' logic
+     * and set the TreeView dataSource to the newly modified version and repaint the three.
      *
-     * Method to reflect the creation or copy of a Folder to the database in the local TreeView without
-     * loosing the TreeView status.
-     *
-     * @param {Folder} newFolder - The folder to be added.
-     * @param {isDestinationArchive} boolean - A flag indicating whether the new folder should be added
-     * directly to an archive or as a sub-folder of an existing archive.
+     * @param {Function} processArchive - A function that takes an 'archive' of type TreeItem<Archive> as input and performs some modifications on it.
      */
-    const handleNewDirectoryUpdateLocal = useCallback(
-        (newFolder: Folder, isDestinationArchive: boolean) => {
-            const treeInstance = treeViewRef.current!.instance;
-            const dataSource = treeViewRef.current!.instance.option(
+    const updateDataSource = useCallback(
+        (processArchive: (archive: TreeItem<Archive>) => void) => {
+            const treeInstance = treeViewRef.current?.instance;
+            if (!treeInstance) return;
+
+            const dataSource = treeInstance.option(
                 'dataSource'
             ) as TreeItem<Archive>[];
+            if (!dataSource) return;
 
-            const updated: any[] = dataSource.map((archive) => {
+            dataSource.forEach(processArchive);
+
+            treeInstance.option('dataSource', dataSource as any[]);
+            treeInstance.repaint();
+        },
+        [treeViewRef]
+    );
+
+    /**
+     * This method should be called after a successful creation or copy of a Folder to the database.
+     * It is used to reflect the creation or copy of a Folder in the local TreeView without losing the TreeView status.
+     *
+     * @param {Folder} folderToAdd - The folder to be added.
+     * @param {boolean} isDestinationArchive - A flag indicating whether the new folder should be added
+     * directly to an archive (true) or as a sub-folder of an existing archive (false).
+     */
+    const handleNewDirectoryUpdateLocal = useCallback(
+        (folderToAdd: Folder, isDestinationArchive: boolean) => {
+            const processArchive = (archive: TreeItem<Archive>) => {
                 // Case 1 - Not the correct archive
-                if (!isCorrectArchive(archive, newFolder)) return archive;
+                if (!isCorrectArchive(archive, folderToAdd)) return;
 
                 // Case 2 - Add folder to archive
                 if (isDestinationArchive) {
-                    pushFolderToItems(archive, newFolder);
-                    return archive;
+                    pushFolderToItems(folderToAdd, archive);
+                    return;
                 }
 
                 // Case 3 - Add folder to archive sub-folders
@@ -216,103 +236,106 @@ const TreeView: FC<Props> = memo(function TreeView({
                 while (stack.length) {
                     const node = stack.pop()!;
 
-                    if (node.data.id !== newFolder.parentId) {
+                    if (node.data.id !== folderToAdd.parentId) {
                         stack.push(...node.items);
                         continue;
                     }
 
-                    pushFolderToItemsAndChildFolders(node, newFolder);
-                    stack.length = 0; // Exit the loop
+                    pushFolderToItemsAndChildFolders(folderToAdd, node);
+                    break;
                 }
+            };
 
-                return archive;
-            });
-            treeInstance.option('dataSource', updated);
-            treeInstance.repaint();
+            updateDataSource(processArchive);
         },
         [
             isCorrectArchive,
             pushFolderToItems,
             pushFolderToItemsAndChildFolders,
-            treeViewRef,
+            updateDataSource,
         ]
     );
 
+    /**
+     * This method should be called to reflect the deletion of an item (either an Archive or a Folder) from the database
+     * in the local TreeView without losing the TreeView status.
+     *
+     * @param {boolean} isItemToDeleteAnArchive - A flag indicating whether the item to be deleted is an Archive or a Folder.
+     * @param {TreeItem<Archive | Folder>} itemToDelete - The item to be deleted, of type TreeItem<Archive> if it's an Archive, or TreeItem<Folder> if it's a Folder.
+     */
     const handleDeleteUpdateLocal = useCallback(
-        (isSelectedItemAnArchive: boolean, data: Archive | Folder) => {
-            const treeInstance = treeViewRef.current!.instance;
-            const dataSource = treeInstance.option(
-                'dataSource'
-            ) as TreeItem<Archive>[];
+        (
+            isItemToDeleteAnArchive: boolean,
+            itemToDelete: TreeItem<Archive | Folder>
+        ) => {
+            const processArchive = (archive: TreeItem<Archive>) => {
+                // Case 1 - Not the correct archive
+                if (!isCorrectArchive(archive, itemToDelete.data)) return;
 
-            const updated: any[] = dataSource
-                .map((archive) => {
-                    // Case 1 - Not the correct archive
-                    if (!isCorrectArchive(archive, selectedTreeItem!.data))
-                        return archive;
+                // Case 2 - Delete archive
+                if (isItemToDeleteAnArchive) {
+                    itemToDelete.visible = false;
+                    return;
+                }
 
-                    // Case 2 - Delete archive
-                    if (isSelectedItemAnArchive) {
-                        selectedTreeItem!.visible = false;
-                        return archive;
+                // Case 3 - Delete folder from archive sub-folders
+                const stack = [archive];
+
+                while (stack.length) {
+                    const node = stack.pop()!;
+
+                    const idxToDelete = node.items.findIndex(
+                        (folder) => folder.data.id === itemToDelete.id
+                    );
+
+                    if (idxToDelete === -1) {
+                        stack.push(...node.items);
+                        continue;
                     }
 
-                    // Case 3 - Delete top level archive folder
-                    if ((data as Folder).parentId === null) {
-                        const items = archive.items.filter(
-                            (item) => item.id !== data.id
-                        );
-                        archive.items = items;
-                        archive.hasItems = items.length > 0;
-                        selectedTreeItem!.visible = false;
-                        return archive;
-                    }
+                    const items = node.items.filter(
+                        (item) => item.id !== itemToDelete.id
+                    );
+                    node.items = items;
+                    node.hasItems = items.length > 0;
+                    itemToDelete.visible = false;
 
-                    // Case 4 - Delete folder from archive sub-folders
-                    const stack = [...archive.items];
+                    if (isArchive(node.data)) break;
 
-                    while (stack.length) {
-                        const node = stack.pop()!;
+                    const childFolders = (
+                        node.data as Folder
+                    ).childFolders.filter(
+                        (child) => child.id !== itemToDelete.id
+                    );
+                    (node.data as Folder).childFolders = childFolders;
+                    break;
+                }
+            };
 
-                        if (node.data.id !== (data as Folder).parentId) {
-                            stack.push(...node.items);
-                            continue;
-                        }
-
-                        const items = node.items.filter(
-                            (item) => item.id !== data.id
-                        );
-                        node.items = items;
-                        node.hasItems = items.length > 0;
-                        selectedTreeItem!.visible = false;
-
-                        const childFolders = node.data.childFolders.filter(
-                            (child) => child.id !== data.id
-                        );
-                        node.data.childFolders = childFolders;
-
-                        stack.length = 0; // Exit the loop
-                    }
-                    return archive;
-                })
-                .filter((archive) => archive);
-
-            treeInstance.option('dataSource', updated);
-            treeInstance.repaint();
+            updateDataSource(processArchive);
         },
-        [isCorrectArchive, selectedTreeItem, treeViewRef]
+        [isCorrectArchive, updateDataSource]
     );
 
     //#endregion
 
     //#region Form popup submit
 
+    /**
+     * Creates a new Folder either at the root level of an Archive or as a sub-folder inside the selected archive folder.
+     * Updates the database with the new folder information and updates the local state with the response data.
+     *
+     * @param archiveId - The ID of the archive to which the new directory will be added.
+     * @param data - The data representing the selected archive or folder.
+     * @param isSelectedItemAnArchive - A boolean indicating whether the selected item is an Archive (true) or a Folder (false).
+     * @param value - The name of the new directory to be created.
+     */
     const handleNewDirectory = useCallback(
         async (
-            value: string,
             archiveId: string,
+            data: Archive | Folder,
             isSelectedItemAnArchive: boolean,
-            data: Archive | Folder
+            value: string
         ) => {
             // Update DB
             const response = await newFolder({
@@ -336,12 +359,20 @@ const TreeView: FC<Props> = memo(function TreeView({
         [handleNewDirectoryUpdateLocal]
     );
 
+    /**
+     * Renames an Archive or Folder. Updates the database with the new name and updates the local state with the changes.
+     *
+     * @param archiveId - The ID of the archive containing the item to be renamed.
+     * @param data - The data representing the selected archive or folder.
+     * @param isSelectedItemAnArchive - A boolean indicating whether the selected item is an archive (true) or a folder (false).
+     * @param value - The new name for the archive or folder.
+     */
     const handleRename = useCallback(
         async (
-            value: string,
-            isSelectedItemAnArchive: boolean,
             archiveId: string,
-            data: Archive | Folder
+            data: Archive | Folder,
+            isSelectedItemAnArchive: boolean,
+            value: string
         ) => {
             // Update DB
             const ok = isSelectedItemAnArchive
@@ -362,25 +393,38 @@ const TreeView: FC<Props> = memo(function TreeView({
         [selectedTreeItem, treeViewRef]
     );
 
+    /**
+     * Deletes an archive or folder. Updates the database by removing the item and updates the local state accordingly.
+     *
+     * @param archiveId - The ID of the archive containing the item to be deleted.
+     * @param isSelectedItemAnArchive - A boolean indicating whether the selected item is an archive (true) or a folder (false).
+     * @param item - The TreeItem representing the archive or folder to be deleted.
+     */
     const handleDelete = useCallback(
         async (
-            isSelectedItemAnArchive: boolean,
             archiveId: string,
-            data: Archive | Folder
+            isSelectedItemAnArchive: boolean,
+            item: TreeItem<Archive | Folder>
         ) => {
             // Update DB
             const ok = isSelectedItemAnArchive
                 ? await deleteArchive(archiveId)
-                : await deleteFolder(archiveId, (data as Folder).id);
+                : await deleteFolder(archiveId, (item.data as Folder).id);
 
             if (!ok) return;
 
             // Update local
-            handleDeleteUpdateLocal(isSelectedItemAnArchive, data);
+            handleDeleteUpdateLocal(isSelectedItemAnArchive, item);
         },
         [handleDeleteUpdateLocal]
     );
 
+    /**
+     * Handles form submission from a popup for different actions like creating a new directory,
+     * renaming an archive or folder, and deleting an archive or folder.
+     *
+     * @param value - The value submitted in the form popup, if applicable.
+     */
     const handleFormPopupSubmit = useCallback(
         (value?: string) => {
             const { data } = selectedTreeItem!;
@@ -392,20 +436,24 @@ const TreeView: FC<Props> = memo(function TreeView({
             const events = {
                 'New directory': () =>
                     handleNewDirectory(
-                        value!,
                         archiveId,
+                        data,
                         isSelectedItemAnArchive,
-                        data
+                        value!
                     ),
                 Rename: () =>
                     handleRename(
-                        value!,
-                        isSelectedItemAnArchive,
                         archiveId,
-                        data
+                        data,
+                        isSelectedItemAnArchive,
+                        value!
                     ),
                 Delete: () =>
-                    handleDelete(isSelectedItemAnArchive, archiveId, data),
+                    handleDelete(
+                        archiveId,
+                        isSelectedItemAnArchive,
+                        selectedTreeItem!
+                    ),
             };
 
             if (!selectedTreeItem) return;
@@ -436,17 +484,16 @@ const TreeView: FC<Props> = memo(function TreeView({
             let name = selectedData.name;
 
             if (isCopyTo) {
-                const isTopLevelFolderDuplicate =
+                const isSameTopLevelFolder =
                     selectedData.parentId === null &&
                     isDestinationArchive &&
                     selectedData.archiveId === destinationData.id;
-                const isSubfolderDuplicate =
+                const isSameSubfolder =
                     selectedData.archiveId ===
                         (destinationData as Folder).archiveId &&
                     selectedData.parentId === destinationData.id;
 
-                if (isTopLevelFolderDuplicate || isSubfolderDuplicate)
-                    name += ' - copy';
+                if (isSameTopLevelFolder || isSameSubfolder) name += ' - copy';
             }
 
             const body = {
@@ -454,6 +501,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                 name,
                 parentId,
             };
+
             return isCopyTo
                 ? copyFolder(selectedData.archiveId, selectedData.id, {
                       ...body,
@@ -497,6 +545,9 @@ const TreeView: FC<Props> = memo(function TreeView({
                 await response.json(),
                 isDestinationArchive
             );
+            if (!isCopyTo) {
+                // Delete original
+            }
         },
         [
             handleNewDirectoryUpdateLocal,
