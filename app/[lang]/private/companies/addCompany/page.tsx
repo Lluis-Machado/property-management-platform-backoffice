@@ -3,12 +3,12 @@ import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddCompanyPage from '@/components/pages/companies/AddCompanyPage';
 import AddContactPage from '@/components/pages/contacts/AddContactPage';
 import { Locale } from '@/i18n-config';
-import { CompanyData } from '@/lib/types/companyData';
+import { CompanyCreate } from '@/lib/types/companyData';
 import { CountryData } from '@/lib/types/countriesData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
-const initialValues: CompanyData = {
+const initialValues: CompanyCreate = {
     name: '',
     nif: null,
     email: '',

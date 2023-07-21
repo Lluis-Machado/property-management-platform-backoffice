@@ -14,7 +14,7 @@ import Form, {
 } from 'devextreme-react/form';
 
 // Local imports
-import { CompanyData } from '@/lib/types/companyData';
+import { CompanyCreate, CompanyData } from '@/lib/types/companyData';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { Locale } from '@/i18n-config';
@@ -24,7 +24,7 @@ import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
 
 interface Props {
-    companyData: CompanyData;
+    companyData: CompanyCreate;
     token: TokenRes;
     lang: Locale;
 }
@@ -33,7 +33,7 @@ const AddCompanyPage = ({ companyData, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // const [states, setStates] = useState<SelectData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<CompanyData>(
+    const [initialValues, setInitialValues] = useState<CompanyCreate>(
         structuredClone(companyData)
     );
 
@@ -70,8 +70,8 @@ const AddCompanyPage = ({ companyData, token, lang }: Props) => {
     // );
 
     const handleSubmit = useCallback(async () => {
-        // const res = formRef.current!.instance.validate();
-        // if (!res.isValid) return;
+        const res = formRef.current!.instance.validate();
+        if (!res.isValid) return;
 
         const values = structuredClone(companyData);
 
@@ -85,21 +85,21 @@ const AddCompanyPage = ({ companyData, token, lang }: Props) => {
 
         setIsLoading(true);
 
-        const toastId = toast.loading('Creating contact...');
+        const toastId = toast.loading('Creating company...');
 
         if (!values.nif) values.nif = null;
 
         try {
             const data = await apiPost(
-                '/contacts/contacts',
+                '/companies/companies',
                 values,
                 token,
-                'Error while creating a property'
+                'Error while creating a company'
             );
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 
-            updateSuccessToast(toastId, 'Contact created correctly!');
+            updateSuccessToast(toastId, 'Company created correctly!');
             router.push('/private/companies');
         } catch (error: unknown) {
             customError(error, toastId);
@@ -119,7 +119,7 @@ const AddCompanyPage = ({ companyData, token, lang }: Props) => {
             >
                 <GroupItem colCount={4} caption='Company Information'>
                     <Item dataField='name' label={{ text: 'Company name' }}>
-                        <RequiredRule message='Company name is required' />
+                        <RequiredRule />
                     </Item>
                     <Item dataField='nif' label={{ text: 'NIF' }} />
                     <Item dataField='email' label={{ text: 'Email' }}>

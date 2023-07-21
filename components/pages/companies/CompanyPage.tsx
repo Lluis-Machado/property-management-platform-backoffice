@@ -24,7 +24,6 @@ import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
 
 // Local imports
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
-import { ContactData } from '@/lib/types/contactData';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 import { TokenRes } from '@/lib/types/token';
@@ -35,17 +34,18 @@ import { customError } from '@/lib/utils/customError';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
+import { CompanyData } from '@/lib/types/companyData';
 
 interface Props {
-    contactData: ContactData;
-    countriesData: CountryData[];
-    initialStates: StateData[];
+    companyData: CompanyData;
+    countriesData?: CountryData[];
+    initialStates?: StateData[];
     token: TokenRes;
     lang: Locale;
 }
 
-const ContactPage = ({
-    contactData,
+const CompanyPage = ({
+    companyData,
     countriesData,
     initialStates,
     token,
@@ -54,19 +54,19 @@ const ContactPage = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [phoneNumber, setPhoneNumber] = useState<string>(
-        contactData.phoneNumber
+        companyData.phoneNumber
     );
-    const [mobilePhoneNumber, setMobilePhoneNumber] = useState<string>(
-        contactData.mobilePhoneNumber
-    );
+    // const [mobilePhoneNumber, setMobilePhoneNumber] = useState<string>(
+    //     companyData.mobilePhoneNumber
+    // );
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
     const [states, setStates] = useState<StateData[] | undefined>(
         initialStates
     );
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<ContactData>(
-        structuredClone(contactData)
+    const [initialValues, setInitialValues] = useState<CompanyData>(
+        structuredClone(companyData)
     );
 
     const formRef = useRef<Form>(null);
@@ -89,60 +89,60 @@ const ContactPage = ({
                 .then((data: StateData[]) => setStates(data))
                 .catch((e) => console.error('Error while getting the states'));
             // Ensure state is removed
-            contactData.address.state = null;
+            companyData.address.state = null;
         },
-        [lang, token, contactData.address]
+        [lang, token, companyData.address]
     );
 
-    const handleSubmit = useCallback(async () => {
-        const res = formRef.current!.instance.validate();
-        if (!res.isValid) return;
+    // const handleSubmit = useCallback(async () => {
+    //     const res = formRef.current!.instance.validate();
+    //     if (!res.isValid) return;
 
-        const values = structuredClone(contactData);
+    //     const values = structuredClone(companyData);
 
-        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            toast.warning('Change at least one field');
-            return;
-        }
+    //     if (JSON.stringify(values) === JSON.stringify(initialValues)) {
+    //         toast.warning('Change at least one field');
+    //         return;
+    //     }
 
-        setIsLoading(true);
-        const toastId = toast.loading('Updating contact...');
+    //     setIsLoading(true);
+    //     const toastId = toast.loading('Updating contact...');
 
-        if (!values.nif) values.nif = null;
+    //     if (!values.nif) values.nif = null;
 
-        try {
-            const valuesToSend: ContactData = {
-                ...values,
-                birthDay: formatDate(values.birthDay),
-                phoneNumber,
-                mobilePhoneNumber,
-            };
+    //     try {
+    //         const valuesToSend: ContactData = {
+    //             ...values,
+    //             birthDay: formatDate(values.birthDay),
+    //             phoneNumber,
+    //             mobilePhoneNumber,
+    //         };
 
-            console.log('Valores a enviar: ', valuesToSend);
-            console.log(JSON.stringify(valuesToSend));
+    //         console.log('Valores a enviar: ', valuesToSend);
+    //         console.log(JSON.stringify(valuesToSend));
 
-            const data = await apiPatch(
-                `/contacts/contacts/${contactData.id}`,
-                valuesToSend,
-                token,
-                'Error while updating a contact'
-            );
+    //         const data = await apiPatch(
+    //             `/contacts/contacts/${contactData.id}`,
+    //             valuesToSend,
+    //             token,
+    //             'Error while updating a contact'
+    //         );
 
-            console.log('TODO CORRECTO, valores de vuelta: ', data);
-            updateSuccessToast(toastId, 'Contact updated correctly!');
-            setInitialValues(data);
-        } catch (error: unknown) {
-            customError(error, toastId);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [contactData, initialValues, token, mobilePhoneNumber, phoneNumber]);
+    //         console.log('TODO CORRECTO, valores de vuelta: ', data);
+    //         updateSuccessToast(toastId, 'Contact updated correctly!');
+    //         setInitialValues(data);
+    //     } catch (error: unknown) {
+    //         customError(error, toastId);
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // }, [contactData, initialValues, token, mobilePhoneNumber, phoneNumber]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting contact...');
         try {
             await apiDelete(
-                `/contacts/contacts/${contactData.id}`,
+                `/contacts/contacts/${companyData.id}`,
                 token,
                 'Error while deleting a contact'
             );
@@ -152,7 +152,7 @@ const ContactPage = ({
         } catch (error: unknown) {
             customError(error, toastId);
         }
-    }, [contactData, router, token]);
+    }, [companyData, router, token]);
 
     return (
         <div className='mt-4'>
@@ -167,24 +167,24 @@ const ContactPage = ({
                 <div className='ml-5 flex items-center gap-5'>
                     <Image
                         className='select-none rounded-full'
-                        src={`https://ui-avatars.com/api/?name=${initialValues.firstName}+${initialValues.lastName}&background=random&size=128`}
+                        src={`https://ui-avatars.com/api/?name=${initialValues.name}&background=random&size=128`}
                         alt='user avatar with name initials'
                         width={64}
                         height={64}
                     />
                     <span className='text-4xl tracking-tight text-zinc-900'>
-                        {initialValues.firstName} {initialValues.lastName}
+                        {initialValues.name}
                     </span>
                 </div>
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
                     <SimpleLinkCard
-                        href={`/private/documents?contactId=${contactData.id}`}
+                        href={`/private/documents?companyId=${companyData.id}`}
                         text='Documents'
                         faIcon={faFileLines}
                     />
                     <SimpleLinkCard
-                        href={`/private/taxes/${contactData.id}/declarations`}
+                        href={`/private/taxes/${companyData.id}/declarations`}
                         text='Declarations'
                         faIcon={faReceipt}
                     />
@@ -209,24 +209,16 @@ const ContactPage = ({
             {/* Contact form */}
             <Form
                 ref={formRef}
-                formData={contactData}
+                formData={companyData}
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
                 showValidationSummary
             >
-                <GroupItem colCount={4} caption='Contact Information'>
-                    <Item
-                        dataField='firstName'
-                        label={{ text: 'First name' }}
-                    />
-                    <Item dataField='lastName' label={{ text: 'Last name' }}>
+                <GroupItem colCount={4} caption='Company Information'>
+                    <Item dataField='name' label={{ text: 'Company name' }}>
                         <RequiredRule />
-                        <StringLengthRule
-                            min={3}
-                            message='Last name have at least 2 letters'
-                        />
                     </Item>
-                    <Item
+                    {/* <Item
                         dataField='birthDay'
                         label={{ text: 'Birth date' }}
                         editorType='dxDateBox'
@@ -234,10 +226,40 @@ const ContactPage = ({
                             displayFormat: dateFormat,
                             showClearButton: true,
                         }}
-                    />
+                    /> */}
                     <Item dataField='nif' label={{ text: 'NIF' }} />
+                    <Item dataField='email' label={{ text: 'Email' }}>
+                        <EmailRule message='Email is invalid' />
+                    </Item>
+                    <Item>
+                        <TextBox
+                            value={phoneNumber}
+                            label='Phone number'
+                            onValueChange={(e) => setPhoneNumber(e)}
+                            mask='+(0000) 000-00-00-00'
+                            readOnly={isLoading || !isEditing}
+                        >
+                            <TextBoxButton
+                                name='catasterBtn'
+                                location='after'
+                                options={{
+                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="phoneNumberIcon" height="0.8em" viewBox="0 0 512 512"><style>.phoneNumberIcon{fill:#ffffff}</style><path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/></svg>',
+                                    type: 'default',
+                                    onClick: () =>
+                                        companyData.phoneNumber &&
+                                        window.open(
+                                            `tel:${companyData.phoneNumber}`,
+                                            '_self'
+                                        ),
+                                    disabled: companyData.phoneNumber
+                                        ? false
+                                        : true,
+                                }}
+                            />
+                        </TextBox>
+                    </Item>
                 </GroupItem>
-                <GroupItem colCount={4} caption='Address Information'>
+                {/* <GroupItem colCount={4} caption='Address Information'>
                     <Item
                         dataField='address.addressLine1'
                         label={{ text: 'Address line' }}
@@ -275,64 +297,7 @@ const ContactPage = ({
                         dataField='address.postalCode'
                         label={{ text: 'Postal code' }}
                     />
-                    <Item dataField='email' label={{ text: 'Email' }}>
-                        <EmailRule message='Email is invalid' />
-                    </Item>
-                    <Item>
-                        <TextBox
-                            value={phoneNumber}
-                            label='Phone number'
-                            onValueChange={(e) => setPhoneNumber(e)}
-                            mask='+(0000) 000-00-00-00'
-                            readOnly={isLoading || !isEditing}
-                        >
-                            <TextBoxButton
-                                name='catasterBtn'
-                                location='after'
-                                options={{
-                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="phoneNumberIcon" height="0.8em" viewBox="0 0 512 512"><style>.phoneNumberIcon{fill:#ffffff}</style><path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/></svg>',
-                                    type: 'default',
-                                    onClick: () =>
-                                        contactData.phoneNumber &&
-                                        window.open(
-                                            `tel:${contactData.phoneNumber}`,
-                                            '_self'
-                                        ),
-                                    disabled: contactData.phoneNumber
-                                        ? false
-                                        : true,
-                                }}
-                            />
-                        </TextBox>
-                    </Item>
-                    <Item>
-                        <TextBox
-                            value={mobilePhoneNumber}
-                            label='Mobile phone number'
-                            onValueChange={(e) => setMobilePhoneNumber(e)}
-                            mask='+(0000) 000-00-00-00'
-                            readOnly={isLoading || !isEditing}
-                        >
-                            <TextBoxButton
-                                name='catasterBtn'
-                                location='after'
-                                options={{
-                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="phoneNumberIcon" height="0.8em" viewBox="0 0 512 512"><path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/></svg>',
-                                    type: 'default',
-                                    onClick: () =>
-                                        contactData.mobilePhoneNumber &&
-                                        window.open(
-                                            `tel:+${contactData.mobilePhoneNumber}`,
-                                            '_self'
-                                        ),
-                                    disabled: contactData.mobilePhoneNumber
-                                        ? false
-                                        : true,
-                                }}
-                            />
-                        </TextBox>
-                    </Item>
-                </GroupItem>
+                </GroupItem> */}
             </Form>
             <div className='h-[2rem]'>
                 <div className='flex justify-end'>
@@ -344,7 +309,7 @@ const ContactPage = ({
                                 text='Submit Changes'
                                 disabled={isLoading}
                                 isLoading={isLoading}
-                                onClick={handleSubmit}
+                                onClick={() => console.log('efweff')}
                             />
                         )}
                     </div>
@@ -354,4 +319,4 @@ const ContactPage = ({
     );
 };
 
-export default memo(ContactPage);
+export default memo(CompanyPage);
