@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useRef } from 'react';
+import { FC, memo, useCallback, useRef } from 'react';
 
 // Libraries imports
 import {
@@ -18,7 +18,7 @@ interface Props {
     selectedFilesQuantity: number;
 }
 
-export const ContextMenu = ({
+export const ContextMenu: FC<Props> = memo(function ContextMenu({
     onFileCopy,
     onFileDelete,
     onFileDownload,
@@ -26,7 +26,7 @@ export const ContextMenu = ({
     onFileRename,
     onRefresh,
     selectedFilesQuantity,
-}: Props): React.ReactElement => {
+}): React.ReactElement {
     const ContextMenuRef = useRef<DxContextMenu>(null);
 
     const handleContextMenuItemClick = useCallback(
@@ -71,6 +71,6 @@ export const ContextMenu = ({
             <Item closeMenuOnClick icon='download' text='Download' />
         </DxContextMenu>
     );
-};
+});
 
 export default ContextMenu;

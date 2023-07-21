@@ -1,5 +1,5 @@
 // React imports
-import { RefObject, useCallback, useMemo, useState } from 'react';
+import { FC, RefObject, memo, useCallback, useMemo, useState } from 'react';
 
 // Libraries imports
 import dynamic from 'next/dynamic';
@@ -57,7 +57,11 @@ interface Props {
     treeViewRef: RefObject<TreeView<any>>;
 }
 
-export const FileManager = ({ dataSource, folder, treeViewRef }: Props) => {
+export const FileManager: FC<Props> = memo(function FileManager({
+    dataSource,
+    folder,
+    treeViewRef,
+}) {
     const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
     const [formPopupStatus, setFormPopupStatus] = useState<{
         fileName?: string;
@@ -187,4 +191,4 @@ export const FileManager = ({ dataSource, folder, treeViewRef }: Props) => {
             )}
         </>
     );
-};
+});

@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useRef, useState } from 'react';
+import { FC, memo, useCallback, useRef, useState } from 'react';
 
 // Libraries imports
 import {
@@ -77,7 +77,7 @@ interface Props {
     onSelectedFile: (file: any) => void;
 }
 
-const DataGrid = ({
+const DataGrid: FC<Props> = memo(function DataGrid({
     dataSource,
     onFileCopy,
     onFileDelete,
@@ -86,7 +86,7 @@ const DataGrid = ({
     onFileRename,
     onRefresh,
     onSelectedFile,
-}: Props): React.ReactElement => {
+}): React.ReactElement {
     const DataGridRef = useRef<DxDataGrid>(null);
 
     const [selectedFilesQuantity, setSelectedFilesQuantity] =
@@ -257,6 +257,6 @@ const DataGrid = ({
             />
         </>
     );
-};
+});
 
 export default DataGrid;
