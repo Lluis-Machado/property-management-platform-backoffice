@@ -2,6 +2,7 @@
 import { ApiCallError } from '@/lib/utils/errors';
 import { Archive, Folder } from '@/lib/types/documentsAPI';
 import { DocumentsFilesWrapper } from '@/components/pages/documents/files/DocumentsFilesWrapper';
+import { TreeItem } from '@/lib/types/treeView';
 
 const page = async (): Promise<React.ReactElement> => {
     const documentsUrl = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents`;
