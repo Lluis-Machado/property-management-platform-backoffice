@@ -1,5 +1,5 @@
 //React imports
-import { useCallback, useRef } from 'react';
+import { FC, memo, useCallback, useRef } from 'react';
 
 // Libraries imports
 import { faCircleXmark, faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -13,12 +13,12 @@ interface Props {
     visible: boolean;
 }
 
-const FailedUploadPopup = ({
+const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
     files,
     onHidden,
     onShown,
     visible,
-}: Props): React.ReactElement => {
+}): React.ReactElement {
     const PopupRef = useRef<Popup>(null);
 
     const ContentRender = useCallback(
@@ -73,6 +73,6 @@ const FailedUploadPopup = ({
             width='80vw'
         />
     );
-};
+});
 
 export default FailedUploadPopup;
