@@ -150,6 +150,28 @@ const TreeView: FC<Props> = memo(function TreeView({
     );
 
     /**
+     * Constructs a TreeItem for a given Folder and its child folders recursively.
+     *
+     * @param {Folder} folder - The folder for which to create the tree item.
+     * @returns {TreeItem<Folder>} The root tree item representing the folder and its children.
+     */
+    const getTreeItemFolderFromFolder = useCallback((folder: Folder) => {
+        const newFolderItem: TreeItem<Folder> = {
+            data: folder,
+            disabled: false,
+            expanded: false,
+            hasItems: folder.childFolders.length > 0,
+            id: folder.id,
+            items: folder?.childFolders.map(getTreeItemFolderFromFolder) ?? [],
+            parentId: folder.parentId,
+            selected: false,
+            text: folder.name,
+            visible: true,
+        };
+        return newFolderItem;
+    }, []);
+
+    /**
      * This method is used to push a new Folder 'folder' into the items array of a given TreeItem 'treeItem',
      * which could represent either an Archive or a Folder.
      *
@@ -160,23 +182,10 @@ const TreeView: FC<Props> = memo(function TreeView({
      */
     const pushFolderToItems = useCallback(
         (folder: Folder, treeItem: TreeItem<Archive | Folder>) => {
-            const newFolderItem: TreeItem<Folder> = {
-                data: folder,
-                disabled: false,
-                expanded: false,
-                hasItems: false,
-                id: folder.id,
-                items: [],
-                parentId: folder.parentId,
-                selected: false,
-                text: folder.name,
-                visible: true,
-            };
-
-            treeItem.items.push(newFolderItem);
+            treeItem.items.push(getTreeItemFolderFromFolder(folder));
             treeItem.hasItems = true;
         },
-        []
+        [getTreeItemFolderFromFolder]
     );
 
     /**

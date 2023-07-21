@@ -61,10 +61,10 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
                 <SplitPane
                     visible={false}
                     leftPanePreferredSize={200}
-                    rightPanePreferredSize={600}
-                    minSizeLeft={100}
-                    minSizeCenter={650}
-                    minSizeRight={420}
+                    // rightPanePreferredSize={600}
+                    minSizeLeft={650}
+                    minSizeCenter={100}
+                    // minSizeRight={420}
                     left={
                         <TreeView
                             archives={archives}
