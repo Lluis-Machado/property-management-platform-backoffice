@@ -119,7 +119,7 @@ const AddCompanyPage = ({ companyData, token, lang }: Props) => {
             >
                 <GroupItem colCount={4} caption='Company Information'>
                     <Item dataField='name' label={{ text: 'Company name' }}>
-                        <RequiredRule message='Company name is required' />
+                        <RequiredRule />
                     </Item>
                     <Item dataField='nif' label={{ text: 'NIF' }} />
                     <Item dataField='email' label={{ text: 'Email' }}>

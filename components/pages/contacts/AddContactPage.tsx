@@ -131,7 +131,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                         label={{ text: 'First name' }}
                     />
                     <Item dataField='lastName' label={{ text: 'Last name' }}>
-                        <RequiredRule message='Last name is required' />
+                        <RequiredRule />
                         <StringLengthRule
                             min={3}
                             message='Last name have at least 2 letters'

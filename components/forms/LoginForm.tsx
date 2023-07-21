@@ -103,7 +103,7 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
                     editorOptions={{ stylingMode: 'underlined', mode: 'email' }}
                 >
                     <EmailRule message='Email is invalid' />
-                    <RequiredRule message='Email is required' />
+                    <RequiredRule />
                 </Item>
                 <Item
                     dataField='password'
@@ -113,7 +113,7 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
                         mode: 'password',
                     }}
                 >
-                    <RequiredRule message='Password is required' />
+                    <RequiredRule />
                 </Item>
             </Form>
 
