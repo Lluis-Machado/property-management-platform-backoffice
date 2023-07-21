@@ -1,20 +1,19 @@
 'use client';
 
 // React imports
-import { useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 // Libraries imports
-import { faUser } from '@fortawesome/free-solid-svg-icons';
-import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
-import { Alert, Input, Button, PasswordInput } from 'pg-components';
+import { Button } from 'pg-components';
 import { useRouter } from 'next/navigation';
-import * as Yup from 'yup';
 import Link from 'next/link';
+import Form, { EmailRule, Item, RequiredRule } from 'devextreme-react/form';
 
 // Local imports
 import { ApiCallError } from '@/lib/utils/errors';
 import Loading from '@/components/layout/Loading';
-import GroupItem from '@/components/layoutComponent/GroupItem';
+import { toast } from 'react-toastify';
+import ContentLoader from 'react-content-loader';
 
 interface Props {
     dictionary: {
@@ -27,28 +26,39 @@ interface Props {
     searchParams: any;
 }
 
+let loginValues = {
+    username: '',
+    password: '',
+};
+
 const LoginForm = ({ dictionary, searchParams }: Props) => {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isFormLoading, setIsFormLoading] = useState<boolean>(true);
+
+    const formRef = useRef<Form>(null);
+
     const router = useRouter();
 
-    const [error, setError] = useState<string>(searchParams?.error || '');
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    // useEffect for errors on the URL
+    useEffect(() => {
+        if (searchParams?.error) {
+            toast.error(searchParams?.error);
+        }
+    }, [searchParams]);
 
-    const initialValues = {
-        username: '',
-        password: '',
-    };
+    const handleSubmit = useCallback(async () => {
+        const res = formRef.current!.instance.validate();
+        if (!res.isValid) return;
 
-    const handleSubmit = async (
-        { username, password }: typeof initialValues,
-        formikHelpers: FormikHelpers<typeof initialValues>
-    ) => {
-        console.log('username y pass: ', username, password);
+        const values = structuredClone(loginValues);
+
         setIsLoading(true);
+
         try {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify(values),
             });
 
             console.log(response);
@@ -62,68 +72,109 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
             }
         } catch (err) {
             console.error(err); // TODO: Delete this
-            err instanceof ApiCallError && setError(err.message);
+            err instanceof ApiCallError && toast.error(err.message);
         } finally {
             setIsLoading(false);
-            formikHelpers.setSubmitting(false);
         }
-    };
+    }, [router]);
+
+    // useEffect to listen for Enter key press
+    useEffect(() => {
+        const handleKeyPress = (event: KeyboardEvent) => {
+            if (event.key === 'Enter') handleSubmit();
+        };
+
+        document.addEventListener('keypress', handleKeyPress);
+
+        return () => document.removeEventListener('keypress', handleKeyPress);
+    }, [handleSubmit]);
 
     return (
         <>
             <Loading isLoading={isLoading} />
-            <Formik
-                initialValues={initialValues}
-                validationSchema={Yup.object().shape({
-                    username: Yup.string()
-                        .required('Username can not be empty.')
-                        .email(),
-                    password: Yup.string().required(
-                        'Password can not be empty.'
-                    ),
-                })}
-                onSubmit={handleSubmit}
-                className='space-y-3'
-            >
-                <FormikForm>
-                    <Alert
-                        body={error}
-                        isVisible={error !== '' && true}
-                        type='danger'
-                    />
-                    <GroupItem cols={1}>
-                        <Input
-                            name='username'
-                            label={dictionary.emailInputLabel}
-                            icon={faUser}
-                            required
+            <div className='h-[8rem]'>
+                {isFormLoading && (
+                    <ContentLoader
+                        speed={2}
+                        width={400}
+                        height={150}
+                        viewBox='0 0 400 150'
+                        backgroundColor='#f3f3f3'
+                        foregroundColor='#ecebeb'
+                    >
+                        <rect
+                            x='0'
+                            y='0'
+                            rx='5'
+                            ry='5'
+                            width='385'
+                            height='40'
                         />
-
-                        <PasswordInput
-                            name='password'
-                            label={dictionary.passwordInputLabel}
-                            required
+                        <rect
+                            x='0'
+                            y='75'
+                            rx='5'
+                            ry='5'
+                            width='385'
+                            height='40'
                         />
-                    </GroupItem>
+                    </ContentLoader>
+                )}
+                <Form
+                    ref={formRef}
+                    formData={loginValues}
+                    labelMode={'floating'}
+                    readOnly={isLoading}
+                    colCount={1}
+                    onContentReady={() => setIsFormLoading(false)}
+                >
+                    <Item
+                        dataField='username'
+                        label={{ text: dictionary.emailInputLabel }}
+                        editorOptions={{
+                            stylingMode: 'underlined',
+                            mode: 'email',
+                        }}
+                    >
+                        <EmailRule message='Email is invalid' />
+                        <RequiredRule />
+                    </Item>
+                    <Item
+                        dataField='password'
+                        label={{ text: dictionary.passwordInputLabel }}
+                        editorOptions={{
+                            stylingMode: 'underlined',
+                            mode: 'password',
+                        }}
+                    >
+                        <RequiredRule />
+                    </Item>
+                </Form>
+            </div>
 
-                    <div className='mt-4 flex items-center justify-end'>
-                        <div className='text-sm'>
-                            <Link
-                                href={`./reset-password`}
-                                className='font-semibold text-secondary-500 hover:text-secondary-300'
-                            >
-                                {dictionary.forgotPasswordLink}
-                            </Link>
-                        </div>
-                    </div>
+            <div className='mt-4 flex items-center justify-end'>
+                <div className='text-sm'>
+                    <Link
+                        href={`./reset-password`}
+                        className='font-semibold text-secondary-500 hover:text-secondary-300'
+                    >
+                        {dictionary.forgotPasswordLink}
+                    </Link>
+                </div>
+            </div>
 
-                    <div className='mt-4 flex justify-center'>
-                        <Button type='submit' text={dictionary.submitButton} />
-                    </div>
-                </FormikForm>
-            </Formik>
+            <div className='mt-4 flex justify-center'>
+                <Button
+                    elevated
+                    type='button'
+                    text={dictionary.submitButton}
+                    disabled={isLoading}
+                    isLoading={isLoading}
+                    onClick={handleSubmit}
+                />
+            </div>
         </>
     );
 };
 
-export default LoginForm;
+export default memo(LoginForm);

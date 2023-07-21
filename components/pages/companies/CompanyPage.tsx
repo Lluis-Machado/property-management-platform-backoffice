@@ -1,72 +1,75 @@
 'use client';
 
-// React imports
-import { useCallback, useState } from 'react';
-
 // Libraries imports
-import { Button, Tabs } from 'pg-components';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { Button } from 'pg-components';
+import { memo, useCallback, useRef, useState } from 'react';
 import {
     faFileLines,
-    faNoteSticky,
+    faPencil,
     faReceipt,
-    faUserGroup,
-    faWarehouse,
     faTrash,
     faXmark,
-    faPencil,
 } from '@fortawesome/free-solid-svg-icons';
-import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import Form, { GroupItem, Item } from 'devextreme-react/form';
+import Form, {
+    EmailRule,
+    GroupItem,
+    Item,
+    RequiredRule,
+    StringLengthRule,
+} from 'devextreme-react/form';
 import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
 
 // Local imports
-import { PropertyCreate, PropertyData } from '@/lib/types/propertyInfo';
-import PropertiesOwnersDatagrid from './PropertiesOwnersDatagrid';
-import PropertyTextArea from '@/components/textArea/PropertyTextArea';
-import PropertySidePropertiesDatagrid from './PropertySidePropertiesDatagrid';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
-import { SelectData } from '@/lib/types/selectData';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
+import { CompanyData } from '@/lib/types/companyData';
 
 interface Props {
-    propertyData: PropertyData;
-    contacts: SelectData[];
-    countries: CountryData[];
-    initialStates: StateData[];
+    companyData: CompanyData;
+    countriesData?: CountryData[];
+    initialStates?: StateData[];
     token: TokenRes;
     lang: Locale;
 }
 
-const PropertyPage = ({
-    propertyData,
-    contacts,
-    countries,
+const CompanyPage = ({
+    companyData,
+    countriesData,
     initialStates,
     token,
     lang,
-}: Props): React.ReactElement => {
+}: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [phoneNumber, setPhoneNumber] = useState<string>(
+        companyData.phoneNumber
+    );
+    // const [mobilePhoneNumber, setMobilePhoneNumber] = useState<string>(
+    //     companyData.mobilePhoneNumber
+    // );
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
     const [states, setStates] = useState<StateData[] | undefined>(
         initialStates
     );
-    const [cadastreRef, setCadastreRef] = useState<string>(
-        propertyData.cadastreRef
-    );
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<PropertyData>(
-        structuredClone(propertyData)
+    const [initialValues, setInitialValues] = useState<CompanyData>(
+        structuredClone(companyData)
     );
+
+    const formRef = useRef<Form>(null);
 
     const router = useRouter();
 
@@ -86,66 +89,75 @@ const PropertyPage = ({
                 .then((data: StateData[]) => setStates(data))
                 .catch((e) => console.error('Error while getting the states'));
             // Ensure state is removed
-            propertyData.address.state = null;
+            companyData.address.state = null;
         },
-        [lang, token, propertyData.address]
+        [lang, token, companyData.address]
     );
 
-    const handleSubmit = useCallback(async () => {
-        const values = structuredClone(propertyData);
+    // const handleSubmit = useCallback(async () => {
+    //     const res = formRef.current!.instance.validate();
+    //     if (!res.isValid) return;
 
-        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            toast.warning('Change at least one field');
-            return;
-        }
+    //     const values = structuredClone(companyData);
 
-        setIsLoading(true);
-        const toastId = toast.loading('Updating property...');
+    //     if (JSON.stringify(values) === JSON.stringify(initialValues)) {
+    //         toast.warning('Change at least one field');
+    //         return;
+    //     }
 
-        try {
-            const dataToSend: PropertyData = {
-                ...values,
-                cadastreRef,
-            };
-            console.log('Valores a enviar: ', dataToSend);
-            console.log('Valores a enviar JSON: ', JSON.stringify(dataToSend));
+    //     setIsLoading(true);
+    //     const toastId = toast.loading('Updating contact...');
 
-            const data = await apiPatch(
-                `/properties/properties/${propertyData.id}`,
-                dataToSend,
-                token,
-                'Error while updating a property'
-            );
+    //     if (!values.nif) values.nif = null;
 
-            console.log('TODO CORRECTO, valores de vuelta: ', data);
-            updateSuccessToast(toastId, 'Property updated correctly!');
-        } catch (error: unknown) {
-            customError(error, toastId);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [propertyData, initialValues, token, cadastreRef]);
+    //     try {
+    //         const valuesToSend: ContactData = {
+    //             ...values,
+    //             birthDay: formatDate(values.birthDay),
+    //             phoneNumber,
+    //             mobilePhoneNumber,
+    //         };
+
+    //         console.log('Valores a enviar: ', valuesToSend);
+    //         console.log(JSON.stringify(valuesToSend));
+
+    //         const data = await apiPatch(
+    //             `/contacts/contacts/${contactData.id}`,
+    //             valuesToSend,
+    //             token,
+    //             'Error while updating a contact'
+    //         );
+
+    //         console.log('TODO CORRECTO, valores de vuelta: ', data);
+    //         updateSuccessToast(toastId, 'Contact updated correctly!');
+    //         setInitialValues(data);
+    //     } catch (error: unknown) {
+    //         customError(error, toastId);
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // }, [contactData, initialValues, token, mobilePhoneNumber, phoneNumber]);
 
     const handleDelete = useCallback(async () => {
-        const toastId = toast.loading('Deleting property...');
+        const toastId = toast.loading('Deleting contact...');
         try {
             await apiDelete(
-                `/properties/properties/${propertyData.id}`,
+                `/contacts/contacts/${companyData.id}`,
                 token,
-                'Error while deleting a property'
+                'Error while deleting a contact'
             );
 
-            updateSuccessToast(toastId, 'Property deleted correctly!');
-            router.push('/private/properties');
+            updateSuccessToast(toastId, 'Contact deleted correctly!');
+            router.push('/private/contacts');
         } catch (error: unknown) {
             customError(error, toastId);
         }
-    }, [propertyData, router, token]);
+    }, [companyData, router, token]);
 
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
-                message='Are you sure you want to delete this property?'
+                message='Are you sure you want to delete this contact?'
                 isVisible={confirmationVisible}
                 onClose={() => setConfirmationVisible(false)}
                 onConfirm={handleDelete}
@@ -153,6 +165,13 @@ const PropertyPage = ({
             <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
                 <div className='ml-5 flex items-center gap-5'>
+                    <Image
+                        className='select-none rounded-full'
+                        src={`https://ui-avatars.com/api/?name=${initialValues.name}&background=random&size=128`}
+                        alt='user avatar with name initials'
+                        width={64}
+                        height={64}
+                    />
                     <span className='text-4xl tracking-tight text-zinc-900'>
                         {initialValues.name}
                     </span>
@@ -160,18 +179,13 @@ const PropertyPage = ({
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
                     <SimpleLinkCard
-                        href={`/private/documents?propertyId=${propertyData.id}`}
+                        href={`/private/documents?companyId=${companyData.id}`}
                         text='Documents'
                         faIcon={faFileLines}
                     />
                     <SimpleLinkCard
-                        href={`/private/accounting/${propertyData.id}/incomes`}
-                        text='AR Invoices'
-                        faIcon={faReceipt}
-                    />
-                    <SimpleLinkCard
-                        href={`/private/accounting/${propertyData.id}/expenses`}
-                        text='AP Invoices'
+                        href={`/private/taxes/${companyData.id}/declarations`}
+                        text='Declarations'
                         faIcon={faReceipt}
                     />
                 </div>
@@ -192,35 +206,52 @@ const PropertyPage = ({
                     />
                 </div>
             </div>
-            {/* Property form */}
+            {/* Contact form */}
             <Form
-                formData={propertyData}
+                ref={formRef}
+                formData={companyData}
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
+                showValidationSummary
             >
-                <GroupItem colCount={4} caption='Property Information'>
-                    <Item dataField='name' label={{ text: 'Name' }} />
-                    <Item dataField='type' label={{ text: 'Type' }} />
+                <GroupItem colCount={4} caption='Company Information'>
+                    <Item dataField='name' label={{ text: 'Company name' }}>
+                        <RequiredRule />
+                    </Item>
+                    {/* <Item
+                        dataField='birthDay'
+                        label={{ text: 'Birth date' }}
+                        editorType='dxDateBox'
+                        editorOptions={{
+                            displayFormat: dateFormat,
+                            showClearButton: true,
+                        }}
+                    /> */}
+                    <Item dataField='nif' label={{ text: 'NIF' }} />
+                    <Item dataField='email' label={{ text: 'Email' }}>
+                        <EmailRule message='Email is invalid' />
+                    </Item>
                     <Item>
                         <TextBox
-                            defaultValue={cadastreRef}
-                            label='Catastral Reference'
-                            onValueChange={(e) => setCadastreRef(e)}
+                            value={phoneNumber}
+                            label='Phone number'
+                            onValueChange={(e) => setPhoneNumber(e)}
+                            mask='+(0000) 000-00-00-00'
                             readOnly={isLoading || !isEditing}
                         >
                             <TextBoxButton
                                 name='catasterBtn'
                                 location='after'
                                 options={{
-                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
+                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="phoneNumberIcon" height="0.8em" viewBox="0 0 512 512"><style>.phoneNumberIcon{fill:#ffffff}</style><path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/></svg>',
                                     type: 'default',
                                     onClick: () =>
-                                        propertyData.cadastreUrl &&
+                                        companyData.phoneNumber &&
                                         window.open(
-                                            propertyData.cadastreUrl,
-                                            '_blank'
+                                            `tel:${companyData.phoneNumber}`,
+                                            '_self'
                                         ),
-                                    disabled: propertyData.cadastreUrl
+                                    disabled: companyData.phoneNumber
                                         ? false
                                         : true,
                                 }}
@@ -228,7 +259,7 @@ const PropertyPage = ({
                         </TextBox>
                     </Item>
                 </GroupItem>
-                <GroupItem colCount={4} caption='Address Information'>
+                {/* <GroupItem colCount={4} caption='Address Information'>
                     <Item
                         dataField='address.addressLine1'
                         label={{ text: 'Address line' }}
@@ -242,7 +273,7 @@ const PropertyPage = ({
                         label={{ text: 'Country' }}
                         editorType='dxSelectBox'
                         editorOptions={{
-                            items: countries,
+                            items: countriesData,
                             displayExpr: 'name',
                             valueExpr: 'id',
                             searchEnabled: true,
@@ -266,7 +297,7 @@ const PropertyPage = ({
                         dataField='address.postalCode'
                         label={{ text: 'Postal code' }}
                     />
-                </GroupItem>
+                </GroupItem> */}
             </Form>
             <div className='h-[2rem]'>
                 <div className='flex justify-end'>
@@ -278,49 +309,14 @@ const PropertyPage = ({
                                 text='Submit Changes'
                                 disabled={isLoading}
                                 isLoading={isLoading}
-                                onClick={handleSubmit}
+                                onClick={() => console.log('efweff')}
                             />
                         )}
                     </div>
                 </div>
             </div>
-            {/* Tabs */}
-            <Tabs
-                dataSource={[
-                    {
-                        children: (
-                            <PropertiesOwnersDatagrid
-                                dataSource={propertyData}
-                                contactData={contacts}
-                            />
-                        ),
-                        icon: faUserGroup,
-                        title: 'Owners',
-                    },
-                    {
-                        children: (
-                            <PropertySidePropertiesDatagrid
-                                dataSource={propertyData}
-                            />
-                        ),
-                        icon: faWarehouse,
-                        title: 'Side properties',
-                    },
-                    {
-                        children: (
-                            <PropertyTextArea
-                                propertyData={propertyData}
-                                token={token}
-                                lang={lang}
-                            />
-                        ),
-                        icon: faNoteSticky,
-                        title: 'Comments',
-                    },
-                ]}
-            />
         </div>
     );
 };
 
-export default PropertyPage;
+export default memo(CompanyPage);

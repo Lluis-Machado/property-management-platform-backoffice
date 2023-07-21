@@ -14,69 +14,66 @@ import Form, {
 } from 'devextreme-react/form';
 
 // Local imports
-import { ContactData } from '@/lib/types/contactData';
+import { CompanyCreate, CompanyData } from '@/lib/types/companyData';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { Locale } from '@/i18n-config';
 import { TokenRes } from '@/lib/types/token';
-import { SelectData } from '@/lib/types/selectData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
-import { CountryData } from '@/lib/types/countriesData';
 
 interface Props {
-    contactData: ContactData;
-    countries: CountryData[];
+    companyData: CompanyCreate;
     token: TokenRes;
     lang: Locale;
 }
 
-const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
+const AddCompanyPage = ({ companyData, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [states, setStates] = useState<SelectData[] | undefined>(undefined);
+    // const [states, setStates] = useState<SelectData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<ContactData>(
-        structuredClone(contactData)
+    const [initialValues, setInitialValues] = useState<CompanyCreate>(
+        structuredClone(companyData)
     );
 
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
 
-    const handleCountryChange = useCallback(
-        (countryId: number) => {
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
-                .then((resp) => resp.json())
-                .then((data: any) => {
-                    let states = [];
-                    for (const state of data) {
-                        states.push({
-                            label: state.name,
-                            value: state.id,
-                        });
-                    }
-                    setStates(states);
-                })
-                .catch((e) => console.error('Error while getting the states'));
-        },
-        [lang, token]
-    );
+    // const handleCountryChange = useCallback(
+    //     (countryId: number) => {
+    //         fetch(
+    //             `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
+    //             {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     Authorization: `${token.token_type} ${token.access_token}`,
+    //                 },
+    //                 cache: 'no-store',
+    //             }
+    //         )
+    //             .then((resp) => resp.json())
+    //             .then((data: any) => {
+    //                 let states = [];
+    //                 for (const state of data) {
+    //                     states.push({
+    //                         label: state.name,
+    //                         value: state.id,
+    //                     });
+    //                 }
+    //                 setStates(states);
+    //             })
+    //             .catch((e) => console.error('Error while getting the states'));
+    //     },
+    //     [lang, token]
+    // );
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
         if (!res.isValid) return;
 
-        const values = structuredClone(contactData);
+        const values = structuredClone(companyData);
 
         console.log('Valores a enviar: ', values);
         console.log('Valores a enviar en JSON: ', JSON.stringify(values));
@@ -88,67 +85,53 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
 
         setIsLoading(true);
 
-        const toastId = toast.loading('Creating contact...');
+        const toastId = toast.loading('Creating company...');
 
         if (!values.nif) values.nif = null;
 
         try {
-            const valuesToSend: ContactData = {
-                ...values,
-                birthDay: formatDate(values.birthDay),
-            };
-
             const data = await apiPost(
-                '/contacts/contacts',
-                valuesToSend,
+                '/companies/companies',
+                values,
                 token,
-                'Error while creating a contact'
+                'Error while creating a company'
             );
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 
-            updateSuccessToast(toastId, 'Contact created correctly!');
-            router.push('/private/contacts');
+            updateSuccessToast(toastId, 'Company created correctly!');
+            router.push('/private/companies');
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
             setIsLoading(false);
         }
-    }, [contactData, initialValues, token, router]);
+    }, [companyData, initialValues, token, router]);
 
     return (
         <div>
             <Form
                 ref={formRef}
-                formData={contactData}
+                formData={companyData}
                 labelMode={'floating'}
                 readOnly={isLoading}
                 showValidationSummary
             >
-                <GroupItem colCount={4} caption='Contact Information'>
-                    <Item
-                        dataField='firstName'
-                        label={{ text: 'First name' }}
-                    />
-                    <Item dataField='lastName' label={{ text: 'Last name' }}>
+                <GroupItem colCount={4} caption='Company Information'>
+                    <Item dataField='name' label={{ text: 'Company name' }}>
                         <RequiredRule />
-                        <StringLengthRule
-                            min={3}
-                            message='Last name have at least 2 letters'
-                        />
+                    </Item>
+                    <Item dataField='nif' label={{ text: 'NIF' }} />
+                    <Item dataField='email' label={{ text: 'Email' }}>
+                        <EmailRule message='Email is invalid' />
                     </Item>
                     <Item
-                        dataField='birthDay'
-                        label={{ text: 'Birth date' }}
-                        editorType='dxDateBox'
-                        editorOptions={{
-                            displayFormat: dateFormat,
-                            showClearButton: true,
-                        }}
+                        dataField='phoneNumber'
+                        label={{ text: 'Phone number' }}
+                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
                     />
-                    <Item dataField='nif' label={{ text: 'NIF' }} />
                 </GroupItem>
-                <GroupItem colCount={4} caption='Address Information'>
+                {/* <GroupItem colCount={4} caption='Address Information'>
                     <Item
                         dataField='address.addressLine1'
                         label={{ text: 'Address line' }}
@@ -199,7 +182,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                         label={{ text: 'Mobile phone number' }}
                         editorOptions={{ mask: '+(0000) 000-00-00-00' }}
                     />
-                </GroupItem>
+                </GroupItem> */}
             </Form>
             <div className='h-[2rem]'>
                 <div className='flex justify-end'>
@@ -219,4 +202,4 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
     );
 };
 
-export default memo(AddContactPage);
+export default memo(AddCompanyPage);

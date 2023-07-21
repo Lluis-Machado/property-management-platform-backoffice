@@ -4,7 +4,7 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from 'pg-components';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 import {
     faFileLines,
     faPencil,
@@ -20,6 +20,7 @@ import Form, {
     RequiredRule,
     StringLengthRule,
 } from 'devextreme-react/form';
+import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
 
 // Local imports
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
@@ -29,27 +30,40 @@ import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
-import { SelectData } from '@/lib/types/selectData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
+import { CountryData, StateData } from '@/lib/types/countriesData';
 
 interface Props {
     contactData: ContactData;
+    countriesData: CountryData[];
+    initialStates: StateData[];
     token: TokenRes;
     lang: Locale;
 }
 
-const ContactPage = ({ contactData, token, lang }: Props) => {
+const ContactPage = ({
+    contactData,
+    countriesData,
+    initialStates,
+    token,
+    lang,
+}: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [phoneNumber, setPhoneNumber] = useState<string>(
+        contactData.phoneNumber
+    );
+    const [mobilePhoneNumber, setMobilePhoneNumber] = useState<string>(
+        contactData.mobilePhoneNumber
+    );
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
-    const [countries, setCountries] = useState<SelectData[] | undefined>(
-        undefined
+    const [states, setStates] = useState<StateData[] | undefined>(
+        initialStates
     );
-    const [states, setStates] = useState<SelectData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<ContactData>(
         structuredClone(contactData)
@@ -58,36 +72,6 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
-
-    // Use effect for getting countries when editing
-    useEffect(() => {
-        if (isEditing) {
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
-                .then((resp) => resp.json())
-                .then((data: any) => {
-                    let countries = [];
-                    for (const country of data) {
-                        countries.push({
-                            label: country.name,
-                            value: country.id,
-                        });
-                    }
-                    setCountries(countries);
-                })
-                .catch((e) =>
-                    console.error('Error while getting the countries')
-                );
-        }
-    }, [isEditing, lang, token]);
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
@@ -102,19 +86,12 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                 }
             )
                 .then((resp) => resp.json())
-                .then((data: any) => {
-                    let states = [];
-                    for (const state of data) {
-                        states.push({
-                            label: state.name,
-                            value: state.id,
-                        });
-                    }
-                    setStates(states);
-                })
+                .then((data: StateData[]) => setStates(data))
                 .catch((e) => console.error('Error while getting the states'));
+            // Ensure state is removed
+            contactData.address.state = null;
         },
-        [lang, token]
+        [lang, token, contactData.address]
     );
 
     const handleSubmit = useCallback(async () => {
@@ -122,9 +99,6 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
         if (!res.isValid) return;
 
         const values = structuredClone(contactData);
-
-        console.log('Valores a enviar: ', values);
-        console.log(JSON.stringify(values));
 
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             toast.warning('Change at least one field');
@@ -140,7 +114,12 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
             const valuesToSend: ContactData = {
                 ...values,
                 birthDay: formatDate(values.birthDay),
+                phoneNumber,
+                mobilePhoneNumber,
             };
+
+            console.log('Valores a enviar: ', valuesToSend);
+            console.log(JSON.stringify(valuesToSend));
 
             const data = await apiPatch(
                 `/contacts/contacts/${contactData.id}`,
@@ -157,7 +136,7 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [contactData, initialValues, token]);
+    }, [contactData, initialValues, token, mobilePhoneNumber, phoneNumber]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting contact...');
@@ -241,7 +220,7 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                         label={{ text: 'First name' }}
                     />
                     <Item dataField='lastName' label={{ text: 'Last name' }}>
-                        <RequiredRule message='Last name is required' />
+                        <RequiredRule />
                         <StringLengthRule
                             min={3}
                             message='Last name have at least 2 letters'
@@ -272,9 +251,9 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                         label={{ text: 'Country' }}
                         editorType='dxSelectBox'
                         editorOptions={{
-                            items: countries,
-                            displayExpr: 'label',
-                            valueExpr: 'value',
+                            items: countriesData,
+                            displayExpr: 'name',
+                            valueExpr: 'id',
                             searchEnabled: true,
                             onValueChanged: (e: any) =>
                                 handleCountryChange(e.value),
@@ -286,8 +265,8 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: states,
-                            displayExpr: 'label',
-                            valueExpr: 'value',
+                            displayExpr: 'name',
+                            valueExpr: 'id',
                             searchEnabled: true,
                         }}
                     />
@@ -299,16 +278,60 @@ const ContactPage = ({ contactData, token, lang }: Props) => {
                     <Item dataField='email' label={{ text: 'Email' }}>
                         <EmailRule message='Email is invalid' />
                     </Item>
-                    <Item
-                        dataField='phoneNumber'
-                        label={{ text: 'Phone number' }}
-                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
-                    />
-                    <Item
-                        dataField='mobilePhoneNumber'
-                        label={{ text: 'Mobile phone number' }}
-                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
-                    />
+                    <Item>
+                        <TextBox
+                            value={phoneNumber}
+                            label='Phone number'
+                            onValueChange={(e) => setPhoneNumber(e)}
+                            mask='+(0000) 000-00-00-00'
+                            readOnly={isLoading || !isEditing}
+                        >
+                            <TextBoxButton
+                                name='catasterBtn'
+                                location='after'
+                                options={{
+                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="phoneNumberIcon" height="0.8em" viewBox="0 0 512 512"><style>.phoneNumberIcon{fill:#ffffff}</style><path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/></svg>',
+                                    type: 'default',
+                                    onClick: () =>
+                                        contactData.phoneNumber &&
+                                        window.open(
+                                            `tel:${contactData.phoneNumber}`,
+                                            '_self'
+                                        ),
+                                    disabled: contactData.phoneNumber
+                                        ? false
+                                        : true,
+                                }}
+                            />
+                        </TextBox>
+                    </Item>
+                    <Item>
+                        <TextBox
+                            value={mobilePhoneNumber}
+                            label='Mobile phone number'
+                            onValueChange={(e) => setMobilePhoneNumber(e)}
+                            mask='+(0000) 000-00-00-00'
+                            readOnly={isLoading || !isEditing}
+                        >
+                            <TextBoxButton
+                                name='catasterBtn'
+                                location='after'
+                                options={{
+                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="phoneNumberIcon" height="0.8em" viewBox="0 0 512 512"><path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/></svg>',
+                                    type: 'default',
+                                    onClick: () =>
+                                        contactData.mobilePhoneNumber &&
+                                        window.open(
+                                            `tel:+${contactData.mobilePhoneNumber}`,
+                                            '_self'
+                                        ),
+                                    disabled: contactData.mobilePhoneNumber
+                                        ? false
+                                        : true,
+                                }}
+                            />
+                        </TextBox>
+                    </Item>
                 </GroupItem>
             </Form>
             <div className='h-[2rem]'>

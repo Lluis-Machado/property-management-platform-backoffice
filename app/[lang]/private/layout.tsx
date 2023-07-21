@@ -1,19 +1,21 @@
 // Local imports
-import '@/lib/assets/dx.generic.pg-theme.css';
-import 'react-toastify/dist/ReactToastify.css';
 import { Locale } from '@/i18n-config';
 import MainLayout from '@/components/layout/MainLayout';
+import { getUser } from '@/lib/utils/getUser';
 
 interface Props {
     children: React.ReactNode;
     params: { lang: Locale };
 }
 
-const RootLayout = ({
-    children,
-    params: { lang },
-}: Props): React.ReactElement => (
-    <MainLayout lang={lang}>{children}</MainLayout>
-);
+const RootLayout = async ({ children, params: { lang } }: Props) => {
+    const user = await getUser();
+
+    return (
+        <MainLayout lang={lang} user={user}>
+            {children}
+        </MainLayout>
+    );
+};
 
 export default RootLayout;
