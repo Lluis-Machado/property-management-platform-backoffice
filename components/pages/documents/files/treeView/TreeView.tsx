@@ -285,7 +285,8 @@ const TreeView: FC<Props> = memo(function TreeView({
                         isSelectedItemAnArchive &&
                         archive.data.id === (data as Archive).id
                     ) {
-                        return null;
+                        selectedTreeItem!.visible = false;
+                        return archive;
                     }
 
                     // Case 3 - Delete top level archive folder
@@ -295,6 +296,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                         );
                         archive.items = items;
                         archive.hasItems = items.length > 0;
+                        selectedTreeItem!.visible = false;
                         return archive;
                     }
 
@@ -314,6 +316,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                         );
                         node.items = items;
                         node.hasItems = items.length > 0;
+                        selectedTreeItem!.visible = false;
 
                         const childFolders = node.data.childFolders.filter(
                             (child) => child.id !== data.id
@@ -326,8 +329,8 @@ const TreeView: FC<Props> = memo(function TreeView({
                 })
                 .filter((archive) => archive);
 
-            treeInstance.option('items', [...updated]);
             treeInstance.option('dataSource', [...updated]);
+            treeInstance.repaint();
         },
         [isCorrectArchive, selectedTreeItem, treeViewRef]
     );
