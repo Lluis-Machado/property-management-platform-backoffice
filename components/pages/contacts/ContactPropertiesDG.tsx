@@ -12,13 +12,13 @@ import DataGrid, {
     Pager,
     Lookup,
 } from 'devextreme-react/data-grid';
+import { OwnershipData } from '@/lib/types/ownershipData';
 
 interface Props {
-    ownershipData: any;
-    propertiesData: any;
+    ownershipData: OwnershipData[];
 }
 
-const ContactPropertiesDG = ({ ownershipData, propertiesData }: Props) => {
+const ContactPropertiesDG = ({ ownershipData }: Props) => {
     const router = useRouter();
 
     const handleDoubleClick = useCallback(
@@ -43,12 +43,7 @@ const ContactPropertiesDG = ({ ownershipData, propertiesData }: Props) => {
         >
             <SearchPanel visible searchVisibleColumnsOnly={false} width={400} />
             <Paging defaultPageSize={20} />
-            <Pager
-                visible={true}
-                displayMode={'compact'}
-                showInfo
-                showNavigationButtons
-            />
+            <Pager visible={true} showInfo showNavigationButtons />
 
             {/* <Editing
       mode="batch"
@@ -60,13 +55,7 @@ const ContactPropertiesDG = ({ ownershipData, propertiesData }: Props) => {
       newRowPosition='first'
     /> */}
 
-            <Column dataField='propertyId' caption='Property Name'>
-                <Lookup
-                    dataSource={propertiesData}
-                    valueExpr='id'
-                    displayExpr='name'
-                />
-            </Column>
+            <Column dataField='propertyName' caption='Property Name' />
             <Column
                 dataField='share'
                 dataType='number'

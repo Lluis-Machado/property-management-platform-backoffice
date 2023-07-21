@@ -1,6 +1,4 @@
 // Local imports
-import '@/lib/assets/dx.generic.pg-theme.css';
-import 'react-toastify/dist/ReactToastify.css';
 import { Locale } from '@/i18n-config';
 import MainLayout from '@/components/layout/MainLayout';
 

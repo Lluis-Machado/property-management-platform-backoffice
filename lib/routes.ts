@@ -1,5 +1,6 @@
 import {
     faAddressBook,
+    faBuilding,
     faCalculator,
     faCog,
     faFileAlt,
@@ -50,6 +51,12 @@ export const routes: Route[] = [
         icon: faAddressBook,
         name: 'Contacts',
         children: [{ name: 'Contact Info', path: 'contactInfo' }],
+    },
+    {
+        path: 'companies',
+        icon: faBuilding,
+        name: 'Companies',
+        children: [{ name: 'Company Info', path: 'companyInfo' }],
     },
     {
         path: 'administration',
