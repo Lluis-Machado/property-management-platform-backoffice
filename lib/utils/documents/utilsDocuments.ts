@@ -1,4 +1,5 @@
 import { Archive, Folder } from '@/lib/types/documentsAPI';
+import { TreeItem } from '@/lib/types/treeView';
 
 /**
  * Format bytes as human-readable text.
@@ -46,3 +47,50 @@ export const formatFileSize = (
 export const isArchive = (
     item: Archive | Folder | undefined
 ): item is Archive => !item?.hasOwnProperty('archiveId');
+
+/**
+ * Used when adding a Folder or deleting an Archive | Folder
+ *
+ * 1. onAdd: Returns whether the Archive 'archive' is the Archive in which the Folder 'item' has to be stored.
+ * 2. onDelete:
+ *      Returns whether the Archive 'archive' is the Archive in which the Folder to delete 'item' is stored or
+ *      if the Archive 'archive' is the Archive to be deleted.
+ *
+ * @param {TreeItem<Archive>} archive - The Archive to check against.
+ * @param {Archive | Folder} item - The item to be added or deleted, which can be either an Archive or a Folder.
+ *
+ * @returns {boolean} - True if the Archive 'archive' is the correct location for the given 'item', false otherwise.
+ */
+export const isCorrectArchive = (
+    archive: TreeItem<Archive>,
+    item: Archive | Folder
+): boolean => {
+    const isItemArchive = isArchive(item);
+    return (
+        (isItemArchive && archive.data.id === item.id) ||
+        (!isItemArchive && archive.data.id === (item as Folder).archiveId)
+    );
+};
+
+/**
+ * Constructs a TreeItem for a given Folder and its child folders recursively.
+ *
+ * @param {Folder} folder - The folder for which to create the tree item.
+ * @returns {TreeItem<Folder>} The root tree item representing the folder and its children.
+ */
+export const getTreeItemFolderFromFolder = (folder: Folder) => {
+    folder.childFolders = [...(folder.childFolders || [])]; // TODO: Innecesario si el backend devuelve un array vacio
+    const newFolderItem: TreeItem<Folder> = {
+        data: folder,
+        disabled: false,
+        expanded: false,
+        hasItems: folder.childFolders.length > 0,
+        id: folder.id,
+        items: folder.childFolders.map(getTreeItemFolderFromFolder),
+        parentId: folder.parentId,
+        selected: false,
+        text: folder.name,
+        visible: true,
+    };
+    return newFolderItem;
+};

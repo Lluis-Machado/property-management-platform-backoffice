@@ -29,7 +29,11 @@ import {
     uploadFilesToFolder,
 } from '@/lib/utils/documents/apiDocuments';
 import { FormPopupType } from '../popups/FormPopup';
-import { isArchive } from '@/lib/utils/documents/utilsDocuments';
+import {
+    getTreeItemFolderFromFolder,
+    isArchive,
+    isCorrectArchive,
+} from '@/lib/utils/documents/utilsDocuments';
 import { PopupVisibility } from '@/lib/types/Popups';
 import { TreeItem } from '@/lib/types/treeView';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
@@ -121,54 +125,6 @@ const TreeView: FC<Props> = memo(function TreeView({
     //#region Auxiliar functions
 
     /**
-     * Used when adding a Folder or deleting an Archive | Folder
-     *
-     * 1. onAdd: Returns whether the Archive 'archive' is the Archive in which the Folder 'item' has to be stored.
-     * 2. onDelete:
-     *      Returns whether the Archive 'archive' is the Archive in which the Folder to delete 'item' is stored or
-     *      if the Archive 'archive' is the Archive to be deleted.
-     *
-     * @param {TreeItem<Archive>} archive - The Archive to check against.
-     * @param {Archive | Folder} item - The item to be added or deleted, which can be either an Archive or a Folder.
-     *
-     * @returns {boolean} - True if the Archive 'archive' is the correct location for the given 'item', false otherwise.
-     */
-    const isCorrectArchive = useCallback(
-        (archive: TreeItem<Archive>, item: Archive | Folder) => {
-            const isItemArchive = isArchive(item);
-            return (
-                (isItemArchive && archive.data.id === item.id) ||
-                (!isItemArchive &&
-                    archive.data.id === (item as Folder).archiveId)
-            );
-        },
-        []
-    );
-
-    /**
-     * Constructs a TreeItem for a given Folder and its child folders recursively.
-     *
-     * @param {Folder} folder - The folder for which to create the tree item.
-     * @returns {TreeItem<Folder>} The root tree item representing the folder and its children.
-     */
-    const getTreeItemFolderFromFolder = useCallback((folder: Folder) => {
-        folder.childFolders = [...(folder.childFolders || [])]; // TODO: Innecesario si el backend devuelve un array vacio
-        const newFolderItem: TreeItem<Folder> = {
-            data: folder,
-            disabled: false,
-            expanded: false,
-            hasItems: folder.childFolders.length > 0,
-            id: folder.id,
-            items: folder.childFolders.map(getTreeItemFolderFromFolder),
-            parentId: folder.parentId,
-            selected: false,
-            text: folder.name,
-            visible: true,
-        };
-        return newFolderItem;
-    }, []);
-
-    /**
      * This method is used to push a new Folder 'folder' into the items array of a given TreeItem 'treeItem',
      * which could represent either an Archive or a Folder.
      *
@@ -182,7 +138,7 @@ const TreeView: FC<Props> = memo(function TreeView({
             treeItem.items.push(getTreeItemFolderFromFolder(folder));
             treeItem.hasItems = true;
         },
-        [getTreeItemFolderFromFolder]
+        []
     );
 
     /**
@@ -197,7 +153,7 @@ const TreeView: FC<Props> = memo(function TreeView({
         (folder: Folder, treeItem: TreeItem<Folder>) => {
             pushFolderToItems(folder, treeItem);
             treeItem.data.childFolders = [
-                ...(treeItem.data.childFolders || []),
+                ...(treeItem.data.childFolders || []), // TODO: Innecesario si el backend devuelve un array vacio?
                 folder,
             ];
         },
@@ -267,7 +223,6 @@ const TreeView: FC<Props> = memo(function TreeView({
             updateTreeViewDataSource(processArchive);
         },
         [
-            isCorrectArchive,
             pushFolderToItems,
             pushFolderToItemsAndChildFolders,
             updateTreeViewDataSource,
@@ -332,7 +287,7 @@ const TreeView: FC<Props> = memo(function TreeView({
 
             updateTreeViewDataSource(processArchive);
         },
-        [isCorrectArchive, updateTreeViewDataSource]
+        [updateTreeViewDataSource]
     );
 
     //#endregion
