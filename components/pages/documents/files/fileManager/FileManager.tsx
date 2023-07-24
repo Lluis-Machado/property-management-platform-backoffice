@@ -131,7 +131,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
 
             if (failedDeletions.length > 0) {
                 console.log('Failed deletions:', failedDeletions);
-                // Notify the user about the failed deletions as per your preferred method (e.g., toast, alert, etc.)
+                // TODO: Notify the user about the failed deletions as per your preferred method (e.g., toast, alert, etc.)
             }
         },
         [folder, selectedFiles]
@@ -140,9 +140,6 @@ export const FileManager: FC<Props> = memo(function FileManager({
     const handleRename = useCallback(
         async (archiveId: string, name: string | undefined) => {
             if (!name) return;
-            console.log('Name: ', name);
-            console.log('archiveId: ', archiveId);
-            console.log('selectedFiles[0].id: ', selectedFiles[0].id);
             const ok = await renameFile(archiveId, selectedFiles[0].id, name);
             if (ok) {
                 setDocuments((p) =>
