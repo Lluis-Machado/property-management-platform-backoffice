@@ -36,7 +36,7 @@ type ToolBarItemType =
 
 const ExtensionCellRender = ({ data }: any): React.ReactElement => {
     const icon = (ext: string) => {
-        switch (ext) {
+        switch (ext.toLowerCase()) {
             case '.jpeg':
             case '.jpg':
             case '.png':
@@ -73,7 +73,6 @@ interface Props {
     onFileDownload: () => void;
     onFileMove: () => void;
     onFileRename: () => void;
-    onRefresh: () => void;
     onSelectedFile: (file: any) => void;
 }
 
@@ -84,7 +83,6 @@ const DataGrid: FC<Props> = memo(function DataGrid({
     onFileDownload,
     onFileMove,
     onFileRename,
-    onRefresh,
     onSelectedFile,
 }): React.ReactElement {
     const DataGridRef = useRef<DxDataGrid>(null);
@@ -96,9 +94,9 @@ const DataGrid: FC<Props> = memo(function DataGrid({
         (action: ToolBarItemType) => {
             const on = {
                 Download: onFileDownload,
+                Rename: onFileRename,
                 'Move to': onFileMove,
                 'Copy to': onFileCopy,
-                Rename: onFileRename,
                 Delete: onFileDelete,
                 Separator: () => {},
             };
@@ -185,6 +183,11 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                     />
                     <Item
                         location='before'
+                        visible={selectedFilesQuantity === 1}
+                        render={(_) => ToolBarItemRender('Rename')}
+                    />
+                    <Item
+                        location='before'
                         visible={selectedFilesQuantity > 0}
                         render={(_) => ToolBarItemRender('Move to')}
                     />
@@ -192,11 +195,6 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                         location='before'
                         visible={selectedFilesQuantity > 0}
                         render={(_) => ToolBarItemRender('Copy to')}
-                    />
-                    <Item
-                        location='before'
-                        visible={selectedFilesQuantity === 1}
-                        render={(_) => ToolBarItemRender('Rename')}
                     />
                     <Item
                         location='before'
@@ -252,7 +250,6 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                 onFileDownload={onFileDownload}
                 onFileMove={onFileMove}
                 onFileRename={onFileRename}
-                onRefresh={onRefresh}
                 selectedFilesQuantity={selectedFilesQuantity}
             />
         </>

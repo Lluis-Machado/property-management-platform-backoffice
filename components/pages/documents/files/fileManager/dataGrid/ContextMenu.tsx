@@ -14,7 +14,6 @@ interface Props {
     onFileDownload: () => void;
     onFileMove: () => void;
     onFileRename: () => void;
-    onRefresh: () => void;
     selectedFilesQuantity: number;
 }
 
@@ -24,7 +23,6 @@ export const ContextMenu: FC<Props> = memo(function ContextMenu({
     onFileDownload,
     onFileMove,
     onFileRename,
-    onRefresh,
     selectedFilesQuantity,
 }): React.ReactElement {
     const ContextMenuRef = useRef<DxContextMenu>(null);
@@ -32,23 +30,15 @@ export const ContextMenu: FC<Props> = memo(function ContextMenu({
     const handleContextMenuItemClick = useCallback(
         ({ itemIndex }: ItemClickEvent) => {
             const actions: any = {
-                0: onFileRename,
-                1: onFileMove,
-                2: onFileCopy,
-                3: onFileDelete,
-                4: onRefresh,
-                5: onFileDownload,
+                0: onFileDownload,
+                1: onFileRename,
+                2: onFileMove,
+                3: onFileCopy,
+                4: onFileDelete,
             };
             actions[itemIndex]();
         },
-        [
-            onFileCopy,
-            onFileDelete,
-            onFileDownload,
-            onFileMove,
-            onFileRename,
-            onRefresh,
-        ]
+        [onFileCopy, onFileDelete, onFileDownload, onFileMove, onFileRename]
     );
 
     return (
@@ -58,17 +48,17 @@ export const ContextMenu: FC<Props> = memo(function ContextMenu({
             onItemClick={handleContextMenuItemClick}
             hideOnOutsideClick
         >
+            <Item closeMenuOnClick icon='download' text='Download' />
             <Item
                 closeMenuOnClick
+                beginGroup
                 icon='rename'
                 text='Rename'
                 visible={selectedFilesQuantity === 1}
             />
             <Item closeMenuOnClick icon='movetofolder' text='Move to' />
             <Item closeMenuOnClick icon='copy' text='Copy to' />
-            <Item closeMenuOnClick icon='trash' text='Delete' />
-            <Item closeMenuOnClick beginGroup icon='refresh' text='Refresh' />
-            <Item closeMenuOnClick icon='download' text='Download' />
+            <Item closeMenuOnClick beginGroup icon='trash' text='Delete' />
         </DxContextMenu>
     );
 });
