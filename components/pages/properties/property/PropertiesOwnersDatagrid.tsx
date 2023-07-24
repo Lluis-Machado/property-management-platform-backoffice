@@ -19,7 +19,7 @@ import { apiPatch } from '@/lib/utils/apiPatch';
 import { useCallback, useState } from 'react';
 import { TokenRes } from '@/lib/types/token';
 import { toast } from 'react-toastify';
-import { updateSuccessToast } from '@/lib/utils/customToasts';
+import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { SavedEvent } from 'devextreme/ui/data_grid';
@@ -32,10 +32,10 @@ interface Props {
     token: TokenRes;
     contactData: ContactData[];
 }
-interface Values {
-    values: Promise<any>;
-    idToast: string;
-    message: string;
+interface idToasts {
+    toastId: any;
+    msg: string;
+    errormsg: string;
 }
 
 const MainContactCellRender = ({ value }: any): React.ReactElement => (
@@ -56,7 +56,7 @@ const PropertiesOwnersDatagrid = ({
     const saveEditData = useCallback(
         async (e: SavedEvent<OwnershipPropertyData, any>) => {
             const promises: Promise<any>[] = [];
-            const idToasts: any[] = [];
+            const idToasts: idToasts[] = [];
             setIsLoading(true);
 
             for (const change of e.changes) {
@@ -77,6 +77,7 @@ const PropertiesOwnersDatagrid = ({
                     idToasts.push({
                         toastId: toastId,
                         msg: 'Ownership updated correctly!',
+                        errormsg: 'Error while updating a ownership property',
                     });
                 } else if (change.type == 'remove') {
                     const toastId = toast.loading(
@@ -93,6 +94,7 @@ const PropertiesOwnersDatagrid = ({
                     idToasts.push({
                         toastId: toastId,
                         msg: 'Ownership Contact deleted correctly!',
+                        errormsg: 'Error while deleting an ownership',
                     });
                 } else if (change.type == 'insert') {
                     const toastId = toast.loading(
@@ -119,6 +121,7 @@ const PropertiesOwnersDatagrid = ({
                     idToasts.push({
                         toastId: toastId,
                         msg: 'Ownership Contact added correctly!',
+                        errormsg: 'Error while adding contact to property',
                     });
                 }
             }
@@ -130,7 +133,11 @@ const PropertiesOwnersDatagrid = ({
                             idToasts[index].msg
                         );
                     } else if (result.status == 'rejected') {
-                        customError(Error, idToasts[index].toastId);
+                        //customError(Error, idToasts[index].toastId);
+                        updateErrorToast(
+                            idToasts[index].errormsg,
+                            idToasts[index].toastId
+                        );
                     }
                 })
             );
