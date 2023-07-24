@@ -118,10 +118,6 @@ const TreeView: FC<Props> = memo(function TreeView({
         [selectedTreeItem]
     );
 
-    const handleRefreshEvent = useCallback(async () => {
-        // TODO: hacer llamada.
-    }, []);
-
     //#region Auxiliar functions
 
     /**
@@ -783,7 +779,6 @@ const TreeView: FC<Props> = memo(function TreeView({
                 onDirectoryRename={() => handleFormPopupEvent('Rename')}
                 onDirectoryUpload={() => UploadFileInputRef.current!.click()}
                 onNewDirectory={() => handleFormPopupEvent('New directory')}
-                onRefresh={handleRefreshEvent}
             />
             {(formPopupStatus.visibility.visible ||
                 formPopupStatus.visibility.hasBeenOpen) && (
