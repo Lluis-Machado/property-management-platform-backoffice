@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 
 const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents`;
 
-// ARCHIVES
+//#region ARCHIVES
 
 export const createArchive = async (archiveName: string) => {
     const endPoint = `${BASE_END_POINT}/archives`;
@@ -76,9 +76,14 @@ export const undeleteArchive = async (archiveId: string) => {
     return response.ok;
 };
 
-// DOCUMENTS
+//#endregion
 
-export const uploadFilesToArchive = async (archiveId: string, files: any[]) => {
+//#region DOCUMENTS
+
+export const uploadFilesToArchive = async (
+    archiveId: string,
+    files: any[]
+): Promise<Document> => {
     const endPoint = `${BASE_END_POINT}/${archiveId}/documents`;
     const formData = new FormData();
 
@@ -133,7 +138,20 @@ export const renameFile = async (
     return response.ok;
 };
 
-// FOLDERS
+export const deleteFile = async (archiveId: string, documentId: string) => {
+    const endPoint = `${BASE_END_POINT}/${archiveId}/documents/${documentId}`;
+
+    const response = await fetch(endPoint, {
+        cache: 'no-cache',
+        method: 'DELETE',
+    });
+
+    return response.ok;
+};
+
+//#endregion
+
+//#region FOLDERS
 
 interface Folder {
     archiveId: string;
@@ -244,3 +262,5 @@ export const deleteFolder = async (archiveId: string, folderId: string) => {
     );
     return response.ok;
 };
+
+//#endregion

@@ -634,6 +634,17 @@ const TreeView: FC<Props> = memo(function TreeView({
     //#region Clone tree and modify nodes disabled status for TreeViewPopup
 
     /**
+     * Disables all the child nodes of the given folder to disable the posibility to try to move a folder onto its children and cause
+     * potential bugs and errors.
+     *
+     * @param {TreeItem<Folder>} folder - The folder to disable.
+     */
+    const disableAll = useCallback((folder: TreeItem<Folder>) => {
+        folder.disabled = true;
+        folder.items.forEach(disableAll);
+    }, []);
+
+    /**
      * Clones the tree and modifies the nodes' disabled status for TreeViewPopup.
      *
      * @param {TreeItem<Archive>} archive - The archive to analyze.
@@ -665,7 +676,10 @@ const TreeView: FC<Props> = memo(function TreeView({
                         continue;
                     }
 
-                    if (isMoving) node.disabled = true;
+                    if (isMoving) {
+                        node.disabled = true;
+                        child.items.forEach(disableAll);
+                    }
                     child.disabled = true;
                     return clone;
                 }
