@@ -32,6 +32,11 @@ interface Props {
     token: TokenRes;
     contactData: ContactData[];
 }
+interface Values {
+    values: Promise<any>;
+    idToast: string;
+    message: string;
+}
 
 const MainContactCellRender = ({ value }: any): React.ReactElement => (
     <FontAwesomeIcon
@@ -51,6 +56,7 @@ const PropertiesOwnersDatagrid = ({
     const saveEditData = useCallback(
         async (e: SavedEvent<OwnershipPropertyData, any>) => {
             const promises: Promise<any>[] = [];
+            const idToasts: any[] = [];
             setIsLoading(true);
 
             for (const change of e.changes) {
@@ -68,7 +74,10 @@ const PropertiesOwnersDatagrid = ({
                         )
                     );
                     // console.log('TODO CORRECTO, valores de vuelta: ', data);
-                    updateSuccessToast(toastId, 'Ownership updated correctly!');
+                    idToasts.push({
+                        toastId: toastId,
+                        msg: 'Ownership updated correctly!',
+                    });
                 } else if (change.type == 'remove') {
                     const toastId = toast.loading(
                         'Updating ownership property'
@@ -81,15 +90,14 @@ const PropertiesOwnersDatagrid = ({
                         )
                     );
                     //console.log('TODO CORRECTO, contact deleted');
-                    updateSuccessToast(
-                        toastId,
-                        'Ownership Contact deleted correctly!'
-                    );
+                    idToasts.push({
+                        toastId: toastId,
+                        msg: 'Ownership Contact deleted correctly!',
+                    });
                 } else if (change.type == 'insert') {
                     const toastId = toast.loading(
                         'Adding contact ownership property'
                     );
-                    const id: any[] = [];
                     const { ownerId, share, mainOwnership } = change.data;
                     const ownerType: string = 'Contact';
                     const values = {
@@ -108,17 +116,24 @@ const PropertiesOwnersDatagrid = ({
                         )
                     );
                     //console.log('TODO CORRECTO, contact added');
-                    updateSuccessToast(
-                        id.push(toastId),
-                        'Ownership Contact added correctly!'
-                    );
+                    idToasts.push({
+                        toastId: toastId,
+                        msg: 'Ownership Contact added correctly!',
+                    });
                 }
             }
-            try {
-                const values = await Promise.all(promises);
-            } catch (error) {
-                customError;
-            }
+            Promise.allSettled(promises).then((results) =>
+                results.forEach((result, index) => {
+                    if (result.status == 'fulfilled') {
+                        updateSuccessToast(
+                            idToasts[index].toastId,
+                            idToasts[index].msg
+                        );
+                    } else if (result.status == 'rejected') {
+                        customError(Error, idToasts[index].toastId);
+                    }
+                })
+            );
         },
         [token, propertyId]
     );
