@@ -129,11 +129,14 @@ export const renameFile = async (
 ) => {
     const endPoint = `${BASE_END_POINT}/${archiveId}/documents/${documentId}/rename`;
 
+    const formData = new FormData();
+    formData.append('documentName', documentName);
+
     const response = await toast.promise(
         fetch(endPoint, {
             cache: 'no-cache',
             method: 'PATCH',
-            body: JSON.stringify({ documentName }),
+            body: formData,
         }),
         {
             pending: 'Renaming document',

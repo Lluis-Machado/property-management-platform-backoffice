@@ -1,12 +1,20 @@
 // React imports
-import { FC, RefObject, memo, useCallback, useMemo, useState } from 'react';
+import {
+    FC,
+    RefObject,
+    memo,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 
 // Libraries imports
 import dynamic from 'next/dynamic';
 import TreeView from 'devextreme-react/tree-view';
 
 // Local imoports
-import { deleteFile } from '@/lib/utils/documents/apiDocuments';
+import { deleteFile, renameFile } from '@/lib/utils/documents/apiDocuments';
 import { Archive, Documents, Folder } from '@/lib/types/documentsAPI';
 import { FormPopupType } from '../popups/FormPopup';
 import { PopupVisibility } from '@/lib/types/Popups';
@@ -20,7 +28,7 @@ const FormPopup = dynamic(() => import('../popups/FormPopup'));
 const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 
 interface Props {
-    dataSource: any[];
+    dataSource: Documents[];
     folder: Archive | Folder | undefined;
     treeViewRef: RefObject<TreeView<any>>;
 }
@@ -30,6 +38,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
     folder,
     treeViewRef,
 }) {
+    const [documents, setDocuments] = useState<Documents[]>(dataSource);
     const [selectedFiles, setSelectedFiles] = useState<Documents[]>([]);
     const [formPopupStatus, setFormPopupStatus] = useState<{
         fileName?: string;
@@ -47,6 +56,10 @@ export const FileManager: FC<Props> = memo(function FileManager({
         type: 'Copy to',
         visibility: { hasBeenOpen: false, visible: false },
     });
+
+    useEffect(() => {
+        setDocuments(dataSource);
+    }, [dataSource]);
 
     const handleCopyMoveToEvent = useCallback((type: TreeViewPopupType) => {
         setTreeViewPopupStatus((p) => ({
@@ -76,35 +89,95 @@ export const FileManager: FC<Props> = memo(function FileManager({
         [selectedFiles]
     );
 
+    const handleDelete = useCallback(
+        async (archiveId: string) => {
+            if (!folder) return;
+
+            const fileIds = selectedFiles.map((file) => file.id);
+
+            const deletionResults = await Promise.all(
+                fileIds.map(async (fileId) => {
+                    const ok = await deleteFile(archiveId, fileId);
+                    return { fileId, ok };
+                })
+            );
+
+            // Filter deletions
+            // Separate the successful and failed deletions
+            const { successfulDeletions, failedDeletions } =
+                deletionResults.reduce(
+                    (
+                        acc: {
+                            successfulDeletions: any[];
+                            failedDeletions: any[];
+                        },
+                        { ok, fileId }
+                    ) => {
+                        ok
+                            ? acc.successfulDeletions.push(fileId)
+                            : acc.failedDeletions.push(fileId);
+
+                        return acc;
+                    },
+                    { successfulDeletions: [], failedDeletions: [] }
+                );
+
+            // Update the documents useState by filtering out the deleted files
+            setDocuments((p) =>
+                p.filter(
+                    (document) => !successfulDeletions.includes(document.id)
+                )
+            );
+
+            if (failedDeletions.length > 0) {
+                console.log('Failed deletions:', failedDeletions);
+                // Notify the user about the failed deletions as per your preferred method (e.g., toast, alert, etc.)
+            }
+        },
+        [folder, selectedFiles]
+    );
+
+    const handleRename = useCallback(
+        async (archiveId: string, name: string | undefined) => {
+            if (!name) return;
+            console.log('Name: ', name);
+            console.log('archiveId: ', archiveId);
+            console.log('selectedFiles[0].id: ', selectedFiles[0].id);
+            const ok = await renameFile(archiveId, selectedFiles[0].id, name);
+            if (ok) {
+                setDocuments((p) =>
+                    p.map((document) =>
+                        document.id === selectedFiles[0].id
+                            ? { ...document, name }
+                            : document
+                    )
+                );
+            }
+        },
+        [selectedFiles]
+    );
+
     const handleFormPopupSubmit = useCallback(
         (value?: string) => {
             const handleNewDirectory = () => {
                 throw new Error('Invalid action for files');
             };
 
-            const handleRename = async () => {
-                if (!value) return;
-                console.log(selectedFiles);
-            };
-
-            const handleDelete = async () => {
-                if (!folder) return;
-                const archiveId = isArchive(folder)
-                    ? folder.id
-                    : (folder as Folder).archiveId;
-                console.log(selectedFiles);
-                const ok = deleteFile(archiveId, selectedFiles[0].id);
-            };
-
             const events = {
                 'New directory': handleNewDirectory,
-                Rename: handleRename,
-                Delete: handleDelete,
+                Rename: () => handleRename(archiveId, value),
+                Delete: () => handleDelete(archiveId),
             };
+
+            if (!folder) return;
+
+            const archiveId = isArchive(folder)
+                ? folder.id
+                : (folder as Folder).archiveId;
 
             events[formPopupStatus.type]();
         },
-        [folder, formPopupStatus.type, selectedFiles]
+        [folder, formPopupStatus.type, handleDelete, handleRename]
     );
 
     const getTreeViewPopupDataSource = useMemo(
@@ -118,14 +191,13 @@ export const FileManager: FC<Props> = memo(function FileManager({
     return (
         <>
             <DataGrid
-                dataSource={dataSource}
+                dataSource={documents}
                 onSelectedFile={setSelectedFiles}
                 onFileCopy={() => handleCopyMoveToEvent('Copy to')}
                 onFileDelete={() => handleFormPopupEvent('Delete')}
                 onFileDownload={() => {}}
                 onFileMove={() => handleCopyMoveToEvent('Move to')}
                 onFileRename={() => handleFormPopupEvent('Rename')}
-                onRefresh={() => {}}
             />
             {(formPopupStatus.visibility.visible ||
                 formPopupStatus.visibility.hasBeenOpen) && (
