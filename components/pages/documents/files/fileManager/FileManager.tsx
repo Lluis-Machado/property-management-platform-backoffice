@@ -57,11 +57,16 @@ export const FileManager: FC<Props> = memo(function FileManager({
 
     const handleFormPopupEvent = useCallback(
         (type: FormPopupType) => {
-            if (type === 'New directory') throw new Error('Value not valid');
+            if (type === 'New directory')
+                throw new Error("Can't create folders in documents");
+            if (type === 'Rename' && selectedFiles.length !== 1)
+                throw new Error("Can't rename multiple documents at once");
+
             const fileName =
                 selectedFiles.length === 1
                     ? selectedFiles[0].name
                     : `${selectedFiles.length} items`;
+
             setFormPopupStatus((p) => ({
                 fileName,
                 type,

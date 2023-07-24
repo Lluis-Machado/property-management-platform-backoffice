@@ -127,13 +127,20 @@ export const renameFile = async (
     documentId: string,
     documentName: string
 ) => {
-    const params = new URLSearchParams({ documentName });
-    const endPoint = `${BASE_END_POINT}/${archiveId}/documents/${documentId}?${params}`;
+    const endPoint = `${BASE_END_POINT}/${archiveId}/documents/${documentId}/rename`;
 
-    const response = await fetch(endPoint, {
-        cache: 'no-cache',
-        method: 'PATCH',
-    });
+    const response = await toast.promise(
+        fetch(endPoint, {
+            cache: 'no-cache',
+            method: 'PATCH',
+            body: JSON.stringify({ documentName }),
+        }),
+        {
+            pending: 'Renaming document',
+            success: 'Document renamed',
+            error: 'Error renaming document',
+        }
+    );
 
     return response.ok;
 };
