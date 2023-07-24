@@ -93,6 +93,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
                     ? folder.id
                     : (folder as Folder).archiveId;
                 console.log(selectedFiles);
+
                 const ok = deleteFile(archiveId, selectedFiles[0].id);
             };
 
