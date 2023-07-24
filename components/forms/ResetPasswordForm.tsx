@@ -73,7 +73,7 @@ const ResetPasswordForm = ({ dictionary }: Props) => {
                     editorOptions={{ stylingMode: 'underlined', mode: 'email' }}
                 >
                     <EmailRule message='Email is invalid' />
-                    <RequiredRule message='Email is required' />
+                    <RequiredRule />
                 </Item>
             </Form>
 

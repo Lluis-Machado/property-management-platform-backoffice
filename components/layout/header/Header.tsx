@@ -2,14 +2,20 @@
 import { Locale } from '@/i18n-config';
 import PageSelector from './PageSelector';
 import { HeaderOptions } from './HeaderOptions';
+import { User } from '@/lib/types/user';
 
-export const Header = ({ lang }: { lang: Locale }): React.ReactElement => {
+interface Props {
+    lang: Locale;
+    user: User;
+}
+
+export const Header = ({ lang, user }: Props): React.ReactElement => {
     return (
         <div className='flex h-header flex-row justify-between'>
             {/* Page Selector */}
             <PageSelector />
             {/* Header options */}
-            <HeaderOptions lang={lang} />
+            <HeaderOptions lang={lang} user={user} />
         </div>
     );
 };

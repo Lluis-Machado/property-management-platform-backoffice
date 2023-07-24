@@ -10,7 +10,6 @@ import DataGrid, {
     Paging,
     SearchPanel,
     Pager,
-    Lookup,
 } from 'devextreme-react/data-grid';
 import { OwnershipData } from '@/lib/types/ownershipData';
 
@@ -45,28 +44,16 @@ const ContactPropertiesDG = ({ ownershipData }: Props) => {
             <Paging defaultPageSize={20} />
             <Pager visible={true} showInfo showNavigationButtons />
 
-            {/* <Editing
-      mode="batch"
-      allowUpdating
-      allowAdding
-      allowDeleting
-      useIcons
-      startEditAction={'dblClick'}
-      newRowPosition='first'
-    /> */}
-
             <Column dataField='propertyName' caption='Property Name' />
             <Column
                 dataField='share'
                 dataType='number'
                 caption='Property share (%)'
-                // width={150}
             />
             <Column
                 dataField='mainOwnership'
                 dataType='boolean'
                 caption='Main Contact Person'
-                // width={150}
             />
         </DataGrid>
     );
