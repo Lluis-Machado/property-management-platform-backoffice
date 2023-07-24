@@ -156,13 +156,14 @@ const TreeView: FC<Props> = memo(function TreeView({
      * @returns {TreeItem<Folder>} The root tree item representing the folder and its children.
      */
     const getTreeItemFolderFromFolder = useCallback((folder: Folder) => {
+        folder.childFolders = [...(folder.childFolders || [])]; // TODO: Innecesario si el backend devuelve un array vacio
         const newFolderItem: TreeItem<Folder> = {
             data: folder,
             disabled: false,
             expanded: false,
             hasItems: folder.childFolders.length > 0,
             id: folder.id,
-            items: folder?.childFolders.map(getTreeItemFolderFromFolder) ?? [],
+            items: folder.childFolders.map(getTreeItemFolderFromFolder),
             parentId: folder.parentId,
             selected: false,
             text: folder.name,
@@ -213,7 +214,7 @@ const TreeView: FC<Props> = memo(function TreeView({
      *
      * @param {Function} processArchive - A function that takes an 'archive' of type TreeItem<Archive> as input and performs some modifications on it.
      */
-    const updateDataSource = useCallback(
+    const updateTreeViewDataSource = useCallback(
         (processArchive: (archive: TreeItem<Archive>) => void) => {
             const treeInstance = treeViewRef.current?.instance;
             if (!treeInstance) return;
@@ -267,13 +268,13 @@ const TreeView: FC<Props> = memo(function TreeView({
                 }
             };
 
-            updateDataSource(processArchive);
+            updateTreeViewDataSource(processArchive);
         },
         [
             isCorrectArchive,
             pushFolderToItems,
             pushFolderToItemsAndChildFolders,
-            updateDataSource,
+            updateTreeViewDataSource,
         ]
     );
 
@@ -333,9 +334,9 @@ const TreeView: FC<Props> = memo(function TreeView({
                 }
             };
 
-            updateDataSource(processArchive);
+            updateTreeViewDataSource(processArchive);
         },
-        [isCorrectArchive, updateDataSource]
+        [isCorrectArchive, updateTreeViewDataSource]
     );
 
     //#endregion
@@ -581,20 +582,32 @@ const TreeView: FC<Props> = memo(function TreeView({
             if (!response.ok) return;
 
             // Update local
+            // Delete original
+            if (!isCopyTo) {
+                const isSourceArchive = isArchive(selectedData);
+                const sourceArchiveId = isSourceArchive
+                    ? selectedData.id
+                    : (selectedData as Folder).archiveId;
+                handleDelete(
+                    sourceArchiveId,
+                    isSourceArchive,
+                    selectedTreeItem
+                );
+            }
+            // Add to new Archive / Folder
             handleNewDirectoryUpdateLocal(
                 await response.json(),
                 isDestinationArchive
             );
-            if (!isCopyTo) {
-                // Delete original
-            }
+
             setSelectedTreeItem(undefined);
         },
         [
-            handleNewDirectoryUpdateLocal,
             selectedTreeItem,
             treeViewPopupStatus.type,
             handleTreeViewPopupSubmitUpdateDB,
+            handleNewDirectoryUpdateLocal,
+            handleDelete,
         ]
     );
 
