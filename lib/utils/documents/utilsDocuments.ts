@@ -78,19 +78,17 @@ export const isCorrectArchive = (
  * @param {Folder} folder - The folder for which to create the tree item.
  * @returns {TreeItem<Folder>} The root tree item representing the folder and its children.
  */
-export const getTreeItemFolderFromFolder = (folder: Folder) => {
-    folder.childFolders = [...(folder.childFolders || [])]; // TODO: Innecesario si el backend devuelve un array vacio
-    const newFolderItem: TreeItem<Folder> = {
-        data: folder,
-        disabled: false,
-        expanded: false,
-        hasItems: folder.childFolders.length > 0,
-        id: folder.id,
-        items: folder.childFolders.map(getTreeItemFolderFromFolder),
-        parentId: folder.parentId,
-        selected: false,
-        text: folder.name,
-        visible: true,
-    };
-    return newFolderItem;
-};
+export const getTreeItemFolderFromFolder = (
+    folder: Folder
+): TreeItem<Folder> => ({
+    data: folder,
+    disabled: false,
+    expanded: false,
+    hasItems: folder.childFolders.length > 0,
+    id: folder.id,
+    items: folder.childFolders.map(getTreeItemFolderFromFolder),
+    parentId: folder.parentId,
+    selected: false,
+    text: folder.name,
+    visible: true,
+});

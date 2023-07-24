@@ -71,7 +71,6 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
                 );
             }
         } catch (err) {
-            console.error(err); // TODO: Delete this
             err instanceof ApiCallError && toast.error(err.message);
         } finally {
             setIsLoading(false);

@@ -152,10 +152,7 @@ const TreeView: FC<Props> = memo(function TreeView({
     const pushFolderToItemsAndChildFolders = useCallback(
         (folder: Folder, treeItem: TreeItem<Folder>) => {
             pushFolderToItems(folder, treeItem);
-            treeItem.data.childFolders = [
-                ...(treeItem.data.childFolders || []), // TODO: Innecesario si el backend devuelve un array vacio?
-                folder,
-            ];
+            treeItem.data.childFolders.push(folder);
         },
         [pushFolderToItems]
     );
