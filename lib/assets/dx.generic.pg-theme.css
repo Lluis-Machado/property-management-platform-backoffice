@@ -10401,11 +10401,12 @@
   background-color: var(--WuF_Gold);
 }
 .dx-treeview-item-without-checkbox.dx-state-selected > .dx-treeview-item.dx-state-hover:not(.dx-state-focused) {
-  background-color: rgba(0,0,0,.14);
+  color: rgba(255,255,255);
+  background-color: var(--WuF_Gold);
 }
 .dx-treeview-item-without-checkbox.dx-state-focused > .dx-treeview-item {
-  background-color: rgba(0,0,0,.04);
-  color: rgba(0,0,0,.87);
+  color: rgba(255,255,255);
+  background-color: var(--WuF_Gold);
 }
 .dx-treeview-item {
   display: block;

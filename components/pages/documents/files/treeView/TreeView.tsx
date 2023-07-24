@@ -726,7 +726,6 @@ const TreeView: FC<Props> = memo(function TreeView({
                 }
                 ref={treeViewRef}
                 searchEnabled
-                activeStateEnabled
                 selectByClick
                 selectionMode='single'
             />
