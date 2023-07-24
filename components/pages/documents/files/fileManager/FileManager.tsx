@@ -3,57 +3,25 @@ import { FC, RefObject, memo, useCallback, useMemo, useState } from 'react';
 
 // Libraries imports
 import dynamic from 'next/dynamic';
+import TreeView from 'devextreme-react/tree-view';
 
 // Local imoports
+import { deleteFile } from '@/lib/utils/documents/apiDocuments';
+import { Archive, Documents, Folder } from '@/lib/types/documentsAPI';
 import { FormPopupType } from '../popups/FormPopup';
 import { PopupVisibility } from '@/lib/types/Popups';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import DataGrid from './dataGrid/DataGrid';
-import TreeView from 'devextreme-react/tree-view';
+import { isArchive } from '@/lib/utils/documents/utilsDocuments';
+import { TreeItem } from '@/lib/types/treeView';
 
 // Dynamic imports
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
 const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 
-const addDisabledKey = (node: any) => {
-    const stack = [node];
-
-    while (stack.length > 0) {
-        const currentNode = stack.pop();
-        currentNode.disabled = false;
-
-        if (Array.isArray(currentNode.items)) {
-            currentNode.items.forEach((item: any) => {
-                stack.push(item);
-            });
-        }
-    }
-};
-
-const updateDisabledStatus = (treeNode: any, id: string): any => {
-    const updatedClone = structuredClone(treeNode);
-    const stack = [updatedClone];
-
-    while (stack.length > 0) {
-        const node = stack.pop();
-
-        if (Array.isArray(node.items)) {
-            for (const item of node.items) {
-                if (item.uuid === id) {
-                    node.disabled = true;
-                    item.disabled = true;
-                    return updatedClone;
-                } else {
-                    stack.push(item);
-                }
-            }
-        }
-    }
-};
-
 interface Props {
     dataSource: any[];
-    folder: any;
+    folder: Archive | Folder | undefined;
     treeViewRef: RefObject<TreeView<any>>;
 }
 
@@ -62,7 +30,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
     folder,
     treeViewRef,
 }) {
-    const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
+    const [selectedFiles, setSelectedFiles] = useState<Documents[]>([]);
     const [formPopupStatus, setFormPopupStatus] = useState<{
         fileName?: string;
         type: FormPopupType;
@@ -115,7 +83,12 @@ export const FileManager: FC<Props> = memo(function FileManager({
             };
 
             const handleDelete = async () => {
-                console.log('delete file');
+                if (!folder) return;
+                const archiveId = isArchive(folder)
+                    ? folder.id
+                    : (folder as Folder).archiveId;
+                console.log(selectedFiles);
+                const ok = deleteFile(archiveId, selectedFiles[0].id);
             };
 
             const events = {
@@ -126,11 +99,14 @@ export const FileManager: FC<Props> = memo(function FileManager({
 
             events[formPopupStatus.type]();
         },
-        [formPopupStatus.type, selectedFiles]
+        [folder, formPopupStatus.type, selectedFiles]
     );
 
     const getTreeViewPopupDataSource = useMemo(
-        () => treeViewRef.current?.instance.option('dataSource') as any[],
+        () =>
+            treeViewRef.current?.instance.option(
+                'dataSource'
+            ) as TreeItem<Archive>[],
         [treeViewRef]
     );
 

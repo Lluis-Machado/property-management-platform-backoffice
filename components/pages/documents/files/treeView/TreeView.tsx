@@ -685,7 +685,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                 }
             }
         },
-        []
+        [disableAll]
     );
 
     /**

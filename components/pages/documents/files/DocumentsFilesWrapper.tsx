@@ -23,7 +23,7 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
         const [selectedFolder, setSelectedFolder] = useState<
             Archive | Folder | undefined
         >(undefined);
-        const [documents, setDocuments] = useState<any[] | undefined>(
+        const [documents, setDocuments] = useState<Document[] | undefined>(
             undefined
         );
 
@@ -61,10 +61,10 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
                 <SplitPane
                     visible={false}
                     leftPanePreferredSize={200}
-                    // rightPanePreferredSize={600}
-                    minSizeLeft={650}
-                    minSizeCenter={100}
-                    // minSizeRight={420}
+                    rightPanePreferredSize={600}
+                    minSizeLeft={100}
+                    minSizeCenter={650}
+                    minSizeRight={420}
                     left={
                         <TreeView
                             archives={archives}
@@ -74,8 +74,8 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
                     }
                     center={
                         <FileManager
-                            dataSource={documents!}
-                            folder={''}
+                            dataSource={documents ?? []}
+                            folder={selectedFolder}
                             treeViewRef={TreeViewRef}
                         />
                     }

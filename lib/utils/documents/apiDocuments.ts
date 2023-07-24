@@ -141,10 +141,18 @@ export const renameFile = async (
 export const deleteFile = async (archiveId: string, documentId: string) => {
     const endPoint = `${BASE_END_POINT}/${archiveId}/documents/${documentId}`;
 
-    const response = await fetch(endPoint, {
-        cache: 'no-cache',
-        method: 'DELETE',
-    });
+    const response = await toast.promise(
+        fetch(endPoint, {
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            method: 'DELETE',
+        }),
+        {
+            pending: 'Deleting document',
+            success: 'Document deleted',
+            error: 'Error deleting document',
+        }
+    );
 
     return response.ok;
 };
