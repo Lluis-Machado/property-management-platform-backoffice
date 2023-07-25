@@ -18,3 +18,10 @@ export interface Folder extends BaseInterface {
     name: string;
     parentId: string | null;
 }
+
+export interface Documents extends BaseInterface {
+    contentLength: number;
+    extension: string;
+    folderId: string;
+    name: string;
+}

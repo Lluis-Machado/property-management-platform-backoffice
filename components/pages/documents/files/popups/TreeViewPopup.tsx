@@ -34,12 +34,15 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({
 
     const ContentRender = useCallback(
         (): React.ReactElement => (
-            <div className='flex flex-col gap-4'>
+            <div className='flex h-full flex-col gap-4'>
                 <TreeView
                     dataSource={dataSource}
                     id='TreeviewPopup'
                     onItemClick={({ itemData }) => setSelectedNode(itemData)}
                     searchEnabled
+                    className='flex overflow-y-auto border border-primary-500/20'
+                    selectByClick
+                    selectionMode='single'
                 />
                 <div className='flex justify-end'>
                     <div className='flex w-3/4 flex-row justify-end gap-2'>
@@ -68,15 +71,12 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({
     return (
         <Popup
             contentRender={ContentRender}
-            height='auto'
             hideOnOutsideClick
             maxWidth={340}
             onHiding={handleHiding}
             onShown={onShown}
             title={type}
             visible={visible}
-            width='80vw'
-            maxHeight='85vh'
             container='#content'
             dragEnabled={false}
         />

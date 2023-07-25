@@ -15,7 +15,6 @@ interface Props {
     onDirectoryRename: () => void;
     onDirectoryUpload: () => void;
     onNewDirectory: () => void;
-    onRefresh: () => void;
 }
 
 const ContextMenu: FC<Props> = memo(function ContextMenu({
@@ -26,7 +25,6 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
     onDirectoryRename,
     onDirectoryUpload,
     onNewDirectory,
-    onRefresh,
 }): React.ReactElement {
     const ContextMenuRef = useRef<DxContextMenu>(null);
 
@@ -38,7 +36,6 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
             3: onDirectoryMove,
             4: onDirectoryCopy,
             5: onDirectoryDelete,
-            6: onRefresh,
         }),
         [
             onDirectoryCopy,
@@ -47,7 +44,6 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
             onDirectoryRename,
             onDirectoryUpload,
             onNewDirectory,
-            onRefresh,
         ]
     );
 
@@ -75,7 +71,6 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
                 visible={!isArchive}
             />
             <Item closeMenuOnClick icon='trash' text='Delete' />
-            <Item closeMenuOnClick beginGroup icon='refresh' text='Refresh' />
         </DxContextMenu>
     );
 });

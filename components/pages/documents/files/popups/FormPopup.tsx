@@ -31,10 +31,7 @@ const FormPopup: FC<Props> = memo(function FormPopup({
     const FolderNameForm = useCallback(
         ({ submitText }: { submitText: string }): React.ReactElement => {
             const validationSchema = Yup.object().shape({
-                folderName: Yup.string()
-                    .required('Cannot be empty')
-                    .trim()
-                    .matches(/^[a-zA-Z\s]+$/g, 'Only characters are accepted'),
+                folderName: Yup.string().required('Cannot be empty').trim(),
             });
             return (
                 <Formik
@@ -79,7 +76,7 @@ const FormPopup: FC<Props> = memo(function FormPopup({
 
     const DeleteRender = useCallback(
         (): React.ReactElement => (
-            <div className='flex h-full flex-col justify-between'>
+            <div className='flex h-full flex-col justify-between gap-4'>
                 <p>{`Are you sure you want to delete ${elementName}?`}</p>
                 <div className='flex justify-end'>
                     <div className='flex w-3/4 flex-row justify-end gap-2'>

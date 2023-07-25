@@ -1,5 +1,5 @@
 //React imports
-import { useCallback, useRef } from 'react';
+import { FC, memo, useCallback, useRef } from 'react';
 
 // Libraries imports
 import { faCircleXmark, faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -10,15 +10,17 @@ interface Props {
     files: { fileName: string; status: number }[];
     onHidden: () => void;
     onShown: () => void;
+    type: 'download' | 'upload';
     visible: boolean;
 }
 
-const FailedUploadPopup = ({
+const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
     files,
     onHidden,
     onShown,
+    type,
     visible,
-}: Props): React.ReactElement => {
+}): React.ReactElement {
     const PopupRef = useRef<Popup>(null);
 
     const ContentRender = useCallback(
@@ -44,7 +46,7 @@ const FailedUploadPopup = ({
             <div className='flex flex-row justify-between text-lg text-red-400'>
                 <div className='flex flex-row items-center gap-4 text-center'>
                     <FontAwesomeIcon icon={faCircleXmark} />
-                    <h2>{`${files.length} failed upload${
+                    <h2>{`${files.length} failed ${type}${
                         files.length > 1 ? 's' : ''
                     }`}</h2>
                 </div>
@@ -55,7 +57,7 @@ const FailedUploadPopup = ({
                 />
             </div>
         ),
-        [files.length]
+        [files.length, type]
     );
 
     return (
@@ -73,6 +75,6 @@ const FailedUploadPopup = ({
             width='80vw'
         />
     );
-};
+});
 
 export default FailedUploadPopup;
