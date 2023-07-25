@@ -261,18 +261,17 @@ export const FileManager: FC<Props> = memo(function FileManager({
             const folderId = isDestinatioArchive ? null : (dData as Folder).id;
 
             for (const document of selectedFiles) {
-                const props = {
-                    archiveId,
-                    body: {
-                        destinationArchive,
-                        documentName: document.name,
-                        folderId,
-                    },
-                    documentId: document.id,
-                };
                 treeViewPopupStatus.type === 'Copy to'
-                    ? copyDocument(props)
-                    : moveDocument(props);
+                    ? copyDocument(archiveId, document.id, {
+                          destinationArchive,
+                          documentName: document.name,
+                          folderId,
+                      })
+                    : moveDocument(archiveId, document.id, {
+                          destinationArchive,
+                          documentName: document.name,
+                          folderId,
+                      });
             }
         },
         [folder, selectedFiles, treeViewPopupStatus.type]

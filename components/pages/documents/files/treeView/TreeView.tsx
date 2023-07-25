@@ -19,10 +19,10 @@ import dynamic from 'next/dynamic';
 import { Archive, Folder } from '@/lib/types/documentsAPI';
 import {
     copyFolder,
+    createFolder,
     deleteArchive,
     deleteFolder,
     moveFolder,
-    newFolder,
     renameArchive,
     renameFolder,
     uploadDocumentsToArchive,
@@ -308,14 +308,9 @@ const TreeView: FC<Props> = memo(function TreeView({
             value: string
         ) => {
             // Update DB
-            const response = await newFolder({
-                archiveId,
-                body: {
-                    name: value,
-                    parentId: isSelectedItemAnArchive
-                        ? null
-                        : (data as Folder).id,
-                },
+            const response = await createFolder(archiveId, {
+                name: value,
+                parentId: isSelectedItemAnArchive ? null : (data as Folder).id,
             });
 
             if (!response.ok) return;
@@ -348,7 +343,6 @@ const TreeView: FC<Props> = memo(function TreeView({
             const ok = isSelectedItemAnArchive
                 ? await renameArchive(archiveId, value)
                 : await renameFolder(archiveId, (data as Folder).id, {
-                      archiveId,
                       name: value,
                       parentId: (data as Folder).parentId,
                   });
@@ -486,12 +480,8 @@ const TreeView: FC<Props> = memo(function TreeView({
             };
 
             return isCopyTo
-                ? copyFolder({
-                      archiveId: selectedData.archiveId,
-                      folderId: selectedData.id,
-                      body,
-                  })
-                : moveFolder({ archiveId, folderId: selectedData.id, body });
+                ? copyFolder(selectedData.archiveId, selectedData.id, body)
+                : moveFolder(archiveId, selectedData.id, body);
         },
         []
     );
