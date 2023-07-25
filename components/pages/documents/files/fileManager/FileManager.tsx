@@ -32,7 +32,7 @@ import { PopupVisibility } from '@/lib/types/Popups';
 import { TreeItem } from '@/lib/types/treeView';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import DataGrid from './dataGrid/DataGrid';
-import FailedUploadPopup from '../popups/FailedUploadPopup';
+import FailedUploadPopup from '../popups/FailedFilesPopup';
 
 // Dynamic imports
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
