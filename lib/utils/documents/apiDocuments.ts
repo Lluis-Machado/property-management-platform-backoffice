@@ -167,6 +167,23 @@ export const deleteFile = async (archiveId: string, documentId: string) => {
     return response.ok;
 };
 
+export const downloadFile = async (archiveId: string, documentId: string) => {
+    const endPoint = `${BASE_END_POINT}/${archiveId}/documents/${documentId}`;
+
+    const response = await toast.promise(
+        fetch(endPoint, {
+            cache: 'no-cache',
+        }),
+        {
+            pending: 'Downloading document',
+            success: 'Document downloaded',
+            error: 'Error downloading document',
+        }
+    );
+
+    return await response.blob();
+};
+
 //#endregion
 
 //#region FOLDERS

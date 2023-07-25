@@ -10,18 +10,27 @@ import {
 } from 'react';
 
 // Libraries imports
+import { saveAs } from 'file-saver';
 import dynamic from 'next/dynamic';
 import TreeView from 'devextreme-react/tree-view';
 
 // Local imoports
-import { deleteFile, renameFile } from '@/lib/utils/documents/apiDocuments';
 import { Archive, Documents, Folder } from '@/lib/types/documentsAPI';
+import {
+    deleteFile,
+    downloadFile,
+    renameFile,
+} from '@/lib/utils/documents/apiDocuments';
+import {
+    DocumentDownload,
+    isArchive,
+} from '@/lib/utils/documents/utilsDocuments';
 import { FormPopupType } from '../popups/FormPopup';
 import { PopupVisibility } from '@/lib/types/Popups';
+import { TreeItem } from '@/lib/types/treeView';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import DataGrid from './dataGrid/DataGrid';
-import { isArchive } from '@/lib/utils/documents/utilsDocuments';
-import { TreeItem } from '@/lib/types/treeView';
+import FailedUploadPopup from '../popups/FailedUploadPopup';
 
 // Dynamic imports
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
@@ -54,6 +63,13 @@ export const FileManager: FC<Props> = memo(function FileManager({
         visibility: PopupVisibility;
     }>({
         type: 'Copy to',
+        visibility: { hasBeenOpen: false, visible: false },
+    });
+    const [failedUploadPopupStatus, setFailedUploadPopupStatus] = useState<{
+        files: any[];
+        visibility: PopupVisibility;
+    }>({
+        files: [],
         visibility: { hasBeenOpen: false, visible: false },
     });
 
@@ -154,6 +170,52 @@ export const FileManager: FC<Props> = memo(function FileManager({
         [selectedFiles]
     );
 
+    const handleDownload = useCallback(async () => {
+        if (!selectedFiles || !folder) return;
+
+        const archiveId = isArchive(folder)
+            ? folder.id
+            : (folder as Folder).archiveId;
+
+        // Create an array of promises for each file download
+        const downloadPromises = selectedFiles.map(
+            async (file): Promise<DocumentDownload> => {
+                try {
+                    const blob = await downloadFile(archiveId, file.id);
+                    return { fileName: file.name, success: true, blob };
+                } catch (error) {
+                    return { fileName: file.name, success: false, blob: null };
+                }
+            }
+        );
+
+        // Wait for all the promises to resolve (parallel file downloads)
+        const results = await Promise.all(downloadPromises);
+
+        // Separate successful and failed downloads
+        const successfulDownloads = results.filter((result) => result.success);
+        const failedDownloads = results.filter((result) => !result.success);
+
+        if (successfulDownloads.length === 1) {
+            saveAs(
+                successfulDownloads[0].blob!,
+                successfulDownloads[0].fileName
+            );
+        } else if (successfulDownloads.length > 1) {
+            const { downloadFilesZIP } = await import(
+                '@/lib/utils/documents/utilsDocuments'
+            );
+            downloadFilesZIP(successfulDownloads);
+        }
+
+        if (failedDownloads.length > 0) {
+            setFailedUploadPopupStatus((p) => ({
+                files: failedDownloads,
+                visibility: { ...p.visibility, visible: true },
+            }));
+        }
+    }, [folder, selectedFiles]);
+
     const handleFormPopupSubmit = useCallback(
         (value?: string) => {
             const handleNewDirectory = () => {
@@ -192,7 +254,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
                 onSelectedFile={setSelectedFiles}
                 onFileCopy={() => handleCopyMoveToEvent('Copy to')}
                 onFileDelete={() => handleFormPopupEvent('Delete')}
-                onFileDownload={() => {}}
+                onFileDownload={handleDownload}
                 onFileMove={() => handleCopyMoveToEvent('Move to')}
                 onFileRename={() => handleFormPopupEvent('Rename')}
             />
@@ -237,6 +299,26 @@ export const FileManager: FC<Props> = memo(function FileManager({
                     onSubmit={() => {}}
                     type={treeViewPopupStatus.type}
                     visible={treeViewPopupStatus.visibility.visible}
+                />
+            )}
+            {(failedUploadPopupStatus.visibility.visible ||
+                failedUploadPopupStatus.visibility.hasBeenOpen) && (
+                <FailedUploadPopup
+                    files={failedUploadPopupStatus.files}
+                    onHidden={() =>
+                        setFailedUploadPopupStatus((p) => ({
+                            ...p,
+                            visibility: { ...p.visibility, visible: false },
+                        }))
+                    }
+                    onShown={() =>
+                        setFailedUploadPopupStatus((p) => ({
+                            ...p,
+                            visibility: { ...p.visibility, hasBeenOpen: false },
+                        }))
+                    }
+                    visible={failedUploadPopupStatus.visibility.visible}
+                    type='download'
                 />
             )}
         </>

@@ -10,6 +10,7 @@ interface Props {
     files: { fileName: string; status: number }[];
     onHidden: () => void;
     onShown: () => void;
+    type: 'download' | 'upload';
     visible: boolean;
 }
 
@@ -17,6 +18,7 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
     files,
     onHidden,
     onShown,
+    type,
     visible,
 }): React.ReactElement {
     const PopupRef = useRef<Popup>(null);
@@ -44,7 +46,7 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
             <div className='flex flex-row justify-between text-lg text-red-400'>
                 <div className='flex flex-row items-center gap-4 text-center'>
                     <FontAwesomeIcon icon={faCircleXmark} />
-                    <h2>{`${files.length} failed upload${
+                    <h2>{`${files.length} failed ${type}${
                         files.length > 1 ? 's' : ''
                     }`}</h2>
                 </div>
@@ -55,7 +57,7 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
                 />
             </div>
         ),
-        [files.length]
+        [files.length, type]
     );
 
     return (

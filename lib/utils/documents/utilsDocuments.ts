@@ -1,3 +1,7 @@
+// Libraries imports
+import { saveAs } from 'file-saver';
+
+// Local imports
 import { Archive, Folder } from '@/lib/types/documentsAPI';
 import { TreeItem } from '@/lib/types/treeView';
 
@@ -92,3 +96,31 @@ export const getTreeItemFolderFromFolder = (
     text: folder.name,
     visible: true,
 });
+
+export interface DocumentDownload {
+    fileName: string;
+    success: boolean;
+    blob: Blob | null;
+}
+
+export const downloadFilesZIP = async (documents: DocumentDownload[]) => {
+    try {
+        // Dynamic imports
+        const JSZip = await import('jszip');
+
+        const zip = new JSZip.default();
+
+        // Add each file's blob from the successfulDownloads array to the zip
+        documents.forEach((file) => {
+            zip.file(file.fileName, file.blob!);
+        });
+
+        // Generate the zip content
+        const zipContent = await zip.generateAsync({ type: 'blob' });
+
+        // Trigger the download of the zip file
+        saveAs(zipContent, 'files.zip');
+    } catch (error) {
+        console.error('Error while creating or downloading the zip:', error);
+    }
+};

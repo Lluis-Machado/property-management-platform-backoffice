@@ -808,6 +808,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                         }))
                     }
                     visible={failedUploadPopupStatus.visibility.visible}
+                    type='upload'
                 />
             )}
             <form ref={UploadFileFormRef} className='hidden'>
