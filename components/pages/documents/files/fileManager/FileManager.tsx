@@ -1,16 +1,9 @@
 // React imports
-import {
-    FC,
-    RefObject,
-    memo,
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-} from 'react';
+import { FC, RefObject, memo, useCallback, useEffect, useState } from 'react';
 
 // Libraries imports
 import { saveAs } from 'file-saver';
+import { toast } from 'react-toastify';
 import dynamic from 'next/dynamic';
 import TreeView from 'devextreme-react/tree-view';
 
@@ -67,11 +60,13 @@ export const FileManager: FC<Props> = memo(function FileManager({
         type: 'Copy to',
         visibility: { hasBeenOpen: false, visible: false },
     });
-    const [failedUploadPopupStatus, setFailedUploadPopupStatus] = useState<{
+    const [failedUploadPopupStatus, setFailedDocumentsPopupStatus] = useState<{
         files: any[];
+        type: 'download' | 'upload' | 'move' | 'copy';
         visibility: PopupVisibility;
     }>({
         files: [],
+        type: 'download',
         visibility: { hasBeenOpen: false, visible: false },
     });
 
@@ -188,9 +183,9 @@ export const FileManager: FC<Props> = memo(function FileManager({
             async (file): Promise<DocumentDownload> => {
                 try {
                     const blob = await downloadDocument(archiveId, file.id);
-                    return { fileName: file.name, success: true, blob };
+                    return { name: file.name, success: true, blob };
                 } catch (error) {
-                    return { fileName: file.name, success: false, blob: null };
+                    return { name: file.name, success: false, blob: null };
                 }
             }
         );
@@ -203,10 +198,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
         const failedDownloads = results.filter((result) => !result.success);
 
         if (successfulDownloads.length === 1) {
-            saveAs(
-                successfulDownloads[0].blob!,
-                successfulDownloads[0].fileName
-            );
+            saveAs(successfulDownloads[0].blob!, successfulDownloads[0].name);
         } else if (successfulDownloads.length > 1) {
             const { downloadFilesZIP } = await import(
                 '@/lib/utils/documents/utilsDocuments'
@@ -215,8 +207,9 @@ export const FileManager: FC<Props> = memo(function FileManager({
         }
 
         if (failedDownloads.length > 0) {
-            setFailedUploadPopupStatus((p) => ({
+            setFailedDocumentsPopupStatus((p) => ({
                 files: failedDownloads,
+                type: 'download',
                 visibility: { ...p.visibility, visible: true },
             }));
         }
@@ -245,12 +238,12 @@ export const FileManager: FC<Props> = memo(function FileManager({
         [folder, formPopupStatus.type, handleDelete, handleRename]
     );
 
-    const handleTreeViewPopupSubmit = useCallback(
-        (destination: TreeItem<Archive | Folder>) => {
-            if (!destination || !selectedFiles || !folder) return;
+    const handleCopyMoveCall = useCallback(
+        async (destination: TreeItem<Archive | Folder>) => {
+            if (!folder) return;
 
-            const isDestinatioArchive = isArchive(destination.data);
             const dData = destination.data;
+            const isDestinatioArchive = isArchive(dData);
 
             const archiveId = isArchive(folder)
                 ? folder.id
@@ -260,21 +253,68 @@ export const FileManager: FC<Props> = memo(function FileManager({
                 : (dData as Folder).archiveId;
             const folderId = isDestinatioArchive ? null : (dData as Folder).id;
 
-            for (const document of selectedFiles) {
-                treeViewPopupStatus.type === 'Copy to'
-                    ? copyDocument(archiveId, document.id, {
-                          destinationArchive,
-                          documentName: document.name,
-                          folderId,
-                      })
-                    : moveDocument(archiveId, document.id, {
-                          destinationArchive,
-                          documentName: document.name,
-                          folderId,
-                      });
-            }
+            return await Promise.all(
+                selectedFiles.map(async (document) => {
+                    const operation =
+                        treeViewPopupStatus.type === 'Copy to'
+                            ? copyDocument
+                            : moveDocument;
+                    return await operation(archiveId, document.id, {
+                        destinationArchive,
+                        documentName: document.name,
+                        folderId,
+                    });
+                })
+            );
         },
         [folder, selectedFiles, treeViewPopupStatus.type]
+    );
+
+    const handleTreeViewPopupSubmit = useCallback(
+        async (destination: TreeItem<Archive | Folder>) => {
+            const results = await handleCopyMoveCall(destination);
+            if (!results) return;
+
+            const successfulDocuments = selectedFiles.filter(
+                (_, idx) => !results[idx]
+            );
+            const failedDocuments = selectedFiles.filter(
+                (_, idx) => !!results[idx]
+            );
+
+            if (successfulDocuments.length > 0) {
+                const message = `${successfulDocuments.length} file${
+                    successfulDocuments.length ? 's' : ''
+                } ${
+                    treeViewPopupStatus.type === 'Copy to' ? 'copied' : 'moved'
+                } successfully`;
+                toast(message, {
+                    autoClose: 3000,
+                    pauseOnHover: true,
+                    type: 'success',
+                });
+            }
+
+            if (failedDocuments.length > 0) {
+                setFailedDocumentsPopupStatus((p) => ({
+                    files: failedDocuments,
+                    type:
+                        treeViewPopupStatus.type === 'Copy to'
+                            ? 'copy'
+                            : 'move',
+                    visibility: { ...p.visibility, visible: true },
+                }));
+            }
+
+            if (treeViewPopupStatus.type == 'Move to') {
+                setDocuments((p) =>
+                    p.filter(
+                        (document) => !successfulDocuments.includes(document)
+                    )
+                );
+            }
+        },
+        [handleCopyMoveCall, selectedFiles, treeViewPopupStatus.type]
     );
 
     return (
@@ -340,19 +380,19 @@ export const FileManager: FC<Props> = memo(function FileManager({
                 <FailedUploadPopup
                     files={failedUploadPopupStatus.files}
                     onHidden={() =>
-                        setFailedUploadPopupStatus((p) => ({
+                        setFailedDocumentsPopupStatus((p) => ({
                             ...p,
                             visibility: { ...p.visibility, visible: false },
                         }))
                     }
                     onShown={() =>
-                        setFailedUploadPopupStatus((p) => ({
+                        setFailedDocumentsPopupStatus((p) => ({
                             ...p,
                             visibility: { ...p.visibility, hasBeenOpen: false },
                         }))
                     }
                     visible={failedUploadPopupStatus.visibility.visible}
-                    type='download'
+                    type={failedUploadPopupStatus.type}
                 />
             )}
         </>

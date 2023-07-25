@@ -78,7 +78,7 @@ const TreeView: FC<Props> = memo(function TreeView({
         type: 'Copy to',
         visibility: { hasBeenOpen: false, visible: false },
     });
-    const [failedUploadPopupStatus, setFailedUploadPopupStatus] = useState<{
+    const [failedUploadPopupStatus, setFailedDocumentsPopupStatus] = useState<{
         files: any[];
         visibility: PopupVisibility;
     }>({
@@ -604,7 +604,7 @@ const TreeView: FC<Props> = memo(function TreeView({
         }
 
         if (failUploads.length > 0) {
-            setFailedUploadPopupStatus((p) => ({
+            setFailedDocumentsPopupStatus((p) => ({
                 files: failUploads,
                 visibility: { ...p.visibility, visible: true },
             }));
@@ -788,13 +788,13 @@ const TreeView: FC<Props> = memo(function TreeView({
                 <FailedUploadPopup
                     files={failedUploadPopupStatus.files}
                     onHidden={() =>
-                        setFailedUploadPopupStatus((p) => ({
+                        setFailedDocumentsPopupStatus((p) => ({
                             ...p,
                             visibility: { ...p.visibility, visible: false },
                         }))
                     }
                     onShown={() =>
-                        setFailedUploadPopupStatus((p) => ({
+                        setFailedDocumentsPopupStatus((p) => ({
                             ...p,
                             visibility: { ...p.visibility, hasBeenOpen: false },
                         }))

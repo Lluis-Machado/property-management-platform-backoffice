@@ -7,10 +7,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Popup from 'devextreme-react/popup';
 
 interface Props {
-    files: { fileName: string; status: number }[];
+    files: { fileName?: string; name?: string; status: number }[];
     onHidden: () => void;
     onShown: () => void;
-    type: 'download' | 'upload';
+    type: 'download' | 'upload' | 'move' | 'copy';
     visible: boolean;
 }
 
@@ -32,8 +32,8 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
                     } have failed:`}
                 </h2>
                 <div>
-                    {files.map(({ fileName }) => (
-                        <p key={fileName}>{fileName}</p>
+                    {files.map(({ fileName, name }) => (
+                        <p key={fileName || name}>{fileName || name}</p>
                     ))}
                 </div>
             </div>
@@ -41,13 +41,19 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
         [files]
     );
 
-    const TitleRender = useCallback(
-        () => (
+    const TitleRender = useCallback(() => {
+        const plural = {
+            download: 'downloads',
+            upload: 'uploads',
+            move: 'moves',
+            copy: 'copies',
+        };
+        return (
             <div className='flex flex-row justify-between text-lg text-red-400'>
                 <div className='flex flex-row items-center gap-4 text-center'>
                     <FontAwesomeIcon icon={faCircleXmark} />
-                    <h2>{`${files.length} failed ${type}${
-                        files.length > 1 ? 's' : ''
+                    <h2>{`${files.length} failed ${
+                        files.length > 1 ? type : plural[type]
                     }`}</h2>
                 </div>
                 <FontAwesomeIcon
@@ -56,9 +62,8 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
                     onClick={() => PopupRef.current?.instance.hide()}
                 />
             </div>
-        ),
-        [files.length, type]
-    );
+        );
+    }, [files.length, type]);
 
     return (
         <Popup

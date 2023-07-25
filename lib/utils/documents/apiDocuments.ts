@@ -105,16 +105,6 @@ const documentMessages: Record<string, Messages> = {
         success: 'Document downloaded',
         error: 'Error downloading document',
     },
-    copy: {
-        pending: 'Copying document',
-        success: 'Document copied',
-        error: 'Error copying document',
-    },
-    move: {
-        pending: 'Moving document',
-        success: 'Document moved',
-        error: 'Error moving document',
-    },
 };
 
 const uploadDocuments = async (endPoint: string, files: File[]) => {

@@ -98,7 +98,7 @@ export const getTreeItemFolderFromFolder = (
 });
 
 export interface DocumentDownload {
-    fileName: string;
+    name: string;
     success: boolean;
     blob: Blob | null;
 }
@@ -112,7 +112,7 @@ export const downloadFilesZIP = async (documents: DocumentDownload[]) => {
 
         // Add each file's blob from the successfulDownloads array to the zip
         documents.forEach((file) => {
-            zip.file(file.fileName, file.blob!);
+            zip.file(file.name, file.blob!);
         });
 
         // Generate the zip content
