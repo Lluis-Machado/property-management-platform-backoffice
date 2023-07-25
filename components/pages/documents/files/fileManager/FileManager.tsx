@@ -62,7 +62,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
     });
     const [failedUploadPopupStatus, setFailedDocumentsPopupStatus] = useState<{
         files: any[];
-        type: 'download' | 'upload' | 'move' | 'copy';
+        type: 'download' | 'upload' | 'move' | 'copy' | 'delete';
         visibility: PopupVisibility;
     }>({
         files: [],
@@ -108,43 +108,43 @@ export const FileManager: FC<Props> = memo(function FileManager({
 
             const fileIds = selectedFiles.map((file) => file.id);
 
-            const deletionResults = await Promise.all(
+            const results = await Promise.all(
                 fileIds.map(async (fileId) => {
-                    const ok = await deleteDocument(archiveId, fileId);
-                    return { fileId, ok };
+                    return await deleteDocument(archiveId, fileId);
                 })
             );
 
             // Filter deletions
-            // Separate the successful and failed deletions
-            const { successfulDeletions, failedDeletions } =
-                deletionResults.reduce(
-                    (
-                        acc: {
-                            successfulDeletions: any[];
-                            failedDeletions: any[];
-                        },
-                        { ok, fileId }
-                    ) => {
-                        ok
-                            ? acc.successfulDeletions.push(fileId)
-                            : acc.failedDeletions.push(fileId);
-
-                        return acc;
-                    },
-                    { successfulDeletions: [], failedDeletions: [] }
-                );
-
-            // Update the documents useState by filtering out the deleted files
-            setDocuments((p) =>
-                p.filter(
-                    (document) => !successfulDeletions.includes(document.id)
-                )
+            const successfulDeletions = selectedFiles.filter(
+                (_, idx) => results[idx]
+            );
+            const failedDeletions = selectedFiles.filter(
+                (_, idx) => !results[idx]
             );
 
+            if (successfulDeletions.length > 0) {
+                const message = `${successfulDeletions.length} file${
+                    successfulDeletions.length > 1 ? 's' : ''
+                } deleted successfully`;
+                toast(message, {
+                    autoClose: 3000,
+                    pauseOnHover: true,
+                    type: 'success',
+                });
+                // Update the documents useState by filtering out the deleted files
+                setDocuments((p) =>
+                    p.filter(
+                        (document) => !successfulDeletions.includes(document)
+                    )
+                );
+            }
+
             if (failedDeletions.length > 0) {
-                console.log('Failed deletions:', failedDeletions);
-                // TODO: Notify the user about the failed deletions as per your preferred method (e.g., toast, alert, etc.)
+                setFailedDocumentsPopupStatus((p) => ({
+                    files: failedDeletions,
+                    type: 'delete',
+                    visibility: { ...p.visibility, visible: true },
+                }));
             }
         },
         [folder, selectedFiles]
@@ -196,6 +196,17 @@ export const FileManager: FC<Props> = memo(function FileManager({
         // Separate successful and failed downloads
         const successfulDownloads = results.filter((result) => result.success);
         const failedDownloads = results.filter((result) => !result.success);
+
+        if (successfulDownloads.length > 0) {
+            const message = `${successfulDownloads.length} file${
+                successfulDownloads.length > 1 ? 's' : ''
+            } downloaded successfully`;
+            toast(message, {
+                autoClose: 3000,
+                pauseOnHover: true,
+                type: 'success',
+            });
+        }
 
         if (successfulDownloads.length === 1) {
             saveAs(successfulDownloads[0].blob!, successfulDownloads[0].name);
@@ -276,15 +287,15 @@ export const FileManager: FC<Props> = memo(function FileManager({
             if (!results) return;
 
             const successfulDocuments = selectedFiles.filter(
-                (_, idx) => !results[idx]
+                (_, idx) => results[idx]
             );
             const failedDocuments = selectedFiles.filter(
-                (_, idx) => !!results[idx]
+                (_, idx) => !results[idx]
             );
 
             if (successfulDocuments.length > 0) {
                 const message = `${successfulDocuments.length} file${
-                    successfulDocuments.length ? 's' : ''
+                    successfulDocuments.length > 1 ? 's' : ''
                 } ${
                     treeViewPopupStatus.type === 'Copy to' ? 'copied' : 'moved'
                 } successfully`;

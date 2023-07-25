@@ -95,16 +95,6 @@ const documentMessages: Record<string, Messages> = {
         success: 'Document renamed',
         error: 'Error renaming document',
     },
-    delete: {
-        pending: 'Deleting document',
-        success: 'Document deleted',
-        error: 'Error deleting document',
-    },
-    download: {
-        pending: 'Downloading document',
-        success: 'Document downloaded',
-        error: 'Error downloading document',
-    },
 };
 
 const uploadDocuments = async (endPoint: string, files: File[]) => {

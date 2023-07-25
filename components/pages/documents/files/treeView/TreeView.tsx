@@ -594,7 +594,7 @@ const TreeView: FC<Props> = memo(function TreeView({
 
         if (okUploads.length > 0) {
             const message = `${okUploads.length} file${
-                okUploads.length ? 's' : ''
+                okUploads.length > 1 ? 's' : ''
             } uploaded successfully`;
             toast(message, {
                 autoClose: 3000,

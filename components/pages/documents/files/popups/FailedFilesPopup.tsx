@@ -10,7 +10,7 @@ interface Props {
     files: { fileName?: string; name?: string; status: number }[];
     onHidden: () => void;
     onShown: () => void;
-    type: 'download' | 'upload' | 'move' | 'copy';
+    type: 'download' | 'upload' | 'move' | 'copy' | 'delete';
     visible: boolean;
 }
 
@@ -28,8 +28,8 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
             <div className='flex flex-col gap-2'>
                 <h2 className='mb-4'>
                     {`The following file${
-                        files.length > 1 ? 's' : ''
-                    } have failed:`}
+                        files.length > 1 ? 's have' : ' has'
+                    } failed:`}
                 </h2>
                 <div>
                     {files.map(({ fileName, name }) => (
@@ -47,13 +47,14 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
             upload: 'uploads',
             move: 'moves',
             copy: 'copies',
+            delete: 'deletions',
         };
         return (
             <div className='flex flex-row justify-between text-lg text-red-400'>
                 <div className='flex flex-row items-center gap-4 text-center'>
                     <FontAwesomeIcon icon={faCircleXmark} />
                     <h2>{`${files.length} failed ${
-                        files.length > 1 ? type : plural[type]
+                        files.length > 1 ? plural[type] : type
                     }`}</h2>
                 </div>
                 <FontAwesomeIcon
