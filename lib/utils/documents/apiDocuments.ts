@@ -117,7 +117,7 @@ const documentMessages: Record<string, Messages> = {
     },
 };
 
-const uploadDocuments = async (endPoint: string, files: any[]) => {
+const uploadDocuments = async (endPoint: string, files: File[]) => {
     const formData = new FormData();
 
     for (const file of files) {
@@ -135,7 +135,7 @@ const uploadDocuments = async (endPoint: string, files: any[]) => {
 
 export const uploadDocumentsToArchive = async (
     archiveId: string,
-    files: any[]
+    files: File[]
 ) => {
     const endPoint = `${BASE_END_POINT}/${archiveId}/documents`;
     return uploadDocuments(endPoint, files);
@@ -144,7 +144,7 @@ export const uploadDocumentsToArchive = async (
 export const uploadDocumentsToFolder = async (
     archiveId: string,
     folderId: string,
-    files: any[]
+    files: File[]
 ) => {
     const endPoint = `${BASE_END_POINT}/${archiveId}/documents?${new URLSearchParams(
         { folderId }
