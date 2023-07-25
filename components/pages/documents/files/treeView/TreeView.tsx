@@ -40,7 +40,9 @@ import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import ContextMenu from './ContextMenu';
 
 // Dynamic imports
-const FailedUploadPopup = dynamic(() => import('../popups/FailedFilesPopup'));
+const FailedUploadPopup = dynamic(
+    () => import('../popups/FailedDocumentsPopup')
+);
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
 const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 

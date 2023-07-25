@@ -6,11 +6,18 @@ import { faCircleXmark, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Popup from 'devextreme-react/popup';
 
+export type failedDocumentsType =
+    | 'download'
+    | 'upload'
+    | 'move'
+    | 'copy'
+    | 'delete';
+
 interface Props {
     files: { fileName?: string; name?: string; status: number }[];
     onHidden: () => void;
     onShown: () => void;
-    type: 'download' | 'upload' | 'move' | 'copy' | 'delete';
+    type: failedDocumentsType;
     visible: boolean;
 }
 
