@@ -41,6 +41,8 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({
                     onItemClick={({ itemData }) => setSelectedNode(itemData)}
                     searchEnabled
                     className='flex overflow-y-auto border border-primary-500/20'
+                    selectByClick
+                    selectionMode='single'
                 />
                 <div className='flex justify-end'>
                     <div className='flex w-3/4 flex-row justify-end gap-2'>

@@ -25,8 +25,8 @@ import {
     newFolder,
     renameArchive,
     renameFolder,
-    uploadFilesToArchive,
-    uploadFilesToFolder,
+    uploadDocumentsToArchive,
+    uploadDocumentsToFolder,
 } from '@/lib/utils/documents/apiDocuments';
 import { FormPopupType } from '../popups/FormPopup';
 import {
@@ -486,10 +486,12 @@ const TreeView: FC<Props> = memo(function TreeView({
             };
 
             return isCopyTo
-                ? copyFolder(selectedData.archiveId, selectedData.id, {
-                      ...body,
+                ? copyFolder({
+                      archiveId: selectedData.archiveId,
+                      folderId: selectedData.id,
+                      body,
                   })
-                : moveFolder(archiveId, selectedData.id, { ...body });
+                : moveFolder({ archiveId, folderId: selectedData.id, body });
         },
         []
     );
@@ -577,8 +579,8 @@ const TreeView: FC<Props> = memo(function TreeView({
         const { data } = selectedTreeItem!;
 
         return isArchive(data)
-            ? await uploadFilesToArchive(data.id, selectedFiles)
-            : await uploadFilesToFolder(
+            ? await uploadDocumentsToArchive(data.id, selectedFiles)
+            : await uploadDocumentsToFolder(
                   (data as Folder).archiveId,
                   (data as Folder).id,
                   selectedFiles

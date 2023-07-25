@@ -17,9 +17,11 @@ import TreeView from 'devextreme-react/tree-view';
 // Local imoports
 import { Archive, Documents, Folder } from '@/lib/types/documentsAPI';
 import {
-    deleteFile,
-    downloadFile,
-    renameFile,
+    copyDocument,
+    deleteDocument,
+    downloadDocument,
+    moveDocument,
+    renameDocument,
 } from '@/lib/utils/documents/apiDocuments';
 import {
     DocumentDownload,
@@ -113,7 +115,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
 
             const deletionResults = await Promise.all(
                 fileIds.map(async (fileId) => {
-                    const ok = await deleteFile(archiveId, fileId);
+                    const ok = await deleteDocument(archiveId, fileId);
                     return { fileId, ok };
                 })
             );
@@ -156,7 +158,11 @@ export const FileManager: FC<Props> = memo(function FileManager({
     const handleRename = useCallback(
         async (archiveId: string, name: string | undefined) => {
             if (!name) return;
-            const ok = await renameFile(archiveId, selectedFiles[0].id, name);
+            const ok = await renameDocument(
+                archiveId,
+                selectedFiles[0].id,
+                name
+            );
             if (ok) {
                 setDocuments((p) =>
                     p.map((document) =>
@@ -181,7 +187,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
         const downloadPromises = selectedFiles.map(
             async (file): Promise<DocumentDownload> => {
                 try {
-                    const blob = await downloadFile(archiveId, file.id);
+                    const blob = await downloadDocument(archiveId, file.id);
                     return { fileName: file.name, success: true, blob };
                 } catch (error) {
                     return { fileName: file.name, success: false, blob: null };
@@ -239,12 +245,37 @@ export const FileManager: FC<Props> = memo(function FileManager({
         [folder, formPopupStatus.type, handleDelete, handleRename]
     );
 
-    const getTreeViewPopupDataSource = useMemo(
-        () =>
-            treeViewRef.current?.instance.option(
-                'dataSource'
-            ) as TreeItem<Archive>[],
-        [treeViewRef]
+    const handleTreeViewPopupSubmit = useCallback(
+        (destination: TreeItem<Archive | Folder>) => {
+            if (!destination || !selectedFiles || !folder) return;
+
+            const isDestinatioArchive = isArchive(destination.data);
+            const dData = destination.data;
+
+            const archiveId = isArchive(folder)
+                ? folder.id
+                : (folder as Folder).archiveId;
+            const destinationArchive = isDestinatioArchive
+                ? dData.id
+                : (dData as Folder).archiveId;
+            const folderId = isDestinatioArchive ? null : (dData as Folder).id;
+
+            for (const document of selectedFiles) {
+                const props = {
+                    archiveId,
+                    body: {
+                        destinationArchive,
+                        documentName: document.name,
+                        folderId,
+                    },
+                    documentId: document.id,
+                };
+                treeViewPopupStatus.type === 'Copy to'
+                    ? copyDocument(props)
+                    : moveDocument(props);
+            }
+        },
+        [folder, selectedFiles, treeViewPopupStatus.type]
     );
 
     return (
@@ -283,7 +314,11 @@ export const FileManager: FC<Props> = memo(function FileManager({
             {(treeViewPopupStatus.visibility.visible ||
                 treeViewPopupStatus.visibility.hasBeenOpen) && (
                 <TreeViewPopup
-                    dataSource={getTreeViewPopupDataSource}
+                    dataSource={
+                        treeViewRef.current?.instance.option(
+                            'dataSource'
+                        ) as TreeItem<Archive>[]
+                    }
                     onHiding={() =>
                         setTreeViewPopupStatus((p) => ({
                             ...p,
@@ -296,7 +331,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
                             visibility: { ...p.visibility, hasBeenOpen: true },
                         }))
                     }
-                    onSubmit={() => {}}
+                    onSubmit={handleTreeViewPopupSubmit}
                     type={treeViewPopupStatus.type}
                     visible={treeViewPopupStatus.visibility.visible}
                 />
