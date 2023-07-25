@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import TreeView from 'devextreme-react/tree-view';
 
 // Local imoports
-import { Archive, Documents, Folder } from '@/lib/types/documentsAPI';
+import { Archive, Document, Folder } from '@/lib/types/documentsAPI';
 import {
     copyDocument,
     deleteDocument,
@@ -25,7 +25,7 @@ import { PopupVisibility } from '@/lib/types/Popups';
 import { TreeItem } from '@/lib/types/treeView';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import DataGrid from './dataGrid/DataGrid';
-import FailedUploadPopup, {
+import FailedDocumentPopup, {
     failedDocumentsType,
 } from '../popups/FailedDocumentsPopup';
 
@@ -34,7 +34,7 @@ const FormPopup = dynamic(() => import('../popups/FormPopup'));
 const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 
 interface Props {
-    dataSource: Documents[];
+    dataSource: Document[];
     folder: Archive | Folder | undefined;
     treeViewRef: RefObject<TreeView<any>>;
 }
@@ -44,8 +44,8 @@ export const FileManager: FC<Props> = memo(function FileManager({
     folder,
     treeViewRef,
 }) {
-    const [documents, setDocuments] = useState<Documents[]>(dataSource);
-    const [selectedFiles, setSelectedFiles] = useState<Documents[]>([]);
+    const [documents, setDocuments] = useState<Document[]>(dataSource);
+    const [selectedFiles, setSelectedFiles] = useState<Document[]>([]);
     const [formPopupStatus, setFormPopupStatus] = useState<{
         fileName?: string;
         type: FormPopupType;
@@ -64,7 +64,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
     });
     const [failedDocumentsPopupStatus, setFailedDocumentsPopupStatus] =
         useState<{
-            files: any[];
+            files: Document[];
             type: failedDocumentsType;
             visibility: PopupVisibility;
         }>({
@@ -85,7 +85,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
             results: boolean[],
             type: failedDocumentsType,
             onSuccessfullDocuments: (
-                successfulDocuments: Documents[]
+                successfulDocuments: Document[]
             ) => void | Promise<void>
         ) => {
             const successfulDocuments = selectedFiles.filter(
@@ -157,7 +157,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
                 )
             );
 
-            const onSuccessfullDocuments = (successfulDocuments: Documents[]) =>
+            const onSuccessfullDocuments = (successfulDocuments: Document[]) =>
                 setDocuments((p) =>
                     p.filter(
                         (document) => !successfulDocuments.includes(document)
@@ -260,7 +260,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
             const results = await handleCall();
             const type = isCopyTo ? 'copy' : 'move';
             const onSuccessfullDocuments = (
-                successfulDocuments: Documents[]
+                successfulDocuments: Document[]
             ) => {
                 if (!isCopyTo) {
                     setDocuments((p) =>
@@ -308,7 +308,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
                     successfulDownloads[0].name
                 );
             } else if (successfulDownloads.length > 1) {
-                const { downloadFilesZIP } = await import(
+                const { downloadDocumentsZIP: downloadFilesZIP } = await import(
                     '@/lib/utils/documents/utilsDocuments'
                 );
                 downloadFilesZIP(successfulDownloads);
@@ -383,8 +383,8 @@ export const FileManager: FC<Props> = memo(function FileManager({
             )}
             {(failedDocumentsPopupStatus.visibility.visible ||
                 failedDocumentsPopupStatus.visibility.hasBeenOpen) && (
-                <FailedUploadPopup
-                    files={failedDocumentsPopupStatus.files}
+                <FailedDocumentPopup
+                    documents={failedDocumentsPopupStatus.files}
                     onHidden={() =>
                         setFailedDocumentsPopupStatus((p) => ({
                             ...p,

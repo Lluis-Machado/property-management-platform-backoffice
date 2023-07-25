@@ -8,7 +8,7 @@ import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
 
 // Local imports
 import { ApiCallError } from '@/lib/utils/errors';
-import { Archive, Documents, Folder } from '@/lib/types/documentsAPI';
+import { Archive, Document, Folder } from '@/lib/types/documentsAPI';
 import { FileManager } from './fileManager/FileManager';
 import { isArchive } from '@/lib/utils/documents/utilsDocuments';
 import SplitPane from '@/components/splitPane/SplitPane';
@@ -23,7 +23,7 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
         const [selectedFolder, setSelectedFolder] = useState<
             Archive | Folder | undefined
         >(undefined);
-        const [documents, setDocuments] = useState<Documents[] | undefined>(
+        const [documents, setDocuments] = useState<Document[] | undefined>(
             undefined
         );
 

@@ -19,9 +19,14 @@ export interface Folder extends BaseInterface {
     parentId: string | null;
 }
 
-export interface Documents extends BaseInterface {
+export interface Document extends BaseInterface {
     contentLength: number;
     extension: string;
     folderId: string;
     name: string;
+}
+
+export interface DocumentUpload {
+    fileName: string;
+    status: number;
 }

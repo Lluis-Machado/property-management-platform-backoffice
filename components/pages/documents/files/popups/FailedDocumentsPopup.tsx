@@ -5,6 +5,7 @@ import { FC, memo, useCallback, useRef } from 'react';
 import { faCircleXmark, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Popup from 'devextreme-react/popup';
+import { Document, DocumentUpload } from '@/lib/types/documentsAPI';
 
 export type failedDocumentsType =
     | 'download'
@@ -14,15 +15,22 @@ export type failedDocumentsType =
     | 'delete';
 
 interface Props {
-    files: { fileName?: string; name?: string; status: number }[];
+    documents: Document[] | DocumentUpload[];
     onHidden: () => void;
     onShown: () => void;
     type: failedDocumentsType;
     visible: boolean;
 }
 
-const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
-    files,
+const getDocumentName = (document: Document | DocumentUpload) => {
+    const isDocumentUpload = (
+        document: Document | DocumentUpload
+    ): document is DocumentUpload => !document?.hasOwnProperty('fileName');
+    return isDocumentUpload(document) ? document.fileName : document.name;
+};
+
+const FailedDocumentPopup: FC<Props> = memo(function FailedUploadPopup({
+    documents,
     onHidden,
     onShown,
     type,
@@ -34,18 +42,20 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
         () => (
             <div className='flex flex-col gap-2'>
                 <h2 className='mb-4'>
-                    {`The following file${
-                        files.length > 1 ? 's have' : ' has'
+                    {`The following document${
+                        documents.length > 1 ? 's have' : ' has'
                     } failed:`}
                 </h2>
                 <div>
-                    {files.map(({ fileName, name }) => (
-                        <p key={fileName || name}>{fileName || name}</p>
+                    {documents.map((document) => (
+                        <p key={getDocumentName(document)}>
+                            {getDocumentName(document)}
+                        </p>
                     ))}
                 </div>
             </div>
         ),
-        [files]
+        [documents]
     );
 
     const TitleRender = useCallback(() => {
@@ -60,8 +70,8 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
             <div className='flex flex-row justify-between text-lg text-red-400'>
                 <div className='flex flex-row items-center gap-4 text-center'>
                     <FontAwesomeIcon icon={faCircleXmark} />
-                    <h2>{`${files.length} failed ${
-                        files.length > 1 ? plural[type] : type
+                    <h2>{`${documents.length} failed ${
+                        documents.length > 1 ? plural[type] : type
                     }`}</h2>
                 </div>
                 <FontAwesomeIcon
@@ -71,7 +81,7 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
                 />
             </div>
         );
-    }, [files.length, type]);
+    }, [documents.length, type]);
 
     return (
         <Popup
@@ -90,4 +100,4 @@ const FailedUploadPopup: FC<Props> = memo(function FailedUploadPopup({
     );
 });
 
-export default FailedUploadPopup;
+export default FailedDocumentPopup;

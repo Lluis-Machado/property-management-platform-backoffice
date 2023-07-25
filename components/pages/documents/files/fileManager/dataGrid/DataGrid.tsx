@@ -24,7 +24,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Local imports
 import ContextMenu from './ContextMenu';
-import { formatFileSize } from '@/lib/utils/documents/utilsDocuments';
+import { formatDocumentSize } from '@/lib/utils/documents/utilsDocuments';
 
 type ToolBarItemType =
     | 'Download'
@@ -63,7 +63,7 @@ const NameCellRender = ({ data }: any): React.ReactElement => (
 );
 
 const SizeCellRender = ({ data }: any): React.ReactElement => (
-    <p>{formatFileSize(data.contentLength)}</p>
+    <p>{formatDocumentSize(data.contentLength)}</p>
 );
 
 interface Props {
