@@ -11,12 +11,20 @@
         {
             "key": "$base-border-radius",
             "value": "5px"
+        },
+        {
+            "key": "$datagrid-selection-bg",
+            "value": "rgba(194, 164, 64, 0.4)"
+        },
+        {
+            "key": "$treeview-focused-bg",
+            "value": "rgba(185, 159, 108, 1)"
         }
     ],
     "baseTheme": "material.blue.light",
     "outputColorScheme": "pg-theme",
     "makeSwatch": false,
-    "version": "23.1.3",
+    "version": "23.1.4",
     "widgets": [
         "DataGrid",
         "TreeList",

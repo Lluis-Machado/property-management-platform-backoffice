@@ -66,7 +66,7 @@ export const ContextMenu: FC<Props> = memo(function ContextMenu({
 
     return (
         <DxContextMenu
-            target='#DocumentsDataGrid > div > div.dx-datagrid-rowsview.dx-datagrid-nowrap'
+            target='#DocumentsDataGrid > div > div.dx-datagrid-rowsview.dx-datagrid-nowrap.dx-scrollable.dx-visibility-change-handler.dx-scrollable-both.dx-scrollable-simulated > div > div > div.dx-scrollable-content > div > table > tbody > tr'
             onItemClick={handleContextMenuItemClick}
             hideOnOutsideClick
         >

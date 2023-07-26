@@ -486,7 +486,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                         (destinationData as Folder).archiveId &&
                     selectedData.parentId === destinationData.id;
 
-                if (isSameTopLevelFolder || isSameSubfolder) name += ' - copy';
+                if (isSameTopLevelFolder || isSameSubfolder) name += ' (copy)';
             }
 
             const body = {
