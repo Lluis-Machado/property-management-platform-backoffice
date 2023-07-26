@@ -210,9 +210,9 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                 id='DocumentsDataGrid'
                 keyExpr='id'
                 onContextMenuPreparing={handleRightClick}
-                onRowClick={({ data }: { data: Document }) =>
-                    onSelectionChanged([data])
-                }
+                // onRowClick={({ data }: { data: Document }) =>
+                //     onSelectionChanged([data])
+                // }
                 onSelectionChanged={handleOnSelectionChanged}
                 ref={DataGridRef}
                 rowAlternationEnabled
