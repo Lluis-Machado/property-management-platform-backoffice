@@ -7,7 +7,8 @@ export interface PropertyCreate {
     address: Address;
     cadastreRef: string;
     comments: string;
-    mainOwnerId: string;
+    billingContactId: string;
+    contactPersonId: string;
     mainOwnerType: string;
     childProperties: string[];
     parentPropertyId: string | null;
@@ -21,7 +22,8 @@ export interface PropertyData {
     cadastreRef: string;
     cadastreUrl: string;
     comments: string;
-    mainOwnerId: string;
+    billingContactId: string;
+    contactPersonId: string;
     mainOwnerType: string;
     parentPropertyId: string;
     id: string;
