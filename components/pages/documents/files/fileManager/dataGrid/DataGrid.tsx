@@ -100,7 +100,7 @@ interface Props {
     /** Callback function for handling the "Rename" action. */
     onFileRename: () => void;
     /** Callback function for handling the selection change. */
-    onSelectionChanged: (file: Document[]) => void;
+    onSelectionChanged: (documents: Document[]) => void;
 }
 
 /**
@@ -209,6 +209,9 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                 id='DocumentsDataGrid'
                 keyExpr='id'
                 onContextMenuPreparing={handleRightClick}
+                onRowClick={({ data }: { data: Document }) =>
+                    onSelectionChanged([data])
+                }
                 onSelectionChanged={handleOnSelectionChanged}
                 ref={DataGridRef}
                 rowAlternationEnabled

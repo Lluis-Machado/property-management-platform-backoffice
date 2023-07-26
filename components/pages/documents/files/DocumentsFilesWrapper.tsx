@@ -9,6 +9,7 @@ import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
 // Local imports
 import { ApiCallError } from '@/lib/utils/errors';
 import { Archive, Document, Folder } from '@/lib/types/documentsAPI';
+import { DetailsWrapper } from './details/DetailsWrapper';
 import { FileManager } from './fileManager/FileManager';
 import { isArchive } from '@/lib/utils/documents/utilsDocuments';
 import SplitPane from '@/components/splitPane/SplitPane';
@@ -20,12 +21,18 @@ interface Props {
 
 export const DocumentsFilesWrapper: FC<Props> = memo(
     function DocumentsFilesWrapper({ archives }): React.ReactElement {
+        const TreeViewRef = useRef<DxTreeView>(null);
+
         const [selectedFolder, setSelectedFolder] = useState<
             Archive | Folder | undefined
         >(undefined);
         const [documents, setDocuments] = useState<Document[] | undefined>(
             undefined
         );
+        const [selectedDocument, setSelectedDocument] = useState<
+            Document | undefined
+        >(undefined);
+        const [detailsVisible, setDetailsVisible] = useState<boolean>(false);
 
         const handleFolderSelected = useCallback(
             async (folder: Archive | Folder) => {
@@ -54,12 +61,23 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
             []
         );
 
-        const TreeViewRef = useRef<DxTreeView>(null);
+        const handleDocumentSelectionChanged = useCallback(
+            async (documents: Document[]) => {
+                if (documents.length === 1) {
+                    setSelectedDocument(documents[0]);
+                    setDetailsVisible(true);
+                } else {
+                    setSelectedDocument(undefined);
+                    setDetailsVisible(false);
+                }
+            },
+            []
+        );
 
         return (
             <div className='absolute inset-4 border border-primary-500'>
                 <SplitPane
-                    visible={false}
+                    visible={detailsVisible}
                     leftPanePreferredSize={200}
                     rightPanePreferredSize={600}
                     minSizeLeft={100}
@@ -76,7 +94,18 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
                         <FileManager
                             dataSource={documents ?? []}
                             folder={selectedFolder}
+                            onSelectionChanged={handleDocumentSelectionChanged}
                             treeViewRef={TreeViewRef}
+                        />
+                    }
+                    right={
+                        <DetailsWrapper
+                            className=''
+                            onFileDetailsClosed={() => {
+                                setDetailsVisible(false);
+                            }}
+                            selectedDocument={selectedDocument}
+                            selectedFolder={selectedFolder}
                         />
                     }
                 />
