@@ -1,5 +1,6 @@
-interface TreeItem<T> {
-    data: T;
+import { Folder } from './documentsAPI';
+
+interface TreeNode<T> {
     disabled: boolean;
     expanded: boolean;
     hasItems: boolean;
@@ -9,4 +10,8 @@ interface TreeItem<T> {
     selected: boolean;
     text: string;
     visible: boolean;
+}
+
+export interface TreeItem<T> extends TreeNode<Folder> {
+    data: T;
 }

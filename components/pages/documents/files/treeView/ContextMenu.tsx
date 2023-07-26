@@ -1,5 +1,5 @@
 // React imports
-import { FC, memo, useMemo, useRef } from 'react';
+import { FC, memo, useMemo } from 'react';
 
 // Libraries imports
 import {
@@ -8,16 +8,39 @@ import {
 } from 'devextreme-react/context-menu';
 
 interface Props {
+    /**
+     * A boolean value indicating whether the context menu is for an archive or not.
+     */
     isArchive: boolean;
+    /**
+     * A function to be called when the "Delete" action is triggered.
+     */
     onDirectoryDelete: () => void;
+    /**
+     * A function to be called when the "Copy to" action is triggered.     *
+     */
     onDirectoryCopy: () => void;
+    /**
+     * A function to be called when the "Move to" action is triggered.
+     */
     onDirectoryMove: () => void;
+    /**
+     * A function to be called when the "Rename" action is triggered.
+     */
     onDirectoryRename: () => void;
+    /**
+     * A function to be called when the "Upload files" action is triggered.
+     */
     onDirectoryUpload: () => void;
+    /**
+     * A function to be called when the "New directory" action is triggered.
+     */
     onNewDirectory: () => void;
-    onRefresh: () => void;
 }
 
+/**
+ * ContextMenu component that displays a context menu for folder-related actions.
+ */
 const ContextMenu: FC<Props> = memo(function ContextMenu({
     isArchive,
     onDirectoryDelete,
@@ -26,10 +49,10 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
     onDirectoryRename,
     onDirectoryUpload,
     onNewDirectory,
-    onRefresh,
 }): React.ReactElement {
-    const ContextMenuRef = useRef<DxContextMenu>(null);
-
+    /**
+     * A memoized object containing action functions mapped by their corresponding item index in the context menu.
+     */
     const actions = useMemo(
         () => ({
             0: onNewDirectory,
@@ -38,7 +61,6 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
             3: onDirectoryMove,
             4: onDirectoryCopy,
             5: onDirectoryDelete,
-            6: onRefresh,
         }),
         [
             onDirectoryCopy,
@@ -47,13 +69,11 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
             onDirectoryRename,
             onDirectoryUpload,
             onNewDirectory,
-            onRefresh,
         ]
     );
 
     return (
         <DxContextMenu
-            ref={ContextMenuRef}
             target='#TreeviewArchive .dx-treeview-item'
             onItemClick={({ itemIndex }) =>
                 actions[itemIndex as keyof typeof actions]()
@@ -75,7 +95,6 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
                 visible={!isArchive}
             />
             <Item closeMenuOnClick icon='trash' text='Delete' />
-            <Item closeMenuOnClick beginGroup icon='refresh' text='Refresh' />
         </DxContextMenu>
     );
 });

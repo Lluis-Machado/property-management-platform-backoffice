@@ -25,7 +25,6 @@ const PropertiesPage = ({
     propertyData,
     contactData,
 }: Props): React.ReactElement => {
-    console.log(propertyData);
     const router = useRouter();
 
     const handleDoubleClick = useCallback(
@@ -44,13 +43,6 @@ const PropertiesPage = ({
             country,
         ];
         return parts.filter(Boolean).join(', ');
-    };
-
-    const mainContactCellRender = (e: PropertyData) => {
-        const owner = contactData.filter(
-            (contact) => contact.id === e.mainOwnerId
-        )[0];
-        return `${owner.firstName ?? ''} ${owner.lastName ?? ''}`;
     };
 
     return (
@@ -86,12 +78,6 @@ const PropertiesPage = ({
                 caption='Address'
                 dataType='string'
                 calculateCellValue={addressCellRender}
-                allowSearch
-            />
-            <Column
-                caption='Main Contact'
-                dataType='string'
-                calculateCellValue={mainContactCellRender}
                 allowSearch
             />
             <Column

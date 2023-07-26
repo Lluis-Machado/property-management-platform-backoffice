@@ -1,5 +1,13 @@
 // React imports
-import { FC, memo, useCallback, useMemo, useRef, useState } from 'react';
+import {
+    FC,
+    RefObject,
+    memo,
+    useCallback,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 
 // Libraries imports
 import { ItemClickEvent } from 'devextreme/ui/tree_view';
@@ -8,43 +16,62 @@ import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
 import dynamic from 'next/dynamic';
 
 // Local imports
-import { Archive, Folder } from '@/lib/types/documentsAPI';
+import { Archive, DocumentUpload, Folder } from '@/lib/types/documentsAPI';
 import {
-    deleteArchive,
-    moveFolder,
-    newFolder,
-    renameFolder,
-    renameArchive,
-    uploadFilesToArchive,
-    uploadFilesToFolder,
-    deleteFolder,
     copyFolder,
-} from '@/lib/utils/apiDocuments';
+    createFolder,
+    deleteArchive,
+    deleteFolder,
+    moveFolder,
+    renameArchive,
+    renameFolder,
+    uploadDocumentsToArchive,
+    uploadDocumentsToFolder,
+} from '@/lib/utils/documents/apiDocuments';
 import { FormPopupType } from '../popups/FormPopup';
+import {
+    getTreeItemFolderFromFolder,
+    isArchive,
+    isCorrectArchive,
+} from '@/lib/utils/documents/utilsDocuments';
 import { PopupVisibility } from '@/lib/types/Popups';
+import { TreeItem } from '@/lib/types/treeView';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import ContextMenu from './ContextMenu';
 
 // Dynamic imports
-const FailedUploadPopup = dynamic(() => import('../popups/FailedUploadPopup'));
+const FailedDocumentsPopup = dynamic(
+    () => import('../popups/FailedDocumentsPopup')
+);
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
 const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 
-const isArchive = (item: any): item is Archive =>
-    !item?.hasOwnProperty('archiveId') || false;
-
 interface Props {
-    archives: any[];
-    onItemSelected: (archiveId: string, folderId?: string) => void;
+    /**
+     * An array of TreeItem objects representing archives.
+     */
+    archives: TreeItem<Archive>[];
+    /**
+     * A callback function called when an Archive or folder is selected.
+     * @param folder - The selected Archive or Folder
+     */
+    onFolderSelected: (folder: Archive | Folder) => void;
+    /**
+     *  A ref object for the DevExtreme TreeView component.
+     */
+    treeViewRef: RefObject<DxTreeView<any>>;
 }
 
+/**
+ * Displays the hierarchical tree of archives and folders.
+ */
 const TreeView: FC<Props> = memo(function TreeView({
     archives,
-    onItemSelected,
+    onFolderSelected,
+    treeViewRef,
 }): React.ReactElement {
     const UploadFileFormRef = useRef<HTMLFormElement>(null);
     const UploadFileInputRef = useRef<HTMLInputElement>(null);
-    const TreeViewRef = useRef<DxTreeView>(null);
 
     const [selectedTreeItem, setSelectedTreeItem] = useState<
         TreeItem<Archive | Folder> | undefined
@@ -66,27 +93,36 @@ const TreeView: FC<Props> = memo(function TreeView({
         type: 'Copy to',
         visibility: { hasBeenOpen: false, visible: false },
     });
-    const [failedUploadPopupStatus, setFailedUploadPopupStatus] = useState<{
-        files: any[];
-        visibility: PopupVisibility;
-    }>({
-        files: [],
-        visibility: { hasBeenOpen: false, visible: false },
-    });
+    const [FailedDocumentsPopupStatus, setFailedDocumentsPopupStatus] =
+        useState<{
+            documents: DocumentUpload[];
+            visibility: PopupVisibility;
+        }>({
+            documents: [],
+            visibility: { hasBeenOpen: false, visible: false },
+        });
 
+    /**
+     * Handles the click event on a tree view item.
+     * Updates the selected tree item and invokes the `onFolderSelected` callback with the selected item's data.
+     *
+     * @param itemData - The data associated with the clicked tree view item.
+     */
     const handleOnItemClick = useCallback(
         ({ itemData }: ItemClickEvent<TreeItem<Archive | Folder>>) => {
-            if (itemData) {
-                setSelectedTreeItem(itemData as TreeItem<Archive | Folder>);
-                const { data } = itemData;
-                isArchive(data)
-                    ? onItemSelected(data.id)
-                    : onItemSelected(data.archiveId, data.id);
-            }
+            if (!itemData) return;
+            setSelectedTreeItem(itemData as TreeItem<Archive | Folder>);
+            onFolderSelected(itemData.data);
         },
-        [onItemSelected]
+        [onFolderSelected]
     );
 
+    /**
+     * Handles an event to show a form popup with a specific type.
+     * Sets the appropriate folder name and popup type in the state to display the form popup.
+     *
+     * @param type - The type of the form popup, such as 'New directory', 'Rename' or 'Delete.
+     */
     const handleFormPopupEvent = useCallback(
         (type: FormPopupType) => {
             const folderName =
@@ -102,192 +138,379 @@ const TreeView: FC<Props> = memo(function TreeView({
         [selectedTreeItem]
     );
 
-    const handleRefreshEvent = useCallback(async () => {
-        // TODO: hacer llamada.
-    }, []);
+    //#region Auxiliar functions
 
-    const handleFormPopupSubmit = useCallback(
-        (value?: string) => {
-            const handleNewDirectory = async () => {
-                if (!selectedTreeItem || !value) return;
+    /**
+     * This method is used to push a new Folder 'folder' into the items array of a given TreeItem 'treeItem',
+     * which could represent either an Archive or a Folder.
+     *
+     * It also updates the hasItems property of the treeItem to indicate that it has child items.
+     *
+     * @param {Folder} folder - The Folder object that needs to be added to the items array of the TreeItem.
+     * @param {TreeItem<Archive | Folder>} treeItem - The target TreeItem into which the Folder should be pushed.
+     */
+    const pushFolderToItems = useCallback(
+        (folder: Folder, treeItem: TreeItem<Archive | Folder>) => {
+            treeItem.items.push(getTreeItemFolderFromFolder(folder));
+            treeItem.hasItems = true;
+        },
+        []
+    );
 
-                // Update DB
-                const response = await newFolder({
-                    archiveId,
-                    body: {
-                        name: value,
-                        parentId: isSelectedItemAnArchive
-                            ? null
-                            : (data as Folder).id,
-                    },
-                });
+    /**
+     * This method extends the functionality of the pushFolderToItems method by not only pushing
+     * the provided folder into the items array of a given TreeItem node but also adding the folder
+     * to the childFolders array of the treeItem's data object.
+     *
+     * @param {Folder} folder - The Folder object that needs to be added to the items array of the TreeItem and its data.childFolders array.
+     * @param {TreeItem<Folder>} treeItem - The target TreeItem into which the Folder should be pushed.
+     */
+    const pushFolderToItemsAndChildFolders = useCallback(
+        (folder: Folder, treeItem: TreeItem<Folder>) => {
+            pushFolderToItems(folder, treeItem);
+            treeItem.data.childFolders.push(folder);
+        },
+        [pushFolderToItems]
+    );
 
-                // Update local
-                if (response.ok) {
-                    const newFolder: Folder = await response.json();
+    /**
+     * Method for getting the actual TreeView dataSource, modify each archive according to 'processArchive' logic
+     * and set the TreeView dataSource to the newly modified version and repaint the three.
+     *
+     * @param {Function} processArchive - A function that takes an 'archive' of type TreeItem<Archive> as input and performs some modifications on it.
+     */
+    const updateTreeViewDataSource = useCallback(
+        (processArchive: (archive: TreeItem<Archive>) => void) => {
+            const treeInstance = treeViewRef.current?.instance;
+            if (!treeInstance) return;
 
-                    selectedTreeItem.items.push({
-                        data: newFolder,
-                        disabled: false,
-                        expanded: false,
-                        hasItems: false,
-                        id: newFolder.id,
-                        items: [],
-                        parentId: newFolder.parentId,
-                        selected: false,
-                        text: newFolder.name,
-                        visible: true,
-                    });
+            const dataSource = treeInstance.option(
+                'dataSource'
+            ) as TreeItem<Archive>[];
+            if (!dataSource) return;
 
-                    if (!isSelectedItemAnArchive) {
-                        let dataFCF = (data as Folder).childFolders;
-                        dataFCF = Array.isArray(dataFCF) ? dataFCF : [];
-                        dataFCF.push(newFolder);
+            dataSource.forEach(processArchive);
+
+            treeInstance.option('dataSource', dataSource as any[]);
+            treeInstance.repaint();
+        },
+        [treeViewRef]
+    );
+
+    /**
+     * This method should be called after a successful creation or copy of a Folder to the database.
+     * It is used to reflect the creation or copy of a Folder in the local TreeView without losing the TreeView status.
+     *
+     * @param {Folder} folderToAdd - The folder to be added.
+     * @param {boolean} isDestinationArchive - A flag indicating whether the new folder should be added
+     * directly to an archive (true) or as a sub-folder of an existing archive (false).
+     */
+    const handleNewDirectoryUpdateLocal = useCallback(
+        (folderToAdd: Folder, isDestinationArchive: boolean) => {
+            const processArchive = (archive: TreeItem<Archive>) => {
+                // Case 1 - Not the correct archive
+                if (!isCorrectArchive(archive, folderToAdd)) return;
+
+                // Case 2 - Add folder to archive
+                if (isDestinationArchive) {
+                    pushFolderToItems(folderToAdd, archive);
+                    return;
+                }
+
+                // Case 3 - Add folder to archive sub-folders
+                const stack = [...archive.items];
+
+                while (stack.length) {
+                    const node = stack.pop()!;
+
+                    if (node.data.id !== folderToAdd.parentId) {
+                        stack.push(...node.items);
+                        continue;
                     }
 
-                    const treeInstance = TreeViewRef.current!.instance;
-                    treeInstance.option('dataSource', archives);
-                    treeInstance.repaint();
+                    pushFolderToItemsAndChildFolders(folderToAdd, node);
+                    break;
                 }
             };
 
-            const handleRename = async () => {
-                if (!selectedTreeItem || !value) return;
+            updateTreeViewDataSource(processArchive);
+        },
+        [
+            pushFolderToItems,
+            pushFolderToItemsAndChildFolders,
+            updateTreeViewDataSource,
+        ]
+    );
 
-                // Update DB
-                const ok = isSelectedItemAnArchive
-                    ? await renameArchive(archiveId, value)
-                    : await renameFolder(archiveId, (data as Folder).id, {
-                          archiveId,
-                          name: value,
-                          parentId: (data as Folder).parentId,
-                      });
+    /**
+     * This method should be called to reflect the deletion of an item (either an Archive or a Folder) from the database
+     * in the local TreeView without losing the TreeView status.
+     *
+     * @param {boolean} isItemToDeleteAnArchive - A flag indicating whether the item to be deleted is an Archive or a Folder.
+     * @param {TreeItem<Archive | Folder>} itemToDelete - The item to be deleted, of type TreeItem<Archive> if it's an Archive, or TreeItem<Folder> if it's a Folder.
+     */
+    const handleDeleteUpdateLocal = useCallback(
+        (
+            isItemToDeleteAnArchive: boolean,
+            itemToDelete: TreeItem<Archive | Folder>
+        ) => {
+            const processArchive = (archive: TreeItem<Archive>) => {
+                // Case 1 - Not the correct archive
+                if (!isCorrectArchive(archive, itemToDelete.data)) return;
 
-                // Update local
-                if (ok) {
-                    selectedTreeItem.text = value;
-                    data.name = value;
-                    TreeViewRef.current!.instance.repaint();
+                // Case 2 - Delete archive
+                if (isItemToDeleteAnArchive) {
+                    itemToDelete.visible = false;
+                    return;
+                }
+
+                // Case 3 - Delete folder from archive sub-folders
+                const stack = [archive];
+
+                while (stack.length) {
+                    const node = stack.pop()!;
+
+                    const idxToDelete = node.items.findIndex(
+                        (folder) => folder.data.id === itemToDelete.id
+                    );
+
+                    if (idxToDelete === -1) {
+                        stack.push(...node.items);
+                        continue;
+                    }
+
+                    const items = node.items.filter(
+                        (item) => item.id !== itemToDelete.id
+                    );
+                    node.items = items;
+                    node.hasItems = items.length > 0;
+                    itemToDelete.visible = false;
+
+                    if (isArchive(node.data)) break;
+
+                    const childFolders = (
+                        node.data as Folder
+                    ).childFolders.filter(
+                        (child) => child.id !== itemToDelete.id
+                    );
+                    (node.data as Folder).childFolders = childFolders;
+                    break;
                 }
             };
 
-            const handleDelete = async () => {
-                if (!selectedTreeItem) return;
+            updateTreeViewDataSource(processArchive);
+        },
+        [updateTreeViewDataSource]
+    );
 
-                // Update DB
-                const ok = isSelectedItemAnArchive
-                    ? await deleteArchive(archiveId)
-                    : await deleteFolder(archiveId, (data as Folder).id);
+    //#endregion
 
-                // Update local
-                if (ok) {
-                    selectedTreeItem.visible = false; // FAst way to hide it, proper solution would be find node in tree and delete it.
-                    TreeViewRef.current!.instance.repaint();
-                }
-            };
+    //#region Form popup submit
 
-            const events = {
-                'New directory': handleNewDirectory,
-                Rename: handleRename,
-                Delete: handleDelete,
-            };
+    /**
+     * Creates a new Folder either at the root level of an Archive or as a sub-folder inside the selected archive folder.
+     * Updates the database with the new folder information and updates the local state with the response data.
+     *
+     * @param archiveId - The ID of the archive to which the new directory will be added.
+     * @param data - The data representing the selected archive or folder.
+     * @param isSelectedItemAnArchive - A boolean indicating whether the selected item is an Archive (true) or a Folder (false).
+     * @param value - The name of the new directory to be created.
+     */
+    const handleNewDirectory = useCallback(
+        async (
+            archiveId: string,
+            data: Archive | Folder,
+            isSelectedItemAnArchive: boolean,
+            value: string
+        ) => {
+            // Update DB
+            const response = await createFolder(archiveId, {
+                name: value,
+                parentId: isSelectedItemAnArchive ? null : (data as Folder).id,
+            });
 
+            if (!response.ok) return;
+
+            // Update local
+            handleNewDirectoryUpdateLocal(
+                await response.json(),
+                isSelectedItemAnArchive
+            );
+        },
+        [handleNewDirectoryUpdateLocal]
+    );
+
+    /**
+     * Renames an Archive or Folder. Updates the database with the new name and updates the local state with the changes.
+     *
+     * @param archiveId - The ID of the archive containing the item to be renamed.
+     * @param data - The data representing the selected archive or folder.
+     * @param isSelectedItemAnArchive - A boolean indicating whether the selected item is an archive (true) or a folder (false).
+     * @param value - The new name for the archive or folder.
+     */
+    const handleRename = useCallback(
+        async (
+            archiveId: string,
+            data: Archive | Folder,
+            isSelectedItemAnArchive: boolean,
+            value: string
+        ) => {
+            // Update DB
+            const ok = isSelectedItemAnArchive
+                ? await renameArchive(archiveId, value)
+                : await renameFolder(archiveId, (data as Folder).id, {
+                      name: value,
+                      parentId: (data as Folder).parentId,
+                  });
+
+            if (!ok) return;
+
+            // Update local
+            selectedTreeItem!.text = value;
+            data.name = value;
+            treeViewRef.current!.instance.repaint();
+        },
+        [selectedTreeItem, treeViewRef]
+    );
+
+    /**
+     * Deletes an archive or folder. Updates the database by removing the item and updates the local state accordingly.
+     *
+     * @param archiveId - The ID of the archive containing the item to be deleted.
+     * @param isSelectedItemAnArchive - A boolean indicating whether the selected item is an archive (true) or a folder (false).
+     * @param item - The TreeItem representing the archive or folder to be deleted.
+     */
+    const handleDelete = useCallback(
+        async (
+            archiveId: string,
+            isSelectedItemAnArchive: boolean,
+            item: TreeItem<Archive | Folder>
+        ) => {
+            // Update DB
+            const ok = isSelectedItemAnArchive
+                ? await deleteArchive(archiveId)
+                : await deleteFolder(archiveId, (item.data as Folder).id);
+
+            if (!ok) return;
+
+            // Update local
+            handleDeleteUpdateLocal(isSelectedItemAnArchive, item);
+        },
+        [handleDeleteUpdateLocal]
+    );
+
+    /**
+     * Handles form submission of FormPopup for different actions like creating a new directory,
+     * renaming an archive or folder, and deleting an archive or folder.
+     *
+     * @param value - The value submitted in the form popup, if applicable.
+     */
+    const handleFormPopupSubmit = useCallback(
+        (value?: string) => {
             const { data } = selectedTreeItem!;
             const isSelectedItemAnArchive = isArchive(data);
             const archiveId = isSelectedItemAnArchive
                 ? (data as Archive).id
                 : (data as Folder).archiveId;
 
+            const events = {
+                'New directory': () =>
+                    handleNewDirectory(
+                        archiveId,
+                        data,
+                        isSelectedItemAnArchive,
+                        value!
+                    ),
+                Rename: () =>
+                    handleRename(
+                        archiveId,
+                        data,
+                        isSelectedItemAnArchive,
+                        value!
+                    ),
+                Delete: () =>
+                    handleDelete(
+                        archiveId,
+                        isSelectedItemAnArchive,
+                        selectedTreeItem!
+                    ),
+            };
+
+            if (!selectedTreeItem) return;
             events[formPopupStatus.type]();
+            setSelectedTreeItem(undefined);
         },
-        [archives, formPopupStatus.type, selectedTreeItem]
+        [
+            formPopupStatus.type,
+            handleDelete,
+            handleNewDirectory,
+            handleRename,
+            selectedTreeItem,
+        ]
     );
 
+    //#endregion
+
+    //#region Tree view popup submit
+
+    /**
+     * Handles the submission of a form popup in the tree view, either copying or moving a folder to a new destination.
+     * Updates the database with the appropriate action (copy/move) and returns the API response.
+     *
+     * @param archiveId - The ID of the archive from which the folder is being copied or moved.
+     * @param destinationData - The data representing the destination archive or folder.
+     * @param isCopyTo - A boolean indicating whether the action is to copy the folder (true) or move it (false).
+     * @param isDestinationArchive - A boolean indicating whether the destination node is an archive (true) or a folder (false).
+     * @param parentId - The ID of the parent folder in the destination, if applicable (only for moving folders).
+     * @param selectedData - The data representing the folder to be copied or moved.
+     * @returns A Promise containing the API response for the copy/move action.
+     */
+    const handleTreeViewPopupSubmitUpdateDB = useCallback(
+        async (
+            archiveId: string,
+            destinationData: Archive | Folder,
+            isCopyTo: boolean,
+            isDestinationArchive: boolean,
+            parentId: null | string,
+            selectedData: Folder
+        ) => {
+            let name = selectedData.name;
+
+            if (isCopyTo) {
+                const isSameTopLevelFolder =
+                    selectedData.parentId === null &&
+                    isDestinationArchive &&
+                    selectedData.archiveId === destinationData.id;
+                const isSameSubfolder =
+                    selectedData.archiveId ===
+                        (destinationData as Folder).archiveId &&
+                    selectedData.parentId === destinationData.id;
+
+                if (isSameTopLevelFolder || isSameSubfolder) name += ' (copy)';
+            }
+
+            const body = {
+                archiveId,
+                name,
+                parentId,
+            };
+
+            return isCopyTo
+                ? copyFolder(selectedData.archiveId, selectedData.id, body)
+                : moveFolder(archiveId, selectedData.id, body);
+        },
+        []
+    );
+
+    /**
+     * Handles the submission of a form popup in the tree view, either copying or moving a folder to a new destination.
+     * Updates the database and local state accordingly based on the action (copy/move) and the API response.
+     *
+     * @param destinationNode - The destination node data where the folder is to be copied or moved.
+     */
     const handleTreeViewPopupSubmit = useCallback(
-        async (destinationNode: any) => {
-            const updateAzure = async () => {
-                let name = selectedData.name;
-
-                if (isCopyTo) {
-                    const isTopLevelFolderDuplicate =
-                        selectedData.parentId === null &&
-                        isDestinationArchive &&
-                        selectedData.archiveId === destinationData.id;
-                    const isSubfolderDuplicate =
-                        selectedData.archiveId === destinationData.archiveId &&
-                        selectedData.parentId === destinationData.id;
-
-                    if (isTopLevelFolderDuplicate || isSubfolderDuplicate)
-                        name += ' - copy';
-                }
-
-                const body = {
-                    archiveId: newArchiveId,
-                    name,
-                    parentId: newParentId,
-                };
-                return isCopyTo
-                    ? copyFolder(selectedData.archiveId, selectedData.id, {
-                          ...body,
-                      })
-                    : moveFolder(newArchiveId, selectedData.id, { ...body });
-            };
-
-            const updateLocal = () => {
-                const addFolder = () =>
-                    dataSource?.map((archive) => {
-                        if (
-                            (isDestinationArchive &&
-                                destinationData.id !== archive.data.id) ||
-                            (!isDestinationArchive &&
-                                destinationData.archiveId !== archive.data.id)
-                        )
-                            return archive;
-
-                        const clone = structuredClone(archive);
-                        const stack = [clone];
-
-                        while (stack.length > 0) {
-                            const node = stack.pop();
-
-                            if (node.data.id === destinationData.id) {
-                                node.items.push({
-                                    data: responseData,
-                                    disabled: false,
-                                    expanded: false,
-                                    hasItems: false,
-                                    id: responseData.id,
-                                    items: [],
-                                    parentId: isDestinationArchive
-                                        ? responseData.archiveId
-                                        : responseData.parentId,
-                                    selected: false,
-                                    text: responseData.name,
-                                    visible: true,
-                                });
-                                if (!isArchive(node.data)) {
-                                    let dataFCF = (node.data as Folder)
-                                        .childFolders;
-                                    dataFCF = Array.isArray(dataFCF)
-                                        ? dataFCF
-                                        : [];
-                                    dataFCF.push(responseData);
-                                }
-                                return clone;
-                            }
-
-                            stack.push(...node.items);
-                        }
-                    });
-
-                TreeViewRef.current?.instance.option('dataSource', addFolder());
-                TreeViewRef.current?.instance.repaint();
-            };
-
-            const dataSource = TreeViewRef.current?.instance.option(
-                'dataSource'
-            ) as any[] | undefined;
-            if (!dataSource || !selectedTreeItem) return;
+        async (destinationNode: TreeItem<Archive | Folder>) => {
+            if (!selectedTreeItem) return;
 
             const selectedData = selectedTreeItem.data as Folder;
             const { data: destinationData } = destinationNode;
@@ -297,48 +520,100 @@ const TreeView: FC<Props> = memo(function TreeView({
                 ? destinationData.id
                 : (destinationData as Folder).archiveId;
             const newParentId = isDestinationArchive
-                ? undefined
-                : destinationData.id;
+                ? null
+                : (destinationData as Folder).id;
 
             const isCopyTo = treeViewPopupStatus.type === 'Copy to';
 
-            const response = await updateAzure();
-            const responseData: Folder = await response.json();
-            updateLocal();
+            // Update DB
+            const response = await handleTreeViewPopupSubmitUpdateDB(
+                newArchiveId,
+                destinationData,
+                isCopyTo,
+                isDestinationArchive,
+                newParentId,
+                selectedData
+            );
+
+            if (!response.ok) return;
+
+            // Update local
+            // Delete original
+            if (!isCopyTo) {
+                const isSourceArchive = isArchive(selectedData);
+                const sourceArchiveId = isSourceArchive
+                    ? selectedData.id
+                    : (selectedData as Folder).archiveId;
+                handleDelete(
+                    sourceArchiveId,
+                    isSourceArchive,
+                    selectedTreeItem
+                );
+            }
+            // Add to new Archive / Folder
+            handleNewDirectoryUpdateLocal(
+                await response.json(),
+                isDestinationArchive
+            );
+
+            setSelectedTreeItem(undefined);
         },
-        [selectedTreeItem, treeViewPopupStatus]
+        [
+            selectedTreeItem,
+            treeViewPopupStatus.type,
+            handleTreeViewPopupSubmitUpdateDB,
+            handleNewDirectoryUpdateLocal,
+            handleDelete,
+        ]
     );
 
-    const handleFileInputOnChange = useCallback(async () => {
-        const uploadFiles = async () => {
-            const fileInput = UploadFileInputRef.current;
-            if (!fileInput?.files) return [];
+    //#endregion
 
-            const selectedFiles = [...fileInput.files];
-            const { data } = selectedTreeItem!;
+    //#region Upload documents
 
-            return isArchive(data)
-                ? await uploadFilesToArchive(data.id, selectedFiles)
-                : await uploadFilesToFolder(
-                      (data as Folder).archiveId,
-                      (data as Folder).id,
-                      selectedFiles
-                  );
-        };
+    /**
+     * Uploads selected documents to the server, either to an archive or a folder, based on the currently selected tree item.
+     * If an archive is selected, the documents are uploaded to the archive. If a folder is selected, the documents are uploaded to that folder within the archive.
+     *
+     * @returns A Promise containing the API response for the document uploads.
+     */
+    const uploadDocuments = useCallback(async () => {
+        const fileInput = UploadFileInputRef.current;
+        if (!fileInput?.files) return [];
 
-        const handleResponse = (response: any[]) => {
-            const failUploads: any[] = [];
-            const okUploads: any[] = [];
+        const selectedDocuments = [...fileInput.files];
+        const { data } = selectedTreeItem!;
 
-            for (const file of response) {
-                file.status === 201
-                    ? okUploads.push(file)
-                    : failUploads.push(file);
+        return isArchive(data)
+            ? await uploadDocumentsToArchive(data.id, selectedDocuments)
+            : await uploadDocumentsToFolder(
+                  (data as Folder).archiveId,
+                  (data as Folder).id,
+                  selectedDocuments
+              );
+    }, [selectedTreeItem]);
+
+    /**
+     * Handles the API response after uploading documents.
+     * Separates the successful and failed uploads into two arrays.
+     * Displays a toast notification for successful uploads and opens a popup for failed uploads.
+     *
+     * @param response - The API response containing the status of the document uploads.
+     */
+    const handleUploadDocumentResponse = useCallback(
+        (response: DocumentUpload[]) => {
+            const failUploads: DocumentUpload[] = [];
+            const okUploads: DocumentUpload[] = [];
+
+            for (const document of response) {
+                document.status === 201
+                    ? okUploads.push(document)
+                    : failUploads.push(document);
             }
 
             if (okUploads.length > 0) {
-                const message = `${okUploads.length} file${
-                    okUploads.length ? 's' : ''
+                const message = `${okUploads.length} document${
+                    okUploads.length > 1 ? 's' : ''
                 } uploaded successfully`;
                 toast(message, {
                     autoClose: 3000,
@@ -348,67 +623,131 @@ const TreeView: FC<Props> = memo(function TreeView({
             }
 
             if (failUploads.length > 0) {
-                setFailedUploadPopupStatus((p) => ({
-                    files: failUploads,
+                setFailedDocumentsPopupStatus((p) => ({
+                    documents: failUploads,
                     visibility: { ...p.visibility, visible: true },
                 }));
             }
-        };
+        },
+        []
+    );
 
-        const response = await uploadFiles();
-        handleResponse(response);
+    /**
+     * Handles the `onChange` event of the document input element. Uploads selected documents to the server,
+     * displays notifications for successful and failed uploads, and resets the document input element.
+     */
+    const handleFileInputOnChange = useCallback(async () => {
+        const response = await uploadDocuments();
+        handleUploadDocumentResponse(response);
         UploadFileFormRef.current!.reset();
-    }, [selectedTreeItem]);
+    }, [handleUploadDocumentResponse, uploadDocuments]);
 
-    const dataSourceWithDisabled = useMemo(() => {
-        const dataSource = TreeViewRef.current?.instance.option(
-            'dataSource'
-        ) as any[] | undefined;
-        if (!dataSource?.length || !selectedTreeItem) return [];
+    //#endregion
 
-        const { data } = selectedTreeItem;
+    //#region Clone tree and modify nodes disabled status for TreeViewPopup
 
-        const analyzeArchive = (archive: any) => {
+    /**
+     * Disables all the child nodes of the given folder to disable the posibility to try to move a folder onto its children and cause
+     * potential bugs and errors.
+     *
+     * @param {TreeItem<Folder>} folder - The folder to disable.
+     */
+    const disableAll = useCallback((folder: TreeItem<Folder>) => {
+        folder.disabled = true;
+        folder.items.forEach(disableAll);
+    }, []);
+
+    /**
+     * Clones the tree and modifies the nodes' disabled status for TreeViewPopup.
+     *
+     * @param {TreeItem<Archive>} archive - The archive to analyze.
+     * @param {Archive | Folder} data - The data representing the selected item in the TreeView.
+     * @param {boolean} isMoving - A flag indicating whether the operation is a "Move to" action.
+     *
+     * @returns {TreeItem<Archive>} - A cloned and modified version of the archive with the disabled status updated.
+     */
+    const analyzeArchive = useCallback(
+        (
+            archive: TreeItem<Archive>,
+            data: Archive | Folder,
+            isMoving: boolean
+        ) => {
             // Not the selected folder archive
             if (archive.id !== (data as Folder).archiveId) return archive;
 
             const clone = structuredClone(archive);
             const stack = [clone];
-            const isMoving = treeViewPopupStatus.type === 'Move to';
 
             while (stack.length > 0) {
                 const node = stack.pop();
 
+                if (!node) continue;
+
                 for (const child of node.items) {
-                    if (child.id === data.id) {
-                        if (isMoving) node.disabled = true;
-                        child.disabled = true;
-                        return clone;
+                    if (child.id !== data.id) {
+                        stack.push(...node.items);
+                        continue;
                     }
 
-                    stack.push(...node.items);
+                    if (isMoving) {
+                        node.disabled = true;
+                        child.items.forEach(disableAll);
+                    }
+                    child.disabled = true;
+                    return clone;
                 }
             }
-        };
+            return clone;
+        },
+        [disableAll]
+    );
 
-        return dataSource.map(analyzeArchive);
-    }, [selectedTreeItem, treeViewPopupStatus.type]);
+    /**
+     * Creates a new data source by cloning the tree and updating nodes' disabled status for TreeViewPopup.
+     *
+     * @returns {TreeItem<Archive>[]} - An array representing the cloned and modified data source.
+     */
+    const dataSourceWithDisabled = useMemo((): TreeItem<Archive>[] => {
+        const dataSource = treeViewRef.current?.instance.option(
+            'dataSource'
+        ) as TreeItem<Archive>[];
+
+        if (!dataSource?.length || !selectedTreeItem) return [];
+
+        const { data } = selectedTreeItem;
+        const isMoving = treeViewPopupStatus.type === 'Move to';
+
+        return dataSource.map((archive) =>
+            analyzeArchive(archive, data, isMoving)
+        );
+    }, [
+        analyzeArchive,
+        selectedTreeItem,
+        treeViewPopupStatus.type,
+        treeViewRef,
+    ]);
+
+    //#endregion
 
     return (
         <>
             <DxTreeView
-                dataSource={archives}
+                dataSource={archives as any[]}
                 id='TreeviewArchive'
                 onItemClick={handleOnItemClick}
                 onItemContextMenu={({ itemData }) =>
                     setSelectedTreeItem(itemData as TreeItem<Archive | Folder>)
                 }
-                ref={TreeViewRef}
+                ref={treeViewRef}
                 searchEnabled
-                dataStructure='tree'
+                selectByClick
+                selectionMode='single'
             />
             <ContextMenu
-                isArchive={isArchive(selectedTreeItem?.data) ?? true}
+                isArchive={
+                    (selectedTreeItem && isArchive(selectedTreeItem.data)) ||
+                    false
+                }
                 onDirectoryCopy={() =>
                     setTreeViewPopupStatus((p) => ({
                         type: 'Copy to',
@@ -425,7 +764,6 @@ const TreeView: FC<Props> = memo(function TreeView({
                 onDirectoryRename={() => handleFormPopupEvent('Rename')}
                 onDirectoryUpload={() => UploadFileInputRef.current!.click()}
                 onNewDirectory={() => handleFormPopupEvent('New directory')}
-                onRefresh={handleRefreshEvent}
             />
             {(formPopupStatus.visibility.visible ||
                 formPopupStatus.visibility.hasBeenOpen) && (
@@ -470,23 +808,24 @@ const TreeView: FC<Props> = memo(function TreeView({
                     visible={treeViewPopupStatus.visibility.visible}
                 />
             )}
-            {(failedUploadPopupStatus.visibility.visible ||
-                failedUploadPopupStatus.visibility.hasBeenOpen) && (
-                <FailedUploadPopup
-                    files={failedUploadPopupStatus.files}
+            {(FailedDocumentsPopupStatus.visibility.visible ||
+                FailedDocumentsPopupStatus.visibility.hasBeenOpen) && (
+                <FailedDocumentsPopup
+                    documents={FailedDocumentsPopupStatus.documents}
                     onHidden={() =>
-                        setFailedUploadPopupStatus((p) => ({
+                        setFailedDocumentsPopupStatus((p) => ({
                             ...p,
                             visibility: { ...p.visibility, visible: false },
                         }))
                     }
                     onShown={() =>
-                        setFailedUploadPopupStatus((p) => ({
+                        setFailedDocumentsPopupStatus((p) => ({
                             ...p,
                             visibility: { ...p.visibility, hasBeenOpen: false },
                         }))
                     }
-                    visible={failedUploadPopupStatus.visibility.visible}
+                    visible={FailedDocumentsPopupStatus.visibility.visible}
+                    type='upload'
                 />
             )}
             <form ref={UploadFileFormRef} className='hidden'>

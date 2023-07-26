@@ -40,6 +40,7 @@
     "formik": "2.2.9",
     "framer-motion": "10.12.16",
     "iron-session": "6.3.1",
+    "jszip": "^3.10.1",
     "jwt-decode": "3.1.2",
     "luxon": "3.3.0",
     "negotiator": "0.6.3",

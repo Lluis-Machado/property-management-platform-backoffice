@@ -94,7 +94,7 @@ export default function SplitPane(Props: Props) {
         ...rest
     } = Props;
     return (
-        <div className='h-screen'>
+        <div className='h-full'>
             <Allotment
                 className={styles.root + ' ' + styles.splitViewContainer}
                 {...rest}

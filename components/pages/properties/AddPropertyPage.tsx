@@ -17,7 +17,7 @@ import { Locale } from '@/i18n-config';
 import { SelectData } from '@/lib/types/selectData';
 import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
-import { CountryData } from '@/lib/types/countriesData';
+import { CountryData, StateData } from '@/lib/types/countriesData';
 
 interface Props {
     propertyData: PropertyCreate;
@@ -35,7 +35,7 @@ const AddPropertyPage = ({
     lang,
 }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [states, setStates] = useState<SelectData[] | undefined>(undefined);
+    const [states, setStates] = useState<StateData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<PropertyCreate>(
         structuredClone(propertyData)
@@ -56,16 +56,7 @@ const AddPropertyPage = ({
                 }
             )
                 .then((resp) => resp.json())
-                .then((data: any) => {
-                    let states = [];
-                    for (const state of data) {
-                        states.push({
-                            label: state.name,
-                            value: state.id,
-                        });
-                    }
-                    setStates(states);
-                })
+                .then((data: StateData[]) => setStates(data))
                 .catch((e) => console.error('Error while getting the states'));
         },
         [lang, token]
@@ -118,9 +109,22 @@ const AddPropertyPage = ({
                         dataField='cadastreRef'
                         label={{ text: 'Catastral Reference' }}
                     />
+                </GroupItem>
+                <GroupItem colCount={4} caption='Contact Information'>
                     <Item
-                        dataField='mainOwnerId'
-                        label={{ text: 'Main Owner' }}
+                        dataField='contactPersonId'
+                        label={{ text: 'Contact Person' }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: contacts,
+                            displayExpr: 'label',
+                            valueExpr: 'value',
+                            searchEnabled: true,
+                        }}
+                    />
+                    <Item
+                        dataField='billingContactId'
+                        label={{ text: 'Billing Contact' }}
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: contacts,
@@ -158,8 +162,8 @@ const AddPropertyPage = ({
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: states,
-                            displayExpr: 'label',
-                            valueExpr: 'value',
+                            displayExpr: 'name',
+                            valueExpr: 'id',
                             searchEnabled: true,
                         }}
                     />
