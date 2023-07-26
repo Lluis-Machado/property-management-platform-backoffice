@@ -38,6 +38,8 @@ interface Props {
     dataSource: Document[];
     /** The Archive or Folder where the documents are located. */
     folder: Archive | Folder | undefined;
+    /** Callback function to be executed when the selected documents change. */
+    onSelectionChanged: (documents: Document[]) => void;
     /** Reference to the TreeView component. */
     treeViewRef: RefObject<TreeView<any>>;
 }
@@ -49,6 +51,7 @@ interface Props {
 export const FileManager: FC<Props> = memo(function FileManager({
     dataSource,
     folder,
+    onSelectionChanged,
     treeViewRef,
 }) {
     const [documents, setDocuments] = useState<Document[]>(dataSource);
@@ -135,6 +138,18 @@ export const FileManager: FC<Props> = memo(function FileManager({
             }
         },
         [selectedFiles]
+    );
+
+    /**
+     * Handles the event when the selected documents change.
+     * @param {Document[]} documents - The selected documents.
+     */
+    const handleSelectionChanged = useCallback(
+        (documents: Document[]) => {
+            setSelectedFiles(documents);
+            onSelectionChanged(documents);
+        },
+        [onSelectionChanged]
     );
 
     //#endregion
@@ -386,7 +401,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
         <>
             <DataGrid
                 dataSource={documents}
-                onSelectionChanged={setSelectedFiles}
+                onSelectionChanged={handleSelectionChanged}
                 onFileCopy={() => handleCopyMoveToEvent('Copy to')}
                 onFileDelete={() => handleFormPopupEvent('Delete')}
                 onFileDownload={handleDownload}

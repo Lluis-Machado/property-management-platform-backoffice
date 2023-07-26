@@ -100,7 +100,7 @@ interface Props {
     /** Callback function for handling the "Rename" action. */
     onFileRename: () => void;
     /** Callback function for handling the selection change. */
-    onSelectionChanged: (file: Document[]) => void;
+    onSelectionChanged: (documents: Document[]) => void;
 }
 
 /**
@@ -206,9 +206,13 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                 columnAutoWidth
                 dataSource={dataSource ?? []}
                 focusedRowEnabled
+                height='100%'
                 id='DocumentsDataGrid'
                 keyExpr='id'
                 onContextMenuPreparing={handleRightClick}
+                onRowClick={({ data }: { data: Document }) =>
+                    onSelectionChanged([data])
+                }
                 onSelectionChanged={handleOnSelectionChanged}
                 ref={DataGridRef}
                 rowAlternationEnabled
@@ -285,9 +289,14 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                     caption='Deleted'
                     dataField='deleted'
                     dataType='boolean'
+                    visible={false}
                 />
-                <Column caption='Folder Id' dataField='folderId' />
-                <Column caption='Id' dataField='id' />
+                <Column
+                    caption='Folder Id'
+                    dataField='folderId'
+                    visible={false}
+                />
+                <Column caption='Id' dataField='id' visible={false} />
             </DxDataGrid>
             <ContextMenu
                 onFileCopy={onFileCopy}
