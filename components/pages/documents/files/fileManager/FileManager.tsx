@@ -1,21 +1,14 @@
 // React imports
-import {
-    FC,
-    RefObject,
-    memo,
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-} from 'react';
+import { FC, RefObject, memo, useCallback, useEffect, useState } from 'react';
 
 // Libraries imports
 import { saveAs } from 'file-saver';
+import { toast } from 'react-toastify';
 import dynamic from 'next/dynamic';
 import TreeView from 'devextreme-react/tree-view';
 
 // Local imoports
-import { Archive, Documents, Folder } from '@/lib/types/documentsAPI';
+import { Archive, Document, Folder } from '@/lib/types/documentsAPI';
 import {
     copyDocument,
     deleteDocument,
@@ -32,25 +25,34 @@ import { PopupVisibility } from '@/lib/types/Popups';
 import { TreeItem } from '@/lib/types/treeView';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import DataGrid from './dataGrid/DataGrid';
-import FailedUploadPopup from '../popups/FailedUploadPopup';
+import FailedDocumentPopup, {
+    failedDocumentsType,
+} from '../popups/FailedDocumentsPopup';
 
 // Dynamic imports
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
 const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 
 interface Props {
-    dataSource: Documents[];
+    /** The data source containing an array of documents. */
+    dataSource: Document[];
+    /** The Archive or Folder where the documents are located. */
     folder: Archive | Folder | undefined;
+    /** Reference to the TreeView component. */
     treeViewRef: RefObject<TreeView<any>>;
 }
 
+/**
+ * FileManager component that manages a data grid of documents with various actions.
+ * @param {Props} props - The props for the FileManager component.
+ */
 export const FileManager: FC<Props> = memo(function FileManager({
     dataSource,
     folder,
     treeViewRef,
 }) {
-    const [documents, setDocuments] = useState<Documents[]>(dataSource);
-    const [selectedFiles, setSelectedFiles] = useState<Documents[]>([]);
+    const [documents, setDocuments] = useState<Document[]>(dataSource);
+    const [selectedFiles, setSelectedFiles] = useState<Document[]>([]);
     const [formPopupStatus, setFormPopupStatus] = useState<{
         fileName?: string;
         type: FormPopupType;
@@ -67,25 +69,82 @@ export const FileManager: FC<Props> = memo(function FileManager({
         type: 'Copy to',
         visibility: { hasBeenOpen: false, visible: false },
     });
-    const [failedUploadPopupStatus, setFailedUploadPopupStatus] = useState<{
-        files: any[];
-        visibility: PopupVisibility;
-    }>({
-        files: [],
-        visibility: { hasBeenOpen: false, visible: false },
-    });
+    const [failedDocumentsPopupStatus, setFailedDocumentsPopupStatus] =
+        useState<{
+            files: Document[];
+            type: failedDocumentsType;
+            visibility: PopupVisibility;
+        }>({
+            files: [],
+            type: 'download',
+            visibility: { hasBeenOpen: false, visible: false },
+        });
 
+    /**
+     * Update the documents state when the dataSource prop changes.
+     */
     useEffect(() => {
         setDocuments(dataSource);
     }, [dataSource]);
 
-    const handleCopyMoveToEvent = useCallback((type: TreeViewPopupType) => {
-        setTreeViewPopupStatus((p) => ({
-            type,
-            visibility: { ...p.visibility, visible: true },
-        }));
-    }, []);
+    //#region Auxiliar functions
 
+    /**
+     * Auxiliary method to handle successful and failed document operations.
+     * @param {string} action - The type of action performed (e.g., "deleted", "copied").
+     * @param {boolean[]} results - An array of boolean results indicating the success of each operation.
+     * @param {failedDocumentsType} type - The type of the failed documents (e.g., "delete", "download").
+     * @param {(successfulDocuments: Document[]) => void | Promise<void>} onSuccessfullDocuments - A callback function to handle successful documents.
+     */
+    const handleSuccessfulAndFailedDocuments = useCallback(
+        (
+            action: 'deleted' | 'copied' | 'moved' | 'downloaded',
+            results: boolean[],
+            type: failedDocumentsType,
+            onSuccessfullDocuments: (
+                successfulDocuments: Document[]
+            ) => void | Promise<void>
+        ) => {
+            const successfulDocuments = selectedFiles.filter(
+                (_, idx) => results[idx]
+            );
+            const failedDocuments = selectedFiles.filter(
+                (_, idx) => !results[idx]
+            );
+
+            if (successfulDocuments.length > 0) {
+                onSuccessfullDocuments(successfulDocuments);
+                toast(
+                    `${successfulDocuments.length} file${
+                        successfulDocuments.length > 1 ? 's' : ''
+                    } ${action} successfully`,
+                    {
+                        autoClose: 3000,
+                        pauseOnHover: true,
+                        type: 'success',
+                    }
+                );
+            }
+
+            if (failedDocuments.length > 0) {
+                setFailedDocumentsPopupStatus((p) => ({
+                    files: failedDocuments,
+                    type,
+                    visibility: { ...p.visibility, visible: true },
+                }));
+            }
+        },
+        [selectedFiles]
+    );
+
+    //#endregion
+
+    //#region Form popup
+
+    /**
+     * Handles the event when a form popup is triggered (e.g., "Delete" or "Rename").
+     * @param {FormPopupType} type - The type of the form popup.
+     */
     const handleFormPopupEvent = useCallback(
         (type: FormPopupType) => {
             if (type === 'New directory')
@@ -107,57 +166,46 @@ export const FileManager: FC<Props> = memo(function FileManager({
         [selectedFiles]
     );
 
+    /**
+     * Handles the "Delete" action for documents.
+     * @param {string} archiveId - The ID of the archive where the documents are located.
+     */
     const handleDelete = useCallback(
         async (archiveId: string) => {
             if (!folder) return;
 
             const fileIds = selectedFiles.map((file) => file.id);
 
-            const deletionResults = await Promise.all(
-                fileIds.map(async (fileId) => {
-                    const ok = await deleteDocument(archiveId, fileId);
-                    return { fileId, ok };
-                })
-            );
-
-            // Filter deletions
-            // Separate the successful and failed deletions
-            const { successfulDeletions, failedDeletions } =
-                deletionResults.reduce(
-                    (
-                        acc: {
-                            successfulDeletions: any[];
-                            failedDeletions: any[];
-                        },
-                        { ok, fileId }
-                    ) => {
-                        ok
-                            ? acc.successfulDeletions.push(fileId)
-                            : acc.failedDeletions.push(fileId);
-
-                        return acc;
-                    },
-                    { successfulDeletions: [], failedDeletions: [] }
-                );
-
-            // Update the documents useState by filtering out the deleted files
-            setDocuments((p) =>
-                p.filter(
-                    (document) => !successfulDeletions.includes(document.id)
+            const results = await Promise.all(
+                fileIds.map(
+                    async (fileId) => await deleteDocument(archiveId, fileId)
                 )
             );
 
-            if (failedDeletions.length > 0) {
-                console.log('Failed deletions:', failedDeletions);
-                // TODO: Notify the user about the failed deletions as per your preferred method (e.g., toast, alert, etc.)
-            }
+            const onSuccessfullDocuments = (successfulDocuments: Document[]) =>
+                setDocuments((p) =>
+                    p.filter(
+                        (document) => !successfulDocuments.includes(document)
+                    )
+                );
+
+            handleSuccessfulAndFailedDocuments(
+                'deleted',
+                results,
+                'delete',
+                onSuccessfullDocuments
+            );
         },
-        [folder, selectedFiles]
+        [handleSuccessfulAndFailedDocuments, folder, selectedFiles]
     );
 
+    /**
+     * Handles the "Rename" action for a document.
+     * @param {string} archiveId - The ID of the archive where the document is located.
+     * @param {string} name - The new name for the document.
+     */
     const handleRename = useCallback(
-        async (archiveId: string, name: string | undefined) => {
-            if (!name) return;
+        async (archiveId: string, name: string) => {
             const ok = await renameDocument(
                 archiveId,
                 selectedFiles[0].id,
@@ -176,6 +224,120 @@ export const FileManager: FC<Props> = memo(function FileManager({
         [selectedFiles]
     );
 
+    /**
+     * Handles the form popup submit event for documents.
+     * @param {string | undefined} value - The new name provided for the "Rename" action.
+     */
+    const handleFormPopupSubmit = useCallback(
+        (value?: string) => {
+            if (!folder) return;
+
+            const archiveId = isArchive(folder)
+                ? folder.id
+                : (folder as Folder).archiveId;
+
+            const events = {
+                'New directory': () => {
+                    throw new Error('Invalid action for files');
+                },
+                Rename: () => value && handleRename(archiveId, value),
+                Delete: () => handleDelete(archiveId),
+            };
+
+            events[formPopupStatus.type]();
+        },
+        [folder, formPopupStatus.type, handleDelete, handleRename]
+    );
+
+    //#endregion
+
+    //#region TreeView popup
+
+    /**
+     * Handles the event when a TreeView popup is triggered (e.g., "Copy to" or "Move to").
+     * @param {TreeViewPopupType} type - The type of the TreeView popup.
+     */
+    const handleCopyMoveToEvent = useCallback((type: TreeViewPopupType) => {
+        setTreeViewPopupStatus((p) => ({
+            type,
+            visibility: { ...p.visibility, visible: true },
+        }));
+    }, []);
+
+    /**
+     * Handles the TreeView popup submit event for documents.
+     * @param {TreeItem<Archive | Folder>} destination - The destination item in the TreeView.
+     */
+    const handleTreeViewPopupSubmit = useCallback(
+        async (destination: TreeItem<Archive | Folder>) => {
+            if (!folder) return;
+
+            const isCopyTo = treeViewPopupStatus.type === 'Copy to';
+
+            const handleCall = async () => {
+                const dData = destination.data;
+                const isDestinatioArchive = isArchive(dData);
+
+                const archiveId = isArchive(folder)
+                    ? folder.id
+                    : (folder as Folder).archiveId;
+                const destinationArchive = isDestinatioArchive
+                    ? dData.id
+                    : (dData as Folder).archiveId;
+                const folderId = isDestinatioArchive
+                    ? null
+                    : (dData as Folder).id;
+
+                return await Promise.all(
+                    selectedFiles.map(async (document) => {
+                        const operation = isCopyTo
+                            ? copyDocument
+                            : moveDocument;
+                        return await operation(archiveId, document.id, {
+                            destinationArchive,
+                            documentName: document.name,
+                            folderId,
+                        });
+                    })
+                );
+            };
+
+            const action = isCopyTo ? 'copied' : 'moved';
+            const results = await handleCall();
+            const type = isCopyTo ? 'copy' : 'move';
+            const onSuccessfullDocuments = (
+                successfulDocuments: Document[]
+            ) => {
+                if (!isCopyTo) {
+                    setDocuments((p) =>
+                        p.filter(
+                            (document) =>
+                                !successfulDocuments.includes(document)
+                        )
+                    );
+                }
+            };
+
+            handleSuccessfulAndFailedDocuments(
+                action,
+                results,
+                type,
+                onSuccessfullDocuments
+            );
+        },
+        [
+            handleSuccessfulAndFailedDocuments,
+            folder,
+            selectedFiles,
+            treeViewPopupStatus.type,
+        ]
+    );
+
+    //#endregion
+
+    /**
+     * Handles the "Download" action for selected files.
+     */
     const handleDownload = useCallback(async () => {
         if (!selectedFiles || !folder) return;
 
@@ -183,106 +345,48 @@ export const FileManager: FC<Props> = memo(function FileManager({
             ? folder.id
             : (folder as Folder).archiveId;
 
-        // Create an array of promises for each file download
-        const downloadPromises = selectedFiles.map(
-            async (file): Promise<DocumentDownload> => {
+        // Wait for all the promises to resolve (parallel file downloads)
+        const results = await Promise.all(
+            selectedFiles.map(async (file): Promise<DocumentDownload> => {
                 try {
                     const blob = await downloadDocument(archiveId, file.id);
-                    return { fileName: file.name, success: true, blob };
+                    return { name: file.name, success: true, blob };
                 } catch (error) {
-                    return { fileName: file.name, success: false, blob: null };
+                    return { name: file.name, success: false, blob: null };
                 }
-            }
+            })
         );
 
-        // Wait for all the promises to resolve (parallel file downloads)
-        const results = await Promise.all(downloadPromises);
-
-        // Separate successful and failed downloads
-        const successfulDownloads = results.filter((result) => result.success);
-        const failedDownloads = results.filter((result) => !result.success);
-
-        if (successfulDownloads.length === 1) {
-            saveAs(
-                successfulDownloads[0].blob!,
-                successfulDownloads[0].fileName
+        const onSuccessfullDocuments = async () => {
+            const successfulDownloads = results.filter(
+                (result) => result.success
             );
-        } else if (successfulDownloads.length > 1) {
-            const { downloadFilesZIP } = await import(
-                '@/lib/utils/documents/utilsDocuments'
-            );
-            downloadFilesZIP(successfulDownloads);
-        }
-
-        if (failedDownloads.length > 0) {
-            setFailedUploadPopupStatus((p) => ({
-                files: failedDownloads,
-                visibility: { ...p.visibility, visible: true },
-            }));
-        }
-    }, [folder, selectedFiles]);
-
-    const handleFormPopupSubmit = useCallback(
-        (value?: string) => {
-            const handleNewDirectory = () => {
-                throw new Error('Invalid action for files');
-            };
-
-            const events = {
-                'New directory': handleNewDirectory,
-                Rename: () => handleRename(archiveId, value),
-                Delete: () => handleDelete(archiveId),
-            };
-
-            if (!folder) return;
-
-            const archiveId = isArchive(folder)
-                ? folder.id
-                : (folder as Folder).archiveId;
-
-            events[formPopupStatus.type]();
-        },
-        [folder, formPopupStatus.type, handleDelete, handleRename]
-    );
-
-    const handleTreeViewPopupSubmit = useCallback(
-        (destination: TreeItem<Archive | Folder>) => {
-            if (!destination || !selectedFiles || !folder) return;
-
-            const isDestinatioArchive = isArchive(destination.data);
-            const dData = destination.data;
-
-            const archiveId = isArchive(folder)
-                ? folder.id
-                : (folder as Folder).archiveId;
-            const destinationArchive = isDestinatioArchive
-                ? dData.id
-                : (dData as Folder).archiveId;
-            const folderId = isDestinatioArchive ? null : (dData as Folder).id;
-
-            for (const document of selectedFiles) {
-                const props = {
-                    archiveId,
-                    body: {
-                        destinationArchive,
-                        documentName: document.name,
-                        folderId,
-                    },
-                    documentId: document.id,
-                };
-                treeViewPopupStatus.type === 'Copy to'
-                    ? copyDocument(props)
-                    : moveDocument(props);
+            if (successfulDownloads.length === 1) {
+                saveAs(
+                    successfulDownloads[0].blob!,
+                    successfulDownloads[0].name
+                );
+            } else if (successfulDownloads.length > 1) {
+                const { downloadDocumentsZIP: downloadFilesZIP } = await import(
+                    '@/lib/utils/documents/utilsDocuments'
+                );
+                downloadFilesZIP(successfulDownloads);
             }
-        },
-        [folder, selectedFiles, treeViewPopupStatus.type]
-    );
+        };
+
+        handleSuccessfulAndFailedDocuments(
+            'downloaded',
+            results.map((r) => r.success),
+            'download',
+            onSuccessfullDocuments
+        );
+    }, [handleSuccessfulAndFailedDocuments, folder, selectedFiles]);
 
     return (
         <>
             <DataGrid
                 dataSource={documents}
-                onSelectedFile={setSelectedFiles}
+                onSelectionChanged={setSelectedFiles}
                 onFileCopy={() => handleCopyMoveToEvent('Copy to')}
                 onFileDelete={() => handleFormPopupEvent('Delete')}
                 onFileDownload={handleDownload}
@@ -336,24 +440,24 @@ export const FileManager: FC<Props> = memo(function FileManager({
                     visible={treeViewPopupStatus.visibility.visible}
                 />
             )}
-            {(failedUploadPopupStatus.visibility.visible ||
-                failedUploadPopupStatus.visibility.hasBeenOpen) && (
-                <FailedUploadPopup
-                    files={failedUploadPopupStatus.files}
+            {(failedDocumentsPopupStatus.visibility.visible ||
+                failedDocumentsPopupStatus.visibility.hasBeenOpen) && (
+                <FailedDocumentPopup
+                    documents={failedDocumentsPopupStatus.files}
                     onHidden={() =>
-                        setFailedUploadPopupStatus((p) => ({
+                        setFailedDocumentsPopupStatus((p) => ({
                             ...p,
                             visibility: { ...p.visibility, visible: false },
                         }))
                     }
                     onShown={() =>
-                        setFailedUploadPopupStatus((p) => ({
+                        setFailedDocumentsPopupStatus((p) => ({
                             ...p,
                             visibility: { ...p.visibility, hasBeenOpen: false },
                         }))
                     }
-                    visible={failedUploadPopupStatus.visibility.visible}
-                    type='download'
+                    visible={failedDocumentsPopupStatus.visibility.visible}
+                    type={failedDocumentsPopupStatus.type}
                 />
             )}
         </>

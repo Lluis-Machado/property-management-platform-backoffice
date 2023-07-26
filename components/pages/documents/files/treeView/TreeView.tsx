@@ -16,13 +16,13 @@ import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
 import dynamic from 'next/dynamic';
 
 // Local imports
-import { Archive, Folder } from '@/lib/types/documentsAPI';
+import { Archive, DocumentUpload, Folder } from '@/lib/types/documentsAPI';
 import {
     copyFolder,
+    createFolder,
     deleteArchive,
     deleteFolder,
     moveFolder,
-    newFolder,
     renameArchive,
     renameFolder,
     uploadDocumentsToArchive,
@@ -40,16 +40,31 @@ import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import ContextMenu from './ContextMenu';
 
 // Dynamic imports
-const FailedUploadPopup = dynamic(() => import('../popups/FailedUploadPopup'));
+const FailedDocumentsPopup = dynamic(
+    () => import('../popups/FailedDocumentsPopup')
+);
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
 const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 
 interface Props {
-    archives: any[];
+    /**
+     * An array of TreeItem objects representing archives.
+     */
+    archives: TreeItem<Archive>[];
+    /**
+     * A callback function called when an Archive or folder is selected.
+     * @param folder - The selected Archive or Folder
+     */
     onFolderSelected: (folder: Archive | Folder) => void;
+    /**
+     *  A ref object for the DevExtreme TreeView component.
+     */
     treeViewRef: RefObject<DxTreeView<any>>;
 }
 
+/**
+ * Displays the hierarchical tree of archives and folders.
+ */
 const TreeView: FC<Props> = memo(function TreeView({
     archives,
     onFolderSelected,
@@ -78,13 +93,14 @@ const TreeView: FC<Props> = memo(function TreeView({
         type: 'Copy to',
         visibility: { hasBeenOpen: false, visible: false },
     });
-    const [failedUploadPopupStatus, setFailedUploadPopupStatus] = useState<{
-        files: any[];
-        visibility: PopupVisibility;
-    }>({
-        files: [],
-        visibility: { hasBeenOpen: false, visible: false },
-    });
+    const [FailedDocumentsPopupStatus, setFailedDocumentsPopupStatus] =
+        useState<{
+            documents: DocumentUpload[];
+            visibility: PopupVisibility;
+        }>({
+            documents: [],
+            visibility: { hasBeenOpen: false, visible: false },
+        });
 
     /**
      * Handles the click event on a tree view item.
@@ -308,14 +324,9 @@ const TreeView: FC<Props> = memo(function TreeView({
             value: string
         ) => {
             // Update DB
-            const response = await newFolder({
-                archiveId,
-                body: {
-                    name: value,
-                    parentId: isSelectedItemAnArchive
-                        ? null
-                        : (data as Folder).id,
-                },
+            const response = await createFolder(archiveId, {
+                name: value,
+                parentId: isSelectedItemAnArchive ? null : (data as Folder).id,
             });
 
             if (!response.ok) return;
@@ -348,7 +359,6 @@ const TreeView: FC<Props> = memo(function TreeView({
             const ok = isSelectedItemAnArchive
                 ? await renameArchive(archiveId, value)
                 : await renameFolder(archiveId, (data as Folder).id, {
-                      archiveId,
                       name: value,
                       parentId: (data as Folder).parentId,
                   });
@@ -461,7 +471,7 @@ const TreeView: FC<Props> = memo(function TreeView({
             destinationData: Archive | Folder,
             isCopyTo: boolean,
             isDestinationArchive: boolean,
-            parentId: string,
+            parentId: null | string,
             selectedData: Folder
         ) => {
             let name = selectedData.name;
@@ -486,12 +496,8 @@ const TreeView: FC<Props> = memo(function TreeView({
             };
 
             return isCopyTo
-                ? copyFolder({
-                      archiveId: selectedData.archiveId,
-                      folderId: selectedData.id,
-                      body,
-                  })
-                : moveFolder({ archiveId, folderId: selectedData.id, body });
+                ? copyFolder(selectedData.archiveId, selectedData.id, body)
+                : moveFolder(archiveId, selectedData.id, body);
         },
         []
     );
@@ -503,7 +509,7 @@ const TreeView: FC<Props> = memo(function TreeView({
      * @param destinationNode - The destination node data where the folder is to be copied or moved.
      */
     const handleTreeViewPopupSubmit = useCallback(
-        async (destinationNode: any) => {
+        async (destinationNode: TreeItem<Archive | Folder>) => {
             if (!selectedTreeItem) return;
 
             const selectedData = selectedTreeItem.data as Folder;
@@ -514,8 +520,8 @@ const TreeView: FC<Props> = memo(function TreeView({
                 ? destinationData.id
                 : (destinationData as Folder).archiveId;
             const newParentId = isDestinationArchive
-                ? undefined
-                : destinationData.id;
+                ? null
+                : (destinationData as Folder).id;
 
             const isCopyTo = treeViewPopupStatus.type === 'Copy to';
 
@@ -563,73 +569,78 @@ const TreeView: FC<Props> = memo(function TreeView({
 
     //#endregion
 
-    //#region Upload file
+    //#region Upload documents
 
     /**
-     * Uploads selected files to the server, either to an archive or a folder, based on the currently selected tree item.
-     * If an archive is selected, the files are uploaded to the archive. If a folder is selected, the files are uploaded to that folder within the archive.
+     * Uploads selected documents to the server, either to an archive or a folder, based on the currently selected tree item.
+     * If an archive is selected, the documents are uploaded to the archive. If a folder is selected, the documents are uploaded to that folder within the archive.
      *
-     * @returns A Promise containing the API response for the file uploads.
+     * @returns A Promise containing the API response for the document uploads.
      */
-    const uploadFiles = useCallback(async () => {
+    const uploadDocuments = useCallback(async () => {
         const fileInput = UploadFileInputRef.current;
         if (!fileInput?.files) return [];
 
-        const selectedFiles = [...fileInput.files];
+        const selectedDocuments = [...fileInput.files];
         const { data } = selectedTreeItem!;
 
         return isArchive(data)
-            ? await uploadDocumentsToArchive(data.id, selectedFiles)
+            ? await uploadDocumentsToArchive(data.id, selectedDocuments)
             : await uploadDocumentsToFolder(
                   (data as Folder).archiveId,
                   (data as Folder).id,
-                  selectedFiles
+                  selectedDocuments
               );
     }, [selectedTreeItem]);
 
     /**
-     * Handles the API response after uploading files.
+     * Handles the API response after uploading documents.
      * Separates the successful and failed uploads into two arrays.
      * Displays a toast notification for successful uploads and opens a popup for failed uploads.
      *
-     * @param response - The API response containing the status of the file uploads.
+     * @param response - The API response containing the status of the document uploads.
      */
-    const handleUploadFileResponse = useCallback((response: any[]) => {
-        const failUploads: any[] = [];
-        const okUploads: any[] = [];
+    const handleUploadDocumentResponse = useCallback(
+        (response: DocumentUpload[]) => {
+            const failUploads: DocumentUpload[] = [];
+            const okUploads: DocumentUpload[] = [];
 
-        for (const file of response) {
-            file.status === 201 ? okUploads.push(file) : failUploads.push(file);
-        }
+            for (const document of response) {
+                document.status === 201
+                    ? okUploads.push(document)
+                    : failUploads.push(document);
+            }
 
-        if (okUploads.length > 0) {
-            const message = `${okUploads.length} file${
-                okUploads.length ? 's' : ''
-            } uploaded successfully`;
-            toast(message, {
-                autoClose: 3000,
-                pauseOnHover: true,
-                type: 'success',
-            });
-        }
+            if (okUploads.length > 0) {
+                const message = `${okUploads.length} document${
+                    okUploads.length > 1 ? 's' : ''
+                } uploaded successfully`;
+                toast(message, {
+                    autoClose: 3000,
+                    pauseOnHover: true,
+                    type: 'success',
+                });
+            }
 
-        if (failUploads.length > 0) {
-            setFailedUploadPopupStatus((p) => ({
-                files: failUploads,
-                visibility: { ...p.visibility, visible: true },
-            }));
-        }
-    }, []);
+            if (failUploads.length > 0) {
+                setFailedDocumentsPopupStatus((p) => ({
+                    documents: failUploads,
+                    visibility: { ...p.visibility, visible: true },
+                }));
+            }
+        },
+        []
+    );
 
     /**
-     * Handles the `onChange` event of the file input element. Uploads selected files to the server,
-     * displays notifications for successful and failed uploads, and resets the file input element.
+     * Handles the `onChange` event of the document input element. Uploads selected documents to the server,
+     * displays notifications for successful and failed uploads, and resets the document input element.
      */
     const handleFileInputOnChange = useCallback(async () => {
-        const response = await uploadFiles();
-        handleUploadFileResponse(response);
+        const response = await uploadDocuments();
+        handleUploadDocumentResponse(response);
         UploadFileFormRef.current!.reset();
-    }, [handleUploadFileResponse, uploadFiles]);
+    }, [handleUploadDocumentResponse, uploadDocuments]);
 
     //#endregion
 
@@ -653,7 +664,7 @@ const TreeView: FC<Props> = memo(function TreeView({
      * @param {Archive | Folder} data - The data representing the selected item in the TreeView.
      * @param {boolean} isMoving - A flag indicating whether the operation is a "Move to" action.
      *
-     * @returns {any | undefined} - A cloned and modified version of the archive with the disabled status updated.
+     * @returns {TreeItem<Archive>} - A cloned and modified version of the archive with the disabled status updated.
      */
     const analyzeArchive = useCallback(
         (
@@ -686,6 +697,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                     return clone;
                 }
             }
+            return clone;
         },
         [disableAll]
     );
@@ -695,7 +707,7 @@ const TreeView: FC<Props> = memo(function TreeView({
      *
      * @returns {TreeItem<Archive>[]} - An array representing the cloned and modified data source.
      */
-    const dataSourceWithDisabled = useMemo(() => {
+    const dataSourceWithDisabled = useMemo((): TreeItem<Archive>[] => {
         const dataSource = treeViewRef.current?.instance.option(
             'dataSource'
         ) as TreeItem<Archive>[];
@@ -720,7 +732,7 @@ const TreeView: FC<Props> = memo(function TreeView({
     return (
         <>
             <DxTreeView
-                dataSource={archives}
+                dataSource={archives as any[]}
                 id='TreeviewArchive'
                 onItemClick={handleOnItemClick}
                 onItemContextMenu={({ itemData }) =>
@@ -732,7 +744,10 @@ const TreeView: FC<Props> = memo(function TreeView({
                 selectionMode='single'
             />
             <ContextMenu
-                isArchive={isArchive(selectedTreeItem?.data)}
+                isArchive={
+                    (selectedTreeItem && isArchive(selectedTreeItem.data)) ||
+                    false
+                }
                 onDirectoryCopy={() =>
                     setTreeViewPopupStatus((p) => ({
                         type: 'Copy to',
@@ -793,23 +808,23 @@ const TreeView: FC<Props> = memo(function TreeView({
                     visible={treeViewPopupStatus.visibility.visible}
                 />
             )}
-            {(failedUploadPopupStatus.visibility.visible ||
-                failedUploadPopupStatus.visibility.hasBeenOpen) && (
-                <FailedUploadPopup
-                    files={failedUploadPopupStatus.files}
+            {(FailedDocumentsPopupStatus.visibility.visible ||
+                FailedDocumentsPopupStatus.visibility.hasBeenOpen) && (
+                <FailedDocumentsPopup
+                    documents={FailedDocumentsPopupStatus.documents}
                     onHidden={() =>
-                        setFailedUploadPopupStatus((p) => ({
+                        setFailedDocumentsPopupStatus((p) => ({
                             ...p,
                             visibility: { ...p.visibility, visible: false },
                         }))
                     }
                     onShown={() =>
-                        setFailedUploadPopupStatus((p) => ({
+                        setFailedDocumentsPopupStatus((p) => ({
                             ...p,
                             visibility: { ...p.visibility, hasBeenOpen: false },
                         }))
                     }
-                    visible={failedUploadPopupStatus.visibility.visible}
+                    visible={FailedDocumentsPopupStatus.visibility.visible}
                     type='upload'
                 />
             )}

@@ -15,7 +15,7 @@ import { TreeItem } from '@/lib/types/treeView';
  *
  * @return Formatted string.
  */
-export const formatFileSize = (
+export const formatDocumentSize = (
     bytes: number,
     dp: number = 2,
     si: boolean = false
@@ -48,9 +48,8 @@ export const formatFileSize = (
  * @param item object to analyze
  * @returns Whether the item prop is an Archive or not(Folder)
  */
-export const isArchive = (
-    item: Archive | Folder | undefined
-): item is Archive => !item?.hasOwnProperty('archiveId');
+export const isArchive = (item: Archive | Folder): item is Archive =>
+    !item?.hasOwnProperty('archiveId');
 
 /**
  * Used when adding a Folder or deleting an Archive | Folder
@@ -98,28 +97,28 @@ export const getTreeItemFolderFromFolder = (
 });
 
 export interface DocumentDownload {
-    fileName: string;
+    name: string;
     success: boolean;
     blob: Blob | null;
 }
 
-export const downloadFilesZIP = async (documents: DocumentDownload[]) => {
+export const downloadDocumentsZIP = async (documents: DocumentDownload[]) => {
     try {
         // Dynamic imports
         const JSZip = await import('jszip');
 
         const zip = new JSZip.default();
 
-        // Add each file's blob from the successfulDownloads array to the zip
-        documents.forEach((file) => {
-            zip.file(file.fileName, file.blob!);
+        // Add each document's blob from the successfulDownloads array to the zip
+        documents.forEach((document) => {
+            zip.file(document.name, document.blob!);
         });
 
         // Generate the zip content
         const zipContent = await zip.generateAsync({ type: 'blob' });
 
-        // Trigger the download of the zip file
-        saveAs(zipContent, 'files.zip');
+        // Trigger the download of the zip
+        saveAs(zipContent, 'documents.zip');
     } catch (error) {
         console.error('Error while creating or downloading the zip:', error);
     }

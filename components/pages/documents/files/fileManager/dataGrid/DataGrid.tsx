@@ -23,9 +23,13 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Local imports
+import { Document } from '@/lib/types/documentsAPI';
+import { formatDocumentSize } from '@/lib/utils/documents/utilsDocuments';
 import ContextMenu from './ContextMenu';
-import { formatFileSize } from '@/lib/utils/documents/utilsDocuments';
 
+/**
+ * Type for the possible types of toolbar items.
+ */
 type ToolBarItemType =
     | 'Download'
     | 'Move to'
@@ -34,7 +38,15 @@ type ToolBarItemType =
     | 'Delete'
     | 'Separator';
 
-const ExtensionCellRender = ({ data }: any): React.ReactElement => {
+/**
+ * Renders the icon for the document extension.
+ * @param {Document} data - The document data.
+ */
+const ExtensionCellRender = ({
+    data,
+}: {
+    data: Document;
+}): React.ReactElement => {
     const icon = (ext: string) => {
         switch (ext.toLowerCase()) {
             case '.jpeg':
@@ -58,24 +70,42 @@ const ExtensionCellRender = ({ data }: any): React.ReactElement => {
     );
 };
 
-const NameCellRender = ({ data }: any): React.ReactElement => (
-    <p>{(data.name as string).replace(data.extension, '')}</p>
+/**
+ * Renders the name of the document without its extension.
+ * @param {Document} data - The document data.
+ */
+const NameCellRender = ({ data }: { data: Document }): React.ReactElement => (
+    <p>{data.name.replace(data.extension, '')}</p>
 );
 
-const SizeCellRender = ({ data }: any): React.ReactElement => (
-    <p>{formatFileSize(data.contentLength)}</p>
+/**
+ * Renders the size of the document in a human-readable format.
+ * @param {Document} data - The document data.
+ */
+const SizeCellRender = ({ data }: { data: Document }): React.ReactElement => (
+    <p>{formatDocumentSize(data.contentLength)}</p>
 );
 
 interface Props {
-    dataSource: any[];
+    /** The data source containing an array of documents. */
+    dataSource: Document[];
+    /** Callback function for handling the "Copy" action. */
     onFileCopy: () => void;
+    /** Callback function for handling the "Delete" action. */
     onFileDelete: () => void;
+    /** Callback function for handling the "Download" action. */
     onFileDownload: () => void;
+    /** Callback function for handling the "Move" action. */
     onFileMove: () => void;
+    /** Callback function for handling the "Rename" action. */
     onFileRename: () => void;
-    onSelectedFile: (file: any) => void;
+    /** Callback function for handling the selection change. */
+    onSelectionChanged: (file: Document[]) => void;
 }
 
+/**
+ * DataGrid component that displays a data grid of documents with various actions.
+ */
 const DataGrid: FC<Props> = memo(function DataGrid({
     dataSource,
     onFileCopy,
@@ -83,13 +113,16 @@ const DataGrid: FC<Props> = memo(function DataGrid({
     onFileDownload,
     onFileMove,
     onFileRename,
-    onSelectedFile,
+    onSelectionChanged,
 }): React.ReactElement {
     const DataGridRef = useRef<DxDataGrid>(null);
 
     const [selectedFilesQuantity, setSelectedFilesQuantity] =
         useState<number>(0);
-
+    /**
+     * Handles the click event for toolbar items.
+     * @param {ToolBarItemType} action - The type of toolbar item clicked.
+     */
     const handleOnClick = useCallback(
         (action: ToolBarItemType) => {
             const on = {
@@ -106,6 +139,10 @@ const DataGrid: FC<Props> = memo(function DataGrid({
         [onFileCopy, onFileDelete, onFileDownload, onFileMove, onFileRename]
     );
 
+    /**
+     * Renders the toolbar item based on its type.
+     * @param {ToolBarItemType} type - The type of toolbar item to render.
+     */
     const ToolBarItemRender = useCallback(
         (type: ToolBarItemType): React.ReactElement => {
             const icon = {
@@ -134,14 +171,22 @@ const DataGrid: FC<Props> = memo(function DataGrid({
         [handleOnClick]
     );
 
+    /**
+     * Handles the selection changed event in the data grid.
+     * @param {Object} selectedRowsData - The selected row data in the data grid.
+     */
     const handleOnSelectionChanged = useCallback(
-        ({ selectedRowsData }: any) => {
+        ({ selectedRowsData }: { selectedRowsData: Document[] }) => {
             setSelectedFilesQuantity(selectedRowsData.length);
-            onSelectedFile(selectedRowsData);
+            onSelectionChanged(selectedRowsData);
         },
-        [onSelectedFile]
+        [onSelectionChanged]
     );
 
+    /**
+     * Handles the right-click event to select a row in the data grid.
+     * @param {ContextMenuPreparingEvent<any, any>} e - The right-click event object.
+     */
     const handleRightClick = useCallback(
         (e: ContextMenuPreparingEvent<any, any>) => {
             if (e.row?.rowType === 'data') {

@@ -1,5 +1,5 @@
 // React imports
-import { FC, memo, useCallback, useRef } from 'react';
+import { FC, memo, useCallback } from 'react';
 
 // Libraries imports
 import {
@@ -9,14 +9,35 @@ import {
 import { ItemClickEvent } from 'devextreme/ui/context_menu';
 
 interface Props {
+    /**
+     * A function to be called when the "Copy to" action is triggered.
+     */
     onFileCopy: () => void;
+    /**
+     * A function to be called when the "Delete" action is triggered.
+     */
     onFileDelete: () => void;
+    /**
+     * A function to be called when the "Download" action is triggered.
+     */
     onFileDownload: () => void;
+    /**
+     * A function to be called when the "Move to" action is triggered.
+     */
     onFileMove: () => void;
+    /**
+     * A function to be called when the "Rename" action is triggered.
+     */
     onFileRename: () => void;
+    /**
+     * The amount of selected files
+     */
     selectedFilesQuantity: number;
 }
 
+/**
+ * ContextMenu component that displays a context menu for file-related actions.
+ */
 export const ContextMenu: FC<Props> = memo(function ContextMenu({
     onFileCopy,
     onFileDelete,
@@ -25,11 +46,13 @@ export const ContextMenu: FC<Props> = memo(function ContextMenu({
     onFileRename,
     selectedFilesQuantity,
 }): React.ReactElement {
-    const ContextMenuRef = useRef<DxContextMenu>(null);
-
+    /**
+     * Handles the click event of the context menu items.
+     * @param {ItemClickEvent} event - The click event object containing the index of the clicked item.
+     */
     const handleContextMenuItemClick = useCallback(
         ({ itemIndex }: ItemClickEvent) => {
-            const actions: any = {
+            const actions: Record<number, () => void> = {
                 0: onFileDownload,
                 1: onFileRename,
                 2: onFileMove,
@@ -43,7 +66,6 @@ export const ContextMenu: FC<Props> = memo(function ContextMenu({
 
     return (
         <DxContextMenu
-            ref={ContextMenuRef}
             target='#DocumentsDataGrid > div > div.dx-datagrid-rowsview.dx-datagrid-nowrap'
             onItemClick={handleContextMenuItemClick}
             hideOnOutsideClick
