@@ -5,14 +5,16 @@ import { FC, memo, useCallback, useState } from 'react';
 import { Button } from 'pg-components';
 import Popup from 'devextreme-react/popup';
 import TreeView from 'devextreme-react/tree-view';
+import { TreeItem } from '@/lib/types/treeView';
+import { Archive, Folder } from '@/lib/types/documentsAPI';
 
 export type TreeViewPopupType = 'Move to' | 'Copy to';
 
 interface Props {
-    dataSource: any[];
+    dataSource: TreeItem<Archive>[];
     onHiding: () => void;
     onShown: () => void;
-    onSubmit: (node: any) => void;
+    onSubmit: (node: TreeItem<Archive | Folder>) => void;
     type: TreeViewPopupType;
     visible: boolean;
 }
@@ -25,7 +27,9 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({
     type,
     visible,
 }): React.ReactElement {
-    const [selectedNode, setSelectedNode] = useState<any>(null);
+    const [selectedNode, setSelectedNode] = useState<TreeItem<
+        Archive | Folder
+    > | null>(null);
 
     const handleHiding = useCallback(() => {
         setSelectedNode(null);
@@ -36,9 +40,12 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({
         (): React.ReactElement => (
             <div className='flex h-full flex-col gap-4'>
                 <TreeView
-                    dataSource={dataSource}
+                    dataSource={dataSource as any[]}
                     id='TreeviewPopup'
-                    onItemClick={({ itemData }) => setSelectedNode(itemData)}
+                    onItemClick={({ itemData }) =>
+                        itemData &&
+                        setSelectedNode(itemData as TreeItem<Archive | Folder>)
+                    }
                     searchEnabled
                     className='flex overflow-y-auto border border-primary-500/20'
                     selectByClick
@@ -49,7 +56,7 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({
                         <Button
                             disabled={selectedNode === null}
                             onClick={() => {
-                                onSubmit(selectedNode);
+                                selectedNode && onSubmit(selectedNode);
                                 handleHiding();
                             }}
                             text={type.replace(' to', '')}

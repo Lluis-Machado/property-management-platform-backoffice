@@ -327,7 +327,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
         <>
             <DataGrid
                 dataSource={documents}
-                onSelectedFile={setSelectedFiles}
+                onSelectionChanged={setSelectedFiles}
                 onFileCopy={() => handleCopyMoveToEvent('Copy to')}
                 onFileDelete={() => handleFormPopupEvent('Delete')}
                 onFileDownload={handleDownload}

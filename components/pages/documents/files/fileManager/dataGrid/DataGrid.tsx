@@ -23,8 +23,9 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Local imports
-import ContextMenu from './ContextMenu';
+import { Document } from '@/lib/types/documentsAPI';
 import { formatDocumentSize } from '@/lib/utils/documents/utilsDocuments';
+import ContextMenu from './ContextMenu';
 
 type ToolBarItemType =
     | 'Download'
@@ -34,7 +35,11 @@ type ToolBarItemType =
     | 'Delete'
     | 'Separator';
 
-const ExtensionCellRender = ({ data }: any): React.ReactElement => {
+const ExtensionCellRender = ({
+    data,
+}: {
+    data: Document;
+}): React.ReactElement => {
     const icon = (ext: string) => {
         switch (ext.toLowerCase()) {
             case '.jpeg':
@@ -58,22 +63,22 @@ const ExtensionCellRender = ({ data }: any): React.ReactElement => {
     );
 };
 
-const NameCellRender = ({ data }: any): React.ReactElement => (
-    <p>{(data.name as string).replace(data.extension, '')}</p>
+const NameCellRender = ({ data }: { data: Document }): React.ReactElement => (
+    <p>{data.name.replace(data.extension, '')}</p>
 );
 
-const SizeCellRender = ({ data }: any): React.ReactElement => (
+const SizeCellRender = ({ data }: { data: Document }): React.ReactElement => (
     <p>{formatDocumentSize(data.contentLength)}</p>
 );
 
 interface Props {
-    dataSource: any[];
+    dataSource: Document[];
     onFileCopy: () => void;
     onFileDelete: () => void;
     onFileDownload: () => void;
     onFileMove: () => void;
     onFileRename: () => void;
-    onSelectedFile: (file: any) => void;
+    onSelectionChanged: (file: Document[]) => void;
 }
 
 const DataGrid: FC<Props> = memo(function DataGrid({
@@ -83,7 +88,7 @@ const DataGrid: FC<Props> = memo(function DataGrid({
     onFileDownload,
     onFileMove,
     onFileRename,
-    onSelectedFile,
+    onSelectionChanged,
 }): React.ReactElement {
     const DataGridRef = useRef<DxDataGrid>(null);
 
@@ -135,11 +140,11 @@ const DataGrid: FC<Props> = memo(function DataGrid({
     );
 
     const handleOnSelectionChanged = useCallback(
-        ({ selectedRowsData }: any) => {
+        ({ selectedRowsData }: { selectedRowsData: Document[] }) => {
             setSelectedFilesQuantity(selectedRowsData.length);
-            onSelectedFile(selectedRowsData);
+            onSelectionChanged(selectedRowsData);
         },
-        [onSelectedFile]
+        [onSelectionChanged]
     );
 
     const handleRightClick = useCallback(

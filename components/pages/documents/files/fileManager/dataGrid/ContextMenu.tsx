@@ -29,7 +29,7 @@ export const ContextMenu: FC<Props> = memo(function ContextMenu({
 
     const handleContextMenuItemClick = useCallback(
         ({ itemIndex }: ItemClickEvent) => {
-            const actions: any = {
+            const actions: Record<number, () => void> = {
                 0: onFileDownload,
                 1: onFileRename,
                 2: onFileMove,

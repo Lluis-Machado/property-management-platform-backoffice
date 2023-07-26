@@ -651,7 +651,7 @@ const TreeView: FC<Props> = memo(function TreeView({
      * @param {Archive | Folder} data - The data representing the selected item in the TreeView.
      * @param {boolean} isMoving - A flag indicating whether the operation is a "Move to" action.
      *
-     * @returns {TreeItem<Archive> | undefined} - A cloned and modified version of the archive with the disabled status updated.
+     * @returns {TreeItem<Archive>} - A cloned and modified version of the archive with the disabled status updated.
      */
     const analyzeArchive = useCallback(
         (
@@ -684,6 +684,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                     return clone;
                 }
             }
+            return clone;
         },
         [disableAll]
     );
@@ -693,7 +694,7 @@ const TreeView: FC<Props> = memo(function TreeView({
      *
      * @returns {TreeItem<Archive>[]} - An array representing the cloned and modified data source.
      */
-    const dataSourceWithDisabled = useMemo(() => {
+    const dataSourceWithDisabled = useMemo((): TreeItem<Archive>[] => {
         const dataSource = treeViewRef.current?.instance.option(
             'dataSource'
         ) as TreeItem<Archive>[];
