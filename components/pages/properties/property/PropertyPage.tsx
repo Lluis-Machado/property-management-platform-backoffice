@@ -28,17 +28,19 @@ import PropertySidePropertiesDatagrid from './PropertySidePropertiesDatagrid';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
-import { SelectData } from '@/lib/types/selectData';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { customError } from '@/lib/utils/customError';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
+import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
+import { ContactData } from '@/lib/types/contactData';
 
 interface Props {
     propertyData: PropertyData;
-    contacts: SelectData[];
+    contacts: ContactData[];
+    ownershipData: OwnershipPropertyData[];
     countries: CountryData[];
     initialStates: StateData[];
     token: TokenRes;
@@ -48,6 +50,7 @@ interface Props {
 const PropertyPage = ({
     propertyData,
     contacts,
+    ownershipData,
     countries,
     initialStates,
     token,
@@ -290,7 +293,8 @@ const PropertyPage = ({
                     {
                         children: (
                             <PropertiesOwnersDatagrid
-                                dataSource={propertyData}
+                                dataSource={ownershipData}
+                                token={token}
                                 contactData={contacts}
                             />
                         ),

@@ -22,9 +22,10 @@ const OwnerDropdownComponent = (props: any) => {
     }, [props.data.value]);
 
     const handleSelectionChange = (e: any) => {
-        setSelectedRowKeys([e.selectedRowKeys]);
+        if (!e.selectedRowKeys) return;
+        setSelectedRowKeys(e.selectedRowKeys);
         setIsDropDownOpened(false);
-        props.data.setValue(selectedRowKeys[0]);
+        props.data.setValue(e.selectedRowKeys[0]);
     };
 
     const handleOptionChange = (e: any) => {
@@ -35,7 +36,7 @@ const OwnerDropdownComponent = (props: any) => {
         <DataGrid
             dataSource={props.data.column.lookup.dataSource}
             keyExpr='id'
-            remoteOperations={true}
+            remoteOperations
             height={250}
             defaultFocusedRowKey={selectedRowKeys[0]}
             selectedRowKeys={selectedRowKeys}
@@ -44,10 +45,9 @@ const OwnerDropdownComponent = (props: any) => {
             onSelectionChanged={handleSelectionChange}
         >
             <SearchPanel visible />
-            <Column dataField='firstName' />
-            <Column dataField='lastName' />
-            <Column dataField='nif' caption='DNI/NIE' />
-            <Column dataField='email' />
+            <Column dataField='firstName' caption='Full name' />
+            <Column dataField='nif' caption='Nif' />
+            <Column dataField='email' caption='Email' />
             <Scrolling mode='virtual' />
             <Selection mode='single' />
         </DataGrid>
@@ -57,7 +57,7 @@ const OwnerDropdownComponent = (props: any) => {
         <DropDownBox
             dataSource={props.data.column.lookup.dataSource}
             value={selectedRowKeys[0]}
-            displayExpr='full_name'
+            displayExpr='firstName'
             valueExpr='id'
             opened={isDropDownOpened}
             contentRender={contentRender}

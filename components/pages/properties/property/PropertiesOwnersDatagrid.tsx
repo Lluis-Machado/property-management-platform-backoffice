@@ -15,11 +15,27 @@ import DataGrid, {
 
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
-import { SelectData } from '@/lib/types/selectData';
+import { apiPatch } from '@/lib/utils/apiPatch';
+import { useCallback, useState } from 'react';
+import { TokenRes } from '@/lib/types/token';
+import { toast } from 'react-toastify';
+import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
+import { customError } from '@/lib/utils/customError';
+import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
+import { SavedEvent } from 'devextreme/ui/data_grid';
+import { apiDelete } from '@/lib/utils/apiDelete';
+import { ContactData } from '@/lib/types/contactData';
+import { apiPost } from '@/lib/utils/apiPost';
 
 interface Props {
-    dataSource: any;
-    contactData: SelectData[];
+    dataSource: OwnershipPropertyData[];
+    token: TokenRes;
+    contactData: ContactData[];
+}
+interface idToasts {
+    toastId: any;
+    msg: string;
+    errormsg: string;
 }
 
 const MainContactCellRender = ({ value }: any): React.ReactElement => (
@@ -29,11 +45,109 @@ const MainContactCellRender = ({ value }: any): React.ReactElement => (
     />
 );
 
-const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
-    const data = dataSource.ownerships;
+const PropertiesOwnersDatagrid = ({
+    dataSource,
+    token,
+    contactData,
+}: Props) => {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const propertyId: number = dataSource[0].propertyId;
+
+    const saveEditData = useCallback(
+        async (e: SavedEvent<OwnershipPropertyData, any>) => {
+            const promises: Promise<any>[] = [];
+            const idToasts: idToasts[] = [];
+            setIsLoading(true);
+
+            for (const change of e.changes) {
+                if (change.type == 'update') {
+                    const toastId = toast.loading(
+                        'Updating ownership property'
+                    );
+                    const values = change.data;
+                    promises.push(
+                        apiPatch(
+                            `/ownership/ownership`,
+                            values,
+                            token,
+                            'Error while updating a ownership property'
+                        )
+                    );
+                    // console.log('TODO CORRECTO, valores de vuelta: ', data);
+                    idToasts.push({
+                        toastId: toastId,
+                        msg: 'Ownership updated correctly!',
+                        errormsg: 'Error while updating a ownership property',
+                    });
+                } else if (change.type == 'remove') {
+                    const toastId = toast.loading(
+                        'Updating ownership property'
+                    );
+                    promises.push(
+                        apiDelete(
+                            `/ownership/ownership/${change.key}`,
+                            token,
+                            'Error while deleting an ownership'
+                        )
+                    );
+                    //console.log('TODO CORRECTO, contact deleted');
+                    idToasts.push({
+                        toastId: toastId,
+                        msg: 'Ownership Contact deleted correctly!',
+                        errormsg: 'Error while deleting an ownership',
+                    });
+                } else if (change.type == 'insert') {
+                    const toastId = toast.loading(
+                        'Adding contact ownership property'
+                    );
+                    const { ownerId, share, mainOwnership } = change.data;
+                    const ownerType: string = 'Contact';
+                    const values = {
+                        propertyId,
+                        ownerId,
+                        ownerType,
+                        share,
+                        mainOwnership,
+                    };
+                    promises.push(
+                        apiPost(
+                            `/ownership/ownership/`,
+                            values,
+                            token,
+                            'Error while adding contact to property'
+                        )
+                    );
+                    //console.log('TODO CORRECTO, contact added');
+                    idToasts.push({
+                        toastId: toastId,
+                        msg: 'Ownership Contact added correctly!',
+                        errormsg: 'Error while adding contact to property',
+                    });
+                }
+            }
+            Promise.allSettled(promises).then((results) =>
+                results.forEach((result, index) => {
+                    if (result.status == 'fulfilled') {
+                        updateSuccessToast(
+                            idToasts[index].toastId,
+                            idToasts[index].msg
+                        );
+                    } else if (result.status == 'rejected') {
+                        //customError(Error, idToasts[index].toastId);
+                        updateErrorToast(
+                            idToasts[index].errormsg,
+                            idToasts[index].toastId
+                        );
+                    }
+                })
+            );
+        },
+        [token, propertyId]
+    );
+
     return (
         <DataGrid
-            dataSource={data}
+            dataSource={dataSource}
             keyExpr='id'
             showRowLines
             showBorders
@@ -42,6 +156,7 @@ const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
             focusedRowEnabled
             columnHidingEnabled={false}
             columnMinWidth={100}
+            onSaved={saveEditData}
         >
             <SearchPanel visible searchVisibleColumnsOnly={false} width={400} />
             <Paging defaultPageSize={5} />
@@ -62,32 +177,25 @@ const PropertiesOwnersDatagrid = ({ dataSource, contactData }: Props) => {
                 newRowPosition='first'
             />
             <Column
-                dataField='contactId'
-                caption='First Name'
+                dataField='ownerId'
+                caption='Full name'
                 editCellComponent={OwnerDropdownComponent}
             >
                 <Lookup
                     dataSource={contactData}
-                    valueExpr='value'
-                    displayExpr='label'
+                    valueExpr='id'
+                    displayExpr='firstName'
                 />
             </Column>
             <Column
-                dataField='contactDetail.lastName'
-                dataType='string'
-                caption='Last Name'
-            />
-            <Column
                 dataField='share'
                 dataType='number'
-                caption='Percentage %'
-                width={150}
+                caption='Property share (%)'
             />
             <Column
                 dataField='mainOwnership'
                 dataType='boolean'
                 caption='Main Contact Person'
-                width={150}
                 cellRender={MainContactCellRender}
             />
         </DataGrid>
