@@ -2,7 +2,12 @@
 // React imports
 
 // Libraries imports
-import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+    faCheck,
+    faPencil,
+    faTrash,
+    faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DataGrid, {
     Column,
@@ -11,12 +16,14 @@ import DataGrid, {
     Pager,
     Editing,
     Lookup,
+    Toolbar,
+    Item,
 } from 'devextreme-react/data-grid';
 
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
 import { apiPatch } from '@/lib/utils/apiPatch';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { TokenRes } from '@/lib/types/token';
 import { toast } from 'react-toastify';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
@@ -26,6 +33,8 @@ import { SavedEvent } from 'devextreme/ui/data_grid';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { ContactData } from '@/lib/types/contactData';
 import { apiPost } from '@/lib/utils/apiPost';
+import { useRouter } from 'next/navigation';
+import { Button } from 'pg-components';
 
 interface Props {
     dataSource: OwnershipPropertyData[];
@@ -38,18 +47,23 @@ interface idToasts {
     errormsg: string;
 }
 
-const MainContactCellRender = ({ value }: any): React.ReactElement => (
-    <FontAwesomeIcon
-        icon={value === true ? faCheck : faXmark}
-        className='row-focused-state text-primary-600'
-    />
-);
-
 const PropertiesOwnersDatagrid = ({
     dataSource,
     token,
     contactData,
 }: Props) => {
+    const router = useRouter();
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [notAllowEditing, setNotAllowEditing] = useState<boolean>(true);
+
+    const handleDoubleClick = useCallback(
+        ({ data }: any) => {
+            console.log(data);
+            router.push(`/private/contacts/${data.ownerId}/contactInfo`);
+        },
+        [router]
+    );
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const propertyId: number = dataSource[0].propertyId;
 
@@ -145,6 +159,11 @@ const PropertiesOwnersDatagrid = ({
         [token, propertyId]
     );
 
+    const editingMode = () => {
+        setIsEditing((prev) => !prev);
+        setNotAllowEditing((prev) => !prev);
+    };
+
     return (
         <DataGrid
             dataSource={dataSource}
@@ -157,6 +176,7 @@ const PropertiesOwnersDatagrid = ({
             columnHidingEnabled={false}
             columnMinWidth={100}
             onSaved={saveEditData}
+            onRowDblClick={handleDoubleClick}
         >
             <SearchPanel visible searchVisibleColumnsOnly={false} width={400} />
             <Paging defaultPageSize={5} />
@@ -166,16 +186,24 @@ const PropertiesOwnersDatagrid = ({
                 showInfo
                 showNavigationButtons
             />
+            {notAllowEditing === false && (
+                <Editing mode='batch' allowUpdating allowAdding allowDeleting />
+            )}
+            <Toolbar>
+                <Item name='addRowButton' disabled={notAllowEditing} />
+                <Item name='saveButton' disabled={notAllowEditing} />
+                <Item name='revertButton' disabled={notAllowEditing} />
+                <Item>
+                    <Button
+                        elevated
+                        onClick={editingMode}
+                        type='button'
+                        icon={isEditing ? faXmark : faPencil}
+                    />
+                </Item>
+                <Item name='searchPanel' />
+            </Toolbar>
 
-            <Editing
-                mode='batch'
-                allowUpdating
-                allowAdding
-                allowDeleting
-                useIcons
-                startEditAction={'dblClick'}
-                newRowPosition='first'
-            />
             <Column
                 dataField='ownerId'
                 caption='Full name'
@@ -191,12 +219,6 @@ const PropertiesOwnersDatagrid = ({
                 dataField='share'
                 dataType='number'
                 caption='Property share (%)'
-            />
-            <Column
-                dataField='mainOwnership'
-                dataType='boolean'
-                caption='Main Contact Person'
-                cellRender={MainContactCellRender}
             />
         </DataGrid>
     );

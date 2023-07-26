@@ -231,6 +231,16 @@ const PropertyPage = ({
                         </TextBox>
                     </Item>
                 </GroupItem>
+                <GroupItem colCount={4} caption='Contact Information'>
+                    <Item
+                        dataField='address.addressLine1'
+                        label={{ text: 'Contact Person' }}
+                    />
+                    <Item
+                        dataField='address.addressLine1'
+                        label={{ text: 'Billing Contact' }}
+                    />
+                </GroupItem>
                 <GroupItem colCount={4} caption='Address Information'>
                     <Item
                         dataField='address.addressLine1'

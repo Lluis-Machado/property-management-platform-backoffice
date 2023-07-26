@@ -109,9 +109,22 @@ const AddPropertyPage = ({
                         dataField='cadastreRef'
                         label={{ text: 'Catastral Reference' }}
                     />
+                </GroupItem>
+                <GroupItem colCount={4} caption='Contact Information'>
                     <Item
                         dataField='mainOwnerId'
-                        label={{ text: 'Main Owner' }}
+                        label={{ text: 'Contact Person' }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: contacts,
+                            displayExpr: 'label',
+                            valueExpr: 'value',
+                            searchEnabled: true,
+                        }}
+                    />
+                    <Item
+                        dataField='mainOwnerId'
+                        label={{ text: 'Billing Contact' }}
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: contacts,
