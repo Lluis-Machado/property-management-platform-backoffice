@@ -8,17 +8,42 @@ import TreeView from 'devextreme-react/tree-view';
 import { TreeItem } from '@/lib/types/treeView';
 import { Archive, Folder } from '@/lib/types/documentsAPI';
 
+/**
+ * Represents the type of tree view actions for the TreeViewPopup component.
+ */
 export type TreeViewPopupType = 'Move to' | 'Copy to';
 
-interface Props {
+export interface Props {
+    /**
+     * The data source representing the tree view items.
+     */
     dataSource: TreeItem<Archive>[];
+    /**
+     * Callback function to be executed when the popup is hiding.
+     */
     onHiding: () => void;
+    /**
+     * Callback function to be executed when the popup is shown.
+     */
     onShown: () => void;
+    /**
+     * Callback function to be executed when a tree node is selected and the form is submitted.
+     * @param node - The selected tree node for moving or copying items.
+     */
     onSubmit: (node: TreeItem<Archive | Folder>) => void;
+    /**
+     * The type of tree view action to be displayed. Can be one of 'Move to' or 'Copy to'.
+     */
     type: TreeViewPopupType;
+    /**
+     * Specifies whether the popup is visible or not.
+     */
     visible: boolean;
 }
 
+/**
+ * Represents a Popup with a TreeView as its content to select where to move or copy an element.
+ */
 const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({
     dataSource,
     onHiding,
@@ -31,6 +56,10 @@ const TreeViewPopup: FC<Props> = memo(function TreeViewPopup({
         Archive | Folder
     > | null>(null);
 
+    /**
+     * Handles the hiding event of the popup.
+     * Resets the selectedNode state and calls the onHiding callback.
+     */
     const handleHiding = useCallback(() => {
         setSelectedNode(null);
         onHiding();

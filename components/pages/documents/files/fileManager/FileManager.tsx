@@ -34,11 +34,18 @@ const FormPopup = dynamic(() => import('../popups/FormPopup'));
 const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 
 interface Props {
+    /** The data source containing an array of documents. */
     dataSource: Document[];
+    /** The Archive or Folder where the documents are located. */
     folder: Archive | Folder | undefined;
+    /** Reference to the TreeView component. */
     treeViewRef: RefObject<TreeView<any>>;
 }
 
+/**
+ * FileManager component that manages a data grid of documents with various actions.
+ * @param {Props} props - The props for the FileManager component.
+ */
 export const FileManager: FC<Props> = memo(function FileManager({
     dataSource,
     folder,
@@ -73,13 +80,23 @@ export const FileManager: FC<Props> = memo(function FileManager({
             visibility: { hasBeenOpen: false, visible: false },
         });
 
+    /**
+     * Update the documents state when the dataSource prop changes.
+     */
     useEffect(() => {
         setDocuments(dataSource);
     }, [dataSource]);
 
     //#region Auxiliar functions
 
-    const auxMehtod = useCallback(
+    /**
+     * Auxiliary method to handle successful and failed document operations.
+     * @param {string} action - The type of action performed (e.g., "deleted", "copied").
+     * @param {boolean[]} results - An array of boolean results indicating the success of each operation.
+     * @param {failedDocumentsType} type - The type of the failed documents (e.g., "delete", "download").
+     * @param {(successfulDocuments: Document[]) => void | Promise<void>} onSuccessfullDocuments - A callback function to handle successful documents.
+     */
+    const handleSuccessfulAndFailedDocuments = useCallback(
         (
             action: 'deleted' | 'copied' | 'moved' | 'downloaded',
             results: boolean[],
@@ -124,6 +141,10 @@ export const FileManager: FC<Props> = memo(function FileManager({
 
     //#region Form popup
 
+    /**
+     * Handles the event when a form popup is triggered (e.g., "Delete" or "Rename").
+     * @param {FormPopupType} type - The type of the form popup.
+     */
     const handleFormPopupEvent = useCallback(
         (type: FormPopupType) => {
             if (type === 'New directory')
@@ -145,6 +166,10 @@ export const FileManager: FC<Props> = memo(function FileManager({
         [selectedFiles]
     );
 
+    /**
+     * Handles the "Delete" action for documents.
+     * @param {string} archiveId - The ID of the archive where the documents are located.
+     */
     const handleDelete = useCallback(
         async (archiveId: string) => {
             if (!folder) return;
@@ -164,14 +189,23 @@ export const FileManager: FC<Props> = memo(function FileManager({
                     )
                 );
 
-            auxMehtod('deleted', results, 'delete', onSuccessfullDocuments);
+            handleSuccessfulAndFailedDocuments(
+                'deleted',
+                results,
+                'delete',
+                onSuccessfullDocuments
+            );
         },
-        [auxMehtod, folder, selectedFiles]
+        [handleSuccessfulAndFailedDocuments, folder, selectedFiles]
     );
 
+    /**
+     * Handles the "Rename" action for a document.
+     * @param {string} archiveId - The ID of the archive where the document is located.
+     * @param {string} name - The new name for the document.
+     */
     const handleRename = useCallback(
-        async (archiveId: string, name: string | undefined) => {
-            if (!name) return;
+        async (archiveId: string, name: string) => {
             const ok = await renameDocument(
                 archiveId,
                 selectedFiles[0].id,
@@ -190,6 +224,10 @@ export const FileManager: FC<Props> = memo(function FileManager({
         [selectedFiles]
     );
 
+    /**
+     * Handles the form popup submit event for documents.
+     * @param {string | undefined} value - The new name provided for the "Rename" action.
+     */
     const handleFormPopupSubmit = useCallback(
         (value?: string) => {
             if (!folder) return;
@@ -202,7 +240,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
                 'New directory': () => {
                     throw new Error('Invalid action for files');
                 },
-                Rename: () => handleRename(archiveId, value),
+                Rename: () => value && handleRename(archiveId, value),
                 Delete: () => handleDelete(archiveId),
             };
 
@@ -215,6 +253,10 @@ export const FileManager: FC<Props> = memo(function FileManager({
 
     //#region TreeView popup
 
+    /**
+     * Handles the event when a TreeView popup is triggered (e.g., "Copy to" or "Move to").
+     * @param {TreeViewPopupType} type - The type of the TreeView popup.
+     */
     const handleCopyMoveToEvent = useCallback((type: TreeViewPopupType) => {
         setTreeViewPopupStatus((p) => ({
             type,
@@ -222,6 +264,10 @@ export const FileManager: FC<Props> = memo(function FileManager({
         }));
     }, []);
 
+    /**
+     * Handles the TreeView popup submit event for documents.
+     * @param {TreeItem<Archive | Folder>} destination - The destination item in the TreeView.
+     */
     const handleTreeViewPopupSubmit = useCallback(
         async (destination: TreeItem<Archive | Folder>) => {
             if (!folder) return;
@@ -272,13 +318,26 @@ export const FileManager: FC<Props> = memo(function FileManager({
                 }
             };
 
-            auxMehtod(action, results, type, onSuccessfullDocuments);
+            handleSuccessfulAndFailedDocuments(
+                action,
+                results,
+                type,
+                onSuccessfullDocuments
+            );
         },
-        [auxMehtod, folder, selectedFiles, treeViewPopupStatus.type]
+        [
+            handleSuccessfulAndFailedDocuments,
+            folder,
+            selectedFiles,
+            treeViewPopupStatus.type,
+        ]
     );
 
     //#endregion
 
+    /**
+     * Handles the "Download" action for selected files.
+     */
     const handleDownload = useCallback(async () => {
         if (!selectedFiles || !folder) return;
 
@@ -315,13 +374,13 @@ export const FileManager: FC<Props> = memo(function FileManager({
             }
         };
 
-        auxMehtod(
+        handleSuccessfulAndFailedDocuments(
             'downloaded',
             results.map((r) => r.success),
             'download',
             onSuccessfullDocuments
         );
-    }, [auxMehtod, folder, selectedFiles]);
+    }, [handleSuccessfulAndFailedDocuments, folder, selectedFiles]);
 
     return (
         <>

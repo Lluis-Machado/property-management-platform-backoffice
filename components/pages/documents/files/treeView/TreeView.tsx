@@ -47,11 +47,24 @@ const FormPopup = dynamic(() => import('../popups/FormPopup'));
 const TreeViewPopup = dynamic(() => import('../popups/TreeViewPopup'));
 
 interface Props {
+    /**
+     * An array of TreeItem objects representing archives.
+     */
     archives: TreeItem<Archive>[];
+    /**
+     * A callback function called when an Archive or folder is selected.
+     * @param folder - The selected Archive or Folder
+     */
     onFolderSelected: (folder: Archive | Folder) => void;
+    /**
+     *  A ref object for the DevExtreme TreeView component.
+     */
     treeViewRef: RefObject<DxTreeView<any>>;
 }
 
+/**
+ * Displays the hierarchical tree of archives and folders.
+ */
 const TreeView: FC<Props> = memo(function TreeView({
     archives,
     onFolderSelected,

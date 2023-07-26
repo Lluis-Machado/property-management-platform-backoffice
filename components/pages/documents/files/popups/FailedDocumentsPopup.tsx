@@ -7,6 +7,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Popup from 'devextreme-react/popup';
 import { Document, DocumentUpload } from '@/lib/types/documentsAPI';
 
+/**
+ * Represents the type of failed documents.
+ */
 export type failedDocumentsType =
     | 'download'
     | 'upload'
@@ -14,14 +17,35 @@ export type failedDocumentsType =
     | 'copy'
     | 'delete';
 
-interface Props {
+export interface Props {
+    /**
+     * An array of `Document` or `DocumentUpload` objects representing the failed documents.
+     */
     documents: Document[] | DocumentUpload[];
+    /**
+     * Callback function to be executed when the popup is hidden.
+     */
     onHidden: () => void;
+    /**
+     * Callback function to be executed when the popup is shown.
+     */
     onShown: () => void;
+    /**
+     * The type of failed documents. Can be one of 'download', 'upload', 'move', 'copy', or 'delete'.
+     */
     type: failedDocumentsType;
+    /**
+     * Specifies whether the popup is visible or not.
+     */
     visible: boolean;
 }
 
+/**
+ * Returns the name of the given Document or DocumentUpload.
+ *
+ * @param document - The `Document` or `DocumentUpload` object for which to get the name.
+ * @returns The name of the document if it is a `Document` object, otherwise the fileName of the `DocumentUpload` object.
+ */
 const getDocumentName = (document: Document | DocumentUpload) => {
     const isDocumentUpload = (
         document: Document | DocumentUpload
@@ -29,6 +53,9 @@ const getDocumentName = (document: Document | DocumentUpload) => {
     return isDocumentUpload(document) ? document.fileName : document.name;
 };
 
+/**
+ * Represents a warning popup that displays the documents that have failed the given action (type).
+ */
 const FailedDocumentPopup: FC<Props> = memo(function FailedUploadPopup({
     documents,
     onHidden,
