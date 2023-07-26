@@ -18,7 +18,7 @@ export const FileMetaData = ({ document }: Props) => {
                             key={key}
                             caption={key}
                             dataField={key}
-                            disabled
+                            editorOptions={{ readOnly: true }}
                         />
                     ))
                 ) : (
