@@ -73,6 +73,14 @@ const PropertyPage = ({
 
     const router = useRouter();
 
+    const handleDoubleClick = useCallback(
+        ({ data }: any) => {
+            console.log(data);
+            router.push(`/private/contacts/${data.ownerId}/contactInfo`);
+        },
+        [router]
+    );
+
     const handleCountryChange = useCallback(
         (countryId: number) => {
             fetch(
@@ -96,6 +104,7 @@ const PropertyPage = ({
 
     const handleSubmit = useCallback(async () => {
         const values = structuredClone(propertyData);
+        console.log(values);
 
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             toast.warning('Change at least one field');
@@ -233,12 +242,26 @@ const PropertyPage = ({
                 </GroupItem>
                 <GroupItem colCount={4} caption='Contact Information'>
                     <Item
-                        dataField='address.addressLine1'
+                        dataField='contactPersonId'
                         label={{ text: 'Contact Person' }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: contacts,
+                            displayExpr: 'firstName',
+                            valueExpr: 'id',
+                            searchEnabled: true,
+                        }}
                     />
                     <Item
-                        dataField='address.addressLine1'
+                        dataField='billingContactId'
                         label={{ text: 'Billing Contact' }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: contacts,
+                            displayExpr: 'firstName',
+                            valueExpr: 'id',
+                            searchEnabled: true,
+                        }}
                     />
                 </GroupItem>
                 <GroupItem colCount={4} caption='Address Information'>

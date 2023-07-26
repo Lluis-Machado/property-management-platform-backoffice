@@ -112,7 +112,7 @@ const AddPropertyPage = ({
                 </GroupItem>
                 <GroupItem colCount={4} caption='Contact Information'>
                     <Item
-                        dataField='mainOwnerId'
+                        dataField='contactPersonId'
                         label={{ text: 'Contact Person' }}
                         editorType='dxSelectBox'
                         editorOptions={{
@@ -123,7 +123,7 @@ const AddPropertyPage = ({
                         }}
                     />
                     <Item
-                        dataField='mainOwnerId'
+                        dataField='billingContactId'
                         label={{ text: 'Billing Contact' }}
                         editorType='dxSelectBox'
                         editorOptions={{
