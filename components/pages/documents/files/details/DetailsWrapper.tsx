@@ -81,12 +81,6 @@ export const DetailsWrapper = ({
                 ]}
             />
             <div
-                className='absolute left-0 top-1/2 flex h-10 w-7 cursor-pointer items-center justify-center border-y border-r border-primary-600 bg-primary-500 text-custom-white'
-                onClick={onFileDetailsClosed}
-            >
-                <FontAwesomeIcon icon={faChevronRight} />
-            </div>
-            <div
                 className='absolute right-0 top-0 flex h-12 w-12 items-center justify-center'
                 onClick={onFileDetailsClosed}
             >

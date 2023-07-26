@@ -206,6 +206,7 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                 columnAutoWidth
                 dataSource={dataSource ?? []}
                 focusedRowEnabled
+                height='100%'
                 id='DocumentsDataGrid'
                 keyExpr='id'
                 onContextMenuPreparing={handleRightClick}
@@ -288,9 +289,14 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                     caption='Deleted'
                     dataField='deleted'
                     dataType='boolean'
+                    visible={false}
                 />
-                <Column caption='Folder Id' dataField='folderId' />
-                <Column caption='Id' dataField='id' />
+                <Column
+                    caption='Folder Id'
+                    dataField='folderId'
+                    visible={false}
+                />
+                <Column caption='Id' dataField='id' visible={false} />
             </DxDataGrid>
             <ContextMenu
                 onFileCopy={onFileCopy}
