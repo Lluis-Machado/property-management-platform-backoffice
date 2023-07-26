@@ -76,7 +76,7 @@ export const DetailsWrapper = ({
                     {
                         icon: faDatabase,
                         title: 'Metadata',
-                        children: <FileMetaData />,
+                        children: <FileMetaData document={selectedDocument} />,
                     },
                 ]}
             />
