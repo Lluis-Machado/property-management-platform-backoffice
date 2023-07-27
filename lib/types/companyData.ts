@@ -20,4 +20,5 @@ export interface CompanyCreate {
     nif: string | null;
     email: string;
     phoneNumber: string;
+    addresses: Address[];
 }

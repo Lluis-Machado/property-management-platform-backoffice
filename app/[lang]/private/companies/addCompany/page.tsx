@@ -1,7 +1,6 @@
 // Local imports
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddCompanyPage from '@/components/pages/companies/AddCompanyPage';
-import AddContactPage from '@/components/pages/contacts/AddContactPage';
 import { Locale } from '@/i18n-config';
 import { CompanyCreate } from '@/lib/types/companyData';
 import { CountryData } from '@/lib/types/countriesData';
@@ -13,6 +12,17 @@ const initialValues: CompanyCreate = {
     nif: null,
     email: '',
     phoneNumber: '',
+    addresses: [
+        {
+            addressLine1: '',
+            addressLine2: '',
+            city: '',
+            state: null,
+            country: null,
+            postalCode: '',
+            addressType: undefined,
+        },
+    ],
 };
 
 interface Props {
@@ -20,12 +30,12 @@ interface Props {
 }
 
 const AddCompany = async ({ params: { lang } }: Props) => {
-    const [user] = await Promise.all([
+    const [user, countries] = await Promise.all([
         getUser(),
-        // getApiDataWithCache<CountryData[]>(
-        //     `/countries/countries?languageCode=${lang}`,
-        //     'Error while getting countries'
-        // ),
+        getApiDataWithCache<CountryData[]>(
+            `/countries/countries?languageCode=${lang}`,
+            'Error while getting countries'
+        ),
     ]);
 
     return (
@@ -33,7 +43,7 @@ const AddCompany = async ({ params: { lang } }: Props) => {
             <Breadcrumb />
             <AddCompanyPage
                 companyData={initialValues}
-                // countries={countries}
+                countries={countries}
                 lang={lang}
                 token={user.token}
             />
