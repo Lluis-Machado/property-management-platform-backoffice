@@ -45,7 +45,7 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
     const router = useRouter();
 
     const handleCountryChange = useCallback(
-        (countryId: number) => {
+        (countryId: number, index: number) => {
             // Check if this country was previously loaded
             if (countriedLoaded.includes(countryId)) return;
             else setCountriedLoaded((prev) => [...prev, countryId]);
@@ -66,6 +66,8 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
                     setStates((prev) => (prev ? [...prev, ...data] : data))
                 )
                 .catch((e) => console.error('Error while getting the states'));
+            // Ensure state is removed
+            companyData.addresses[index].state = null;
         },
         [lang, token, countriedLoaded]
     );
@@ -192,7 +194,7 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
                                         valueExpr: 'id',
                                         searchEnabled: true,
                                         onValueChanged: (e: any) =>
-                                            handleCountryChange(e.value),
+                                            handleCountryChange(e.value, index),
                                     }}
                                 />
                                 <Item
