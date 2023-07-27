@@ -1,7 +1,7 @@
 'use client';
 
 //React imports
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import { Allotment } from 'allotment';
 
@@ -14,6 +14,8 @@ import { faGears, faUpload } from '@fortawesome/free-solid-svg-icons';
 const AddApInvoicePage = () => {
     const [visible, setVisible] = useState(false);
     const [file, setFile] = useState<File>();
+    const [fileDataURL, setFileDataURL] = useState(null);
+    console.log(fileDataURL);
     const inputRef = useRef<HTMLInputElement | null>(null);
     console.log(file);
 
@@ -30,16 +32,32 @@ const AddApInvoicePage = () => {
         setFile(e.target.files[0]);
         // API CALL
     };
+    useEffect(() => {
+        let fileReader: any,
+            isCancel: boolean = false;
+        if (file) {
+            fileReader = new FileReader();
+            fileReader.onload = (e: any) => {
+                const { result } = e.target;
+                if (result && !isCancel) {
+                    setFileDataURL(result);
+                }
+            };
+            fileReader.readAsDataURL(file);
+        }
+        return () => {
+            isCancel = true;
+            if (fileReader && fileReader.readyState === 1) {
+                fileReader.abort();
+            }
+        };
+    }, [file]);
 
     return (
         <>
-            <div className='w-128 h-128'>
-                <Allotment
-                    onVisibleChange={(_index, value) => {
-                        setVisible(value);
-                    }}
-                >
-                    <Allotment.Pane>
+            <div>
+                <div className='mt-4 flex h-screen w-screen gap-2'>
+                    <div className='flex-1'>
                         <div className='flex justify-end gap-4'>
                             <div className='w-24'>
                                 <Button
@@ -48,7 +66,6 @@ const AddApInvoicePage = () => {
                                     iconPosition={'leading'}
                                 />
                             </div>
-
                             <div className='w-24'>
                                 <input
                                     type='file'
@@ -67,12 +84,11 @@ const AddApInvoicePage = () => {
                             </div>
                         </div>
                         <CreateInvoiceForm />
-                    </Allotment.Pane>
-
-                    <Allotment.Pane visible={visible}>
-                        <PreviewWrapper file={file} />
-                    </Allotment.Pane>
-                </Allotment>
+                    </div>
+                    <div className='w-fit flex-1'>
+                        <PreviewWrapper file={fileDataURL} />
+                    </div>
+                </div>
             </div>
         </>
     );

@@ -7,12 +7,9 @@ interface Props {
 const PreviewWrapper = ({ file }: Props) => {
     console.log(file);
     return (
-        <>
-            <iframe
-                src={file}
-                //name={file.name}
-            />
-        </>
+        <div className='w-1/2'>
+            <iframe src={file}></iframe>
+        </div>
     );
 };
 
