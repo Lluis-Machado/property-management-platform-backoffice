@@ -1,16 +1,16 @@
 'use client';
 
 // React imports
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // Libraries imports
 import {
     faCheck,
     faXmark,
     faCircleInfo,
+    faPencil,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { usePathname } from 'next/navigation';
 import { Locale } from '@/i18n-config';
 import { Tooltip } from 'devextreme-react/tooltip';
 import {
@@ -22,12 +22,16 @@ import {
     Export,
     Editing,
     HeaderFilter,
+    Toolbar,
+    Item,
 } from 'devextreme-react/data-grid';
 import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
+import AddRowButton from '@/components/buttons/AddRowButton';
 
 // Local imports
 import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
+import { Button } from 'pg-components';
 
 const ContentTooltip = ({ value }: { value: string }): React.ReactElement => {
     switch (value) {
@@ -108,30 +112,23 @@ interface Props {
     dataSource: any[];
     onInvoiceClick: (title: string, url: string) => void;
     params: any;
-    lang: Locale;
+    id: string;
 }
 
 const DataGrid = ({
     dataSource,
     onInvoiceClick,
     params,
-    lang,
+    id,
 }: Props): React.ReactElement => {
     const dataGridRef = useRef<DxDataGrid>(null);
-    const pathName = usePathname();
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [notAllowEditing, setNotAllowEditing] = useState<boolean>(true);
 
-    useEffect(() => {
-        localeDevExtreme(lang);
-    }, [lang]);
-
-    const getBasePath = useCallback(() => {
-        if (!pathName) return undefined;
-        let lastIndex = pathName.lastIndexOf('/');
-        if (lastIndex !== -1) {
-            return pathName.substring(0, lastIndex);
-        }
-        return pathName;
-    }, [pathName]);
+    const editingMode = () => {
+        setIsEditing((prev) => !prev);
+        setNotAllowEditing((prev) => !prev);
+    };
 
     const InvoiceCellRender = useCallback(
         ({ data }: { data: any }): React.ReactElement => (
@@ -156,7 +153,6 @@ const DataGrid = ({
             focusedRowEnabled
             columnHidingEnabled={false}
             columnMinWidth={100}
-            height={'85vh'}
             showBorders
             ref={dataGridRef}
         >
@@ -182,6 +178,28 @@ const DataGrid = ({
                 useIcons
                 startEditAction={'dblClick'}
             />
+            {notAllowEditing === false && (
+                <Editing mode='batch' allowUpdating allowAdding allowDeleting />
+            )}
+
+            <Toolbar>
+                <Item>
+                    <AddRowButton
+                        href={`/private/accounting/${id}/addExpense`}
+                    />
+                </Item>
+                <Item name='saveButton' disabled={notAllowEditing} />
+                <Item name='revertButton' disabled={notAllowEditing} />
+                <Item>
+                    <Button
+                        elevated
+                        onClick={editingMode}
+                        type='button'
+                        icon={isEditing ? faXmark : faPencil}
+                    />
+                </Item>
+                <Item name='searchPanel' />
+            </Toolbar>
 
             <Column
                 allowHeaderFiltering={false}
