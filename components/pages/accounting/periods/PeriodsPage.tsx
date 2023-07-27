@@ -4,50 +4,67 @@
 import { useCallback, useState } from 'react';
 // Libraries imports
 import { toast } from 'react-toastify';
-import DataGrid, { Column, Editing, Pager } from 'devextreme-react/data-grid';
+import DataGrid, {
+    Column,
+    Editing,
+    Lookup,
+    Pager,
+    RequiredRule,
+    PatternRule,
+    HeaderFilter,
+    Search,
+    SearchPanel,
+} from 'devextreme-react/data-grid';
+import { SavedEvent } from 'devextreme/ui/data_grid';
+
 // Local imports
 import { PeriodsData } from '@/lib/types/periodsData';
 import { TokenRes } from '@/lib/types/token';
 import { apiPatch } from '@/lib/utils/apiPatch';
-import { SavedEvent } from 'devextreme/ui/data_grid';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPost } from '@/lib/utils/apiPost';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
-
+import { idToasts } from '@/lib/types/toastid';
 interface Props {
     data: PeriodsData[];
     token: TokenRes;
     id: string;
 }
-interface idToasts {
-    toastId: any;
-    msg: string;
-    errormsg: string;
+interface Items {
+    label: string;
+    value: number;
 }
 const StatusCellRender = ({ value }: any): React.ReactElement =>
-    value === 0 ? (
-        <div className='text-green-500'>Open</div>
-    ) : (
+    value === 1 ? (
         <div className='text-red-500'>Closed</div>
+    ) : (
+        <div className='text-green-700'>Open</div>
     );
 
 const PeriodsPage = ({ data, token, id }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    console.log(id);
+    const items: Items[] = [
+        { label: 'Open', value: 0 },
+        { label: 'Closed', value: 1 },
+    ];
 
     const saveEditData = useCallback(
         async (e: SavedEvent<PeriodsData, any>) => {
             const promises: Promise<any>[] = [];
             const idToasts: idToasts[] = [];
             setIsLoading(true);
-            console.log(e.changes);
             for (const change of e.changes) {
                 if (change.type == 'update') {
                     const toastId = toast.loading('Updating ownership period');
-                    const values = change.data;
+                    const { tenantId, id, status } = change.data;
+                    const values = {
+                        tenantId,
+                        id,
+                        status,
+                    };
                     promises.push(
                         apiPatch(
-                            `/accounting/tenants/${id}/periods/${change.key}`,
+                            `/accounting/tenants/${tenantId}/periods/${id}?Status=${status}`,
                             values,
                             token,
                             'Error while updating a period'
@@ -74,7 +91,6 @@ const PeriodsPage = ({ data, token, id }: Props) => {
                     });
                 } else if (change.type == 'insert') {
                     const toastId = toast.loading('Adding period');
-
                     const values = {
                         year: change.data.year,
                         month: change.data.month,
@@ -114,6 +130,14 @@ const PeriodsPage = ({ data, token, id }: Props) => {
         },
         [token, id]
     );
+    const onEditorPreparing = (e: any) => {
+        if (e.parentType === 'dataRow' && e.dataField !== 'status') {
+            e.row.isNewRow
+                ? (e.editorOptions.disabled = false)
+                : (e.editorOptions.disabled = true);
+        }
+    };
+
     return (
         <DataGrid
             columnMinWidth={100}
@@ -126,7 +150,10 @@ const PeriodsPage = ({ data, token, id }: Props) => {
             showBorders
             showRowLines
             onSaved={saveEditData}
+            onEditorPreparing={onEditorPreparing}
         >
+            <HeaderFilter visible />
+
             <Pager
                 allowedPageSizes='auto'
                 showInfo
@@ -134,17 +161,28 @@ const PeriodsPage = ({ data, token, id }: Props) => {
                 visible
             />
             <Editing mode='batch' allowDeleting allowAdding allowUpdating />
-            <Column caption='Year' dataField='year' dataType='string' />
+            <Column
+                caption='Year'
+                dataField='year'
+                dataType='string'
+                allowSorting
+            />
             <Column caption='Month' dataField='month' dataType='string' />
             <Column
                 dataField='status'
                 dataType='number'
                 caption='Status'
+                allowEditing
                 cellRender={StatusCellRender}
-            />
+                allowFiltering={false}
+            >
+                <Lookup
+                    dataSource={items}
+                    valueExpr='value'
+                    displayExpr='label'
+                />
+            </Column>
         </DataGrid>
     );
 };
-//stage.plattesapis.net/accounting//tenants/d7b51345-1e9d-4470-ab51-b0a76b380ff5/periods?includeDeleted=false 404
-https: 'https://stage.plattesapis.net/accounting/tenants/d7b51345-1e9d-4470-ab51-b0a76b380ff5/periods?includeDeleted=false';
 export default PeriodsPage;
