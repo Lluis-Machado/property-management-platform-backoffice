@@ -1,0 +1,37 @@
+.dx-field-item:not(.dx-field-item-has-group):not(.dx-field-item-has-tabs):not(.dx-first-row):not(.dx-label-v-align) {
+    padding-top: 2px;
+}
+.dx-layout-manager .dx-field-item {
+    padding-bottom: 5px;
+}
+.dx-form-group-caption {
+    font-weight: bold;
+}
+.dx-field-item-label-text {
+    color: rgba(0,0,0,.6);
+    font-size: 14px;
+    font-weight: 500;
+}
+.dx-texteditor.dx-editor-filled .dx-placeholder::before, .dx-texteditor.dx-editor-filled .dx-texteditor-input, .dx-texteditor.dx-editor-outlined .dx-placeholder::before, .dx-texteditor.dx-editor-outlined .dx-texteditor-input {
+    padding: 10px 5px; 
+}
+.dx-texteditor.dx-editor-filled {
+    background-color: white;
+    border: 0.5px solid rgba(224, 224, 224);
+    border-radius: 5px;
+}
+.dx-texteditor {
+    border-top-left-radius: 0px; 
+    border-top-right-radius: 0px; 
+    position: unset; 
+}
+.dx-form-group-with-caption > .dx-form-group-content {
+    padding-bottom: 10px;
+    padding-top: 10px;
+    margin-top: 0px;
+}
+
+.dx-tab-content, .dx-tab-text {
+    text-transform: none;
+    font-weight: 800;
+}
