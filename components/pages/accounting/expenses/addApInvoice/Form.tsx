@@ -1,9 +1,11 @@
 //React imports
 
 // Libraries imports
-import Form, { GroupItem, Item } from 'devextreme-react/form';
+import Form, { GroupItem, Item, SimpleItem } from 'devextreme-react/form';
 
 // Local imports
+import './addApIncoice.css';
+
 const initialValues = {
     businessPartner: {
         name: 'string',
@@ -16,21 +18,21 @@ const initialValues = {
 const CreateInvoiceForm = () => {
     return (
         <>
-            <Form formData={initialValues} labelMode={'floating'}>
+            <Form formData={initialValues} labelLocation='left'>
                 <GroupItem colCount={2} caption='Supplier invoice'>
-                    <Item
+                    <SimpleItem
                         dataField='businessPartner.name'
                         label={{ text: 'Provider' }}
                     />
-                    <Item
+                    <SimpleItem
                         dataField='refNumber'
                         label={{ text: 'Invoice Number' }}
                     />
-                    <Item
+                    <SimpleItem
                         dataField='businessPartner.vatNumber'
                         label={{ text: 'CIF' }}
                     />
-                    <Item
+                    <SimpleItem
                         dataField='date'
                         label={{ text: 'Date of invoice' }}
                     />

@@ -5,7 +5,7 @@ import AddApInvoicePage from '@/components/pages/accounting/expenses/addApInvoic
 interface Props {
     params: { id: string };
 }
-const Addexpense = async () => {
+const AddApInvoice = async () => {
     return (
         <>
             <Breadcrumb />
@@ -13,4 +13,4 @@ const Addexpense = async () => {
         </>
     );
 };
-export default Addexpense;
+export default AddApInvoice;

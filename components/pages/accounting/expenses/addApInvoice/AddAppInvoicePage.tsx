@@ -10,14 +10,14 @@ import { Button } from 'pg-components';
 import PreviewWrapper from './PreviewWrapper';
 import CreateInvoiceForm from './Form';
 import { faGears, faUpload } from '@fortawesome/free-solid-svg-icons';
+import '../../../../../node_modules/allotment/dist/style.css';
+import '../../../../splitPane/style/splitPane.module.css';
 
 const AddApInvoicePage = () => {
     const [visible, setVisible] = useState(false);
     const [file, setFile] = useState<File>();
     const [fileDataURL, setFileDataURL] = useState(null);
-    console.log(fileDataURL);
     const inputRef = useRef<HTMLInputElement | null>(null);
-    console.log(file);
 
     const handleUploadClick = () => {
         inputRef.current?.click();
@@ -54,10 +54,10 @@ const AddApInvoicePage = () => {
     }, [file]);
 
     return (
-        <>
-            <div>
-                <div className='mt-4 flex h-screen w-screen gap-2'>
-                    <div className='flex-1'>
+        <div className='h-screen w-screen'>
+            <Allotment>
+                <Allotment.Pane>
+                    <div className='mr-4'>
                         <div className='flex justify-end gap-4'>
                             <div className='w-24'>
                                 <Button
@@ -85,12 +85,14 @@ const AddApInvoicePage = () => {
                         </div>
                         <CreateInvoiceForm />
                     </div>
-                    <div className='w-fit flex-1'>
+                </Allotment.Pane>
+                <Allotment.Pane>
+                    <div className='ml-2'>
                         <PreviewWrapper file={fileDataURL} />
                     </div>
-                </div>
-            </div>
-        </>
+                </Allotment.Pane>
+            </Allotment>
+        </div>
     );
 };
 

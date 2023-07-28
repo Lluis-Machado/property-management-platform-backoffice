@@ -5,10 +5,20 @@ interface Props {
 }
 
 const PreviewWrapper = ({ file }: Props) => {
-    console.log(file);
     return (
-        <div className='w-1/2'>
-            <iframe src={file}></iframe>
+        <div>
+            <iframe
+                src={file}
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: '5px',
+                    bottom: 0,
+                    right: 0,
+                    width: '92%',
+                    height: '100%',
+                }}
+            ></iframe>
         </div>
     );
 };

@@ -185,7 +185,7 @@ const DataGrid = ({
             <Toolbar>
                 <Item>
                     <AddRowButton
-                        href={`/private/accounting/${id}/addExpense`}
+                        href={`/private/accounting/${id}/addApInvoice`}
                     />
                 </Item>
                 <Item name='saveButton' disabled={notAllowEditing} />
