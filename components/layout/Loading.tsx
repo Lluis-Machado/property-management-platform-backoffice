@@ -1,40 +1,21 @@
-'use client';
+import { memo } from 'react';
+import Image from 'next/image';
 
-// Libraries imports
-import { AnimatePresence, motion } from 'framer-motion';
+import './loading.css';
+import wufLogo from '@/public/WuF_Logo.png';
 
 const Loading = ({ isLoading }: { isLoading: boolean }): React.ReactElement => (
-    <AnimatePresence>
+    <>
         {isLoading && (
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{
-                    opacity: 1,
-                    transition: { duration: 0.5, ease: 'easeIn' },
-                }}
-                exit={{
-                    opacity: 0,
-                    transition: { duration: 0.5, ease: 'easeOut' },
-                }}
-                className='absolute inset-0 z-10 flex items-center bg-slate-300'
-            >
-                <motion.img
-                    className=''
-                    src='./WuF_Logo.png'
+            <div className='absolute inset-0 z-10 flex items-center justify-center bg-slate-300'>
+                <Image
+                    className='loader-animation w-[25vw]'
+                    src={wufLogo}
                     alt='Loading Image'
-                    initial={{ opacity: 0, scale: 0.2 }}
-                    animate={{
-                        opacity: 1,
-                        transition: {
-                            duration: 1,
-                            repeat: Infinity,
-                            repeatType: 'reverse',
-                        },
-                    }}
                 />
-            </motion.div>
+            </div>
         )}
-    </AnimatePresence>
+    </>
 );
 
-export default Loading;
+export default memo(Loading);

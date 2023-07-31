@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useRef } from 'react';
+import { FC, memo, useCallback } from 'react';
 
 // Libraries imports
 import {
@@ -9,68 +9,80 @@ import {
 import { ItemClickEvent } from 'devextreme/ui/context_menu';
 
 interface Props {
+    /**
+     * A function to be called when the "Copy to" action is triggered.
+     */
     onFileCopy: () => void;
+    /**
+     * A function to be called when the "Delete" action is triggered.
+     */
     onFileDelete: () => void;
+    /**
+     * A function to be called when the "Download" action is triggered.
+     */
     onFileDownload: () => void;
+    /**
+     * A function to be called when the "Move to" action is triggered.
+     */
     onFileMove: () => void;
+    /**
+     * A function to be called when the "Rename" action is triggered.
+     */
     onFileRename: () => void;
-    onRefresh: () => void;
+    /**
+     * The amount of selected files
+     */
     selectedFilesQuantity: number;
 }
 
-export const ContextMenu = ({
+/**
+ * ContextMenu component that displays a context menu for file-related actions.
+ */
+export const ContextMenu: FC<Props> = memo(function ContextMenu({
     onFileCopy,
     onFileDelete,
     onFileDownload,
     onFileMove,
     onFileRename,
-    onRefresh,
     selectedFilesQuantity,
-}: Props): React.ReactElement => {
-    const ContextMenuRef = useRef<DxContextMenu>(null);
-
+}): React.ReactElement {
+    /**
+     * Handles the click event of the context menu items.
+     * @param {ItemClickEvent} event - The click event object containing the index of the clicked item.
+     */
     const handleContextMenuItemClick = useCallback(
         ({ itemIndex }: ItemClickEvent) => {
-            const actions: any = {
-                0: onFileRename,
-                1: onFileMove,
-                2: onFileCopy,
-                3: onFileDelete,
-                4: onRefresh,
-                5: onFileDownload,
+            const actions: Record<number, () => void> = {
+                0: onFileDownload,
+                1: onFileRename,
+                2: onFileMove,
+                3: onFileCopy,
+                4: onFileDelete,
             };
             actions[itemIndex]();
         },
-        [
-            onFileCopy,
-            onFileDelete,
-            onFileDownload,
-            onFileMove,
-            onFileRename,
-            onRefresh,
-        ]
+        [onFileCopy, onFileDelete, onFileDownload, onFileMove, onFileRename]
     );
 
     return (
         <DxContextMenu
-            ref={ContextMenuRef}
-            target='#DocumentsDataGrid > div > div.dx-datagrid-rowsview.dx-datagrid-nowrap'
+            target='#DocumentsDataGrid > div > div.dx-datagrid-rowsview.dx-datagrid-nowrap.dx-scrollable.dx-visibility-change-handler.dx-scrollable-both.dx-scrollable-simulated > div > div > div.dx-scrollable-content > div > table > tbody > tr:not(.dx-freespace-row)'
             onItemClick={handleContextMenuItemClick}
             hideOnOutsideClick
         >
+            <Item closeMenuOnClick icon='download' text='Download' />
             <Item
                 closeMenuOnClick
+                beginGroup
                 icon='rename'
                 text='Rename'
                 visible={selectedFilesQuantity === 1}
             />
             <Item closeMenuOnClick icon='movetofolder' text='Move to' />
             <Item closeMenuOnClick icon='copy' text='Copy to' />
-            <Item closeMenuOnClick icon='trash' text='Delete' />
-            <Item closeMenuOnClick beginGroup icon='refresh' text='Refresh' />
-            <Item closeMenuOnClick icon='download' text='Download' />
+            <Item closeMenuOnClick beginGroup icon='trash' text='Delete' />
         </DxContextMenu>
     );
-};
+});
 
 export default ContextMenu;

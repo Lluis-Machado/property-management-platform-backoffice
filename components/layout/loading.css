@@ -1,0 +1,67 @@
+:root {
+    --lower-opacity: 0.1;
+    --upper-opacity: 1;
+}
+
+@keyframes flickerAnimation {
+    0% {
+        opacity: var(--upper-opacity);
+    }
+
+    50% {
+        opacity: var(--lower-opacity);
+    }
+
+    100% {
+        opacity: var(--upper-opacity);
+    }
+}
+
+@-o-keyframes flickerAnimation {
+    0% {
+        opacity: var(--upper-opacity);
+    }
+
+    50% {
+        opacity: var(--lower-opacity);
+    }
+
+    100% {
+        opacity: var(--upper-opacity);
+    }
+}
+
+@-moz-keyframes flickerAnimation {
+    0% {
+        opacity: var(--upper-opacity);
+    }
+
+    50% {
+        opacity: var(--lower-opacity);
+    }
+
+    100% {
+        opacity: var(--upper-opacity);
+    }
+}
+
+@-webkit-keyframes flickerAnimation {
+    0% {
+        opacity: var(--upper-opacity);
+    }
+
+    50% {
+        opacity: var(--lower-opacity);
+    }
+
+    100% {
+        opacity: var(--upper-opacity);
+    }
+}
+
+.loader-animation {
+    -webkit-animation: flickerAnimation 2s infinite ease-in-out;
+    -moz-animation: flickerAnimation 2s infinite ease-in-out;
+    -o-animation: flickerAnimation 2s infinite ease-in-out;
+    animation: flickerAnimation 2s infinite ease-in-out;
+}
