@@ -24,7 +24,6 @@ import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { Button } from 'pg-components';
-//import './addProperty.css';
 
 interface Props {
     propertyData: PropertyCreate;
@@ -352,7 +351,7 @@ const AddPropertyPage = ({
 
             <div className='h-[2rem]'>
                 <div className='flex justify-end'>
-                    <div className='flex flex-row justify-between gap-2'>
+                    <div className='mt-2 flex flex-row justify-between gap-2'>
                         <Button
                             elevated
                             type='button'
