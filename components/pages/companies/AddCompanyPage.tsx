@@ -14,17 +14,19 @@ import Form, {
 } from 'devextreme-react/form';
 
 // Local imports
-import { CompanyCreate } from '@/lib/types/companyData';
+import { CompanyData } from '@/lib/types/companyData';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { Locale } from '@/i18n-config';
 import { TokenRes } from '@/lib/types/token';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
-import { CountryData, StateData } from '@/lib/types/countriesData';
+import { CountryData } from '@/lib/types/countriesData';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import useCountryChange from '@/lib/hooks/useCountryChange';
 
 interface Props {
-    companyData: CompanyCreate;
+    companyData: CompanyData;
     countries: CountryData[];
     token: TokenRes;
     lang: Locale;
@@ -32,54 +34,26 @@ interface Props {
 
 const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [states, setStates] = useState<StateData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<CompanyCreate>(
+    const [initialValues, setInitialValues] = useState<CompanyData>(
         structuredClone(companyData)
     );
     const [addressOptions, setAddressOptions] = useState({});
-    const [countriedLoaded, setCountriedLoaded] = useState<number[]>([]);
+
+    const { states, handleCountryChange, isStateLoading } = useCountryChange(
+        lang,
+        token
+    );
 
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
-
-    const handleCountryChange = useCallback(
-        (countryId: number, index: number) => {
-            // Check if this country was previously loaded
-            if (countriedLoaded.includes(countryId)) return;
-            else setCountriedLoaded((prev) => [...prev, countryId]);
-
-            // Fetch states for this country
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
-                .then((resp) => resp.json())
-                .then((data: StateData[]) =>
-                    setStates((prev) => (prev ? [...prev, ...data] : data))
-                )
-                .catch((e) => console.error('Error while getting the states'));
-            // Ensure state is removed
-            companyData.addresses[index].state = null;
-        },
-        [lang, token, countriedLoaded]
-    );
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
         if (!res.isValid) return;
 
         const values = structuredClone(companyData);
-
-        console.log('Valores a enviar: ', values);
-        console.log('Valores a enviar en JSON: ', JSON.stringify(values));
 
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             toast.warning('Change at least one field');
@@ -93,9 +67,20 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
         if (!values.nif) values.nif = null;
 
         try {
+            const valuesToSend: CompanyData = {
+                ...values,
+                foundingDate: formatDate(values.foundingDate),
+            };
+
+            console.log('Valores a enviar: ', valuesToSend);
+            console.log(
+                'Valores a enviar en JSON: ',
+                JSON.stringify(valuesToSend)
+            );
+
             const data = await apiPost(
                 '/companies/companies',
-                values,
+                valuesToSend,
                 token,
                 'Error while creating a company'
             );
@@ -111,26 +96,10 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
         }
     }, [companyData, initialValues, token, router]);
 
-    const updateAdresses = () => {
-        const options = [];
-        for (let i = 0; i < companyData.addresses.length; i += 1) {
-            options.push(generateNewAddress(i));
-        }
-        setAddressOptions(options);
-        console.log(companyData);
-    };
-
-    console.log('companyData: ', companyData);
-
-    const generateNewAddress = (index: number) => {};
-
-    const getFilteredStates = (index: number) => {
-        console.log('states: ', states);
-        console.log(index);
-        return states?.filter(
+    const getFilteredStates = (index: number) =>
+        states?.filter(
             (state) => state.countryId === companyData.addresses[index].country
         );
-    };
 
     return (
         <div>
@@ -153,6 +122,31 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
                         dataField='phoneNumber'
                         label={{ text: 'Phone number' }}
                         editorOptions={{ mask: '+(0000) 000-00-00-00' }}
+                    />
+                    <Item
+                        dataField='germanTaxOffice'
+                        label={{ text: 'German Tax Office' }}
+                    />
+                    <Item
+                        dataField='companyPurpose'
+                        label={{ text: 'Company Purpose' }}
+                    />
+                    <Item
+                        dataField='taxNumber'
+                        label={{ text: 'Tax Number' }}
+                    />
+                    <Item
+                        dataField='uStIDNumber'
+                        label={{ text: 'uSt ID Number' }}
+                    />
+                    <Item
+                        dataField='foundingDate'
+                        label={{ text: 'Founding Date' }}
+                        editorType='dxDateBox'
+                        editorOptions={{
+                            displayFormat: dateFormat,
+                            showClearButton: true,
+                        }}
                     />
                 </GroupItem>
                 <GroupItem colCount={1} caption={`Address Information`}>
@@ -193,8 +187,12 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
-                                        onValueChanged: (e: any) =>
-                                            handleCountryChange(e.value, index),
+                                        onValueChanged: (e: any) => {
+                                            handleCountryChange(e.value);
+                                            // Ensure state is removed
+                                            companyData.addresses[index].state =
+                                                null;
+                                        },
                                     }}
                                 />
                                 <Item
@@ -207,6 +205,7 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
+                                        readOnly: isStateLoading,
                                     }}
                                 />
                                 <Item
@@ -233,7 +232,7 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
                                                 1
                                             );
                                             // Update address fields
-                                            updateAdresses();
+                                            setAddressOptions([]);
                                         },
                                     }}
                                 />
@@ -259,7 +258,7 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
                                 addressType: undefined,
                             });
                             // Update address fields
-                            updateAdresses();
+                            setAddressOptions([]);
                         },
                     }}
                 />

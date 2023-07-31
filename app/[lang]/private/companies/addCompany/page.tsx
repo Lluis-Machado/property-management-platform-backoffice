@@ -2,16 +2,21 @@
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddCompanyPage from '@/components/pages/companies/AddCompanyPage';
 import { Locale } from '@/i18n-config';
-import { CompanyCreate } from '@/lib/types/companyData';
+import { CompanyData } from '@/lib/types/companyData';
 import { CountryData } from '@/lib/types/countriesData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
-const initialValues: CompanyCreate = {
+const initialValues: CompanyData = {
     name: '',
     nif: null,
     email: '',
     phoneNumber: '',
+    companyPurpose: '',
+    foundingDate: null,
+    germanTaxOffice: '',
+    taxNumber: '',
+    uStIDNumber: '',
     addresses: [
         {
             addressLine1: '',
