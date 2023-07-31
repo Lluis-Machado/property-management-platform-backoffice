@@ -24,7 +24,6 @@ import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { Button } from 'pg-components';
-//import './addProperty.css';
 
 interface Props {
     propertyData: PropertyCreate;
