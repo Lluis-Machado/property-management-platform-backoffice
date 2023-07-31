@@ -36,7 +36,6 @@ const PropertiesPage = ({
     );
 
     const addressCellRender = (e: PropertyData) => {
-        console.log(e.propertyAddress[0]);
         const { addressLine1, city, country, state, postalCode } =
             e.propertyAddress[0];
         const parts = [

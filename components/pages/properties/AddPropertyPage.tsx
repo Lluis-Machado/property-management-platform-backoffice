@@ -24,7 +24,7 @@ import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { Button } from 'pg-components';
-import './addProperty.css';
+//import './addProperty.css';
 
 interface Props {
     propertyData: PropertyCreate;
@@ -114,7 +114,7 @@ const AddPropertyPage = ({
                 readOnly={isLoading}
                 labelLocation='left'
             >
-                <GroupItem colCount={3}>
+                <GroupItem colCount={4}>
                     <GroupItem caption='Property Information'>
                         <Item dataField='name' label={{ text: 'Name' }} />
                         <Item dataField='type' label={{ text: 'Type' }} />
@@ -161,7 +161,7 @@ const AddPropertyPage = ({
                         </GroupItem>
                     </GroupItem>
                 </GroupItem>
-                <GroupItem colCount={2} caption='Address Information'>
+                <GroupItem colCount={3} caption='Address Information'>
                     <GroupItem>
                         <Item
                             dataField='address.addressLine1'
@@ -209,11 +209,11 @@ const AddPropertyPage = ({
                         </GroupItem>
                     </GroupItem>
                 </GroupItem>
-                <GroupItem caption='Aditional Information'>
+                <GroupItem>
                     <TabbedItem>
                         <TabPanelOptions deferRendering={false} />
                         <Tab title='Cadastre Information'>
-                            <GroupItem colCount={4}>
+                            <GroupItem colCount={5}>
                                 <Item
                                     dataField='cadastreNumber'
                                     label={{ text: 'Cadastre Number' }}
@@ -227,7 +227,7 @@ const AddPropertyPage = ({
                                     label={{ text: 'Cadastre Value' }}
                                 />
                             </GroupItem>
-                            <GroupItem colCount={4}>
+                            <GroupItem colCount={5}>
                                 <Item
                                     dataField='loanPrice.value'
                                     label={{ text: 'Loan price' }}
@@ -263,36 +263,40 @@ const AddPropertyPage = ({
                             </GroupItem>
                         </Tab>
                         <Tab title='Purchase Information'>
-                            <GroupItem colCount={4}>
-                                <Item
-                                    dataField='purchaseDate'
-                                    label={{ text: 'Purchase Date' }}
-                                    editorType='dxDateBox'
-                                />
-                                <Item
-                                    dataField='purchasePrice.value'
-                                    label={{ text: 'Purchase price' }}
-                                />
-                                <Item
-                                    dataField='purchasePriceTax.value'
-                                    label={{ text: 'Purchase Price Tax' }}
-                                />
-                                <Item
-                                    dataField='purchasePriceAJD.value'
-                                    label={{ text: 'Purchase Price AJD' }}
-                                />
-                                <Item
-                                    dataField='purchasePriceTPO.value'
-                                    label={{ text: 'Purchase Price TPO' }}
-                                />
-                                <Item
-                                    dataField='purchasePriceTotal.value'
-                                    label={{ text: 'Purchase Price Total' }}
-                                />
+                            <GroupItem colCount={5}>
+                                <GroupItem>
+                                    <Item
+                                        dataField='purchaseDate'
+                                        label={{ text: 'Purchase Date' }}
+                                        editorType='dxDateBox'
+                                    />
+                                    <Item
+                                        dataField='purchasePrice.value'
+                                        label={{ text: 'Purchase price' }}
+                                    />
+                                    <Item
+                                        dataField='purchasePriceTax.value'
+                                        label={{ text: 'Purchase Price Tax' }}
+                                    />
+                                </GroupItem>
+                                <GroupItem>
+                                    <Item
+                                        dataField='purchasePriceAJD.value'
+                                        label={{ text: 'Purchase Price AJD' }}
+                                    />
+                                    <Item
+                                        dataField='purchasePriceTPO.value'
+                                        label={{ text: 'Purchase Price TPO' }}
+                                    />
+                                    <Item
+                                        dataField='purchasePriceTotal.value'
+                                        label={{ text: 'Purchase Price Total' }}
+                                    />
+                                </GroupItem>
                             </GroupItem>
                         </Tab>
                         <Tab title='Furniture Information'>
-                            <GroupItem colCount={4}>
+                            <GroupItem colCount={5}>
                                 <Item
                                     dataField='furniturePrice.value'
                                     label={{ text: 'Furniture Price' }}
@@ -306,7 +310,7 @@ const AddPropertyPage = ({
                                     label={{ text: 'Furniture Price TPO' }}
                                 />
                             </GroupItem>
-                            <GroupItem colCount={4}>
+                            <GroupItem colCount={5}>
                                 <Item
                                     dataField='garbageCollection'
                                     label={{ text: 'Garbage Collection' }}
@@ -318,7 +322,7 @@ const AddPropertyPage = ({
                             </GroupItem>
                         </Tab>
                         <Tab title='Sale Information'>
-                            <GroupItem colCount={4}>
+                            <GroupItem colCount={5}>
                                 <Item
                                     dataField='saleDate'
                                     label={{ text: 'Sale Date' }}
@@ -331,7 +335,7 @@ const AddPropertyPage = ({
                             </GroupItem>
                         </Tab>
                         <Tab title='Other Information'>
-                            <GroupItem colCount={4}>
+                            <GroupItem colCount={5}>
                                 <Item
                                     dataField='bedNumber'
                                     label={{ text: 'Bed Number' }}
