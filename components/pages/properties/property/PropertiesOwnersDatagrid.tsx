@@ -65,6 +65,7 @@ const PropertiesOwnersDatagrid = ({
     );
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    console.log(dataSource[0]);
     const propertyId: number = dataSource[0].propertyId;
 
     const saveEditData = useCallback(

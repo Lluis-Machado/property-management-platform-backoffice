@@ -26,7 +26,6 @@ const PropertiesPage = ({
     contactData,
 }: Props): React.ReactElement => {
     const router = useRouter();
-    console.log(propertyData);
 
     const handleDoubleClick = useCallback(
         ({ data }: any) => {

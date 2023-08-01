@@ -15,7 +15,7 @@ import Form, {
 } from 'devextreme-react/form';
 
 //local imports
-import { PropertyCreate } from '@/lib/types/propertyInfo';
+import { PropertyData } from '@/lib/types/propertyInfo';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
@@ -26,7 +26,7 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import { Button } from 'pg-components';
 
 interface Props {
-    propertyData: PropertyCreate;
+    propertyData: PropertyData;
     contacts: SelectData[];
     countries: CountryData[];
     token: TokenRes;
@@ -48,7 +48,7 @@ const AddPropertyPage = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [states, setStates] = useState<StateData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<PropertyCreate>(
+    const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
 
@@ -136,6 +136,17 @@ const AddPropertyPage = ({
                     <GroupItem>
                         <GroupItem caption='Contact Information'>
                             <Item
+                                dataField='mainOwnerId'
+                                label={{ text: 'Main Owner' }}
+                                editorType='dxSelectBox'
+                                editorOptions={{
+                                    items: contacts,
+                                    displayExpr: 'label',
+                                    valueExpr: 'value',
+                                    searchEnabled: true,
+                                }}
+                            />
+                            <Item
                                 dataField='contactPersonId'
                                 label={{ text: 'Contact Person' }}
                                 editorType='dxSelectBox'
@@ -163,26 +174,26 @@ const AddPropertyPage = ({
                 <GroupItem colCount={3} caption='Address Information'>
                     <GroupItem>
                         <Item
-                            dataField='address.addressLine1'
+                            dataField='propertyAddress[0].addressLine1'
                             label={{ text: 'Address line' }}
                         />
                         <Item
-                            dataField='address.addressLine2'
+                            dataField='propertyAddress[0].addressLine2'
                             label={{ text: 'Address line 2' }}
                         />
                         <GroupItem colCount={2}>
                             <Item
-                                dataField='address.postalCode'
+                                dataField='propertyAddress[0].postalCode'
                                 label={{ text: 'Postal code' }}
                             />
                             <Item
-                                dataField='address.city'
+                                dataField='propertyAddress[0].city'
                                 label={{ text: 'City' }}
                             />
                         </GroupItem>
                         <GroupItem colCount={2}>
                             <Item
-                                dataField='address.country'
+                                dataField='propertyAddress[0].country'
                                 label={{ text: 'Country' }}
                                 editorType='dxSelectBox'
                                 editorOptions={{
@@ -195,7 +206,7 @@ const AddPropertyPage = ({
                                 }}
                             />
                             <Item
-                                dataField='address.state'
+                                dataField='propertyAddress[0].state'
                                 label={{ text: 'State' }}
                                 editorType='dxSelectBox'
                                 editorOptions={{
@@ -301,7 +312,7 @@ const AddPropertyPage = ({
                                     label={{ text: 'Furniture Price' }}
                                 />
                                 <Item
-                                    dataField='furniturePriceIVA'
+                                    dataField='furniturePriceIVA.value'
                                     label={{ text: 'Furniture Price IVA' }}
                                 />
                                 <Item
