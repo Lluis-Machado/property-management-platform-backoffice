@@ -24,6 +24,7 @@ import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
 import { CountryData } from '@/lib/types/countriesData';
+import useCountryChange from '@/lib/hooks/useCountryChange';
 
 interface Props {
     contactData: ContactData;
@@ -34,52 +35,26 @@ interface Props {
 
 const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [states, setStates] = useState<SelectData[] | undefined>(undefined);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<ContactData>(
         structuredClone(contactData)
+    );
+    const [addressOptions, setAddressOptions] = useState({});
+
+    const { states, handleCountryChange, isStateLoading } = useCountryChange(
+        lang,
+        token
     );
 
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
 
-    const handleCountryChange = useCallback(
-        (countryId: number) => {
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
-                .then((resp) => resp.json())
-                .then((data: any) => {
-                    let states = [];
-                    for (const state of data) {
-                        states.push({
-                            label: state.name,
-                            value: state.id,
-                        });
-                    }
-                    setStates(states);
-                })
-                .catch((e) => console.error('Error while getting the states'));
-        },
-        [lang, token]
-    );
-
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
         if (!res.isValid) return;
 
         const values = structuredClone(contactData);
-
-        console.log('Valores a enviar: ', values);
-        console.log('Valores a enviar en JSON: ', JSON.stringify(values));
 
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             toast.warning('Change at least one field');
@@ -96,7 +71,15 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
             const valuesToSend: ContactData = {
                 ...values,
                 birthDay: formatDate(values.birthDay),
+                nifExpirationDate: formatDate(values.birthDay),
+                passportExpirationDate: formatDate(values.birthDay),
             };
+
+            console.log('Valores a enviar: ', valuesToSend);
+            console.log(
+                'Valores a enviar en JSON: ',
+                JSON.stringify(valuesToSend)
+            );
 
             const data = await apiPost(
                 '/contacts/contacts',
