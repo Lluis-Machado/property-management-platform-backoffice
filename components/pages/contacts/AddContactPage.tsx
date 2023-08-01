@@ -41,10 +41,8 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
     );
     const [addressOptions, setAddressOptions] = useState({});
 
-    const { states, handleCountryChange, isStateLoading } = useCountryChange(
-        lang,
-        token
-    );
+    const { states, handleCountryChange, isStateLoading, getFilteredStates } =
+        useCountryChange(lang, token);
 
     const formRef = useRef<Form>(null);
 
@@ -121,6 +119,10 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                         />
                     </Item>
                     <Item
+                        dataField='birthPlace'
+                        label={{ text: 'Birth Place' }}
+                    />
+                    <Item
                         dataField='birthDay'
                         label={{ text: 'Birth date' }}
                         editorType='dxDateBox'
@@ -130,46 +132,61 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                         }}
                     />
                     <Item dataField='nif' label={{ text: 'NIF' }} />
-                </GroupItem>
-                <GroupItem colCount={4} caption='Address Information'>
                     <Item
-                        dataField='address.addressLine1'
-                        label={{ text: 'Address line' }}
+                        dataField='nifExpirationDate'
+                        label={{ text: 'NIF Expiration Date' }}
+                        editorType='dxDateBox'
+                        editorOptions={{
+                            displayFormat: dateFormat,
+                            showClearButton: true,
+                        }}
                     />
                     <Item
-                        dataField='address.addressLine2'
-                        label={{ text: 'Address line 2' }}
+                        dataField='passportNumber'
+                        label={{ text: 'Passport Number' }}
                     />
                     <Item
-                        dataField='address.country'
-                        label={{ text: 'Country' }}
+                        dataField='passportExpirationDate'
+                        label={{ text: 'Passport Expiration Date' }}
+                        editorType='dxDateBox'
+                        editorOptions={{
+                            displayFormat: dateFormat,
+                            showClearButton: true,
+                        }}
+                    />
+                    <Item
+                        dataField={'maritalStatus'}
+                        label={{ text: 'Marital Status' }}
                         editorType='dxSelectBox'
                         editorOptions={{
-                            items: countries,
-                            displayExpr: 'name',
+                            items: [
+                                { id: 1, name: 'Single' },
+                                { id: 2, name: 'Married' },
+                                { id: 3, name: 'Divorced' },
+                                { id: 4, name: 'Widowed' },
+                            ],
                             valueExpr: 'id',
-                            searchEnabled: true,
-                            onValueChanged: (e: any) =>
-                                handleCountryChange(e.value),
+                            displayExpr: 'name',
                         }}
                     />
+
                     <Item
-                        dataField='address.state'
-                        label={{ text: 'State' }}
-                        editorType='dxSelectBox'
-                        editorOptions={{
-                            items: states,
-                            displayExpr: 'label',
-                            valueExpr: 'value',
-                            searchEnabled: true,
-                        }}
+                        dataField='socialSecurityNumber'
+                        label={{ text: 'Social Security Number' }}
                     />
-                    <Item dataField='address.city' label={{ text: 'City' }} />
-                    <Item
-                        dataField='address.postalCode'
-                        label={{ text: 'Postal code' }}
-                    />
+                    <Item dataField='taxId' label={{ text: 'Tax Id' }} />
+                </GroupItem>
+                <GroupItem colCount={4} caption={`Emails & Phones`}>
                     <Item dataField='email' label={{ text: 'Email' }}>
+                        <EmailRule message='Email is invalid' />
+                    </Item>
+                    <Item
+                        dataField='secondaryEmail'
+                        label={{ text: 'Secondary Email' }}
+                    >
+                        <EmailRule message='Email is invalid' />
+                    </Item>
+                    <Item dataField='scanMail' label={{ text: 'Scan Mail' }}>
                         <EmailRule message='Email is invalid' />
                     </Item>
                     <Item
@@ -182,7 +199,133 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                         label={{ text: 'Mobile phone number' }}
                         editorOptions={{ mask: '+(0000) 000-00-00-00' }}
                     />
+                    <Item
+                        dataField='otherPhoneNumber'
+                        label={{ text: 'Other Phone Number' }}
+                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
+                    />
+                    <Item
+                        dataField='faxNumber'
+                        label={{ text: 'Fax Number' }}
+                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
+                    />
                 </GroupItem>
+                <GroupItem colCount={1} caption={`Address Information`}>
+                    {contactData.addresses.map((address, index) => {
+                        return (
+                            <GroupItem key={`GroupItem${index}`} colCount={8}>
+                                <Item
+                                    key={`addressType${index}`}
+                                    dataField={`addresses[${index}].addressType`}
+                                    label={{ text: 'Address Type' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        items: [
+                                            { id: 1, name: 'Physical Address' },
+                                            { id: 2, name: 'Billing Address' },
+                                        ],
+                                        valueExpr: 'id',
+                                        displayExpr: 'name',
+                                    }}
+                                />
+                                <Item
+                                    key={`addressLine1${index}`}
+                                    dataField={`addresses[${index}].addressLine1`}
+                                    label={{ text: 'Address line' }}
+                                />
+                                <Item
+                                    key={`addressLine2${index}`}
+                                    dataField={`addresses[${index}].addressLine2`}
+                                    label={{ text: 'Address line 2' }}
+                                />
+                                <Item
+                                    key={`country${index}`}
+                                    dataField={`addresses[${index}].country`}
+                                    label={{ text: 'Country' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        items: countries,
+                                        displayExpr: 'name',
+                                        valueExpr: 'id',
+                                        searchEnabled: true,
+                                        onValueChanged: (e: any) => {
+                                            handleCountryChange(e.value);
+                                            // Ensure state is removed
+                                            contactData.addresses[index].state =
+                                                null;
+                                        },
+                                    }}
+                                />
+                                <Item
+                                    key={`state${index}`}
+                                    dataField={`addresses[${index}].state`}
+                                    label={{ text: 'State' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        items: getFilteredStates(
+                                            index,
+                                            contactData
+                                        ),
+                                        displayExpr: 'name',
+                                        valueExpr: 'id',
+                                        searchEnabled: true,
+                                        readOnly: isStateLoading,
+                                    }}
+                                />
+                                <Item
+                                    key={`city${index}`}
+                                    dataField={`addresses[${index}].city`}
+                                    label={{ text: 'City' }}
+                                />
+                                <Item
+                                    key={`postalCode${index}`}
+                                    dataField={`addresses[${index}].postalCode`}
+                                    label={{ text: 'Postal code' }}
+                                />
+                                <Item
+                                    key={`button${index}`}
+                                    itemType='button'
+                                    horizontalAlignment='left'
+                                    buttonOptions={{
+                                        icon: 'trash',
+                                        text: 'Remove address',
+                                        onClick: () => {
+                                            // Set a new empty address
+                                            contactData.addresses.splice(
+                                                index,
+                                                1
+                                            );
+                                            // Update address fields
+                                            setAddressOptions([]);
+                                        },
+                                    }}
+                                />
+                            </GroupItem>
+                        );
+                    })}
+                </GroupItem>
+                <Item
+                    itemType='button'
+                    horizontalAlignment='left'
+                    buttonOptions={{
+                        icon: 'add',
+                        text: 'Add address',
+                        onClick: () => {
+                            // Set a new empty address
+                            contactData.addresses.push({
+                                addressLine1: '',
+                                addressLine2: '',
+                                city: '',
+                                state: null,
+                                country: null,
+                                postalCode: '',
+                                addressType: undefined,
+                            });
+                            // Update address fields
+                            setAddressOptions([]);
+                        },
+                    }}
+                />
             </Form>
             <div className='h-[2rem]'>
                 <div className='flex justify-end'>
