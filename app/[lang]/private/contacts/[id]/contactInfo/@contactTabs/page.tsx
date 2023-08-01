@@ -10,7 +10,7 @@ interface Props {
 const ContactTabs = async ({ params: { lang, id } }: Props) => {
     const ownershipData = await getApiData<OwnershipData[]>(
         `/ownership/ownership/${id}/contact`,
-        'Error while getting properties info'
+        'Error while getting ownership info'
     );
 
     return <ContactsTabs lang={lang} ownershipData={ownershipData} />;

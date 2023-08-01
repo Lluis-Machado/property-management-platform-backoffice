@@ -12,31 +12,40 @@ interface Props {
 }
 
 const Company = async ({ params: { lang, id } }: Props) => {
-    const [user, companyData] = await Promise.all([
+    const [user, companyData, countriesData] = await Promise.all([
         getUser(),
         getApiData<CompanyData>(
             `/companies/companies/${id}`,
             'Error while getting company info'
         ),
-        // getApiDataWithCache<CountryData[]>(
-        //     `/countries/countries?languageCode=${lang}`,
-        //     'Error while getting countries'
-        // ),
+        getApiDataWithCache<CountryData[]>(
+            `/countries/countries?languageCode=${lang}`,
+            'Error while getting countries'
+        ),
     ]);
 
-    // let statesData: StateData[] = [];
-    // if (contactData.address.country) {
-    //     statesData = await getApiDataWithCache(
-    //         `/countries/countries/${contactData.address.country}/states?languageCode=${lang}`,
-    //         'Error while getting states'
-    //     );
-    // }
+    let statesData: StateData[] = [];
+    if (companyData.addresses) {
+        let promises: Promise<StateData[]>[] = [];
+        // For every address check if it has a country and then store the promise on the array
+        for (const address of companyData.addresses) {
+            if (!address.country) continue;
+            promises.push(
+                getApiDataWithCache<StateData[]>(
+                    `/countries/countries/${address.country}/states?languageCode=${lang}`,
+                    'Error while getting states'
+                )
+            );
+        }
+        // Await all promises and flat the response to one array only
+        if (promises) statesData = (await Promise.all(promises)).flat();
+    }
 
     return (
         <CompanyPage
             companyData={companyData}
-            countriesData={undefined}
-            initialStates={undefined}
+            countriesData={countriesData}
+            initialStates={statesData}
             token={user.token}
             lang={lang}
         />
