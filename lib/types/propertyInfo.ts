@@ -45,14 +45,14 @@ export interface PropertyData {
     autonomousRegion: string;
     bedNumber: number | null;
     billingContactId: string;
-    buildingPrice: Price;
+    buildingPrice?: Price;
     cadastreNumber: string;
     cadastreRef: string;
-    cadastreUrl: string | null;
-    cadastreValue: string | null;
-    comments: string;
+    cadastreUrl: string;
+    cadastreValue: string;
+    comments?: string;
     contactPersonId: string;
-    federalState: string | null;
+    federalState: string;
     furniturePrice: Price;
     furniturePriceIVA: Price;
     furniturePriceTPO: Price;
@@ -69,21 +69,21 @@ export interface PropertyData {
     plotPrice: Price;
     propertyAddress: Address[];
     propertyScanMail: string;
-    purchaseDate: Date | null;
+    purchaseDate: string | null;
     purchasePrice: Price;
     purchasePriceAJD: Price;
     purchasePriceTPO: Price;
     purchasePriceTax: Price;
     purchasePriceTotal: Price;
-    saleDate: Date | null;
-    salePrice: Price;
-    totalPrice: Price;
+    saleDate: string | null;
+    salePrice?: Price;
+    totalPrice?: Price;
     type: string;
-    typeOfUse: number;
-    year: number | null;
+    typeOfUse: number | null;
+    year?: number | null;
 }
 
 interface Price {
     currency?: string;
-    value: number | null;
+    value?: number | undefined;
 }

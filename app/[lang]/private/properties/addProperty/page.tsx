@@ -16,26 +16,26 @@ const initialValues: PropertyData = {
     billingContactId: '',
     buildingPrice: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     cadastreNumber: '',
     cadastreRef: '',
-    cadastreUrl: null,
-    cadastreValue: null,
+    cadastreUrl: '',
+    cadastreValue: '',
     comments: '',
     contactPersonId: '',
-    federalState: null,
+    federalState: '',
     furniturePrice: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     furniturePriceIVA: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     furniturePriceTPO: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     garbageCollection: null,
     garbagePriceAmount: null,
@@ -44,7 +44,7 @@ const initialValues: PropertyData = {
     id: '',
     loanPrice: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     mainOwnerId: '',
     mainPropertyId: null,
@@ -52,7 +52,7 @@ const initialValues: PropertyData = {
     name: '',
     plotPrice: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     propertyAddress: [
         {
@@ -68,35 +68,35 @@ const initialValues: PropertyData = {
     purchaseDate: null,
     purchasePrice: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     purchasePriceAJD: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     purchasePriceTPO: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     purchasePriceTax: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     purchasePriceTotal: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     saleDate: null,
     salePrice: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     totalPrice: {
         currency: '',
-        value: null,
+        value: undefined,
     },
     type: '',
-    typeOfUse: 0,
+    typeOfUse: null,
     year: null,
 };
 

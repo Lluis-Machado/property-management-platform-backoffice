@@ -24,6 +24,8 @@ import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { Button } from 'pg-components';
+import { formatDate } from '@/lib/utils/formatDateFromJS';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 
 interface Props {
     propertyData: PropertyData;
@@ -32,11 +34,6 @@ interface Props {
     token: TokenRes;
     lang: Locale;
 }
-const typeOfUse: any[] = [
-    { label: 'Private', value: 0 },
-    { label: 'Vacational Rent', value: 1 },
-    { label: 'Long Term Rent', value: 2 },
-];
 
 const AddPropertyPage = ({
     propertyData,
@@ -86,11 +83,16 @@ const AddPropertyPage = ({
         const toastId = toast.loading('Creating property...');
 
         try {
+            const dataToSend: PropertyData = {
+                ...values,
+                purchaseDate: formatDate(values.purchaseDate),
+                saleDate: formatDate(values.saleDate),
+            };
             console.log('Valores a enviar: ', values);
             console.log('Valores a enviar JSON: ', JSON.stringify(values));
             const data = await apiPost(
                 '/properties/properties',
-                values,
+                dataToSend,
                 token,
                 'Error while creating a property'
             );
@@ -122,7 +124,11 @@ const AddPropertyPage = ({
                             label={{ text: 'Type of use' }}
                             editorType='dxSelectBox'
                             editorOptions={{
-                                items: typeOfUse,
+                                items: [
+                                    { label: 'Private', value: 0 },
+                                    { label: 'Vacational Rent', value: 1 },
+                                    { label: 'Long Term Rent', value: 2 },
+                                ],
                                 displayExpr: 'label',
                                 valueExpr: 'value',
                                 searchEnabled: true,
@@ -279,6 +285,10 @@ const AddPropertyPage = ({
                                         dataField='purchaseDate'
                                         label={{ text: 'Purchase Date' }}
                                         editorType='dxDateBox'
+                                        editorOptions={{
+                                            displayFormat: dateFormat,
+                                            showClearButton: true,
+                                        }}
                                     />
                                     <Item
                                         dataField='purchasePrice.value'
@@ -337,6 +347,10 @@ const AddPropertyPage = ({
                                     dataField='saleDate'
                                     label={{ text: 'Sale Date' }}
                                     editorType='dxDateBox'
+                                    editorOptions={{
+                                        displayFormat: dateFormat,
+                                        showClearButton: true,
+                                    }}
                                 />
                                 <Item
                                     dataField='salePrice.value'

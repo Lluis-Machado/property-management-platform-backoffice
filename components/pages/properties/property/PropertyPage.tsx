@@ -42,6 +42,8 @@ import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { ContactData } from '@/lib/types/contactData';
+import { formatDate } from '@/lib/utils/formatDateFromJS';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 
 interface Props {
     propertyData: PropertyData;
@@ -123,6 +125,8 @@ const PropertyPage = ({
         try {
             const dataToSend: PropertyData = {
                 ...values,
+                purchaseDate: formatDate(values.purchaseDate),
+                saleDate: formatDate(values.saleDate),
                 cadastreRef,
             };
             console.log('Valores a enviar: ', dataToSend);
@@ -159,7 +163,7 @@ const PropertyPage = ({
             customError(error, toastId);
         }
     }, [propertyData, router, token]);
-    console.log(ownershipData);
+
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
@@ -216,10 +220,25 @@ const PropertyPage = ({
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
             >
-                <GroupItem colCount={4}>
+                <GroupItem colCount={3}>
                     <GroupItem caption='Property Information'>
                         <Item dataField='name' label={{ text: 'Name' }} />
                         <Item dataField='type' label={{ text: 'Type' }} />
+                        <Item
+                            dataField='typeOfUse'
+                            label={{ text: 'Type of use' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                items: [
+                                    { label: 'Private', value: 0 },
+                                    { label: 'Vacational Rent', value: 1 },
+                                    { label: 'Long Term Rent', value: 2 },
+                                ],
+                                displayExpr: 'label',
+                                valueExpr: 'value',
+                                searchEnabled: true,
+                            }}
+                        />
                         <Item>
                             <TextBox
                                 defaultValue={cadastreRef}
@@ -271,52 +290,52 @@ const PropertyPage = ({
                             }}
                         />
                     </GroupItem>
-                </GroupItem>
-                <GroupItem colCount={4} caption='Address Information'>
-                    <GroupItem>
-                        <Item
-                            dataField='propertyAddress[0].addressLine1'
-                            label={{ text: 'Address line' }}
-                        />
-                        <Item
-                            dataField='propertyAddress[0].addressLine2'
-                            label={{ text: 'Address line 2' }}
-                        />
-                        <GroupItem colCount={2}>
+                    <GroupItem caption='Address Information'>
+                        <GroupItem>
                             <Item
-                                dataField='propertyAddress[0].postalCode'
-                                label={{ text: 'Postal code' }}
+                                dataField='propertyAddress[0].addressLine1'
+                                label={{ text: 'Address line' }}
                             />
                             <Item
-                                dataField='propertyAddress[0].city'
-                                label={{ text: 'City' }}
+                                dataField='propertyAddress[0].addressLine2'
+                                label={{ text: 'Address line 2' }}
                             />
-                        </GroupItem>
-                        <GroupItem colCount={2}>
-                            <Item
-                                dataField='propertyAddress[0].country'
-                                label={{ text: 'Country' }}
-                                editorType='dxSelectBox'
-                                editorOptions={{
-                                    items: countries,
-                                    displayExpr: 'name',
-                                    valueExpr: 'id',
-                                    searchEnabled: true,
-                                    onValueChanged: (e: any) =>
-                                        handleCountryChange(e.value),
-                                }}
-                            />
-                            <Item
-                                dataField='propertyAddress[0].state'
-                                label={{ text: 'State' }}
-                                editorType='dxSelectBox'
-                                editorOptions={{
-                                    items: states,
-                                    displayExpr: 'name',
-                                    valueExpr: 'id',
-                                    searchEnabled: true,
-                                }}
-                            />
+                            <GroupItem colCount={2}>
+                                <Item
+                                    dataField='propertyAddress[0].postalCode'
+                                    label={{ text: 'Postal code' }}
+                                />
+                                <Item
+                                    dataField='propertyAddress[0].city'
+                                    label={{ text: 'City' }}
+                                />
+                            </GroupItem>
+                            <GroupItem colCount={2}>
+                                <Item
+                                    dataField='propertyAddress[0].country'
+                                    label={{ text: 'Country' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        items: countries,
+                                        displayExpr: 'name',
+                                        valueExpr: 'id',
+                                        searchEnabled: true,
+                                        onValueChanged: (e: any) =>
+                                            handleCountryChange(e.value),
+                                    }}
+                                />
+                                <Item
+                                    dataField='propertyAddress[0].state'
+                                    label={{ text: 'State' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        items: states,
+                                        displayExpr: 'name',
+                                        valueExpr: 'id',
+                                        searchEnabled: true,
+                                    }}
+                                />
+                            </GroupItem>
                         </GroupItem>
                     </GroupItem>
                 </GroupItem>
@@ -380,6 +399,10 @@ const PropertyPage = ({
                                         dataField='purchaseDate'
                                         label={{ text: 'Purchase Date' }}
                                         editorType='dxDateBox'
+                                        editorOptions={{
+                                            displayFormat: dateFormat,
+                                            showClearButton: true,
+                                        }}
                                     />
                                     <Item
                                         dataField='purchasePrice.value'
@@ -438,6 +461,10 @@ const PropertyPage = ({
                                     dataField='saleDate'
                                     label={{ text: 'Sale Date' }}
                                     editorType='dxDateBox'
+                                    editorOptions={{
+                                        displayFormat: dateFormat,
+                                        showClearButton: true,
+                                    }}
                                 />
                                 <Item
                                     dataField='salePrice.value'
