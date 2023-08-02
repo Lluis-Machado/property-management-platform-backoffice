@@ -25,11 +25,20 @@ const ContactForm = async ({ params: { lang, id } }: Props) => {
     ]);
 
     let statesData: StateData[] = [];
-    if (contactData.address.country) {
-        statesData = await getApiDataWithCache(
-            `/countries/countries/${contactData.address.country}/states?languageCode=${lang}`,
-            'Error while getting states'
-        );
+    if (contactData.addresses) {
+        let promises: Promise<StateData[]>[] = [];
+        // For every address check if it has a country and then store the promise on the array
+        for (const address of contactData.addresses) {
+            if (!address.country) continue;
+            promises.push(
+                getApiDataWithCache<StateData[]>(
+                    `/countries/countries/${address.country}/states?languageCode=${lang}`,
+                    'Error while getting states'
+                )
+            );
+        }
+        // Await all promises and flat the response to one array only
+        if (promises) statesData = (await Promise.all(promises)).flat();
     }
 
     return (

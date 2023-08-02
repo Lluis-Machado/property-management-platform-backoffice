@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 
 import { TokenRes } from '../types/token';
 import { StateData } from '../types/countriesData';
+import { ContactData } from '../types/contactData';
+import { CompanyData } from '../types/companyData';
 
 export const useCountryChange = (
     lang: string,
@@ -43,7 +45,15 @@ export const useCountryChange = (
         [lang, token, countriesLoaded]
     );
 
-    return { states, handleCountryChange, isStateLoading };
+    const getFilteredStates = useCallback(
+        (index: number, data: CompanyData | ContactData) =>
+            states?.filter(
+                (state) => state.countryId === data.addresses[index].country
+            ),
+        [states]
+    );
+
+    return { states, handleCountryChange, isStateLoading, getFilteredStates };
 };
 
 export default useCountryChange;

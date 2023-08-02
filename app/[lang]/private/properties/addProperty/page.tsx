@@ -121,7 +121,7 @@ const AddProperty = async ({ params: { lang } }: Props) => {
     for (const contact of contactData) {
         contacts.push({
             label: `${contact.firstName} ${contact.lastName}`,
-            value: contact.id,
+            value: contact.id as string,
         });
     }
 

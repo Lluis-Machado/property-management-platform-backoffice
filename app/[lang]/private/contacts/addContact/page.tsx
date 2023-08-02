@@ -4,27 +4,38 @@ import AddContactPage from '@/components/pages/contacts/AddContactPage';
 import { Locale } from '@/i18n-config';
 import { ContactData } from '@/lib/types/contactData';
 import { CountryData } from '@/lib/types/countriesData';
-import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
 const initialValues: ContactData = {
-    id: '',
     firstName: '',
     lastName: '',
     birthDay: null,
     nif: null,
     email: '',
+    secondaryEmail: '',
     phoneNumber: '',
     mobilePhoneNumber: '',
-    address: {
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        state: null,
-        postalCode: '',
-        country: null,
-    },
+    otherPhoneNumber: '',
+    birthPlace: '',
+    faxNumber: '',
+    maritalStatus: 0,
+    nifExpirationDate: null,
+    passportExpirationDate: null,
+    passportNumber: '',
+    scanMail: '',
+    socialSecurityNumber: '',
+    taxId: '',
+    addresses: [
+        {
+            addressLine1: '',
+            addressLine2: '',
+            city: '',
+            state: null,
+            postalCode: '',
+            country: null,
+        },
+    ],
 };
 
 interface Props {
