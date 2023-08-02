@@ -17,11 +17,17 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import Form, { GroupItem, Item } from 'devextreme-react/form';
+import Form, {
+    GroupItem,
+    Item,
+    Tab,
+    TabPanelOptions,
+    TabbedItem,
+} from 'devextreme-react/form';
 import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
 
 // Local imports
-import { PropertyCreate, PropertyData } from '@/lib/types/propertyInfo';
+import { PropertyData } from '@/lib/types/propertyInfo';
 import PropertiesOwnersDatagrid from './PropertiesOwnersDatagrid';
 import PropertyTextArea from '@/components/textArea/PropertyTextArea';
 import PropertySidePropertiesDatagrid from './PropertySidePropertiesDatagrid';
@@ -36,6 +42,8 @@ import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { ContactData } from '@/lib/types/contactData';
+import { formatDate } from '@/lib/utils/formatDateFromJS';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 
 interface Props {
     propertyData: PropertyData;
@@ -70,7 +78,7 @@ const PropertyPage = ({
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
-
+    console.log(initialValues);
     const router = useRouter();
 
     const handleDoubleClick = useCallback(
@@ -97,9 +105,9 @@ const PropertyPage = ({
                 .then((data: StateData[]) => setStates(data))
                 .catch((e) => console.error('Error while getting the states'));
             // Ensure state is removed
-            propertyData.address.state = null;
+            propertyData.propertyAddress[0].state = null;
         },
-        [lang, token, propertyData.address]
+        [lang, token, propertyData.propertyAddress]
     );
 
     const handleSubmit = useCallback(async () => {
@@ -117,6 +125,8 @@ const PropertyPage = ({
         try {
             const dataToSend: PropertyData = {
                 ...values,
+                purchaseDate: formatDate(values.purchaseDate),
+                saleDate: formatDate(values.saleDate),
                 cadastreRef,
             };
             console.log('Valores a enviar: ', dataToSend);
@@ -205,106 +215,282 @@ const PropertyPage = ({
                 </div>
             </div>
             {/* Property form */}
-            <Form
-                formData={propertyData}
-                labelMode={'floating'}
-                readOnly={isLoading || !isEditing}
-            >
-                <GroupItem colCount={4} caption='Property Information'>
-                    <Item dataField='name' label={{ text: 'Name' }} />
-                    <Item dataField='type' label={{ text: 'Type' }} />
-                    <Item>
-                        <TextBox
-                            defaultValue={cadastreRef}
-                            label='Catastral Reference'
-                            onValueChange={(e) => setCadastreRef(e)}
-                            readOnly={isLoading || !isEditing}
-                        >
-                            <TextBoxButton
-                                name='catasterBtn'
-                                location='after'
-                                options={{
-                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
-                                    type: 'default',
-                                    onClick: () =>
-                                        propertyData.cadastreUrl &&
-                                        window.open(
-                                            propertyData.cadastreUrl,
-                                            '_blank'
-                                        ),
-                                    disabled: propertyData.cadastreUrl
-                                        ? false
-                                        : true,
-                                }}
+            <Form formData={propertyData} readOnly={isLoading || !isEditing}>
+                <GroupItem colCount={3}>
+                    <GroupItem caption='Property Information'>
+                        <Item dataField='name' label={{ text: 'Name' }} />
+                        <Item dataField='type' label={{ text: 'Type' }} />
+                        <Item
+                            dataField='typeOfUse'
+                            label={{ text: 'Type of use' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                items: [
+                                    { label: 'Private', value: 0 },
+                                    { label: 'Vacational Rent', value: 1 },
+                                    { label: 'Long Term Rent', value: 2 },
+                                ],
+                                displayExpr: 'label',
+                                valueExpr: 'value',
+                                searchEnabled: true,
+                            }}
+                        />
+                        <Item>
+                            <div className='flex'>
+                                <div className='float-left mt-3 w-1/5'>
+                                    Catastral Ref:
+                                </div>
+                                <div className='w-11/12'>
+                                    <TextBox
+                                        defaultValue={cadastreRef}
+                                        onValueChange={(e) => setCadastreRef(e)}
+                                        readOnly={isLoading || !isEditing}
+                                    >
+                                        <TextBoxButton
+                                            name='catasterBtn'
+                                            location='after'
+                                            options={{
+                                                icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
+                                                type: 'default',
+                                                onClick: () =>
+                                                    propertyData.cadastreUrl &&
+                                                    window.open(
+                                                        propertyData.cadastreUrl,
+                                                        '_blank'
+                                                    ),
+                                                disabled:
+                                                    propertyData.cadastreUrl
+                                                        ? false
+                                                        : true,
+                                            }}
+                                        />
+                                    </TextBox>
+                                </div>
+                            </div>
+                        </Item>
+                    </GroupItem>
+                    <GroupItem caption='Contact Information'>
+                        <Item
+                            dataField='contactPersonId'
+                            label={{ text: 'Contact Person' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                items: contacts,
+                                displayExpr: 'firstName',
+                                valueExpr: 'id',
+                                searchEnabled: true,
+                            }}
+                        />
+                        <Item
+                            dataField='billingContactId'
+                            label={{ text: 'Billing Contact' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                items: contacts,
+                                displayExpr: 'firstName',
+                                valueExpr: 'id',
+                                searchEnabled: true,
+                            }}
+                        />
+                    </GroupItem>
+                    <GroupItem caption='Address Information'>
+                        <GroupItem>
+                            <Item
+                                dataField='propertyAddress[0].addressLine1'
+                                label={{ text: 'Address line' }}
                             />
-                        </TextBox>
-                    </Item>
+                            <Item
+                                dataField='propertyAddress[0].addressLine2'
+                                label={{ text: 'Address line 2' }}
+                            />
+                            <GroupItem colCount={2}>
+                                <Item
+                                    dataField='propertyAddress[0].postalCode'
+                                    label={{ text: 'Postal code' }}
+                                />
+                                <Item
+                                    dataField='propertyAddress[0].city'
+                                    label={{ text: 'City' }}
+                                />
+                            </GroupItem>
+                            <GroupItem colCount={2}>
+                                <Item
+                                    dataField='propertyAddress[0].country'
+                                    label={{ text: 'Country' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        items: countries,
+                                        displayExpr: 'name',
+                                        valueExpr: 'id',
+                                        searchEnabled: true,
+                                        onValueChanged: (e: any) =>
+                                            handleCountryChange(e.value),
+                                    }}
+                                />
+                                <Item
+                                    dataField='propertyAddress[0].state'
+                                    label={{ text: 'State' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        items: states,
+                                        displayExpr: 'name',
+                                        valueExpr: 'id',
+                                        searchEnabled: true,
+                                    }}
+                                />
+                            </GroupItem>
+                        </GroupItem>
+                    </GroupItem>
                 </GroupItem>
-                <GroupItem colCount={4} caption='Contact Information'>
-                    <Item
-                        dataField='contactPersonId'
-                        label={{ text: 'Contact Person' }}
-                        editorType='dxSelectBox'
-                        editorOptions={{
-                            items: contacts,
-                            displayExpr: 'firstName',
-                            valueExpr: 'id',
-                            searchEnabled: true,
-                        }}
-                    />
-                    <Item
-                        dataField='billingContactId'
-                        label={{ text: 'Billing Contact' }}
-                        editorType='dxSelectBox'
-                        editorOptions={{
-                            items: contacts,
-                            displayExpr: 'firstName',
-                            valueExpr: 'id',
-                            searchEnabled: true,
-                        }}
-                    />
-                </GroupItem>
-                <GroupItem colCount={4} caption='Address Information'>
-                    <Item
-                        dataField='address.addressLine1'
-                        label={{ text: 'Address line' }}
-                    />
-                    <Item
-                        dataField='address.addressLine2'
-                        label={{ text: 'Address line 2' }}
-                    />
-                    <Item
-                        dataField='address.country'
-                        label={{ text: 'Country' }}
-                        editorType='dxSelectBox'
-                        editorOptions={{
-                            items: countries,
-                            displayExpr: 'name',
-                            valueExpr: 'id',
-                            searchEnabled: true,
-                            onValueChanged: (e: any) =>
-                                handleCountryChange(e.value),
-                        }}
-                    />
-                    <Item
-                        dataField='address.state'
-                        label={{ text: 'State' }}
-                        editorType='dxSelectBox'
-                        editorOptions={{
-                            items: states,
-                            displayExpr: 'name',
-                            valueExpr: 'id',
-                            searchEnabled: true,
-                        }}
-                    />
-                    <Item dataField='address.city' label={{ text: 'City' }} />
-                    <Item
-                        dataField='address.postalCode'
-                        label={{ text: 'Postal code' }}
-                    />
+                <GroupItem>
+                    <TabbedItem>
+                        <TabPanelOptions deferRendering={false} />
+                        <Tab title='Cadastre Information'>
+                            <GroupItem colCount={5}>
+                                <Item
+                                    dataField='cadastreNumber'
+                                    label={{ text: 'Cadastre Number' }}
+                                />
+                                <Item
+                                    dataField='cadastreUrl'
+                                    label={{ text: 'Cadastre Url' }}
+                                />
+                                <Item
+                                    dataField='cadastreValue'
+                                    label={{ text: 'Cadastre Value' }}
+                                />
+                            </GroupItem>
+                            <GroupItem colCount={5}>
+                                <Item
+                                    dataField='loanPrice.value'
+                                    label={{ text: 'Loan price' }}
+                                />
+                                <Item
+                                    dataField='buildingPrice.value'
+                                    label={{ text: 'Building price' }}
+                                />
+                                <Item
+                                    dataField='totalPrice.value'
+                                    label={{ text: 'Total price' }}
+                                />
+                                <Item
+                                    dataField='plotPrice.value'
+                                    label={{ text: 'Plot price' }}
+                                />
+                                <Item
+                                    dataField='ibiAmount'
+                                    label={{ text: 'IBI Amount' }}
+                                />
+                                <Item
+                                    dataField='ibiCollection'
+                                    label={{ text: 'IBI Collection' }}
+                                />
+                                <Item
+                                    dataField='year'
+                                    label={{ text: 'Year' }}
+                                />
+                                <Item
+                                    dataField='propertyScanMail'
+                                    label={{ text: 'Property Scan Mail' }}
+                                />
+                            </GroupItem>
+                        </Tab>
+                        <Tab title='Purchase Information'>
+                            <GroupItem colCount={5}>
+                                <GroupItem>
+                                    <Item
+                                        dataField='purchaseDate'
+                                        label={{ text: 'Purchase Date' }}
+                                        editorType='dxDateBox'
+                                        editorOptions={{
+                                            displayFormat: dateFormat,
+                                            showClearButton: true,
+                                        }}
+                                    />
+                                    <Item
+                                        dataField='purchasePrice.value'
+                                        label={{ text: 'Purchase price' }}
+                                    />
+                                    <Item
+                                        dataField='purchasePriceTax.value'
+                                        label={{ text: 'Purchase Price Tax' }}
+                                    />
+                                </GroupItem>
+                                <GroupItem>
+                                    <Item
+                                        dataField='purchasePriceAJD.value'
+                                        label={{ text: 'Purchase Price AJD' }}
+                                    />
+                                    <Item
+                                        dataField='purchasePriceTPO.value'
+                                        label={{ text: 'Purchase Price TPO' }}
+                                    />
+                                    <Item
+                                        dataField='purchasePriceTotal.value'
+                                        label={{ text: 'Purchase Price Total' }}
+                                    />
+                                </GroupItem>
+                            </GroupItem>
+                        </Tab>
+                        <Tab title='Furniture Information'>
+                            <GroupItem colCount={5}>
+                                <Item
+                                    dataField='furniturePrice.value'
+                                    label={{ text: 'Furniture Price' }}
+                                />
+                                <Item
+                                    dataField='furniturePriceIVA.value'
+                                    label={{ text: 'Furniture Price IVA' }}
+                                />
+                                <Item
+                                    dataField='furniturePriceTPO.value'
+                                    label={{ text: 'Furniture Price TPO' }}
+                                />
+                            </GroupItem>
+                            <GroupItem colCount={5}>
+                                <Item
+                                    dataField='garbageCollection'
+                                    label={{ text: 'Garbage Collection' }}
+                                />
+                                <Item
+                                    dataField='garbagePriceAmount'
+                                    label={{ text: 'Garbage Price Amount' }}
+                                />
+                            </GroupItem>
+                        </Tab>
+                        <Tab title='Sale Information'>
+                            <GroupItem colCount={5}>
+                                <Item
+                                    dataField='saleDate'
+                                    label={{ text: 'Sale Date' }}
+                                    editorType='dxDateBox'
+                                    editorOptions={{
+                                        displayFormat: dateFormat,
+                                        showClearButton: true,
+                                    }}
+                                />
+                                <Item
+                                    dataField='salePrice.value'
+                                    label={{ text: 'Sale Price' }}
+                                />
+                            </GroupItem>
+                        </Tab>
+                        <Tab title='Other Information'>
+                            <GroupItem colCount={5}>
+                                <Item
+                                    dataField='bedNumber'
+                                    label={{ text: 'Bed Number' }}
+                                />
+                                <Item
+                                    dataField='comments'
+                                    label={{ text: 'Comments' }}
+                                />
+                            </GroupItem>
+                        </Tab>
+                    </TabbedItem>
                 </GroupItem>
             </Form>
-            <div className='h-[2rem]'>
+            <div className='mt-2 h-[2rem]'>
                 <div className='flex justify-end'>
                     <div className='flex flex-row justify-between gap-2'>
                         {isEditing && (

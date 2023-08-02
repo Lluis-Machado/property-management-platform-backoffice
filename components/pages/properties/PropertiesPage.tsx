@@ -26,6 +26,7 @@ const PropertiesPage = ({
     contactData,
 }: Props): React.ReactElement => {
     const router = useRouter();
+    console.log(propertyData);
 
     const handleDoubleClick = useCallback(
         ({ data }: any) => {
@@ -35,7 +36,8 @@ const PropertiesPage = ({
     );
 
     const addressCellRender = (e: PropertyData) => {
-        const { addressLine1, city, country, state, postalCode } = e.address;
+        const { addressLine1, city, country, state, postalCode } =
+            e.propertyAddress[0];
         const parts = [
             addressLine1,
             postalCode && `${postalCode} - ${city}`,
