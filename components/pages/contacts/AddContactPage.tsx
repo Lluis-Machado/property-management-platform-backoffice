@@ -19,7 +19,6 @@ import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { Locale } from '@/i18n-config';
 import { TokenRes } from '@/lib/types/token';
-import { SelectData } from '@/lib/types/selectData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
@@ -41,7 +40,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
     );
     const [addressOptions, setAddressOptions] = useState({});
 
-    const { states, handleCountryChange, isStateLoading, getFilteredStates } =
+    const { getFilteredStates, handleCountryChange, isStateLoading } =
         useCountryChange(lang, token);
 
     const formRef = useRef<Form>(null);
