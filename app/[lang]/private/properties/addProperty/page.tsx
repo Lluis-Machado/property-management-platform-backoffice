@@ -4,31 +4,100 @@ import AddPropertyPage from '@/components/pages/properties/AddPropertyPage';
 import { Locale } from '@/i18n-config';
 import { ContactData } from '@/lib/types/contactData';
 import { CountryData } from '@/lib/types/countriesData';
-import { PropertyCreate } from '@/lib/types/propertyInfo';
+import { PropertyData } from '@/lib/types/propertyInfo';
 import { SelectData } from '@/lib/types/selectData';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
-const initialValues: PropertyCreate = {
-    name: '',
-    type: '',
-    typeOfUse: [0],
-    address: {
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        state: null,
-        postalCode: '',
-        country: null,
-    },
-    cadastreRef: '',
-    comments: '',
+const initialValues: PropertyData = {
+    autonomousRegion: '',
+    bedNumber: null,
     billingContactId: '',
+    buildingPrice: {
+        currency: '',
+        value: undefined,
+    },
+    cadastreNumber: '',
+    cadastreRef: '',
+    cadastreUrl: '',
+    cadastreValue: '',
+    comments: '',
     contactPersonId: '',
-    mainOwnerType: 'Contact',
-    parentPropertyId: null,
-    childProperties: [],
+    federalState: '',
+    furniturePrice: {
+        currency: '',
+        value: undefined,
+    },
+    furniturePriceIVA: {
+        currency: '',
+        value: undefined,
+    },
+    furniturePriceTPO: {
+        currency: '',
+        value: undefined,
+    },
+    garbageCollection: null,
+    garbagePriceAmount: null,
+    ibiAmount: '',
+    ibiCollection: null,
+    id: '',
+    loanPrice: {
+        currency: '',
+        value: undefined,
+    },
+    mainOwnerId: '',
+    mainPropertyId: null,
+    municipality: '',
+    name: '',
+    plotPrice: {
+        currency: '',
+        value: undefined,
+    },
+    propertyAddress: [
+        {
+            addressLine1: '',
+            addressLine2: '',
+            city: '',
+            country: null,
+            postalCode: '',
+            state: null,
+        },
+    ],
+    propertyScanMail: '',
+    purchaseDate: null,
+    purchasePrice: {
+        currency: '',
+        value: undefined,
+    },
+    purchasePriceAJD: {
+        currency: '',
+        value: undefined,
+    },
+    purchasePriceTPO: {
+        currency: '',
+        value: undefined,
+    },
+    purchasePriceTax: {
+        currency: '',
+        value: undefined,
+    },
+    purchasePriceTotal: {
+        currency: '',
+        value: undefined,
+    },
+    saleDate: null,
+    salePrice: {
+        currency: '',
+        value: undefined,
+    },
+    totalPrice: {
+        currency: '',
+        value: undefined,
+    },
+    type: '',
+    typeOfUse: null,
+    year: null,
 };
 
 interface Props {
