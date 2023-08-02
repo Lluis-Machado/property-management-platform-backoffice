@@ -78,7 +78,7 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
             <div className='absolute inset-4 border border-primary-500'>
                 <SplitPane
                     visible={detailsVisible}
-                    leftPanePreferredSize={200}
+                    leftPanePreferredSize={300}
                     rightPanePreferredSize={600}
                     minSizeLeft={100}
                     minSizeCenter={650}
