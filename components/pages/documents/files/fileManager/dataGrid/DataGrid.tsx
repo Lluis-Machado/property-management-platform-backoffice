@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useRef, useState } from 'react';
+import { FC, memo, useCallback, useRef, useState } from 'react';
 
 // Libraries imports
 import {
@@ -23,8 +23,13 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Local imports
+import { Document } from '@/lib/types/documentsAPI';
+import { formatDocumentSize } from '@/lib/utils/documents/utilsDocuments';
 import ContextMenu from './ContextMenu';
 
+/**
+ * Type for the possible types of toolbar items.
+ */
 type ToolBarItemType =
     | 'Download'
     | 'Move to'
@@ -33,9 +38,17 @@ type ToolBarItemType =
     | 'Delete'
     | 'Separator';
 
-const extensionCellRender = ({ data }: any): React.ReactElement => {
+/**
+ * Renders the icon for the document extension.
+ * @param {Document} data - The document data.
+ */
+const ExtensionCellRender = ({
+    data,
+}: {
+    data: Document;
+}): React.ReactElement => {
     const icon = (ext: string) => {
-        switch (ext) {
+        switch (ext.toLowerCase()) {
             case '.jpeg':
             case '.jpg':
             case '.png':
@@ -57,43 +70,66 @@ const extensionCellRender = ({ data }: any): React.ReactElement => {
     );
 };
 
-const nameCellRender = ({ data }: any) => (
-    <p>{(data.name as string).replace(data.extension, '')}</p>
+/**
+ * Renders the name of the document without its extension.
+ * @param {Document} data - The document data.
+ */
+const NameCellRender = ({ data }: { data: Document }): React.ReactElement => (
+    <p>{data.name.replace(data.extension, '')}</p>
+);
+
+/**
+ * Renders the size of the document in a human-readable format.
+ * @param {Document} data - The document data.
+ */
+const SizeCellRender = ({ data }: { data: Document }): React.ReactElement => (
+    <p>{formatDocumentSize(data.contentLength)}</p>
 );
 
 interface Props {
-    dataSource: any[];
+    /** The data source containing an array of documents. */
+    dataSource: Document[];
+    /** Callback function for handling the "Copy" action. */
     onFileCopy: () => void;
+    /** Callback function for handling the "Delete" action. */
     onFileDelete: () => void;
+    /** Callback function for handling the "Download" action. */
     onFileDownload: () => void;
+    /** Callback function for handling the "Move" action. */
     onFileMove: () => void;
+    /** Callback function for handling the "Rename" action. */
     onFileRename: () => void;
-    onRefresh: () => void;
-    onSelectedFile: (file: any) => void;
+    /** Callback function for handling the selection change. */
+    onSelectionChanged: (documents: Document[]) => void;
 }
 
-const DataGrid = ({
+/**
+ * DataGrid component that displays a data grid of documents with various actions.
+ */
+const DataGrid: FC<Props> = memo(function DataGrid({
     dataSource,
     onFileCopy,
     onFileDelete,
     onFileDownload,
     onFileMove,
     onFileRename,
-    onRefresh,
-    onSelectedFile,
-}: Props): React.ReactElement => {
+    onSelectionChanged,
+}): React.ReactElement {
     const DataGridRef = useRef<DxDataGrid>(null);
 
     const [selectedFilesQuantity, setSelectedFilesQuantity] =
         useState<number>(0);
-
+    /**
+     * Handles the click event for toolbar items.
+     * @param {ToolBarItemType} action - The type of toolbar item clicked.
+     */
     const handleOnClick = useCallback(
         (action: ToolBarItemType) => {
             const on = {
                 Download: onFileDownload,
+                Rename: onFileRename,
                 'Move to': onFileMove,
                 'Copy to': onFileCopy,
-                Rename: onFileRename,
                 Delete: onFileDelete,
                 Separator: () => {},
             };
@@ -103,6 +139,10 @@ const DataGrid = ({
         [onFileCopy, onFileDelete, onFileDownload, onFileMove, onFileRename]
     );
 
+    /**
+     * Renders the toolbar item based on its type.
+     * @param {ToolBarItemType} type - The type of toolbar item to render.
+     */
     const ToolBarItemRender = useCallback(
         (type: ToolBarItemType): React.ReactElement => {
             const icon = {
@@ -131,14 +171,22 @@ const DataGrid = ({
         [handleOnClick]
     );
 
+    /**
+     * Handles the selection changed event in the data grid.
+     * @param {Object} selectedRowsData - The selected row data in the data grid.
+     */
     const handleOnSelectionChanged = useCallback(
-        ({ selectedRowsData }: any) => {
+        ({ selectedRowsData }: { selectedRowsData: Document[] }) => {
             setSelectedFilesQuantity(selectedRowsData.length);
-            onSelectedFile(selectedRowsData);
+            onSelectionChanged(selectedRowsData);
         },
-        [onSelectedFile]
+        [onSelectionChanged]
     );
 
+    /**
+     * Handles the right-click event to select a row in the data grid.
+     * @param {ContextMenuPreparingEvent<any, any>} e - The right-click event object.
+     */
     const handleRightClick = useCallback(
         (e: ContextMenuPreparingEvent<any, any>) => {
             if (e.row?.rowType === 'data') {
@@ -155,9 +203,16 @@ const DataGrid = ({
     return (
         <>
             <DxDataGrid
-                dataSource={dataSource}
+                columnAutoWidth
+                dataSource={dataSource ?? []}
+                focusedRowEnabled
+                height='100%'
                 id='DocumentsDataGrid'
+                keyExpr='id'
                 onContextMenuPreparing={handleRightClick}
+                // onRowClick={({ data }: { data: Document }) =>
+                //     onSelectionChanged([data])
+                // }
                 onSelectionChanged={handleOnSelectionChanged}
                 ref={DataGridRef}
                 rowAlternationEnabled
@@ -177,6 +232,11 @@ const DataGrid = ({
                     />
                     <Item
                         location='before'
+                        visible={selectedFilesQuantity === 1}
+                        render={(_) => ToolBarItemRender('Rename')}
+                    />
+                    <Item
+                        location='before'
                         visible={selectedFilesQuantity > 0}
                         render={(_) => ToolBarItemRender('Move to')}
                     />
@@ -184,11 +244,6 @@ const DataGrid = ({
                         location='before'
                         visible={selectedFilesQuantity > 0}
                         render={(_) => ToolBarItemRender('Copy to')}
-                    />
-                    <Item
-                        location='before'
-                        visible={selectedFilesQuantity === 1}
-                        render={(_) => ToolBarItemRender('Rename')}
                     />
                     <Item
                         location='before'
@@ -203,39 +258,45 @@ const DataGrid = ({
                 </Toolbar>
                 <Column
                     caption=''
-                    cellRender={extensionCellRender}
+                    cellRender={ExtensionCellRender}
                     dataField='extension'
                     width={30}
                 />
                 <Column
                     caption='Name'
-                    cellRender={nameCellRender}
+                    cellRender={NameCellRender}
                     dataField='name'
                 />
                 <Column
-                    caption='Size (B)'
+                    caption='Size'
+                    cellRender={SizeCellRender}
                     dataField='contentLength'
                     dataType='number'
                 />
                 <Column
                     caption='Created at'
                     dataField='createdAt'
-                    dataType='date'
+                    dataType='datetime'
                 />
                 <Column caption='Created by' dataField='createdByUser' />
                 <Column
                     caption='Updated at'
                     dataField='lastUpdateAt'
-                    dataType='date'
+                    dataType='datetime'
                 />
                 <Column caption='Updated by' dataField='lastUpdateByUser' />
                 <Column
                     caption='Deleted'
                     dataField='deleted'
                     dataType='boolean'
+                    visible={false}
                 />
-                <Column caption='Folder Id' dataField='folderId' />
-                <Column caption='Id' dataField='id' />
+                <Column
+                    caption='Folder Id'
+                    dataField='folderId'
+                    visible={false}
+                />
+                <Column caption='Id' dataField='id' visible={false} />
             </DxDataGrid>
             <ContextMenu
                 onFileCopy={onFileCopy}
@@ -243,11 +304,10 @@ const DataGrid = ({
                 onFileDownload={onFileDownload}
                 onFileMove={onFileMove}
                 onFileRename={onFileRename}
-                onRefresh={onRefresh}
                 selectedFilesQuantity={selectedFilesQuantity}
             />
         </>
     );
-};
+});
 
 export default DataGrid;

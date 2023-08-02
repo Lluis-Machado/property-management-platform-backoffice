@@ -2,6 +2,8 @@
 import { ApiCallError } from '@/lib/utils/errors';
 import { Archive, Folder } from '@/lib/types/documentsAPI';
 import { DocumentsFilesWrapper } from '@/components/pages/documents/files/DocumentsFilesWrapper';
+import { getTreeItemFolderFromFolder } from '@/lib/utils/documents/utilsDocuments';
+import { TreeItem } from '@/lib/types/treeView';
 
 const page = async (): Promise<React.ReactElement> => {
     const documentsUrl = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents`;
@@ -14,7 +16,7 @@ const page = async (): Promise<React.ReactElement> => {
         const archivesResp: Archive[] = await resp.json();
 
         return archivesResp.map((archive) => ({
-            data: { ...archive },
+            data: archive,
             disabled: false,
             expanded: false,
             hasItems: false,
@@ -39,72 +41,14 @@ const page = async (): Promise<React.ReactElement> => {
             )
         );
 
-        const transformFoldersToTreeItems = (
-            folders: Folder[]
-        ): TreeItem<Folder>[] => {
-            const stack: { folder: Folder; treeItem: TreeItem<Folder> }[] = [];
-            const result: TreeItem<Folder>[] = [];
-
-            for (const folder of folders) {
-                const treeItem: TreeItem<Folder> = {
-                    data: folder,
-                    disabled: false,
-                    expanded: false,
-                    hasItems: folder.childFolders.length > 0,
-                    id: folder.id,
-                    items: [],
-                    parentId: folder.parentId,
-                    selected: false,
-                    text: folder.name,
-                    visible: true,
-                };
-
-                if (folder.childFolders.length > 0) {
-                    stack.push({ folder, treeItem });
-                }
-
-                result.push(treeItem);
-
-                while (stack.length > 0) {
-                    const { folder, treeItem } = stack.pop()!;
-
-                    treeItem.items = folder.childFolders.map((childFolder) => {
-                        const childTreeItem: TreeItem<Folder> = {
-                            data: childFolder,
-                            disabled: false,
-                            expanded: false,
-                            hasItems: childFolder.childFolders.length > 0,
-                            id: childFolder.id,
-                            items: [],
-                            parentId: childFolder.parentId,
-                            selected: false,
-                            text: childFolder.name,
-                            visible: true,
-                        };
-
-                        if (childFolder.childFolders.length > 0) {
-                            stack.push({
-                                folder: childFolder,
-                                treeItem: childTreeItem,
-                            });
-                        }
-
-                        return childTreeItem;
-                    });
-                }
-            }
-
-            return result;
-        };
-
-        const archives = await Promise.all(
+        const archives: TreeItem<Archive>[] = await Promise.all(
             foldersResponses.map(async (response, index) => {
                 if (!response.ok)
                     throw new ApiCallError(
                         `Error while getting archive {${archiveIds[index]}} folders`
                     );
                 const data: Folder[] = await response.json();
-                const items = transformFoldersToTreeItems(data);
+                const items = data.map(getTreeItemFolderFromFolder);
 
                 return {
                     ...archivesBase[index],

@@ -35,6 +35,7 @@ import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { CompanyData } from '@/lib/types/companyData';
+import useCountryChange from '@/lib/hooks/useCountryChange';
 
 interface Props {
     companyData: CompanyData;
@@ -56,87 +57,67 @@ const CompanyPage = ({
     const [phoneNumber, setPhoneNumber] = useState<string>(
         companyData.phoneNumber
     );
-    // const [mobilePhoneNumber, setMobilePhoneNumber] = useState<string>(
-    //     companyData.mobilePhoneNumber
-    // );
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
-    const [states, setStates] = useState<StateData[] | undefined>(
-        initialStates
-    );
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<CompanyData>(
         structuredClone(companyData)
+    );
+    const [addressOptions, setAddressOptions] = useState({});
+
+    const { states, handleCountryChange, isStateLoading } = useCountryChange(
+        lang,
+        token,
+        initialStates
     );
 
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
 
-    const handleCountryChange = useCallback(
-        (countryId: number) => {
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
-                .then((resp) => resp.json())
-                .then((data: StateData[]) => setStates(data))
-                .catch((e) => console.error('Error while getting the states'));
-            // Ensure state is removed
-            companyData.address.state = null;
-        },
-        [lang, token, companyData.address]
-    );
+    const handleSubmit = useCallback(async () => {
+        const res = formRef.current!.instance.validate();
+        if (!res.isValid) return;
 
-    // const handleSubmit = useCallback(async () => {
-    //     const res = formRef.current!.instance.validate();
-    //     if (!res.isValid) return;
+        const values = structuredClone(companyData);
 
-    //     const values = structuredClone(companyData);
+        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
+            toast.warning('Change at least one field');
+            return;
+        }
 
-    //     if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-    //         toast.warning('Change at least one field');
-    //         return;
-    //     }
+        setIsLoading(true);
+        const toastId = toast.loading('Updating company...');
 
-    //     setIsLoading(true);
-    //     const toastId = toast.loading('Updating contact...');
+        if (!values.nif) values.nif = null;
 
-    //     if (!values.nif) values.nif = null;
+        try {
+            const valuesToSend: CompanyData = {
+                ...values,
+                phoneNumber,
+                foundingDate: formatDate(values.foundingDate),
+            };
 
-    //     try {
-    //         const valuesToSend: ContactData = {
-    //             ...values,
-    //             birthDay: formatDate(values.birthDay),
-    //             phoneNumber,
-    //             mobilePhoneNumber,
-    //         };
+            console.log('Valores a enviar: ', valuesToSend);
+            console.log(JSON.stringify(valuesToSend));
 
-    //         console.log('Valores a enviar: ', valuesToSend);
-    //         console.log(JSON.stringify(valuesToSend));
+            const data = await apiPatch(
+                `/companies/companies/${companyData.id}`,
+                valuesToSend,
+                token,
+                'Error while updating this company'
+            );
 
-    //         const data = await apiPatch(
-    //             `/contacts/contacts/${contactData.id}`,
-    //             valuesToSend,
-    //             token,
-    //             'Error while updating a contact'
-    //         );
+            console.log('TODO CORRECTO, valores de vuelta: ', data);
 
-    //         console.log('TODO CORRECTO, valores de vuelta: ', data);
-    //         updateSuccessToast(toastId, 'Contact updated correctly!');
-    //         setInitialValues(data);
-    //     } catch (error: unknown) {
-    //         customError(error, toastId);
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // }, [contactData, initialValues, token, mobilePhoneNumber, phoneNumber]);
+            updateSuccessToast(toastId, 'Company updated correctly!');
+            setInitialValues(data);
+        } catch (error: unknown) {
+            customError(error, toastId);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [companyData, initialValues, token, phoneNumber]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting contact...');
@@ -153,6 +134,11 @@ const CompanyPage = ({
             customError(error, toastId);
         }
     }, [companyData, router, token]);
+
+    const getFilteredStates = (index: number) =>
+        states?.filter(
+            (state) => state.countryId === companyData.addresses[index].country
+        );
 
     return (
         <div className='mt-4'>
@@ -218,15 +204,6 @@ const CompanyPage = ({
                     <Item dataField='name' label={{ text: 'Company name' }}>
                         <RequiredRule />
                     </Item>
-                    {/* <Item
-                        dataField='birthDay'
-                        label={{ text: 'Birth date' }}
-                        editorType='dxDateBox'
-                        editorOptions={{
-                            displayFormat: dateFormat,
-                            showClearButton: true,
-                        }}
-                    /> */}
                     <Item dataField='nif' label={{ text: 'NIF' }} />
                     <Item dataField='email' label={{ text: 'Email' }}>
                         <EmailRule message='Email is invalid' />
@@ -258,46 +235,147 @@ const CompanyPage = ({
                             />
                         </TextBox>
                     </Item>
+                    <Item
+                        dataField='germanTaxOffice'
+                        label={{ text: 'German Tax Office' }}
+                    />
+                    <Item
+                        dataField='companyPurpose'
+                        label={{ text: 'Company Purpose' }}
+                    />
+                    <Item
+                        dataField='taxNumber'
+                        label={{ text: 'Tax Number' }}
+                    />
+                    <Item
+                        dataField='uStIDNumber'
+                        label={{ text: 'uSt ID Number' }}
+                    />
+                    <Item
+                        dataField='foundingDate'
+                        label={{ text: 'Founding Date' }}
+                        editorType='dxDateBox'
+                        editorOptions={{
+                            displayFormat: dateFormat,
+                            showClearButton: true,
+                        }}
+                    />
                 </GroupItem>
-                {/* <GroupItem colCount={4} caption='Address Information'>
-                    <Item
-                        dataField='address.addressLine1'
-                        label={{ text: 'Address line' }}
-                    />
-                    <Item
-                        dataField='address.addressLine2'
-                        label={{ text: 'Address line 2' }}
-                    />
-                    <Item
-                        dataField='address.country'
-                        label={{ text: 'Country' }}
-                        editorType='dxSelectBox'
-                        editorOptions={{
-                            items: countriesData,
-                            displayExpr: 'name',
-                            valueExpr: 'id',
-                            searchEnabled: true,
-                            onValueChanged: (e: any) =>
-                                handleCountryChange(e.value),
-                        }}
-                    />
-                    <Item
-                        dataField='address.state'
-                        label={{ text: 'State' }}
-                        editorType='dxSelectBox'
-                        editorOptions={{
-                            items: states,
-                            displayExpr: 'name',
-                            valueExpr: 'id',
-                            searchEnabled: true,
-                        }}
-                    />
-                    <Item dataField='address.city' label={{ text: 'City' }} />
-                    <Item
-                        dataField='address.postalCode'
-                        label={{ text: 'Postal code' }}
-                    />
-                </GroupItem> */}
+                <GroupItem colCount={1} caption={`Address Information`}>
+                    {companyData.addresses.map((address, index) => {
+                        return (
+                            <GroupItem key={`GroupItem${index}`} colCount={8}>
+                                <Item
+                                    key={`addressType${index}`}
+                                    dataField={`addresses[${index}].addressType`}
+                                    label={{ text: 'Address Type' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        items: [
+                                            { id: 1, name: 'Physical Address' },
+                                            { id: 2, name: 'Billing Address' },
+                                        ],
+                                        valueExpr: 'id',
+                                        displayExpr: 'name',
+                                    }}
+                                />
+                                <Item
+                                    key={`addressLine1${index}`}
+                                    dataField={`addresses[${index}].addressLine1`}
+                                    label={{ text: 'Address line' }}
+                                />
+                                <Item
+                                    key={`addressLine2${index}`}
+                                    dataField={`addresses[${index}].addressLine2`}
+                                    label={{ text: 'Address line 2' }}
+                                />
+                                <Item
+                                    key={`country${index}`}
+                                    dataField={`addresses[${index}].country`}
+                                    label={{ text: 'Country' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        items: countriesData,
+                                        displayExpr: 'name',
+                                        valueExpr: 'id',
+                                        searchEnabled: true,
+                                        onValueChanged: (e: any) => {
+                                            handleCountryChange(e.value);
+                                            // Ensure state is removed
+                                            companyData.addresses[index].state =
+                                                null;
+                                        },
+                                    }}
+                                />
+                                <Item
+                                    key={`state${index}`}
+                                    dataField={`addresses[${index}].state`}
+                                    label={{ text: 'State' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        items: getFilteredStates(index),
+                                        displayExpr: 'name',
+                                        valueExpr: 'id',
+                                        searchEnabled: true,
+                                        readOnly: !isEditing || isStateLoading,
+                                    }}
+                                />
+                                <Item
+                                    key={`city${index}`}
+                                    dataField={`addresses[${index}].city`}
+                                    label={{ text: 'City' }}
+                                />
+                                <Item
+                                    key={`postalCode${index}`}
+                                    dataField={`addresses[${index}].postalCode`}
+                                    label={{ text: 'Postal code' }}
+                                />
+                                <Item
+                                    key={`button${index}`}
+                                    itemType='button'
+                                    horizontalAlignment='left'
+                                    buttonOptions={{
+                                        icon: 'trash',
+                                        text: 'Remove address',
+                                        disabled: !isEditing,
+                                        onClick: () => {
+                                            // Set a new empty address
+                                            companyData.addresses.splice(
+                                                index,
+                                                1
+                                            );
+                                            // Update address fields
+                                            setAddressOptions([]);
+                                        },
+                                    }}
+                                />
+                            </GroupItem>
+                        );
+                    })}
+                </GroupItem>
+                <Item
+                    itemType='button'
+                    horizontalAlignment='left'
+                    buttonOptions={{
+                        icon: 'add',
+                        text: 'Add address',
+                        disabled: !isEditing,
+                        onClick: () => {
+                            // Set a new empty address
+                            companyData.addresses.push({
+                                addressLine1: '',
+                                addressLine2: '',
+                                city: '',
+                                state: null,
+                                country: null,
+                                postalCode: '',
+                                addressType: undefined,
+                            });
+                            // Update address fields
+                            setAddressOptions([]);
+                        },
+                    }}
+                />
             </Form>
             <div className='h-[2rem]'>
                 <div className='flex justify-end'>
@@ -309,7 +387,7 @@ const CompanyPage = ({
                                 text='Submit Changes'
                                 disabled={isLoading}
                                 isLoading={isLoading}
-                                onClick={() => console.log('efweff')}
+                                onClick={handleSubmit}
                             />
                         )}
                     </div>
