@@ -274,7 +274,7 @@ const AddApInvoicePage = ({ token, id }: Props) => {
                                                             icon: 'trash',
                                                             onClick: () => {
                                                                 // Set a new empty line
-                                                                invoiceData.form.invoiceline.splice(
+                                                                invoiceData.form.invoiceLines.splice(
                                                                     index,
                                                                     1
                                                                 );
