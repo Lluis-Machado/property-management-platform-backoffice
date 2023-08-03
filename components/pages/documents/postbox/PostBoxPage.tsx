@@ -13,6 +13,15 @@ import {
     SearchPanel,
     Toolbar,
 } from 'devextreme-react/data-grid';
+import { formatDocumentSize } from '@/lib/utils/documents/utilsDocuments';
+
+/**
+ * Renders the size of the document in a human-readable format.
+ * @param {Document} data - The document data.
+ */
+const SizeCellRender = ({ data }: { data: any }): React.ReactElement => (
+    <p>{formatDocumentSize(data.contentLength)}</p>
+);
 
 const PostBoxPage = () => {
     const router = useRouter();
@@ -50,32 +59,29 @@ const PostBoxPage = () => {
             </Toolbar>
 
             <Column
-                caption='First Name'
-                dataField='firstName'
+                caption='Document Name'
+                dataField='documentName'
                 dataType='string'
-                hidingPriority={0}
             />
             <Column
-                caption='Last Name'
-                dataField='lastName'
+                caption='Archive Name'
+                dataField='archiveName'
                 dataType='string'
-                hidingPriority={1}
             />
             <Column
-                caption='NIF'
-                dataField='nif'
-                dataType='string'
-                hidingPriority={2}
+                caption='Size'
+                cellRender={SizeCellRender}
+                dataField='contentLength'
+                dataType='number'
             />
             <Column
-                caption='Email'
-                dataField='email'
-                dataType='string'
-                hidingPriority={3}
+                caption='Created At'
+                dataField='createdAt'
+                dataType='date'
             />
-            {/* <MasterDetail enabled={true} component={DetailTemplate} /> */}
+            <Column caption='Status' dataField='status' />
         </DataGrid>
     );
 };
 
-export default PostBoxPage;
+export default memo(PostBoxPage);
