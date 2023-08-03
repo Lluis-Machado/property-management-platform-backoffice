@@ -4,21 +4,23 @@
 import { useState } from 'react';
 
 // Local imports
-import { Locale } from '@/i18n-config';
 import { PopupVisibility } from '@/lib/types/Popups';
 import PopupPreview from '@/components/popups/PopupPreview';
 import DataGrid from './DataGrid';
+import { TokenRes } from '@/lib/types/token';
 
 interface Props {
     data: any[];
     id: string;
     searchParams: { searchParams: any };
+    token: TokenRes;
 }
 
 const ExpensesPage = ({
     data,
     id,
     searchParams,
+    token,
 }: Props): React.ReactElement => {
     const [invoiceVisibility, setInvoiceVisibility] = useState<PopupVisibility>(
         {
@@ -40,6 +42,7 @@ const ExpensesPage = ({
                 }}
                 params={searchParams}
                 id={id}
+                token={token}
             />
             {(invoiceVisibility.visible || invoiceVisibility.hasBeenOpen) && (
                 <PopupPreview

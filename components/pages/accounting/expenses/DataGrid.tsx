@@ -11,7 +11,6 @@ import {
     faPencil,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Locale } from '@/i18n-config';
 import { Tooltip } from 'devextreme-react/tooltip';
 import {
     DataGrid as DxDataGrid,
@@ -30,8 +29,8 @@ import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
 import AddRowButton from '@/components/buttons/AddRowButton';
 
 // Local imports
-import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 import { Button } from 'pg-components';
+import { TokenRes } from '@/lib/types/token';
 
 const ContentTooltip = ({ value }: { value: string }): React.ReactElement => {
     switch (value) {
@@ -113,6 +112,7 @@ interface Props {
     onInvoiceClick: (title: string, url: string) => void;
     params: any;
     id: string;
+    token: TokenRes;
 }
 
 const DataGrid = ({
@@ -120,6 +120,7 @@ const DataGrid = ({
     onInvoiceClick,
     params,
     id,
+    token,
 }: Props): React.ReactElement => {
     const dataGridRef = useRef<DxDataGrid>(null);
     const [isEditing, setIsEditing] = useState<boolean>(false);

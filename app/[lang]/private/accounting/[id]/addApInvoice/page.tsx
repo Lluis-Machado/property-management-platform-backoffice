@@ -1,6 +1,6 @@
 // Local imports
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
-import AddApInvoicePage from '@/components/pages/accounting/expenses/addApInvoice/AddAppInvoicePage';
+import AddApInvoicePage from '@/components/pages/accounting/expenses/addApInvoice/AddApInvoicePage';
 
 interface Props {
     params: { id: string };
