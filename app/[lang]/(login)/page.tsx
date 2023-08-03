@@ -22,6 +22,7 @@ const LoginPage = async ({
             <LoginForm
                 dictionary={dictionary.loginPage}
                 searchParams={searchParams}
+                lang={lang}
             />
         </>
     );
