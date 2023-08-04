@@ -24,6 +24,7 @@ import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { TokenRes } from '@/lib/types/token';
 import { data } from './invoiceData';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import { getApiData } from '@/lib/utils/getApiData';
 
 interface Props {
     token: TokenRes;
@@ -51,7 +52,7 @@ const AddApInvoicePage = ({ token, id }: Props) => {
         }
         setFile(e.target.files[0]);
     };
-    console.log(token);
+    //console.log(token);
 
     const handleSubmit = useCallback(async () => {
         const toastId = toast.loading('Creating contact...');
@@ -69,14 +70,16 @@ const AddApInvoicePage = ({ token, id }: Props) => {
             console.log('TODO CORRECTO, valores de vuelta: ', data);
             setInvoiceData(data);
 
+            // API CALL
+
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');
-            //Router.push('/private/contacts');
+            router.push(`/accounting/${id}/expenses`);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
             setIsLoading(false);
         }
-    }, [token, file]);
+    }, [token, file, id, router]);
 
     const handleSave = useCallback(async () => {
         const toastId = toast.loading('Saving Invoice');
@@ -86,14 +89,17 @@ const AddApInvoicePage = ({ token, id }: Props) => {
                 'Valores a enviar en JSON: ',
                 JSON.stringify(invoiceData)
             );
+            // ID businesspartner
 
-            const data = await apiPost(
-                `/accounting/tenants/${id}/businesspartners/${invoiceData.form.businessPartner.vatNumber}/apinvoices`,
-                invoiceData,
-                token,
-                'Error saving AP Invoice'
-            );
-
+            /*
+                        // SAVE INVOICE    
+                        const data = await apiPost(
+                            `/accounting/tenants/${id}/businesspartners/${idBP}/apinvoices`,
+                            invoiceData,
+                            token,
+                            'Error saving AP Invoice'
+                        );
+            */
             console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');
             router.push(`/accounting/${id}/expenses`);
@@ -102,7 +108,7 @@ const AddApInvoicePage = ({ token, id }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [token, invoiceData, id, router]);
+    }, [invoiceData, id, router]);
 
     const handleDisabled = () => {
         if (!invoiceData) {
@@ -135,7 +141,7 @@ const AddApInvoicePage = ({ token, id }: Props) => {
     return (
         <div className='absolute inset-4 w-screen'>
             <div className='h-full'>
-                <Allotment defaultSizes={[70, 30]}>
+                <Allotment defaultSizes={[65, 35]}>
                     <Allotment.Pane>
                         <div className='mr-4'>
                             <div className='flex justify-end gap-4'>

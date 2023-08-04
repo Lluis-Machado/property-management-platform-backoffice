@@ -112,7 +112,6 @@ interface Props {
     onInvoiceClick: (title: string, url: string) => void;
     params: any;
     id: string;
-    token: TokenRes;
 }
 
 const DataGrid = ({
@@ -120,7 +119,6 @@ const DataGrid = ({
     onInvoiceClick,
     params,
     id,
-    token,
 }: Props): React.ReactElement => {
     const dataGridRef = useRef<DxDataGrid>(null);
     const [isEditing, setIsEditing] = useState<boolean>(false);
