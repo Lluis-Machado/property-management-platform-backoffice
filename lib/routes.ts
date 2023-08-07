@@ -17,7 +17,7 @@ export const routes: Route[] = [
         icon: faFileAlt,
         name: 'Documents',
         children: [
-            { name: 'Archives', path: 'archives' },
+            { name: 'Postbox', path: 'postbox' },
             { name: 'Documents', path: 'files' },
         ],
     },

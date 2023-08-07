@@ -68,7 +68,7 @@ const ContactPage = ({
     );
     const [addressOptions, setAddressOptions] = useState({});
 
-    const { states, handleCountryChange, isStateLoading, getFilteredStates } =
+    const { getFilteredStates, handleCountryChange, isStateLoading } =
         useCountryChange(lang, token, initialStates);
 
     const formRef = useRef<Form>(null);

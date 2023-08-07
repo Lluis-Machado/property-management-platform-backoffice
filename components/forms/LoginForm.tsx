@@ -14,6 +14,8 @@ import { ApiCallError } from '@/lib/utils/errors';
 import Loading from '@/components/layout/Loading';
 import { toast } from 'react-toastify';
 import ContentLoader from 'react-content-loader';
+import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
+import { Locale } from '@/i18n-config';
 
 interface Props {
     dictionary: {
@@ -24,6 +26,7 @@ interface Props {
         submitButton: string;
     };
     searchParams: any;
+    lang: Locale;
 }
 
 let loginValues = {
@@ -31,13 +34,17 @@ let loginValues = {
     password: '',
 };
 
-const LoginForm = ({ dictionary, searchParams }: Props) => {
+const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isFormLoading, setIsFormLoading] = useState<boolean>(true);
 
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
+
+    useEffect(() => {
+        localeDevExtreme(lang);
+    }, [lang]);
 
     // useEffect for errors on the URL
     useEffect(() => {
@@ -91,7 +98,7 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
     return (
         <>
             <Loading isLoading={isLoading} />
-            <div className='h-[8rem]'>
+            <div className='h-[7rem]'>
                 {isFormLoading && (
                     <ContentLoader
                         speed={2}
@@ -103,19 +110,19 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
                     >
                         <rect
                             x='0'
-                            y='0'
+                            y='5'
                             rx='5'
                             ry='5'
                             width='385'
-                            height='40'
+                            height='30'
                         />
                         <rect
                             x='0'
-                            y='75'
+                            y='50'
                             rx='5'
                             ry='5'
                             width='385'
-                            height='40'
+                            height='30'
                         />
                     </ContentLoader>
                 )}
@@ -135,7 +142,7 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
                             mode: 'email',
                         }}
                     >
-                        <EmailRule message='Email is invalid' />
+                        <EmailRule />
                         <RequiredRule />
                     </Item>
                     <Item
@@ -151,7 +158,7 @@ const LoginForm = ({ dictionary, searchParams }: Props) => {
                 </Form>
             </div>
 
-            <div className='mt-4 flex items-center justify-end'>
+            <div className='mt-0 flex items-center justify-end'>
                 <div className='text-sm'>
                     <Link
                         href={`./reset-password`}
