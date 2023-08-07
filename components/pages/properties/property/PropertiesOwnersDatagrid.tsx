@@ -40,6 +40,7 @@ interface Props {
     dataSource: OwnershipPropertyData[];
     token: TokenRes;
     contactData: ContactData[];
+    isEditing: boolean;
 }
 interface idToasts {
     toastId: any;
@@ -51,10 +52,9 @@ const PropertiesOwnersDatagrid = ({
     dataSource,
     token,
     contactData,
+    isEditing,
 }: Props) => {
     const router = useRouter();
-    const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [notAllowEditing, setNotAllowEditing] = useState<boolean>(true);
 
     const handleDoubleClick = useCallback(
         ({ data }: any) => {
@@ -65,7 +65,6 @@ const PropertiesOwnersDatagrid = ({
     );
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    console.log(dataSource[0]);
     const propertyId: number = dataSource[0].propertyId;
 
     const saveEditData = useCallback(
@@ -73,6 +72,7 @@ const PropertiesOwnersDatagrid = ({
             const promises: Promise<any>[] = [];
             const idToasts: idToasts[] = [];
             setIsLoading(true);
+            console.log(e.changes);
 
             for (const change of e.changes) {
                 if (change.type == 'update') {
@@ -132,7 +132,6 @@ const PropertiesOwnersDatagrid = ({
                             'Error while adding contact to property'
                         )
                     );
-                    //console.log('TODO CORRECTO, contact added');
                     idToasts.push({
                         toastId: toastId,
                         msg: 'Ownership Contact added correctly!',
@@ -159,12 +158,6 @@ const PropertiesOwnersDatagrid = ({
         },
         [token, propertyId]
     );
-
-    const editingMode = () => {
-        setIsEditing((prev) => !prev);
-        setNotAllowEditing((prev) => !prev);
-    };
-
     return (
         <DataGrid
             dataSource={dataSource}
@@ -187,22 +180,19 @@ const PropertiesOwnersDatagrid = ({
                 showInfo
                 showNavigationButtons
             />
-            {notAllowEditing === false && (
-                <Editing mode='batch' allowUpdating allowAdding allowDeleting />
+            {isEditing === true && (
+                <Editing
+                    mode='batch'
+                    allowUpdating
+                    allowAdding
+                    allowDeleting
+                    useIcons
+                />
             )}
             <Toolbar>
-                <Item name='addRowButton' disabled={notAllowEditing} />
-                <Item name='saveButton' disabled={notAllowEditing} />
-                <Item name='revertButton' disabled={notAllowEditing} />
-                <Item>
-                    <Button
-                        elevated
-                        onClick={editingMode}
-                        type='button'
-                        icon={isEditing ? faXmark : faPencil}
-                    />
-                </Item>
-                <Item name='searchPanel' />
+                <Item name='addRowButton' disabled={isEditing === false} />
+                <Item name='saveButton' disabled={isEditing === false} />
+                <Item name='revertButton' disabled={isEditing === false} />
             </Toolbar>
 
             <Column

@@ -21,6 +21,14 @@ export default async function Properties() {
         ),
     ]);
 
+    let contacts: ContactData[] = [];
+    for (const contact of contactData) {
+        contacts.push({
+            ...contact,
+            firstName: `${contact.firstName} ${contact.lastName}`,
+        });
+    }
+
     return (
         <>
             <div className='mt-4 text-lg text-secondary-500'>
@@ -28,7 +36,7 @@ export default async function Properties() {
             </div>
             <PropertiesPage
                 propertyData={propertyData}
-                contactData={contactData}
+                contactData={contacts}
             />
         </>
     );

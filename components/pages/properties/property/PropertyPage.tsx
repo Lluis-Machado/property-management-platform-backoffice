@@ -14,6 +14,7 @@ import {
     faTrash,
     faXmark,
     faPencil,
+    faArrowUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -32,7 +33,7 @@ import PropertiesOwnersDatagrid from './PropertiesOwnersDatagrid';
 import PropertyTextArea from '@/components/textArea/PropertyTextArea';
 import PropertySidePropertiesDatagrid from './PropertySidePropertiesDatagrid';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
-import { updateSuccessToast } from '@/lib/utils/customToasts';
+import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
@@ -44,6 +45,9 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { ContactData } from '@/lib/types/contactData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import { idToasts } from '@/lib/types/toastid';
+import { SavedEvent } from 'devextreme/ui/data_grid';
+import { apiPost } from '@/lib/utils/apiPost';
 
 interface Props {
     propertyData: PropertyData;
@@ -78,16 +82,7 @@ const PropertyPage = ({
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
-    console.log(initialValues);
     const router = useRouter();
-
-    const handleDoubleClick = useCallback(
-        ({ data }: any) => {
-            console.log(data);
-            router.push(`/private/contacts/${data.ownerId}/contactInfo`);
-        },
-        [router]
-    );
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
@@ -110,43 +105,138 @@ const PropertyPage = ({
         [lang, token, propertyData.propertyAddress]
     );
 
-    const handleSubmit = useCallback(async () => {
-        const values = structuredClone(propertyData);
-        console.log(values);
+    const handleSubmit = useCallback(
+        async (e: any) => {
+            console.log(e);
+            // CHANGES PROPERTY FORM
+            const values = structuredClone(propertyData);
+            console.log(values);
+            /*
+                // CHANGES DATAGRID
+                const promises: Promise<any>[] = [];
+                const idToasts: idToasts[] = [];
+        
+                for (const change of e.changes) {
+                    if (change.type == 'update') {
+                        const toastId = toast.loading(
+                            'Updating ownership property'
+                        );
+                        const changes = change.data;
+                        promises.push(
+                            apiPatch(
+                                `/ownership/ownership`,
+                                changes,
+                                token,
+                                'Error while updating a ownership property'
+                            )
+                        );
+                        // console.log('TODO CORRECTO, valores de vuelta: ', data);
+                        idToasts.push({
+                            toastId: toastId,
+                            msg: 'Ownership updated correctly!',
+                            errormsg: 'Error while updating a ownership property',
+                        });
+                    } else if (change.type == 'remove') {
+                        const toastId = toast.loading(
+                            'Updating ownership property'
+                        );
+                        promises.push(
+                            apiDelete(
+                                `/ownership/ownership/${change.key}`,
+                                token,
+                                'Error while deleting an ownership'
+                            )
+                        );
+                        //console.log('TODO CORRECTO, contact deleted');
+                        idToasts.push({
+                            toastId: toastId,
+                            msg: 'Ownership Contact deleted correctly!',
+                            errormsg: 'Error while deleting an ownership',
+                        });
+                    } else if (change.type == 'insert') {
+                        const toastId = toast.loading(
+                            'Adding contact ownership property'
+                        );
+                        const { ownerId, share, mainOwnership } = change.data;
+                        const ownerType: string = 'Contact';
+                        const propertyId: string = propertyData.id
+                        const changes = {
+                            propertyId,
+                            ownerId,
+                            ownerType,
+                            share,
+                            mainOwnership,
+                        };
+                        promises.push(
+                            apiPost(
+                                `/ownership/ownership/`,
+                                changes,
+                                token,
+                                'Error while adding contact to property'
+                            )
+                        );
+                        idToasts.push({
+                            toastId: toastId,
+                            msg: 'Ownership Contact added correctly!',
+                            errormsg: 'Error while adding contact to property',
+                        });
+                    }
+                }
+                Promise.allSettled(promises).then((results) =>
+                    results.forEach((result, index) => {
+                        if (result.status == 'fulfilled') {
+                            updateSuccessToast(
+                                idToasts[index].toastId,
+                                idToasts[index].msg
+                            );
+                        } else if (result.status == 'rejected') {
+                            //customError(Error, idToasts[index].toastId);
+                            updateErrorToast(
+                                idToasts[index].errormsg,
+                                idToasts[index].toastId
+                            );
+                        }
+                    })
+                );
+        */
+            if (JSON.stringify(values) === JSON.stringify(initialValues)) {
+                toast.warning('Change at least one field');
+                return;
+            }
 
-        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            toast.warning('Change at least one field');
-            return;
-        }
+            setIsLoading(true);
+            const toastId = toast.loading('Updating property...');
 
-        setIsLoading(true);
-        const toastId = toast.loading('Updating property...');
+            try {
+                const dataToSend: PropertyData = {
+                    ...values,
+                    purchaseDate: formatDate(values.purchaseDate),
+                    saleDate: formatDate(values.saleDate),
+                    cadastreRef,
+                };
+                console.log('Valores a enviar: ', dataToSend);
+                console.log(
+                    'Valores a enviar JSON: ',
+                    JSON.stringify(dataToSend)
+                );
 
-        try {
-            const dataToSend: PropertyData = {
-                ...values,
-                purchaseDate: formatDate(values.purchaseDate),
-                saleDate: formatDate(values.saleDate),
-                cadastreRef,
-            };
-            console.log('Valores a enviar: ', dataToSend);
-            console.log('Valores a enviar JSON: ', JSON.stringify(dataToSend));
+                const data = await apiPatch(
+                    `/properties/properties/${propertyData.id}`,
+                    dataToSend,
+                    token,
+                    'Error while updating a property'
+                );
 
-            const data = await apiPatch(
-                `/properties/properties/${propertyData.id}`,
-                dataToSend,
-                token,
-                'Error while updating a property'
-            );
-
-            console.log('TODO CORRECTO, valores de vuelta: ', data);
-            updateSuccessToast(toastId, 'Property updated correctly!');
-        } catch (error: unknown) {
-            customError(error, toastId);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [propertyData, initialValues, token, cadastreRef]);
+                console.log('TODO CORRECTO, valores de vuelta: ', data);
+                updateSuccessToast(toastId, 'Property updated correctly!');
+            } catch (error: unknown) {
+                customError(error, toastId);
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [propertyData, initialValues, token, cadastreRef]
+    );
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting property...');
@@ -163,6 +253,11 @@ const PropertyPage = ({
             customError(error, toastId);
         }
     }, [propertyData, router, token]);
+
+    const onFieldChange = (e: any) => {
+        console.log(e);
+        e.datafield.style.color = 'red';
+    };
 
     return (
         <div className='mt-4'>
@@ -199,6 +294,16 @@ const PropertyPage = ({
                 </div>
                 {/* Button toolbar */}
                 <div className='flex flex-row gap-4 self-center'>
+                    {isEditing && (
+                        <Button
+                            elevated
+                            type='button'
+                            text='Submit Changes'
+                            disabled={isLoading}
+                            isLoading={isLoading}
+                            onClick={handleSubmit}
+                        />
+                    )}
                     <Button
                         elevated
                         onClick={() => setIsEditing((prev) => !prev)}
@@ -215,10 +320,14 @@ const PropertyPage = ({
                 </div>
             </div>
             {/* Property form */}
-            <Form formData={propertyData} readOnly={isLoading || !isEditing}>
+            <Form
+                formData={propertyData}
+                readOnly={isLoading || !isEditing}
+                labelMode={'floating'}
+                onFieldDataChanged={onFieldChange}
+            >
                 <GroupItem colCount={3}>
-                    <GroupItem caption='Property Information'>
-                        <Item dataField='name' label={{ text: 'Name' }} />
+                    <GroupItem>
                         <Item dataField='type' label={{ text: 'Type' }} />
                         <Item
                             dataField='typeOfUse'
@@ -235,65 +344,6 @@ const PropertyPage = ({
                                 searchEnabled: true,
                             }}
                         />
-                        <Item>
-                            <div className='flex'>
-                                <div className='float-left mt-3 w-1/5'>
-                                    Catastral Ref:
-                                </div>
-                                <div className='w-11/12'>
-                                    <TextBox
-                                        defaultValue={cadastreRef}
-                                        onValueChange={(e) => setCadastreRef(e)}
-                                        readOnly={isLoading || !isEditing}
-                                    >
-                                        <TextBoxButton
-                                            name='catasterBtn'
-                                            location='after'
-                                            options={{
-                                                icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
-                                                type: 'default',
-                                                onClick: () =>
-                                                    propertyData.cadastreUrl &&
-                                                    window.open(
-                                                        propertyData.cadastreUrl,
-                                                        '_blank'
-                                                    ),
-                                                disabled:
-                                                    propertyData.cadastreUrl
-                                                        ? false
-                                                        : true,
-                                            }}
-                                        />
-                                    </TextBox>
-                                </div>
-                            </div>
-                        </Item>
-                    </GroupItem>
-                    <GroupItem caption='Contact Information'>
-                        <Item
-                            dataField='contactPersonId'
-                            label={{ text: 'Contact Person' }}
-                            editorType='dxSelectBox'
-                            editorOptions={{
-                                items: contacts,
-                                displayExpr: 'firstName',
-                                valueExpr: 'id',
-                                searchEnabled: true,
-                            }}
-                        />
-                        <Item
-                            dataField='billingContactId'
-                            label={{ text: 'Billing Contact' }}
-                            editorType='dxSelectBox'
-                            editorOptions={{
-                                items: contacts,
-                                displayExpr: 'firstName',
-                                valueExpr: 'id',
-                                searchEnabled: true,
-                            }}
-                        />
-                    </GroupItem>
-                    <GroupItem caption='Address Information'>
                         <GroupItem>
                             <Item
                                 dataField='propertyAddress[0].addressLine1'
@@ -341,26 +391,152 @@ const PropertyPage = ({
                             </GroupItem>
                         </GroupItem>
                     </GroupItem>
+                    <GroupItem>
+                        <Item
+                            dataField='mainOwnerId'
+                            label={{ text: 'Main Owner' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                items: contacts,
+                                displayExpr: 'firstName',
+                                valueExpr: 'id',
+                                searchEnabled: true,
+                                buttons: [
+                                    {
+                                        name: 'goto',
+                                        location: 'after',
+                                        options: {
+                                            icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
+                                            type: 'default',
+                                            onClick: () => {
+                                                router.push(
+                                                    `/private/contacts/${propertyData.mainOwnerId}/contactInfo`
+                                                );
+                                            },
+                                            disabled: propertyData.mainOwnerId
+                                                ? false
+                                                : true,
+                                        },
+                                    },
+                                ],
+                            }}
+                        />
+                        <Item
+                            dataField='contactPersonId'
+                            label={{ text: 'Contact Person' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                items: contacts,
+                                displayExpr: 'firstName',
+                                valueExpr: 'id',
+                                searchEnabled: true,
+                                buttons: [
+                                    {
+                                        name: 'goto',
+                                        location: 'after',
+                                        options: {
+                                            icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
+                                            type: 'default',
+                                            onClick: () => {
+                                                router.push(
+                                                    `/private/contacts/${propertyData.contactPersonId}/contactInfo`
+                                                );
+                                            },
+                                            disabled:
+                                                propertyData.contactPersonId
+                                                    ? false
+                                                    : true,
+                                        },
+                                    },
+                                ],
+                            }}
+                        />
+                        <Item
+                            dataField='billingContactId'
+                            label={{ text: 'Billing Contact' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                items: contacts,
+                                displayExpr: 'firstName',
+                                valueExpr: 'id',
+                                searchEnabled: true,
+                                buttons: [
+                                    {
+                                        name: 'goto',
+                                        location: 'after',
+                                        options: {
+                                            icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
+                                            type: 'default',
+                                            onClick: () => {
+                                                router.push(
+                                                    `/private/contacts/${propertyData.billingContactId}/contactInfo`
+                                                );
+                                            },
+                                            disabled:
+                                                propertyData.billingContactId
+                                                    ? false
+                                                    : true,
+                                        },
+                                    },
+                                ],
+                            }}
+                        />
+                        <Item
+                            dataField='propertyScanMail'
+                            label={{ text: 'Property Scan Mail' }}
+                        />
+                    </GroupItem>
                 </GroupItem>
                 <GroupItem>
                     <TabbedItem>
                         <TabPanelOptions deferRendering={false} />
-                        <Tab title='Cadastre Information'>
-                            <GroupItem colCount={5}>
-                                <Item
-                                    dataField='cadastreNumber'
-                                    label={{ text: 'Cadastre Number' }}
-                                />
-                                <Item
-                                    dataField='cadastreUrl'
-                                    label={{ text: 'Cadastre Url' }}
-                                />
+                        <Tab title='Owners'>
+                            <PropertiesOwnersDatagrid
+                                dataSource={ownershipData}
+                                token={token}
+                                contactData={contacts}
+                                isEditing={isEditing}
+                            />
+                        </Tab>
+                        <Tab title='Side Properties'>
+                            <PropertySidePropertiesDatagrid
+                                dataSource={propertyData}
+                            />
+                        </Tab>
+                        <Tab title='Cadastre'>
+                            <GroupItem colCount={4}>
+                                <Item>
+                                    <TextBox
+                                        defaultValue={cadastreRef}
+                                        onValueChange={(e) => setCadastreRef(e)}
+                                        readOnly={isLoading || !isEditing}
+                                        labelMode='floating'
+                                        label='Cadastre Nr.'
+                                    >
+                                        <TextBoxButton
+                                            name='catasterBtn'
+                                            location='after'
+                                            options={{
+                                                icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
+                                                type: 'default',
+                                                onClick: () =>
+                                                    propertyData.cadastreUrl &&
+                                                    window.open(
+                                                        propertyData.cadastreUrl,
+                                                        '_blank'
+                                                    ),
+                                                disabled:
+                                                    propertyData.cadastreUrl
+                                                        ? false
+                                                        : true,
+                                            }}
+                                        />
+                                    </TextBox>
+                                </Item>
                                 <Item
                                     dataField='cadastreValue'
                                     label={{ text: 'Cadastre Value' }}
                                 />
-                            </GroupItem>
-                            <GroupItem colCount={5}>
                                 <Item
                                     dataField='loanPrice.value'
                                     label={{ text: 'Loan price' }}
@@ -385,55 +561,43 @@ const PropertyPage = ({
                                     dataField='ibiCollection'
                                     label={{ text: 'IBI Collection' }}
                                 />
+                            </GroupItem>
+                        </Tab>
+                        <Tab title='Purchase'>
+                            <GroupItem colCount={4}>
                                 <Item
-                                    dataField='year'
-                                    label={{ text: 'Year' }}
+                                    dataField='purchaseDate'
+                                    label={{ text: 'Purchase Date' }}
+                                    editorType='dxDateBox'
+                                    editorOptions={{
+                                        displayFormat: dateFormat,
+                                        showClearButton: true,
+                                    }}
                                 />
                                 <Item
-                                    dataField='propertyScanMail'
-                                    label={{ text: 'Property Scan Mail' }}
+                                    dataField='purchasePrice.value'
+                                    label={{ text: 'Purchase price' }}
+                                />
+                                <Item
+                                    dataField='purchasePriceTax.value'
+                                    label={{ text: 'Purchase Price Tax' }}
+                                />
+                                <Item
+                                    dataField='purchasePriceAJD.value'
+                                    label={{ text: 'Purchase Price AJD' }}
+                                />
+                                <Item
+                                    dataField='purchasePriceTPO.value'
+                                    label={{ text: 'Purchase Price TPO' }}
+                                />
+                                <Item
+                                    dataField='purchasePriceTotal.value'
+                                    label={{ text: 'Purchase Price Total' }}
                                 />
                             </GroupItem>
                         </Tab>
-                        <Tab title='Purchase Information'>
-                            <GroupItem colCount={5}>
-                                <GroupItem>
-                                    <Item
-                                        dataField='purchaseDate'
-                                        label={{ text: 'Purchase Date' }}
-                                        editorType='dxDateBox'
-                                        editorOptions={{
-                                            displayFormat: dateFormat,
-                                            showClearButton: true,
-                                        }}
-                                    />
-                                    <Item
-                                        dataField='purchasePrice.value'
-                                        label={{ text: 'Purchase price' }}
-                                    />
-                                    <Item
-                                        dataField='purchasePriceTax.value'
-                                        label={{ text: 'Purchase Price Tax' }}
-                                    />
-                                </GroupItem>
-                                <GroupItem>
-                                    <Item
-                                        dataField='purchasePriceAJD.value'
-                                        label={{ text: 'Purchase Price AJD' }}
-                                    />
-                                    <Item
-                                        dataField='purchasePriceTPO.value'
-                                        label={{ text: 'Purchase Price TPO' }}
-                                    />
-                                    <Item
-                                        dataField='purchasePriceTotal.value'
-                                        label={{ text: 'Purchase Price Total' }}
-                                    />
-                                </GroupItem>
-                            </GroupItem>
-                        </Tab>
-                        <Tab title='Furniture Information'>
-                            <GroupItem colCount={5}>
+                        <Tab title='Furniture'>
+                            <GroupItem colCount={4}>
                                 <Item
                                     dataField='furniturePrice.value'
                                     label={{ text: 'Furniture Price' }}
@@ -447,7 +611,17 @@ const PropertyPage = ({
                                     label={{ text: 'Furniture Price TPO' }}
                                 />
                             </GroupItem>
-                            <GroupItem colCount={5}>
+                        </Tab>
+                        <Tab title='Other Information'>
+                            <GroupItem colCount={4}>
+                                <Item
+                                    dataField='bedNumber'
+                                    label={{ text: 'Bed Number' }}
+                                />
+                                <Item
+                                    dataField='year'
+                                    label={{ text: 'Year' }}
+                                />
                                 <Item
                                     dataField='garbageCollection'
                                     label={{ text: 'Garbage Collection' }}
@@ -458,8 +632,8 @@ const PropertyPage = ({
                                 />
                             </GroupItem>
                         </Tab>
-                        <Tab title='Sale Information'>
-                            <GroupItem colCount={5}>
+                        <Tab title='Sale'>
+                            <GroupItem colCount={4}>
                                 <Item
                                     dataField='saleDate'
                                     label={{ text: 'Sale Date' }}
@@ -475,73 +649,16 @@ const PropertyPage = ({
                                 />
                             </GroupItem>
                         </Tab>
-                        <Tab title='Other Information'>
-                            <GroupItem colCount={5}>
-                                <Item
-                                    dataField='bedNumber'
-                                    label={{ text: 'Bed Number' }}
-                                />
-                                <Item
-                                    dataField='comments'
-                                    label={{ text: 'Comments' }}
-                                />
-                            </GroupItem>
-                        </Tab>
-                    </TabbedItem>
-                </GroupItem>
-            </Form>
-            <div className='mt-2 h-[2rem]'>
-                <div className='flex justify-end'>
-                    <div className='flex flex-row justify-between gap-2'>
-                        {isEditing && (
-                            <Button
-                                elevated
-                                type='button'
-                                text='Submit Changes'
-                                disabled={isLoading}
-                                isLoading={isLoading}
-                                onClick={handleSubmit}
-                            />
-                        )}
-                    </div>
-                </div>
-            </div>
-            {/* Tabs */}
-            <Tabs
-                dataSource={[
-                    {
-                        children: (
-                            <PropertiesOwnersDatagrid
-                                dataSource={ownershipData}
-                                token={token}
-                                contactData={contacts}
-                            />
-                        ),
-                        icon: faUserGroup,
-                        title: 'Owners',
-                    },
-                    {
-                        children: (
-                            <PropertySidePropertiesDatagrid
-                                dataSource={propertyData}
-                            />
-                        ),
-                        icon: faWarehouse,
-                        title: 'Side properties',
-                    },
-                    {
-                        children: (
+                        <Tab title='Comments'>
                             <PropertyTextArea
                                 propertyData={propertyData}
                                 token={token}
                                 lang={lang}
                             />
-                        ),
-                        icon: faNoteSticky,
-                        title: 'Comments',
-                    },
-                ]}
-            />
+                        </Tab>
+                    </TabbedItem>
+                </GroupItem>
+            </Form>
         </div>
     );
 };
