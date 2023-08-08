@@ -13,13 +13,22 @@ import { Route } from './types/route';
 
 export const routes: Route[] = [
     {
-        path: 'documents',
-        icon: faFileAlt,
-        name: 'Documents',
-        children: [
-            { name: 'Postbox', path: 'postbox' },
-            { name: 'Documents', path: 'files' },
-        ],
+        path: 'properties',
+        icon: faHouse,
+        name: 'Properties',
+        children: [{ name: 'Property Info', path: 'property' }],
+    },
+    {
+        path: 'contacts',
+        icon: faAddressBook,
+        name: 'Contacts',
+        children: [{ name: 'Contact Info', path: 'contactInfo' }],
+    },
+    {
+        path: 'companies',
+        icon: faBuilding,
+        name: 'Companies',
+        children: [{ name: 'Company Info', path: 'companyInfo' }],
     },
     {
         path: 'accounting',
@@ -41,22 +50,13 @@ export const routes: Route[] = [
         children: [{ name: 'Declarations', path: 'declarations' }],
     },
     {
-        path: 'properties',
-        icon: faHouse,
-        name: 'Properties',
-        children: [{ name: 'Property Info', path: 'property' }],
-    },
-    {
-        path: 'contacts',
-        icon: faAddressBook,
-        name: 'Contacts',
-        children: [{ name: 'Contact Info', path: 'contactInfo' }],
-    },
-    {
-        path: 'companies',
-        icon: faBuilding,
-        name: 'Companies',
-        children: [{ name: 'Company Info', path: 'companyInfo' }],
+        path: 'documents',
+        icon: faFileAlt,
+        name: 'Documents',
+        children: [
+            { name: 'Postbox', path: 'postbox' },
+            { name: 'Documents', path: 'files' },
+        ],
     },
     {
         path: 'administration',
