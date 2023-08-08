@@ -4,17 +4,15 @@
 import { useCallback, useState } from 'react';
 
 // Libraries imports
-import { Button, Tabs } from 'pg-components';
+import { Button } from 'pg-components';
 import {
     faFileLines,
-    faNoteSticky,
     faReceipt,
-    faUserGroup,
-    faWarehouse,
     faTrash,
     faXmark,
     faPencil,
     faArrowUpRightFromSquare,
+    faSave,
 } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -45,9 +43,10 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { ContactData } from '@/lib/types/contactData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import ConfirmChangePopup from '@/components/popups/ConfirmChangesPopup';
+import { apiPost } from '@/lib/utils/apiPost';
 import { idToasts } from '@/lib/types/toastid';
 import { SavedEvent } from 'devextreme/ui/data_grid';
-import { apiPost } from '@/lib/utils/apiPost';
 
 interface Props {
     propertyData: PropertyData;
@@ -72,12 +71,16 @@ const PropertyPage = ({
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
+    const [confirmationChangesVisible, setConfirmationChangesVisible] =
+        useState<boolean>(false);
     const [states, setStates] = useState<StateData[] | undefined>(
         initialStates
     );
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
     );
+    const [change, setChange] = useState();
+    console.log(change);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
@@ -105,139 +108,137 @@ const PropertyPage = ({
         [lang, token, propertyData.propertyAddress]
     );
 
-    const handleSubmit = useCallback(
-        async (e: any) => {
-            console.log(e);
-            // CHANGES PROPERTY FORM
-            const values = structuredClone(propertyData);
-            console.log(values);
-            /*
-                // CHANGES DATAGRID
-                const promises: Promise<any>[] = [];
-                const idToasts: idToasts[] = [];
-        
-                for (const change of e.changes) {
-                    if (change.type == 'update') {
-                        const toastId = toast.loading(
-                            'Updating ownership property'
-                        );
-                        const changes = change.data;
-                        promises.push(
-                            apiPatch(
-                                `/ownership/ownership`,
-                                changes,
-                                token,
-                                'Error while updating a ownership property'
-                            )
-                        );
-                        // console.log('TODO CORRECTO, valores de vuelta: ', data);
-                        idToasts.push({
-                            toastId: toastId,
-                            msg: 'Ownership updated correctly!',
-                            errormsg: 'Error while updating a ownership property',
-                        });
-                    } else if (change.type == 'remove') {
-                        const toastId = toast.loading(
-                            'Updating ownership property'
-                        );
-                        promises.push(
-                            apiDelete(
-                                `/ownership/ownership/${change.key}`,
-                                token,
-                                'Error while deleting an ownership'
-                            )
-                        );
-                        //console.log('TODO CORRECTO, contact deleted');
-                        idToasts.push({
-                            toastId: toastId,
-                            msg: 'Ownership Contact deleted correctly!',
-                            errormsg: 'Error while deleting an ownership',
-                        });
-                    } else if (change.type == 'insert') {
-                        const toastId = toast.loading(
-                            'Adding contact ownership property'
-                        );
-                        const { ownerId, share, mainOwnership } = change.data;
-                        const ownerType: string = 'Contact';
-                        const propertyId: string = propertyData.id
-                        const changes = {
-                            propertyId,
-                            ownerId,
-                            ownerType,
-                            share,
-                            mainOwnership,
-                        };
-                        promises.push(
-                            apiPost(
-                                `/ownership/ownership/`,
-                                changes,
-                                token,
-                                'Error while adding contact to property'
-                            )
-                        );
-                        idToasts.push({
-                            toastId: toastId,
-                            msg: 'Ownership Contact added correctly!',
-                            errormsg: 'Error while adding contact to property',
-                        });
-                    }
-                }
-                Promise.allSettled(promises).then((results) =>
-                    results.forEach((result, index) => {
-                        if (result.status == 'fulfilled') {
-                            updateSuccessToast(
-                                idToasts[index].toastId,
-                                idToasts[index].msg
-                            );
-                        } else if (result.status == 'rejected') {
-                            //customError(Error, idToasts[index].toastId);
-                            updateErrorToast(
-                                idToasts[index].errormsg,
-                                idToasts[index].toastId
-                            );
-                        }
-                    })
-                );
-        */
-            if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-                toast.warning('Change at least one field');
-                return;
-            }
+    const handleSubmit = useCallback(async () => {
+        // CHANGES PROPERTY FORM
+        const values = structuredClone(propertyData);
+        console.log(values);
 
+        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
+            toast.warning('Change at least one field');
+            return;
+        }
+
+        setIsLoading(true);
+        const toastId = toast.loading('Updating property...');
+
+        try {
+            const dataToSend: PropertyData = {
+                ...values,
+                purchaseDate: formatDate(values.purchaseDate),
+                saleDate: formatDate(values.saleDate),
+                cadastreRef,
+            };
+            console.log('Valores a enviar: ', dataToSend);
+            console.log('Valores a enviar JSON: ', JSON.stringify(dataToSend));
+
+            const data = await apiPatch(
+                `/properties/properties/${propertyData.id}`,
+                dataToSend,
+                token,
+                'Error while updating a property'
+            );
+
+            console.log('TODO CORRECTO, valores de vuelta: ', data);
+            updateSuccessToast(toastId, 'Property updated correctly!');
+        } catch (error: unknown) {
+            customError(error, toastId);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [propertyData, initialValues, token, cadastreRef]);
+
+    const saveEditData = useCallback(
+        async (e: SavedEvent<OwnershipPropertyData, any>) => {
+            const promises: Promise<any>[] = [];
+            const idToasts: idToasts[] = [];
             setIsLoading(true);
-            const toastId = toast.loading('Updating property...');
+            console.log(e.changes);
 
-            try {
-                const dataToSend: PropertyData = {
-                    ...values,
-                    purchaseDate: formatDate(values.purchaseDate),
-                    saleDate: formatDate(values.saleDate),
-                    cadastreRef,
-                };
-                console.log('Valores a enviar: ', dataToSend);
-                console.log(
-                    'Valores a enviar JSON: ',
-                    JSON.stringify(dataToSend)
-                );
-
-                const data = await apiPatch(
-                    `/properties/properties/${propertyData.id}`,
-                    dataToSend,
-                    token,
-                    'Error while updating a property'
-                );
-
-                console.log('TODO CORRECTO, valores de vuelta: ', data);
-                updateSuccessToast(toastId, 'Property updated correctly!');
-            } catch (error: unknown) {
-                customError(error, toastId);
-            } finally {
-                setIsLoading(false);
+            for (const change of e.changes) {
+                if (change.type == 'update') {
+                    const toastId = toast.loading(
+                        'Updating ownership property'
+                    );
+                    const values = change.data;
+                    promises.push(
+                        apiPatch(
+                            `/ownership/ownership`,
+                            values,
+                            token,
+                            'Error while updating a ownership property'
+                        )
+                    );
+                    // console.log('TODO CORRECTO, valores de vuelta: ', data);
+                    idToasts.push({
+                        toastId: toastId,
+                        msg: 'Ownership updated correctly!',
+                        errormsg: 'Error while updating a ownership property',
+                    });
+                } else if (change.type == 'remove') {
+                    const toastId = toast.loading(
+                        'Updating ownership property'
+                    );
+                    promises.push(
+                        apiDelete(
+                            `/ownership/ownership/${change.key}`,
+                            token,
+                            'Error while deleting an ownership'
+                        )
+                    );
+                    //console.log('TODO CORRECTO, contact deleted');
+                    idToasts.push({
+                        toastId: toastId,
+                        msg: 'Ownership Contact deleted correctly!',
+                        errormsg: 'Error while deleting an ownership',
+                    });
+                } else if (change.type == 'insert') {
+                    const toastId = toast.loading(
+                        'Adding contact ownership property'
+                    );
+                    const { ownerId, share, mainOwnership, propertyId } =
+                        change.data;
+                    const ownerType: string = 'Contact';
+                    const values = {
+                        propertyId,
+                        ownerId,
+                        ownerType,
+                        share,
+                        mainOwnership,
+                    };
+                    promises.push(
+                        apiPost(
+                            `/ownership/ownership/`,
+                            values,
+                            token,
+                            'Error while adding contact to property'
+                        )
+                    );
+                    idToasts.push({
+                        toastId: toastId,
+                        msg: 'Ownership Contact added correctly!',
+                        errormsg: 'Error while adding contact to property',
+                    });
+                }
             }
+            Promise.allSettled(promises).then((results) =>
+                results.forEach((result, index) => {
+                    if (result.status == 'fulfilled') {
+                        updateSuccessToast(
+                            idToasts[index].toastId,
+                            idToasts[index].msg
+                        );
+                    } else if (result.status == 'rejected') {
+                        //customError(Error, idToasts[index].toastId);
+                        updateErrorToast(
+                            idToasts[index].errormsg,
+                            idToasts[index].toastId
+                        );
+                    }
+                })
+            );
         },
-        [propertyData, initialValues, token, cadastreRef]
+        [token]
     );
-
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting property...');
         try {
@@ -266,6 +267,12 @@ const PropertyPage = ({
                 isVisible={confirmationVisible}
                 onClose={() => setConfirmationVisible(false)}
                 onConfirm={handleDelete}
+            />
+            <ConfirmChangePopup
+                message='Are you sure you want to save the changes?'
+                isVisible={confirmationChangesVisible}
+                onClose={() => setConfirmationChangesVisible(false)}
+                onConfirm={handleSubmit}
             />
             <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
@@ -297,11 +304,11 @@ const PropertyPage = ({
                     {isEditing && (
                         <Button
                             elevated
+                            onClick={() => setConfirmationChangesVisible(true)}
                             type='button'
-                            text='Submit Changes'
-                            disabled={isLoading}
+                            icon={faSave}
+                            disabled={!isEditing || isLoading}
                             isLoading={isLoading}
-                            onClick={handleSubmit}
                         />
                     )}
                     <Button
@@ -496,6 +503,7 @@ const PropertyPage = ({
                                 token={token}
                                 contactData={contacts}
                                 isEditing={isEditing}
+                                onChange={setChange}
                             />
                         </Tab>
                         <Tab title='Side Properties'>

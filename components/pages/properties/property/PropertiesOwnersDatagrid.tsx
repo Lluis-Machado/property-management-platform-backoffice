@@ -1,14 +1,7 @@
 'use client';
 // React imports
-
+import { useCallback, useState } from 'react';
 // Libraries imports
-import {
-    faCheck,
-    faPencil,
-    faTrash,
-    faXmark,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DataGrid, {
     Column,
     Paging,
@@ -19,28 +12,26 @@ import DataGrid, {
     Toolbar,
     Item,
 } from 'devextreme-react/data-grid';
+import { DataChange, SavedEvent } from 'devextreme/ui/data_grid';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
 import { apiPatch } from '@/lib/utils/apiPatch';
-import { useCallback, useRef, useState } from 'react';
 import { TokenRes } from '@/lib/types/token';
-import { toast } from 'react-toastify';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
-import { customError } from '@/lib/utils/customError';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
-import { SavedEvent } from 'devextreme/ui/data_grid';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { ContactData } from '@/lib/types/contactData';
 import { apiPost } from '@/lib/utils/apiPost';
-import { useRouter } from 'next/navigation';
-import { Button } from 'pg-components';
 
 interface Props {
     dataSource: OwnershipPropertyData[];
     token: TokenRes;
     contactData: ContactData[];
     isEditing: boolean;
+    onChange: any;
 }
 interface idToasts {
     toastId: any;
@@ -53,6 +44,7 @@ const PropertiesOwnersDatagrid = ({
     token,
     contactData,
     isEditing,
+    onChange,
 }: Props) => {
     const router = useRouter();
 
@@ -67,12 +59,24 @@ const PropertiesOwnersDatagrid = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const propertyId: number = dataSource[0].propertyId;
 
+    // Saving changes Datagrid
+    const [value, setValue] = useState<DataChange[]>([]);
+    const change: any[] = [];
+
+    const saveChanges = (e: DataChange[]) => {
+        console.log(e);
+        change.push(e);
+        //setValue(e)
+    };
+    console.log(change);
+    //onChange(change)
+
+    // API CALLS
     const saveEditData = useCallback(
         async (e: SavedEvent<OwnershipPropertyData, any>) => {
             const promises: Promise<any>[] = [];
             const idToasts: idToasts[] = [];
             setIsLoading(true);
-            console.log(e.changes);
 
             for (const change of e.changes) {
                 if (change.type == 'update') {
@@ -187,6 +191,7 @@ const PropertiesOwnersDatagrid = ({
                     allowAdding
                     allowDeleting
                     useIcons
+                    onChangesChange={saveChanges}
                 />
             )}
             <Toolbar>
