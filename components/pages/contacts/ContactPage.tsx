@@ -9,6 +9,7 @@ import {
     faFileLines,
     faPencil,
     faReceipt,
+    faSave,
     faTrash,
     faXmark,
 } from '@fortawesome/free-solid-svg-icons';
@@ -23,7 +24,6 @@ import Form, {
     TabPanelOptions,
     TabbedItem,
 } from 'devextreme-react/form';
-import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
 
 // Local imports
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
@@ -61,12 +61,6 @@ const ContactPage = ({
 }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [phoneNumber, setPhoneNumber] = useState<string>(
-        contactData.phoneNumber
-    );
-    const [mobilePhoneNumber, setMobilePhoneNumber] = useState<string>(
-        contactData.mobilePhoneNumber
-    );
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
     // Importante para que no se copie por referencia
@@ -101,8 +95,6 @@ const ContactPage = ({
         try {
             const valuesToSend: ContactData = {
                 ...values,
-                phoneNumber,
-                mobilePhoneNumber,
                 birthDay: formatDate(values.birthDay),
             };
 
@@ -125,7 +117,7 @@ const ContactPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [contactData, initialValues, token, mobilePhoneNumber, phoneNumber]);
+    }, [contactData, initialValues, token]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting contact...');
@@ -180,6 +172,14 @@ const ContactPage = ({
                 </div>
                 {/* Button toolbar */}
                 <div className='flex flex-row gap-4 self-center'>
+                    <Button
+                        elevated
+                        onClick={handleSubmit}
+                        type='button'
+                        icon={faSave}
+                        disabled={!isEditing || isLoading}
+                        isLoading={isLoading}
+                    />
                     <Button
                         elevated
                         onClick={() => setIsEditing((prev) => !prev)}
@@ -524,22 +524,6 @@ const ContactPage = ({
                     </TabbedItem>
                 </GroupItem>
             </Form>
-            <div className='mt-4 h-[2rem]'>
-                <div className='flex justify-end'>
-                    <div className='flex flex-row justify-between gap-2'>
-                        {isEditing && (
-                            <Button
-                                elevated
-                                type='button'
-                                text='Submit Changes'
-                                disabled={isLoading}
-                                isLoading={isLoading}
-                                onClick={handleSubmit}
-                            />
-                        )}
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };
