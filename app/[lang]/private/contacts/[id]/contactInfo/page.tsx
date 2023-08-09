@@ -51,6 +51,7 @@ const ContactForm = async ({ params: { lang, id } }: Props) => {
 
     // TODO: Cambiar esto, deberia venir de la API
     contactData.phones = [];
+    contactData.identifications = [];
 
     return (
         <>
