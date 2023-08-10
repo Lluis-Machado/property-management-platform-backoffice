@@ -32,6 +32,16 @@ const ContactForm = async ({ params: { lang, id } }: Props) => {
         ]
     );
 
+    // Categorize countries, 56 and 67 are DE and ES. It can be done on backend?
+    for (const country of countriesData) {
+        if (country.id === 56 || country.id === 67) {
+            country.category = 'Main Countries';
+        } else {
+            country.category = 'Other Countries';
+        }
+    }
+
+    // Get all states in countries selected on the addresses
     let statesData: StateData[] = [];
     if (contactData.addresses) {
         let promises: Promise<StateData[]>[] = [];

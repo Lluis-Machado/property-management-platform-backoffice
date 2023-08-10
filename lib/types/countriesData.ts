@@ -3,6 +3,7 @@ export interface CountryData {
     countryCode: string;
     languageCode: 'es' | 'de' | 'en';
     name: string;
+    category?: string;
 }
 
 export interface StateData {

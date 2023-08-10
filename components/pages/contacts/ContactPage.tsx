@@ -4,7 +4,7 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from 'pg-components';
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
     faFileLines,
     faPencil,
@@ -41,6 +41,7 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import useCountryChange from '@/lib/hooks/useCountryChange';
 import ContactPropertiesDG from './ContactPropertiesDG';
 import { OwnershipData } from '@/lib/types/ownershipData';
+import DataSource from 'devextreme/data/data_source';
 
 interface Props {
     contactData: ContactData;
@@ -49,6 +50,10 @@ interface Props {
     ownershipData: OwnershipData[];
     token: TokenRes;
     lang: Locale;
+}
+
+function Group() {
+    return <></>;
 }
 
 const ContactPage = ({
@@ -68,6 +73,7 @@ const ContactPage = ({
         structuredClone(contactData)
     );
     const [addressOptions, setAddressOptions] = useState({});
+    const [countryDataSource, setCountryDataSource] = useState({});
 
     const { getFilteredStates, handleCountryChange, isStateLoading } =
         useCountryChange(lang, token, initialStates);
@@ -75,6 +81,20 @@ const ContactPage = ({
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
+
+    useEffect(() => {
+        // Set DataSource for DevExtreme select box grouping
+        setCountryDataSource(
+            new DataSource({
+                store: {
+                    type: 'array',
+                    data: countriesData,
+                    key: 'id',
+                },
+                group: 'category',
+            })
+        );
+    }, [countriesData]);
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
@@ -89,8 +109,6 @@ const ContactPage = ({
 
         setIsLoading(true);
         const toastId = toast.loading('Updating contact...');
-
-        if (!values.nif) values.nif = null;
 
         try {
             const valuesToSend: ContactData = {
@@ -211,16 +229,14 @@ const ContactPage = ({
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: [
-                                { id: 1, name: 'Prince-elector' },
-                                { id: 2, name: 'Prince of the Empire' },
-                                { id: 3, name: 'Duke/Duchess' },
-                                { id: 4, name: 'Sovereign Prince' },
-                                { id: 5, name: 'Margrave/Margravine' },
-                                { id: 6, name: 'Count(ess) Palatine' },
-                                { id: 7, name: 'Landgrave/Landgravine' },
-                                { id: 8, name: 'Count(ess) of the Empire' },
-                                { id: 9, name: 'Burgrave/Burgravine' },
-                                { id: 10, name: 'Baron(ess) of the Empire' },
+                                { id: 1, name: 'Mr.' },
+                                { id: 2, name: 'Ms.' },
+                                { id: 3, name: 'Mrs.' },
+                                { id: 4, name: 'Miss' },
+                                { id: 5, name: 'Lord' },
+                                { id: 6, name: 'Lady' },
+                                { id: 7, name: 'Dr.' },
+                                { id: 8, name: 'Professor' },
                             ],
                             valueExpr: 'id',
                             displayExpr: 'name',
@@ -243,7 +259,7 @@ const ContactPage = ({
                         editorType='dxSelectBox'
                         editorOptions={{
                             items: [
-                                { id: 1, name: 'Man' },
+                                { id: 1, name: 'Male' },
                                 { id: 2, name: 'Female' },
                                 { id: 3, name: 'Other' },
                             ],
@@ -283,7 +299,10 @@ const ContactPage = ({
                 {/* Tabs */}
                 <GroupItem cssClass='mt-4'>
                     <TabbedItem>
-                        <TabPanelOptions deferRendering={false} />
+                        <TabPanelOptions
+                            deferRendering={false}
+                            height={'60vh'}
+                        />
                         <Tab title={`Properties`}>
                             <ContactPropertiesDG
                                 ownershipData={ownershipData}
@@ -296,11 +315,11 @@ const ContactPage = ({
                                         return (
                                             <GroupItem
                                                 key={`GroupItem3-${index}`}
-                                                colCount={4}
+                                                colCount={6}
                                             >
                                                 <Item
-                                                    key={`idType${index}`}
-                                                    dataField={`identifications[${index}].idType`}
+                                                    key={`type${index}`}
+                                                    dataField={`identifications[${index}].type`}
                                                     label={{
                                                         text: 'Identification Type',
                                                     }}
@@ -321,7 +340,7 @@ const ContactPage = ({
                                                             },
                                                             {
                                                                 id: 4,
-                                                                name: 'Social Security Number',
+                                                                name: 'SSN',
                                                             },
                                                             {
                                                                 id: 5,
@@ -334,6 +353,26 @@ const ContactPage = ({
                                                         ],
                                                         valueExpr: 'id',
                                                         displayExpr: 'name',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`number${index}`}
+                                                    dataField={`identifications[${index}].number`}
+                                                    label={{
+                                                        text: 'Document Number',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`emissionDate${index}`}
+                                                    dataField={`identifications[${index}].emissionDate`}
+                                                    label={{
+                                                        text: 'Emission Date',
+                                                    }}
+                                                    editorType='dxDateBox'
+                                                    editorOptions={{
+                                                        displayFormat:
+                                                            dateFormat,
+                                                        showClearButton: true,
                                                     }}
                                                 />
                                                 <Item
@@ -350,6 +389,7 @@ const ContactPage = ({
                                                     }}
                                                 />
                                                 <Item
+                                                    key={`identificationShortComment${index}`}
                                                     dataField={`identifications[${index}].shortComment`}
                                                     label={{
                                                         text: 'Short Comment',
@@ -362,10 +402,12 @@ const ContactPage = ({
                                                     key={`button3-${index}`}
                                                     itemType='button'
                                                     horizontalAlignment='left'
+                                                    verticalAlignment='bottom'
                                                     buttonOptions={{
                                                         icon: 'trash',
                                                         text: undefined,
                                                         disabled: !isEditing,
+                                                        type: 'danger',
                                                         onClick: () => {
                                                             // Set a new empty address
                                                             contactData.identifications.splice(
@@ -394,7 +436,9 @@ const ContactPage = ({
                                     onClick: () => {
                                         // Set a new empty address
                                         contactData.identifications.push({
-                                            idType: null,
+                                            type: null,
+                                            number: '',
+                                            emissionDate: null,
                                             expirationDate: null,
                                             shortComment: '',
                                         });
@@ -450,9 +494,12 @@ const ContactPage = ({
                                                 label={{ text: 'Country' }}
                                                 editorType='dxSelectBox'
                                                 editorOptions={{
-                                                    items: countriesData,
+                                                    dataSource:
+                                                        countryDataSource,
                                                     displayExpr: 'name',
                                                     valueExpr: 'id',
+                                                    grouped: true,
+                                                    groupRender: Group,
                                                     searchEnabled: true,
                                                     onValueChanged: (
                                                         e: any
@@ -499,10 +546,12 @@ const ContactPage = ({
                                                 key={`button${index}`}
                                                 itemType='button'
                                                 horizontalAlignment='left'
+                                                verticalAlignment='bottom'
                                                 buttonOptions={{
                                                     icon: 'trash',
                                                     text: undefined,
                                                     disabled: !isEditing,
+                                                    type: 'danger',
                                                     onClick: () => {
                                                         // Set a new empty address
                                                         contactData.addresses.splice(
@@ -534,23 +583,13 @@ const ContactPage = ({
                                             state: null,
                                             country: null,
                                             postalCode: '',
-                                            addressType: undefined,
+                                            addressType: null,
                                         });
                                         // Trick to force react to update
                                         setAddressOptions([]);
                                     },
                                 }}
                             />
-                        </Tab>
-                        <Tab title={`Email`}>
-                            <GroupItem colCount={2}>
-                                <Item
-                                    dataField='email'
-                                    label={{ text: 'Email' }}
-                                >
-                                    <EmailRule message='Email is invalid' />
-                                </Item>
-                            </GroupItem>
                         </Tab>
                         <Tab title={`Phones`}>
                             <GroupItem colCount={1}>
@@ -614,7 +653,7 @@ const ContactPage = ({
                                                 }}
                                             />
                                             <Item
-                                                key={`shortComment${index}`}
+                                                key={`phonesShortComment${index}`}
                                                 dataField={`phones[${index}].shortComment`}
                                                 label={{
                                                     text: 'Short Comment',
@@ -627,10 +666,12 @@ const ContactPage = ({
                                                 key={`button2-${index}`}
                                                 itemType='button'
                                                 horizontalAlignment='left'
+                                                verticalAlignment='bottom'
                                                 buttonOptions={{
                                                     icon: 'trash',
                                                     text: undefined,
                                                     disabled: !isEditing,
+                                                    type: 'danger',
                                                     onClick: () => {
                                                         // Set a new empty address
                                                         contactData.phones.splice(
@@ -656,8 +697,10 @@ const ContactPage = ({
                                     onClick: () => {
                                         // Set a new empty address
                                         contactData.phones.push({
-                                            phoneType: undefined,
-                                            number: undefined,
+                                            phoneType: null,
+                                            type: null,
+                                            number: '',
+                                            shortComment: '',
                                         });
                                         // Trick to force react to update
                                         setAddressOptions([]);
@@ -665,8 +708,19 @@ const ContactPage = ({
                                 }}
                             />
                         </Tab>
-                        <Tab title={`Bank`}>
-                            <Item dataField='iban' label={{ text: 'IBAN' }} />
+                        <Tab title={`Other`}>
+                            <GroupItem colCount={4}>
+                                <Item
+                                    dataField='email'
+                                    label={{ text: 'Email' }}
+                                >
+                                    <EmailRule message='Email is invalid' />
+                                </Item>
+                                <Item
+                                    dataField='iban'
+                                    label={{ text: 'IBAN' }}
+                                />
+                            </GroupItem>
                         </Tab>
                     </TabbedItem>
                 </GroupItem>
