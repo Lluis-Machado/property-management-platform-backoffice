@@ -27,7 +27,6 @@ import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
 // Local imports
 import { PropertyData } from '@/lib/types/propertyInfo';
 import PropertiesOwnersDatagrid from './PropertiesOwnersDatagrid';
-import PropertyTextArea from '@/components/textArea/PropertyTextArea';
 import PropertySidePropertiesDatagrid from './PropertySidePropertiesDatagrid';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
@@ -42,8 +41,6 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { ContactData } from '@/lib/types/contactData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
-import ConfirmChangePopup from '@/components/popups/ConfirmChangesPopup';
-import DropDownBox from 'devextreme-react/drop-down-box';
 
 interface Props {
     propertyData: PropertyData;
@@ -68,8 +65,6 @@ const PropertyPage = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] =
-        useState<boolean>(false);
-    const [confirmationChangesVisible, setConfirmationChangesVisible] =
         useState<boolean>(false);
     const [states, setStates] = useState<StateData[] | undefined>(
         initialStates
@@ -113,7 +108,6 @@ const PropertyPage = ({
         console.log(values);
 
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            toast.warning('Change at least one field');
             return;
         }
 
@@ -170,12 +164,7 @@ const PropertyPage = ({
                 onClose={() => setConfirmationVisible(false)}
                 onConfirm={handleDelete}
             />
-            <ConfirmChangePopup
-                message='Are you sure you want to save the changes?'
-                isVisible={confirmationChangesVisible}
-                onClose={() => setConfirmationChangesVisible(false)}
-                onConfirm={handleSubmit}
-            />
+
             <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
                 <div className='ml-5 flex items-center gap-5'>
@@ -212,7 +201,7 @@ const PropertyPage = ({
                     {isEditing && (
                         <Button
                             elevated
-                            onClick={() => setConfirmationChangesVisible(true)}
+                            onClick={handleSubmit}
                             type='button'
                             icon={faSave}
                             disabled={!isEditing || isLoading}
@@ -242,13 +231,31 @@ const PropertyPage = ({
             >
                 <GroupItem colCount={3}>
                     <GroupItem>
-                        <Item dataField='type' label={{ text: 'Type' }} />
                         <Item
-                            dataField='typeOfUse'
-                            label={{ text: 'Type of use' }}
+                            dataField='type'
+                            label={{ text: 'Type' }}
                             editorType='dxSelectBox'
                             editorOptions={{
                                 items: [
+                                    { label: 'Apartment', value: 0 },
+                                    { label: 'Rural property', value: 1 },
+                                    { label: 'House', value: 2 },
+                                    { label: 'Plot', value: 3 },
+                                    { label: 'Parking', value: 4 },
+                                    { label: 'Storage room', value: 5 },
+                                    { label: 'Mooring', value: 6 },
+                                ],
+                                displayExpr: 'label',
+                                valueExpr: 'value',
+                                searchEnabled: true,
+                            }}
+                        />
+                        <Item
+                            dataField='typeOfUse'
+                            label={{ text: 'Type of use' }}
+                            editorType='dxDropDownBox'
+                            editorOptions={{
+                                dataSource: [
                                     { label: 'Private', value: 0 },
                                     { label: 'Vacational Rent', value: 1 },
                                     { label: 'Long Term Rent', value: 2 },
@@ -565,10 +572,13 @@ const PropertyPage = ({
                             </GroupItem>
                         </Tab>
                         <Tab title='Comments'>
-                            <PropertyTextArea
-                                propertyData={propertyData}
-                                token={token}
-                                lang={lang}
+                            <Item
+                                dataField='comments'
+                                label={{ text: 'Additional Comments' }}
+                                editorType='dxTextBox'
+                                editorOptions={{
+                                    showClearButton: true,
+                                }}
                             />
                         </Tab>
                     </TabbedItem>

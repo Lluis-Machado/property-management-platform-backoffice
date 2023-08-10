@@ -118,7 +118,25 @@ const AddPropertyPage = ({
                 <GroupItem colCount={4}>
                     <GroupItem caption='Property Information'>
                         <Item dataField='name' label={{ text: 'Name' }} />
-                        <Item dataField='type' label={{ text: 'Type' }} />
+                        <Item
+                            dataField='type'
+                            label={{ text: 'Type' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                items: [
+                                    { label: 'Apartment', value: 0 },
+                                    { label: 'Rural property', value: 1 },
+                                    { label: 'House', value: 2 },
+                                    { label: 'Plot', value: 3 },
+                                    { label: 'Parking', value: 4 },
+                                    { label: 'Storage room', value: 5 },
+                                    { label: 'Mooring', value: 6 },
+                                ],
+                                displayExpr: 'label',
+                                valueExpr: 'value',
+                                searchEnabled: true,
+                            }}
+                        />
                         <Item
                             dataField='typeOfUse'
                             label={{ text: 'Type of use' }}

@@ -6,6 +6,8 @@ import {
     useCallback,
     useImperativeHandle,
     useState,
+    useRef,
+    LegacyRef,
 } from 'react';
 // Libraries imports
 import DataGrid, {
@@ -18,7 +20,7 @@ import DataGrid, {
     Toolbar,
     Item,
 } from 'devextreme-react/data-grid';
-import { DataChange, SavedEvent } from 'devextreme/ui/data_grid';
+import { SavedEvent } from 'devextreme/ui/data_grid';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 
@@ -48,6 +50,8 @@ interface idToasts {
 const PropertiesOwnersDatagrid = forwardRef(
     ({ dataSource, token, contactData, isEditing }: Props, ref) => {
         const router = useRouter();
+        const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
+            useRef(null);
 
         const handleDoubleClick = useCallback(
             ({ data }: any) => {
@@ -63,18 +67,15 @@ const PropertiesOwnersDatagrid = forwardRef(
         // API CALLS
         useImperativeHandle(ref, () => ({ saveEditData }));
 
-        const changes = (e: any) => {
-            console.log(e);
-            return e;
-        };
-        const saveEditData = useCallback(
-            async (e: SavedEvent<OwnershipPropertyData, any>, changes: any) => {
+        const saveEditData = () => datagridRef.current!.instance.saveEditData();
+
+        const saveData = useCallback(
+            async (e: SavedEvent<OwnershipPropertyData, any>) => {
                 const promises: Promise<any>[] = [];
                 const idToasts: idToasts[] = [];
                 setIsLoading(true);
-                console.log(changes);
 
-                for (const change of changes) {
+                for (const change of e.changes) {
                     if (change.type == 'update') {
                         const toastId = toast.loading(
                             'Updating ownership property'
@@ -170,8 +171,9 @@ const PropertiesOwnersDatagrid = forwardRef(
                 focusedRowEnabled
                 columnHidingEnabled={false}
                 columnMinWidth={100}
-                //onSaved={saveEditData}
+                onSaved={saveData}
                 onRowDblClick={handleDoubleClick}
+                ref={datagridRef}
             >
                 <SearchPanel
                     visible
@@ -192,7 +194,6 @@ const PropertiesOwnersDatagrid = forwardRef(
                         allowAdding
                         allowDeleting
                         useIcons
-                        onChangesChange={changes}
                     />
                 )}
                 <Toolbar>
