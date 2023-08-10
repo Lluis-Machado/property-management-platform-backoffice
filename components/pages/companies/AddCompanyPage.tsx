@@ -251,7 +251,7 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
                                 state: null,
                                 country: null,
                                 postalCode: '',
-                                addressType: undefined,
+                                addressType: null,
                             });
                             // Update address fields
                             setAddressOptions([]);

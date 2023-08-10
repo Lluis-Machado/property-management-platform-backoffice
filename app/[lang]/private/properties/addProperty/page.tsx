@@ -54,16 +54,7 @@ const initialValues: PropertyData = {
         currency: '',
         value: undefined,
     },
-    propertyAddress: [
-        {
-            addressLine1: '',
-            addressLine2: '',
-            city: '',
-            country: null,
-            postalCode: '',
-            state: null,
-        },
-    ],
+    propertyAddress: [],
     propertyScanMail: '',
     purchaseDate: null,
     purchasePrice: {

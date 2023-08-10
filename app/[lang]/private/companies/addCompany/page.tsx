@@ -25,7 +25,7 @@ const initialValues: CompanyData = {
             state: null,
             country: null,
             postalCode: '',
-            addressType: undefined,
+            addressType: null,
         },
     ],
 };

@@ -8,34 +8,18 @@ import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
 const initialValues: ContactData = {
+    title: null,
     firstName: '',
     lastName: '',
+    gender: null,
     birthDay: null,
-    nif: null,
     email: '',
-    secondaryEmail: '',
-    phoneNumber: '',
-    mobilePhoneNumber: '',
-    otherPhoneNumber: '',
     birthPlace: '',
-    faxNumber: '',
     maritalStatus: 0,
-    nifExpirationDate: null,
-    passportExpirationDate: null,
-    passportNumber: '',
-    scanMail: '',
-    socialSecurityNumber: '',
-    taxId: '',
-    addresses: [
-        {
-            addressLine1: '',
-            addressLine2: '',
-            city: '',
-            state: null,
-            postalCode: '',
-            country: null,
-        },
-    ],
+    iban: '',
+    identifications: [],
+    addresses: [],
+    phones: [],
 };
 
 interface Props {

@@ -364,7 +364,7 @@ const CompanyPage = ({
                                 state: null,
                                 country: null,
                                 postalCode: '',
-                                addressType: undefined,
+                                addressType: null,
                             });
                             // Update address fields
                             setAddressOptions([]);

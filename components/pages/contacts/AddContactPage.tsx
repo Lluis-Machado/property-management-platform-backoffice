@@ -62,14 +62,10 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
 
         const toastId = toast.loading('Creating contact...');
 
-        if (!values.nif) values.nif = null;
-
         try {
             const valuesToSend: ContactData = {
                 ...values,
                 birthDay: formatDate(values.birthDay),
-                nifExpirationDate: formatDate(values.birthDay),
-                passportExpirationDate: formatDate(values.birthDay),
             };
 
             console.log('Valores a enviar: ', valuesToSend);
@@ -318,7 +314,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                                 state: null,
                                 country: null,
                                 postalCode: '',
-                                addressType: undefined,
+                                addressType: null,
                             });
                             // Update address fields
                             setAddressOptions([]);
