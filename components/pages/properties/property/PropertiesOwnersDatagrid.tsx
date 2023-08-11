@@ -33,6 +33,13 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { ContactData } from '@/lib/types/contactData';
 import { apiPost } from '@/lib/utils/apiPost';
+import LinkWithIcon from '@/components/buttons/LinkWithIcon';
+import {
+    faArrowUpRightFromSquare,
+    faCheck,
+    faXmark,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface Props {
     dataSource: OwnershipPropertyData[];
@@ -49,18 +56,8 @@ interface idToasts {
 
 const PropertiesOwnersDatagrid = forwardRef(
     ({ dataSource, token, contactData, isEditing }: Props, ref) => {
-        const router = useRouter();
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
-
-        const handleDoubleClick = useCallback(
-            ({ data }: any) => {
-                console.log(data);
-                router.push(`/private/contacts/${data.ownerId}/contactInfo`);
-            },
-            [router]
-        );
-
         const [isLoading, setIsLoading] = useState<boolean>(false);
         const propertyId: number = dataSource[0].propertyId;
 
@@ -160,64 +157,101 @@ const PropertiesOwnersDatagrid = forwardRef(
             },
             [token, propertyId]
         );
+        const CellRender = useCallback(
+            ({ data }: { data: any }): React.ReactElement => (
+                <LinkWithIcon
+                    href={`/private/contacts/${data.ownerId}/contactInfo`}
+                    icon={faArrowUpRightFromSquare}
+                />
+            ),
+            []
+        );
+        const MainOwnerCellRender = ({ value }: any): React.ReactElement => (
+            <FontAwesomeIcon
+                icon={value === true ? faCheck : faXmark}
+                className='row-focused-state text-primary-500'
+            />
+        );
         return (
-            <DataGrid
-                dataSource={dataSource}
-                keyExpr='id'
-                showRowLines
-                showBorders
-                allowColumnResizing
-                rowAlternationEnabled
-                focusedRowEnabled
-                columnHidingEnabled={false}
-                columnMinWidth={100}
-                onSaved={saveData}
-                onRowDblClick={handleDoubleClick}
-                ref={datagridRef}
-            >
-                <SearchPanel
-                    visible
-                    searchVisibleColumnsOnly={false}
-                    width={400}
-                />
-                <Paging defaultPageSize={5} />
-                <Pager
-                    visible={true}
-                    displayMode={'compact'}
-                    showInfo
-                    showNavigationButtons
-                />
-                {isEditing === true && (
-                    <Editing
-                        mode='batch'
-                        allowUpdating
-                        allowAdding
-                        allowDeleting
-                        useIcons
-                    />
-                )}
-                <Toolbar>
-                    <Item name='addRowButton' disabled={isEditing === false} />
-                    <Item name='revertButton' disabled={isEditing === false} />
-                </Toolbar>
-
-                <Column
-                    dataField='ownerId'
-                    caption='Full name'
-                    editCellComponent={OwnerDropdownComponent}
-                >
-                    <Lookup
-                        dataSource={contactData}
-                        valueExpr='id'
-                        displayExpr='firstName'
-                    />
-                </Column>
-                <Column
-                    dataField='share'
-                    dataType='number'
-                    caption='Property share (%)'
-                />
-            </DataGrid>
+            <div className='flex'>
+                <div className='basis-2/3'>
+                    <DataGrid
+                        dataSource={dataSource}
+                        keyExpr='id'
+                        showRowLines
+                        showBorders
+                        allowColumnResizing
+                        rowAlternationEnabled
+                        focusedRowEnabled
+                        columnHidingEnabled={false}
+                        columnMinWidth={100}
+                        onSaved={saveData}
+                        ref={datagridRef}
+                    >
+                        <SearchPanel
+                            visible
+                            searchVisibleColumnsOnly={false}
+                            width={400}
+                        />
+                        <Paging defaultPageSize={5} />
+                        <Pager
+                            visible={true}
+                            displayMode={'compact'}
+                            showInfo
+                            showNavigationButtons
+                        />
+                        {isEditing === true && (
+                            <Editing
+                                mode='batch'
+                                allowUpdating
+                                allowAdding
+                                allowDeleting
+                                useIcons
+                            />
+                        )}
+                        <Toolbar>
+                            <Item
+                                name='addRowButton'
+                                disabled={isEditing === false}
+                            />
+                            <Item
+                                name='revertButton'
+                                disabled={isEditing === false}
+                            />
+                        </Toolbar>
+                        <Column
+                            alignment='center'
+                            caption='Details'
+                            cellRender={CellRender}
+                            width={100}
+                        />
+                        <Column
+                            dataField='ownerId'
+                            caption='Full name'
+                            editCellComponent={OwnerDropdownComponent}
+                        >
+                            <Lookup
+                                dataSource={contactData}
+                                valueExpr='id'
+                                displayExpr='firstName'
+                            />
+                        </Column>
+                        <Column
+                            dataField='share'
+                            dataType='number'
+                            caption='Property share (%)'
+                        />
+                        <Column
+                            alignment='center'
+                            dataField='mainOwnership'
+                            caption='Main owner'
+                            cellRender={MainOwnerCellRender}
+                            width={100}
+                        />
+                    </DataGrid>
+                </div>
+                <div className='basis-1/3'></div>
+            </div>
         );
     }
 );

@@ -18,24 +18,41 @@ import { ContactData } from '@/lib/types/contactData';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
+import { CountryData } from '@/lib/types/countriesData';
+import useCountryChange from '@/lib/hooks/useCountryChange';
+import { Locale } from '@/i18n-config';
+import { TokenRes } from '@/lib/types/token';
 
 interface Props {
     propertyData: PropertyData[];
     contactData: ContactData[];
+    countryData: CountryData[];
+    lang: Locale;
+    token: TokenRes;
 }
 
 const PropertiesPage = ({
     propertyData,
     contactData,
+    countryData,
+    lang,
+    token,
 }: Props): React.ReactElement => {
+    const { states } = useCountryChange(lang, token);
     const addressCellRender = (e: PropertyData) => {
-        const { addressLine1, city, country, state, postalCode } =
-            e.propertyAddress[0];
+        const countryName: any = countryData?.find(
+            (country) =>
+                country.id == propertyData[0].propertyAddress[0].country
+        );
+        const stateName = states?.find(
+            (state) => state.id == propertyData[0].propertyAddress[0].state
+        );
+        const { addressLine1, city, postalCode } = e.propertyAddress[0];
         const parts = [
             addressLine1,
             postalCode && `${postalCode} - ${city}`,
-            state,
-            country,
+            stateName,
+            countryName.name,
         ];
         return parts.filter(Boolean).join(', ');
     };

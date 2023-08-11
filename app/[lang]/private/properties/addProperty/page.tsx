@@ -96,7 +96,7 @@ const initialValues: PropertyData = {
         value: undefined,
     },
     type: '',
-    typeOfUse: null,
+    typeOfUse: [null],
     year: null,
 };
 

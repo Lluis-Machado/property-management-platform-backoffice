@@ -26,6 +26,7 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import { Button } from 'pg-components';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import { faSave } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
     propertyData: PropertyData;
@@ -113,9 +114,9 @@ const AddPropertyPage = ({
             <Form
                 formData={propertyData}
                 readOnly={isLoading}
-                labelLocation='left'
+                labelMode='floating'
             >
-                <GroupItem colCount={4}>
+                <GroupItem colCount={3}>
                     <GroupItem caption='Property Information'>
                         <Item dataField='name' label={{ text: 'Name' }} />
                         <Item
@@ -138,7 +139,7 @@ const AddPropertyPage = ({
                             }}
                         />
                         <Item
-                            dataField='typeOfUse'
+                            dataField='typeOfUse[0]'
                             label={{ text: 'Type of use' }}
                             editorType='dxSelectBox'
                             editorOptions={{
@@ -152,51 +153,6 @@ const AddPropertyPage = ({
                                 searchEnabled: true,
                             }}
                         />
-                        <Item
-                            dataField='cadastreRef'
-                            label={{ text: 'Catastral Reference' }}
-                        />
-                    </GroupItem>
-                    <GroupItem>
-                        <GroupItem caption='Contact Information'>
-                            <Item
-                                dataField='mainOwnerId'
-                                label={{ text: 'Main Owner' }}
-                                editorType='dxSelectBox'
-                                editorOptions={{
-                                    items: contacts,
-                                    displayExpr: 'label',
-                                    valueExpr: 'value',
-                                    searchEnabled: true,
-                                }}
-                            />
-                            <Item
-                                dataField='contactPersonId'
-                                label={{ text: 'Contact Person' }}
-                                editorType='dxSelectBox'
-                                editorOptions={{
-                                    items: contacts,
-                                    displayExpr: 'label',
-                                    valueExpr: 'value',
-                                    searchEnabled: true,
-                                }}
-                            />
-                            <Item
-                                dataField='billingContactId'
-                                label={{ text: 'Billing Contact' }}
-                                editorType='dxSelectBox'
-                                editorOptions={{
-                                    items: contacts,
-                                    displayExpr: 'label',
-                                    valueExpr: 'value',
-                                    searchEnabled: true,
-                                }}
-                            />
-                        </GroupItem>
-                    </GroupItem>
-                </GroupItem>
-                <GroupItem colCount={3} caption='Address Information'>
-                    <GroupItem>
                         <Item
                             dataField='propertyAddress[0].addressLine1'
                             label={{ text: 'Address line' }}
@@ -242,15 +198,56 @@ const AddPropertyPage = ({
                             />
                         </GroupItem>
                     </GroupItem>
+                    <GroupItem>
+                        <GroupItem caption='Contact Information'>
+                            <Item
+                                dataField='mainOwnerId'
+                                label={{ text: 'Main Owner' }}
+                                editorType='dxSelectBox'
+                                editorOptions={{
+                                    items: contacts,
+                                    displayExpr: 'label',
+                                    valueExpr: 'value',
+                                    searchEnabled: true,
+                                }}
+                            />
+                            <Item
+                                dataField='contactPersonId'
+                                label={{ text: 'Contact Person' }}
+                                editorType='dxSelectBox'
+                                editorOptions={{
+                                    items: contacts,
+                                    displayExpr: 'label',
+                                    valueExpr: 'value',
+                                    searchEnabled: true,
+                                }}
+                            />
+                            <Item
+                                dataField='billingContactId'
+                                label={{ text: 'Billing Contact' }}
+                                editorType='dxSelectBox'
+                                editorOptions={{
+                                    items: contacts,
+                                    displayExpr: 'label',
+                                    valueExpr: 'value',
+                                    searchEnabled: true,
+                                }}
+                            />
+                            <Item
+                                dataField='propertyScanMail'
+                                label={{ text: 'Property Scan Mail' }}
+                            />
+                        </GroupItem>
+                    </GroupItem>
                 </GroupItem>
                 <GroupItem>
                     <TabbedItem>
                         <TabPanelOptions deferRendering={false} />
-                        <Tab title='Cadastre Information'>
+                        <Tab title='Cadastre'>
                             <GroupItem colCount={5}>
                                 <Item
-                                    dataField='cadastreNumber'
-                                    label={{ text: 'Cadastre Number' }}
+                                    dataField='cadastreRef'
+                                    label={{ text: 'Catastral Reference' }}
                                 />
                                 <Item
                                     dataField='cadastreUrl'
@@ -290,14 +287,10 @@ const AddPropertyPage = ({
                                     dataField='year'
                                     label={{ text: 'Year' }}
                                 />
-                                <Item
-                                    dataField='propertyScanMail'
-                                    label={{ text: 'Property Scan Mail' }}
-                                />
                             </GroupItem>
                         </Tab>
-                        <Tab title='Purchase Information'>
-                            <GroupItem colCount={5}>
+                        <Tab title='Purchase'>
+                            <GroupItem colCount={4}>
                                 <GroupItem>
                                     <Item
                                         dataField='purchaseDate'
@@ -333,8 +326,8 @@ const AddPropertyPage = ({
                                 </GroupItem>
                             </GroupItem>
                         </Tab>
-                        <Tab title='Furniture Information'>
-                            <GroupItem colCount={5}>
+                        <Tab title='Furniture'>
+                            <GroupItem colCount={4}>
                                 <Item
                                     dataField='furniturePrice.value'
                                     label={{ text: 'Furniture Price' }}
@@ -348,7 +341,7 @@ const AddPropertyPage = ({
                                     label={{ text: 'Furniture Price TPO' }}
                                 />
                             </GroupItem>
-                            <GroupItem colCount={5}>
+                            <GroupItem colCount={4}>
                                 <Item
                                     dataField='garbageCollection'
                                     label={{ text: 'Garbage Collection' }}
@@ -359,8 +352,8 @@ const AddPropertyPage = ({
                                 />
                             </GroupItem>
                         </Tab>
-                        <Tab title='Sale Information'>
-                            <GroupItem colCount={5}>
+                        <Tab title='Sale'>
+                            <GroupItem colCount={4}>
                                 <Item
                                     dataField='saleDate'
                                     label={{ text: 'Sale Date' }}
@@ -377,16 +370,23 @@ const AddPropertyPage = ({
                             </GroupItem>
                         </Tab>
                         <Tab title='Other Information'>
-                            <GroupItem colCount={5}>
+                            <GroupItem colCount={4}>
                                 <Item
                                     dataField='bedNumber'
                                     label={{ text: 'Bed Number' }}
                                 />
-                                <Item
-                                    dataField='comments'
-                                    label={{ text: 'Comments' }}
-                                />
                             </GroupItem>
+                        </Tab>
+                        <Tab title='Comments'>
+                            <Item
+                                dataField='comments'
+                                label={{ text: 'Additional Comments' }}
+                                editorType='dxTextBox'
+                                editorOptions={{
+                                    showClearButton: true,
+                                    height: '100px',
+                                }}
+                            />
                         </Tab>
                     </TabbedItem>
                 </GroupItem>
@@ -394,11 +394,12 @@ const AddPropertyPage = ({
 
             <div className='h-[2rem]'>
                 <div className='flex justify-end'>
-                    <div className='flex flex-row justify-between gap-2'>
+                    <div className='mt-2 flex flex-row justify-between gap-2'>
                         <Button
                             elevated
                             type='button'
-                            text='Submit Changes'
+                            icon={faSave}
+                            text='Save Property'
                             disabled={isLoading}
                             isLoading={isLoading}
                             onClick={handleSubmit}

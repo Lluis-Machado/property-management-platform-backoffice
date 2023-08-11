@@ -79,7 +79,7 @@ export interface PropertyData {
     salePrice?: Price;
     totalPrice?: Price;
     type: string;
-    typeOfUse: number | null;
+    typeOfUse: number | null[];
     year?: number | null;
 }
 
