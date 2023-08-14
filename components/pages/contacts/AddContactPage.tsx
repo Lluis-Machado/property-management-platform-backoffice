@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import { Button } from 'pg-components';
@@ -11,6 +11,9 @@ import Form, {
     Item,
     RequiredRule,
     StringLengthRule,
+    Tab,
+    TabPanelOptions,
+    TabbedItem,
 } from 'devextreme-react/form';
 
 // Local imports
@@ -24,6 +27,7 @@ import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
 import { CountryData } from '@/lib/types/countriesData';
 import useCountryChange from '@/lib/hooks/useCountryChange';
+import DataSource from 'devextreme/data/data_source';
 
 interface Props {
     contactData: ContactData;
@@ -39,6 +43,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
         structuredClone(contactData)
     );
     const [addressOptions, setAddressOptions] = useState({});
+    const [countryDataSource, setCountryDataSource] = useState({});
 
     const { getFilteredStates, handleCountryChange, isStateLoading } =
         useCountryChange(lang, token);
@@ -46,6 +51,20 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
+
+    useEffect(() => {
+        // Set DataSource for DevExtreme select box grouping
+        setCountryDataSource(
+            new DataSource({
+                store: {
+                    type: 'array',
+                    data: countries,
+                    key: 'id',
+                },
+                group: 'category',
+            })
+        );
+    }, [countries]);
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
@@ -101,7 +120,27 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                 readOnly={isLoading}
                 showValidationSummary
             >
-                <GroupItem colCount={4} caption='Contact Information'>
+                {/* Main Information */}
+                <GroupItem colCount={4}>
+                    <Item
+                        dataField={'title'}
+                        label={{ text: 'Title' }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: [
+                                { id: 1, name: 'Mr.' },
+                                { id: 2, name: 'Ms.' },
+                                { id: 3, name: 'Mrs.' },
+                                { id: 4, name: 'Miss' },
+                                { id: 5, name: 'Lord' },
+                                { id: 6, name: 'Lady' },
+                                { id: 7, name: 'Dr.' },
+                                { id: 8, name: 'Professor' },
+                            ],
+                            valueExpr: 'id',
+                            displayExpr: 'name',
+                        }}
+                    />
                     <Item
                         dataField='firstName'
                         label={{ text: 'First name' }}
@@ -114,35 +153,26 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                         />
                     </Item>
                     <Item
+                        dataField={'gender'}
+                        label={{ text: 'Gender' }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: [
+                                { id: 1, name: 'Male' },
+                                { id: 2, name: 'Female' },
+                                { id: 3, name: 'Other' },
+                            ],
+                            valueExpr: 'id',
+                            displayExpr: 'name',
+                        }}
+                    />
+                    <Item
                         dataField='birthPlace'
                         label={{ text: 'Birth Place' }}
                     />
                     <Item
                         dataField='birthDay'
                         label={{ text: 'Birth date' }}
-                        editorType='dxDateBox'
-                        editorOptions={{
-                            displayFormat: dateFormat,
-                            showClearButton: true,
-                        }}
-                    />
-                    <Item dataField='nif' label={{ text: 'NIF' }} />
-                    <Item
-                        dataField='nifExpirationDate'
-                        label={{ text: 'NIF Expiration Date' }}
-                        editorType='dxDateBox'
-                        editorOptions={{
-                            displayFormat: dateFormat,
-                            showClearButton: true,
-                        }}
-                    />
-                    <Item
-                        dataField='passportNumber'
-                        label={{ text: 'Passport Number' }}
-                    />
-                    <Item
-                        dataField='passportExpirationDate'
-                        label={{ text: 'Passport Expiration Date' }}
                         editorType='dxDateBox'
                         editorOptions={{
                             displayFormat: dateFormat,
@@ -164,163 +194,422 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                             displayExpr: 'name',
                         }}
                     />
-
-                    <Item
-                        dataField='socialSecurityNumber'
-                        label={{ text: 'Social Security Number' }}
-                    />
-                    <Item dataField='taxId' label={{ text: 'Tax Id' }} />
                 </GroupItem>
-                <GroupItem colCount={4} caption={`Emails & Phones`}>
-                    <Item dataField='email' label={{ text: 'Email' }}>
-                        <EmailRule message='Email is invalid' />
-                    </Item>
-                    <Item
-                        dataField='secondaryEmail'
-                        label={{ text: 'Secondary Email' }}
-                    >
-                        <EmailRule message='Email is invalid' />
-                    </Item>
-                    <Item dataField='scanMail' label={{ text: 'Scan Mail' }}>
-                        <EmailRule message='Email is invalid' />
-                    </Item>
-                    <Item
-                        dataField='phoneNumber'
-                        label={{ text: 'Phone number' }}
-                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
-                    />
-                    <Item
-                        dataField='mobilePhoneNumber'
-                        label={{ text: 'Mobile phone number' }}
-                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
-                    />
-                    <Item
-                        dataField='otherPhoneNumber'
-                        label={{ text: 'Other Phone Number' }}
-                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
-                    />
-                    <Item
-                        dataField='faxNumber'
-                        label={{ text: 'Fax Number' }}
-                        editorOptions={{ mask: '+(0000) 000-00-00-00' }}
-                    />
-                </GroupItem>
-                <GroupItem colCount={1} caption={`Address Information`}>
-                    {contactData.addresses.map((address, index) => {
-                        return (
-                            <GroupItem key={`GroupItem${index}`} colCount={8}>
+                {/* Tabs */}
+                <GroupItem cssClass='mt-4'>
+                    <TabbedItem>
+                        <TabPanelOptions
+                            deferRendering={false}
+                            height={'60vh'}
+                        />
+                        <Tab title={`Identification Documents`}>
+                            <GroupItem colCount={1}>
+                                {contactData.identifications.map(
+                                    (identification, index) => {
+                                        return (
+                                            <GroupItem
+                                                key={`GroupItem3-${index}`}
+                                                colCount={6}
+                                            >
+                                                <Item
+                                                    key={`type${index}`}
+                                                    dataField={`identifications[${index}].type`}
+                                                    label={{
+                                                        text: 'Identification Type',
+                                                    }}
+                                                    editorType='dxSelectBox'
+                                                    editorOptions={{
+                                                        items: [
+                                                            {
+                                                                id: 1,
+                                                                name: 'NIE',
+                                                            },
+                                                            {
+                                                                id: 2,
+                                                                name: 'DNI',
+                                                            },
+                                                            {
+                                                                id: 3,
+                                                                name: 'Passport',
+                                                            },
+                                                            {
+                                                                id: 4,
+                                                                name: 'SSN',
+                                                            },
+                                                            {
+                                                                id: 5,
+                                                                name: 'Tax Id',
+                                                            },
+                                                            {
+                                                                id: 6,
+                                                                name: 'Other',
+                                                            },
+                                                        ],
+                                                        valueExpr: 'id',
+                                                        displayExpr: 'name',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`number${index}`}
+                                                    dataField={`identifications[${index}].number`}
+                                                    label={{
+                                                        text: 'Document Number',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`emissionDate${index}`}
+                                                    dataField={`identifications[${index}].emissionDate`}
+                                                    label={{
+                                                        text: 'Emission Date',
+                                                    }}
+                                                    editorType='dxDateBox'
+                                                    editorOptions={{
+                                                        displayFormat:
+                                                            dateFormat,
+                                                        showClearButton: true,
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`expirationDate${index}`}
+                                                    dataField={`identifications[${index}].expirationDate`}
+                                                    label={{
+                                                        text: 'Expiration Date',
+                                                    }}
+                                                    editorType='dxDateBox'
+                                                    editorOptions={{
+                                                        displayFormat:
+                                                            dateFormat,
+                                                        showClearButton: true,
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`identificationShortComment${index}`}
+                                                    dataField={`identifications[${index}].shortComment`}
+                                                    label={{
+                                                        text: 'Short Comment',
+                                                    }}
+                                                    editorOptions={{
+                                                        maxLength: 30,
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`button3-${index}`}
+                                                    itemType='button'
+                                                    horizontalAlignment='left'
+                                                    verticalAlignment='bottom'
+                                                    buttonOptions={{
+                                                        icon: 'trash',
+                                                        text: undefined,
+                                                        type: 'danger',
+                                                        onClick: () => {
+                                                            // Set a new empty address
+                                                            contactData.identifications.splice(
+                                                                index,
+                                                                1
+                                                            );
+                                                            // Trick to force react to update
+                                                            setAddressOptions(
+                                                                []
+                                                            );
+                                                        },
+                                                    }}
+                                                />
+                                            </GroupItem>
+                                        );
+                                    }
+                                )}
+                            </GroupItem>
+                            <Item
+                                itemType='button'
+                                horizontalAlignment='left'
+                                buttonOptions={{
+                                    icon: 'add',
+                                    text: undefined,
+                                    onClick: () => {
+                                        // Set a new empty address
+                                        contactData.identifications.push({
+                                            type: null,
+                                            number: '',
+                                            emissionDate: null,
+                                            expirationDate: null,
+                                            shortComment: '',
+                                        });
+                                        // Trick to force react to update
+                                        setAddressOptions([]);
+                                    },
+                                }}
+                            />
+                        </Tab>
+                        <Tab title={`Address Information`}>
+                            <GroupItem colCount={1}>
+                                {contactData.addresses.map((address, index) => {
+                                    return (
+                                        <GroupItem
+                                            key={`GroupItem-${index}`}
+                                            colCount={8}
+                                        >
+                                            <Item
+                                                key={`addressType${index}`}
+                                                dataField={`addresses[${index}].addressType`}
+                                                label={{ text: 'Address Type' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    items: [
+                                                        {
+                                                            id: 1,
+                                                            name: 'Physical Address',
+                                                        },
+                                                        {
+                                                            id: 2,
+                                                            name: 'Billing Address',
+                                                        },
+                                                    ],
+                                                    valueExpr: 'id',
+                                                    displayExpr: 'name',
+                                                }}
+                                            />
+                                            <Item
+                                                key={`addressLine1${index}`}
+                                                dataField={`addresses[${index}].addressLine1`}
+                                                label={{ text: 'Address line' }}
+                                            />
+                                            <Item
+                                                key={`addressLine2${index}`}
+                                                dataField={`addresses[${index}].addressLine2`}
+                                                label={{
+                                                    text: 'Address line 2',
+                                                }}
+                                            />
+                                            <Item
+                                                key={`country${index}`}
+                                                dataField={`addresses[${index}].country`}
+                                                label={{ text: 'Country' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    dataSource:
+                                                        countryDataSource,
+                                                    displayExpr: 'name',
+                                                    valueExpr: 'id',
+                                                    grouped: true,
+                                                    // groupRender: Group,
+                                                    searchEnabled: true,
+                                                    onValueChanged: (
+                                                        e: any
+                                                    ) => {
+                                                        handleCountryChange(
+                                                            e.value
+                                                        );
+                                                        // Ensure state is removed
+                                                        contactData.addresses[
+                                                            index
+                                                        ].state = null;
+                                                    },
+                                                }}
+                                            />
+                                            <Item
+                                                key={`state${index}`}
+                                                dataField={`addresses[${index}].state`}
+                                                label={{ text: 'State' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    items: getFilteredStates(
+                                                        index,
+                                                        contactData
+                                                    ),
+                                                    displayExpr: 'name',
+                                                    valueExpr: 'id',
+                                                    searchEnabled: true,
+                                                    readOnly: isStateLoading,
+                                                }}
+                                            />
+                                            <Item
+                                                key={`city${index}`}
+                                                dataField={`addresses[${index}].city`}
+                                                label={{ text: 'City' }}
+                                            />
+                                            <Item
+                                                key={`postalCode${index}`}
+                                                dataField={`addresses[${index}].postalCode`}
+                                                label={{ text: 'Postal code' }}
+                                            />
+                                            <Item
+                                                key={`button${index}`}
+                                                itemType='button'
+                                                horizontalAlignment='left'
+                                                verticalAlignment='bottom'
+                                                buttonOptions={{
+                                                    icon: 'trash',
+                                                    text: undefined,
+                                                    type: 'danger',
+                                                    onClick: () => {
+                                                        // Set a new empty address
+                                                        contactData.addresses.splice(
+                                                            index,
+                                                            1
+                                                        );
+                                                        // Trick to force react to update
+                                                        setAddressOptions([]);
+                                                    },
+                                                }}
+                                            />
+                                        </GroupItem>
+                                    );
+                                })}
+                            </GroupItem>
+                            <Item
+                                itemType='button'
+                                horizontalAlignment='left'
+                                buttonOptions={{
+                                    icon: 'add',
+                                    text: undefined,
+                                    onClick: () => {
+                                        // Set a new empty address
+                                        contactData.addresses.push({
+                                            addressLine1: '',
+                                            addressLine2: '',
+                                            city: '',
+                                            state: null,
+                                            country: null,
+                                            postalCode: '',
+                                            addressType: null,
+                                        });
+                                        // Trick to force react to update
+                                        setAddressOptions([]);
+                                    },
+                                }}
+                            />
+                        </Tab>
+                        <Tab title={`Phones`}>
+                            <GroupItem colCount={1}>
+                                {contactData.phones.map((phone, index) => {
+                                    return (
+                                        <GroupItem
+                                            key={`GroupItem2-${index}`}
+                                            colCount={5}
+                                        >
+                                            <Item
+                                                key={`phoneType${index}`}
+                                                dataField={`phones[${index}].phoneType`}
+                                                label={{ text: 'Phone Type' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    items: [
+                                                        {
+                                                            id: 1,
+                                                            name: 'Mobile phone',
+                                                        },
+                                                        {
+                                                            id: 2,
+                                                            name: 'Landline phone',
+                                                        },
+                                                        { id: 3, name: 'Fax' },
+                                                        {
+                                                            id: 4,
+                                                            name: 'Other',
+                                                        },
+                                                    ],
+                                                    valueExpr: 'id',
+                                                    displayExpr: 'name',
+                                                }}
+                                            />
+                                            <Item
+                                                key={`type${index}`}
+                                                dataField={`phones[${index}].type`}
+                                                label={{ text: 'Type' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    items: [
+                                                        {
+                                                            id: 1,
+                                                            name: 'Business',
+                                                        },
+                                                        {
+                                                            id: 2,
+                                                            name: 'Private',
+                                                        },
+                                                    ],
+                                                    valueExpr: 'id',
+                                                    displayExpr: 'name',
+                                                }}
+                                            />
+                                            <Item
+                                                key={`number${index}`}
+                                                dataField={`phones[${index}].number`}
+                                                label={{ text: 'Phone Number' }}
+                                                editorOptions={{
+                                                    mask: '+(0000) 000-00-00-00',
+                                                }}
+                                            />
+                                            <Item
+                                                key={`phonesShortComment${index}`}
+                                                dataField={`phones[${index}].shortComment`}
+                                                label={{
+                                                    text: 'Short Comment',
+                                                }}
+                                                editorOptions={{
+                                                    maxLength: 30,
+                                                }}
+                                            />
+                                            <Item
+                                                key={`button2-${index}`}
+                                                itemType='button'
+                                                horizontalAlignment='left'
+                                                verticalAlignment='bottom'
+                                                buttonOptions={{
+                                                    icon: 'trash',
+                                                    text: undefined,
+                                                    type: 'danger',
+                                                    onClick: () => {
+                                                        // Set a new empty address
+                                                        contactData.phones.splice(
+                                                            index,
+                                                            1
+                                                        );
+                                                        // Trick to force react to update
+                                                        setAddressOptions([]);
+                                                    },
+                                                }}
+                                            />
+                                        </GroupItem>
+                                    );
+                                })}
+                            </GroupItem>
+                            <Item
+                                itemType='button'
+                                horizontalAlignment='left'
+                                buttonOptions={{
+                                    icon: 'add',
+                                    text: undefined,
+                                    onClick: () => {
+                                        // Set a new empty address
+                                        contactData.phones.push({
+                                            phoneType: null,
+                                            type: null,
+                                            phoneNumber: '',
+                                            shortComment: '',
+                                        });
+                                        // Trick to force react to update
+                                        setAddressOptions([]);
+                                    },
+                                }}
+                            />
+                        </Tab>
+                        <Tab title={`Other`}>
+                            <GroupItem colCount={4}>
                                 <Item
-                                    key={`addressType${index}`}
-                                    dataField={`addresses[${index}].addressType`}
-                                    label={{ text: 'Address Type' }}
-                                    editorType='dxSelectBox'
-                                    editorOptions={{
-                                        items: [
-                                            { id: 1, name: 'Physical Address' },
-                                            { id: 2, name: 'Billing Address' },
-                                        ],
-                                        valueExpr: 'id',
-                                        displayExpr: 'name',
-                                    }}
-                                />
+                                    dataField='email'
+                                    label={{ text: 'Email' }}
+                                >
+                                    <EmailRule message='Email is invalid' />
+                                </Item>
                                 <Item
-                                    key={`addressLine1${index}`}
-                                    dataField={`addresses[${index}].addressLine1`}
-                                    label={{ text: 'Address line' }}
-                                />
-                                <Item
-                                    key={`addressLine2${index}`}
-                                    dataField={`addresses[${index}].addressLine2`}
-                                    label={{ text: 'Address line 2' }}
-                                />
-                                <Item
-                                    key={`country${index}`}
-                                    dataField={`addresses[${index}].country`}
-                                    label={{ text: 'Country' }}
-                                    editorType='dxSelectBox'
-                                    editorOptions={{
-                                        items: countries,
-                                        displayExpr: 'name',
-                                        valueExpr: 'id',
-                                        searchEnabled: true,
-                                        onValueChanged: (e: any) => {
-                                            handleCountryChange(e.value);
-                                            // Ensure state is removed
-                                            contactData.addresses[index].state =
-                                                null;
-                                        },
-                                    }}
-                                />
-                                <Item
-                                    key={`state${index}`}
-                                    dataField={`addresses[${index}].state`}
-                                    label={{ text: 'State' }}
-                                    editorType='dxSelectBox'
-                                    editorOptions={{
-                                        items: getFilteredStates(
-                                            index,
-                                            contactData
-                                        ),
-                                        displayExpr: 'name',
-                                        valueExpr: 'id',
-                                        searchEnabled: true,
-                                        readOnly: isStateLoading,
-                                    }}
-                                />
-                                <Item
-                                    key={`city${index}`}
-                                    dataField={`addresses[${index}].city`}
-                                    label={{ text: 'City' }}
-                                />
-                                <Item
-                                    key={`postalCode${index}`}
-                                    dataField={`addresses[${index}].postalCode`}
-                                    label={{ text: 'Postal code' }}
-                                />
-                                <Item
-                                    key={`button${index}`}
-                                    itemType='button'
-                                    horizontalAlignment='left'
-                                    buttonOptions={{
-                                        icon: 'trash',
-                                        text: 'Remove address',
-                                        onClick: () => {
-                                            // Set a new empty address
-                                            contactData.addresses.splice(
-                                                index,
-                                                1
-                                            );
-                                            // Update address fields
-                                            setAddressOptions([]);
-                                        },
-                                    }}
+                                    dataField='iban'
+                                    label={{ text: 'IBAN' }}
                                 />
                             </GroupItem>
-                        );
-                    })}
+                        </Tab>
+                    </TabbedItem>
                 </GroupItem>
-                <Item
-                    itemType='button'
-                    horizontalAlignment='left'
-                    buttonOptions={{
-                        icon: 'add',
-                        text: 'Add address',
-                        onClick: () => {
-                            // Set a new empty address
-                            contactData.addresses.push({
-                                addressLine1: '',
-                                addressLine2: '',
-                                city: '',
-                                state: null,
-                                country: null,
-                                postalCode: '',
-                                addressType: null,
-                            });
-                            // Update address fields
-                            setAddressOptions([]);
-                        },
-                    }}
-                />
             </Form>
             <div className='h-[2rem]'>
                 <div className='flex justify-end'>

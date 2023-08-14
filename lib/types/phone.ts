@@ -1,6 +1,7 @@
 export interface Phone {
     phoneType: number | null;
     type: number | null;
-    number: string;
+    countryMaskId: number;
+    phoneNumber: string;
     shortComment: string;
 }
