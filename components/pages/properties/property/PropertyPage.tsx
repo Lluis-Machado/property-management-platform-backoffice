@@ -73,6 +73,11 @@ const PropertyPage = ({
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
     );
+    // function name property
+    const [nameProperty, setNameProperty] = useState('');
+    const onValueChange = useCallback((v: any) => {
+        setNameProperty(v);
+    }, []);
 
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<PropertyData>(
@@ -108,7 +113,10 @@ const PropertyPage = ({
         const values = structuredClone(propertyData);
         console.log(values);
 
-        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
+        if (
+            JSON.stringify(values) === JSON.stringify(initialValues) &&
+            nameProperty === initialValues.name
+        ) {
             return;
         }
 
@@ -118,6 +126,7 @@ const PropertyPage = ({
         try {
             const dataToSend: PropertyData = {
                 ...values,
+                name: nameProperty,
                 purchaseDate: formatDate(values.purchaseDate),
                 saleDate: formatDate(values.saleDate),
                 cadastreRef,
@@ -139,7 +148,7 @@ const PropertyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [propertyData, initialValues, token, cadastreRef]);
+    }, [propertyData, initialValues, token, cadastreRef, nameProperty]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting property...');
@@ -157,11 +166,6 @@ const PropertyPage = ({
         }
     }, [propertyData, router, token]);
 
-    const onValueChanged = useCallback((e: any) => {
-        console.log(e.previousValue);
-        console.log(e.value);
-    }, []);
-
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
@@ -175,12 +179,17 @@ const PropertyPage = ({
                 {/* Contact avatar and name */}
                 <div className='ml-5 basis-1/4'>
                     <TextBox
-                        value={initialValues.name}
+                        value={propertyData.name}
                         disabled={!isEditing || isLoading}
+                        onValueChange={onValueChange}
                         style={{
                             fontWeight: '800',
                             fontSize: '35px',
                             border: 'none',
+                            opacity: '1',
+                            disabled: {
+                                opacity: 0.5,
+                            },
                         }}
                     />
                 </div>
@@ -274,7 +283,7 @@ const PropertyPage = ({
                                 displayExpr: 'label',
                                 valueExpr: 'value',
                                 searchEnabled: true,
-                                showClearButton: true,
+                                showClearButton: isEditing && true,
                             }}
                         />
                         <GroupItem>
@@ -561,7 +570,7 @@ const PropertyPage = ({
                                 editorType='dxTextBox'
                                 editorOptions={{
                                     showClearButton: true,
-                                    height: '150',
+                                    height: '100',
                                 }}
                             />
                         </Tab>

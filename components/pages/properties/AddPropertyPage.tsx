@@ -27,6 +27,7 @@ import { Button } from 'pg-components';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
+import TagBox from 'devextreme-react/tag-box';
 
 interface Props {
     propertyData: PropertyData;
@@ -138,10 +139,13 @@ const AddPropertyPage = ({
                                 searchEnabled: true,
                             }}
                         />
+                        <Item visible={false}>
+                            <TagBox />
+                        </Item>
                         <Item
-                            dataField='typeOfUse[0]'
+                            dataField='typeOfUse'
                             label={{ text: 'Type of use' }}
-                            editorType='dxSelectBox'
+                            editorType='dxTagBox'
                             editorOptions={{
                                 items: [
                                     { label: 'Private', value: 0 },
@@ -151,6 +155,7 @@ const AddPropertyPage = ({
                                 displayExpr: 'label',
                                 valueExpr: 'value',
                                 searchEnabled: true,
+                                showClearButton: true,
                             }}
                         />
                         <Item
