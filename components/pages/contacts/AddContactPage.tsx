@@ -15,6 +15,7 @@ import Form, {
     TabPanelOptions,
     TabbedItem,
 } from 'devextreme-react/form';
+import DataSource from 'devextreme/data/data_source';
 
 // Local imports
 import { ContactData } from '@/lib/types/contactData';
@@ -27,7 +28,17 @@ import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
 import { CountryData } from '@/lib/types/countriesData';
 import useCountryChange from '@/lib/hooks/useCountryChange';
-import DataSource from 'devextreme/data/data_source';
+import {
+    countriesMaskItems,
+    identificationItems,
+    genderItems,
+    addressTypeItems,
+    maritalStatusItems,
+    phoneType2Items,
+    phoneTypeItems,
+    titleItems,
+} from '@/lib/utils/selectBoxItems';
+import { faSave } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
     contactData: ContactData;
@@ -82,16 +93,22 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
         const toastId = toast.loading('Creating contact...');
 
         try {
+            // Format dates from ISO 8601 to DateOnly
+            if (values.identifications.length > 0) {
+                for (const id of values.identifications) {
+                    if (id.emissionDate)
+                        id.emissionDate = formatDate(id.emissionDate);
+                    if (id.expirationDate)
+                        id.expirationDate = formatDate(id.expirationDate);
+                }
+            }
             const valuesToSend: ContactData = {
                 ...values,
                 birthDay: formatDate(values.birthDay),
             };
 
             console.log('Valores a enviar: ', valuesToSend);
-            console.log(
-                'Valores a enviar en JSON: ',
-                JSON.stringify(valuesToSend)
-            );
+            console.log(JSON.stringify(valuesToSend));
 
             const data = await apiPost(
                 '/contacts/contacts',
@@ -111,6 +128,11 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
         }
     }, [contactData, initialValues, token, router]);
 
+    const getMaskFromDataSource = (index: number) =>
+        countriesMaskItems.filter(
+            (obj) => obj.id === contactData.phones[index].countryMaskId
+        )[0]?.mask || countriesMaskItems[0].mask;
+
     return (
         <div>
             <Form
@@ -127,16 +149,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                         label={{ text: 'Title' }}
                         editorType='dxSelectBox'
                         editorOptions={{
-                            items: [
-                                { id: 1, name: 'Mr.' },
-                                { id: 2, name: 'Ms.' },
-                                { id: 3, name: 'Mrs.' },
-                                { id: 4, name: 'Miss' },
-                                { id: 5, name: 'Lord' },
-                                { id: 6, name: 'Lady' },
-                                { id: 7, name: 'Dr.' },
-                                { id: 8, name: 'Professor' },
-                            ],
+                            items: titleItems,
                             valueExpr: 'id',
                             displayExpr: 'name',
                         }}
@@ -157,11 +170,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                         label={{ text: 'Gender' }}
                         editorType='dxSelectBox'
                         editorOptions={{
-                            items: [
-                                { id: 1, name: 'Male' },
-                                { id: 2, name: 'Female' },
-                                { id: 3, name: 'Other' },
-                            ],
+                            items: genderItems,
                             valueExpr: 'id',
                             displayExpr: 'name',
                         }}
@@ -184,12 +193,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                         label={{ text: 'Marital Status' }}
                         editorType='dxSelectBox'
                         editorOptions={{
-                            items: [
-                                { id: 1, name: 'Single' },
-                                { id: 2, name: 'Married' },
-                                { id: 3, name: 'Divorced' },
-                                { id: 4, name: 'Widowed' },
-                            ],
+                            items: maritalStatusItems,
                             valueExpr: 'id',
                             displayExpr: 'name',
                         }}
@@ -219,32 +223,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                                                     }}
                                                     editorType='dxSelectBox'
                                                     editorOptions={{
-                                                        items: [
-                                                            {
-                                                                id: 1,
-                                                                name: 'NIE',
-                                                            },
-                                                            {
-                                                                id: 2,
-                                                                name: 'DNI',
-                                                            },
-                                                            {
-                                                                id: 3,
-                                                                name: 'Passport',
-                                                            },
-                                                            {
-                                                                id: 4,
-                                                                name: 'SSN',
-                                                            },
-                                                            {
-                                                                id: 5,
-                                                                name: 'Tax Id',
-                                                            },
-                                                            {
-                                                                id: 6,
-                                                                name: 'Other',
-                                                            },
-                                                        ],
+                                                        items: identificationItems,
                                                         valueExpr: 'id',
                                                         displayExpr: 'name',
                                                     }}
@@ -354,16 +333,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                                                 label={{ text: 'Address Type' }}
                                                 editorType='dxSelectBox'
                                                 editorOptions={{
-                                                    items: [
-                                                        {
-                                                            id: 1,
-                                                            name: 'Physical Address',
-                                                        },
-                                                        {
-                                                            id: 2,
-                                                            name: 'Billing Address',
-                                                        },
-                                                    ],
+                                                    items: addressTypeItems,
                                                     valueExpr: 'id',
                                                     displayExpr: 'name',
                                                 }}
@@ -485,7 +455,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                                     return (
                                         <GroupItem
                                             key={`GroupItem2-${index}`}
-                                            colCount={5}
+                                            colCount={6}
                                         >
                                             <Item
                                                 key={`phoneType${index}`}
@@ -493,21 +463,7 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                                                 label={{ text: 'Phone Type' }}
                                                 editorType='dxSelectBox'
                                                 editorOptions={{
-                                                    items: [
-                                                        {
-                                                            id: 1,
-                                                            name: 'Mobile phone',
-                                                        },
-                                                        {
-                                                            id: 2,
-                                                            name: 'Landline phone',
-                                                        },
-                                                        { id: 3, name: 'Fax' },
-                                                        {
-                                                            id: 4,
-                                                            name: 'Other',
-                                                        },
-                                                    ],
+                                                    items: phoneTypeItems,
                                                     valueExpr: 'id',
                                                     displayExpr: 'name',
                                                 }}
@@ -518,26 +474,36 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                                                 label={{ text: 'Type' }}
                                                 editorType='dxSelectBox'
                                                 editorOptions={{
-                                                    items: [
-                                                        {
-                                                            id: 1,
-                                                            name: 'Business',
-                                                        },
-                                                        {
-                                                            id: 2,
-                                                            name: 'Private',
-                                                        },
-                                                    ],
+                                                    items: phoneType2Items,
                                                     valueExpr: 'id',
                                                     displayExpr: 'name',
                                                 }}
                                             />
                                             <Item
-                                                key={`number${index}`}
-                                                dataField={`phones[${index}].number`}
+                                                key={`countryMaskId${index}`}
+                                                dataField={`phones[${index}].countryMaskId`}
+                                                label={{ text: 'Country' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    items: countriesMaskItems,
+                                                    valueExpr: 'id',
+                                                    displayExpr: 'name',
+                                                    defaultValue:
+                                                        countriesMaskItems[0],
+                                                    onValueChanged:
+                                                        setAddressOptions, // Trick to force react update
+                                                }}
+                                            >
+                                                <RequiredRule />
+                                            </Item>
+                                            <Item
+                                                key={`phoneNumber${index}`}
+                                                dataField={`phones[${index}].phoneNumber`}
                                                 label={{ text: 'Phone Number' }}
                                                 editorOptions={{
-                                                    mask: '+(0000) 000-00-00-00',
+                                                    mask: getMaskFromDataSource(
+                                                        index
+                                                    ),
                                                 }}
                                             />
                                             <Item
@@ -585,6 +551,8 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                                         contactData.phones.push({
                                             phoneType: null,
                                             type: null,
+                                            countryMaskId:
+                                                countriesMaskItems[0].id,
                                             phoneNumber: '',
                                             shortComment: '',
                                         });
@@ -611,16 +579,17 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                     </TabbedItem>
                 </GroupItem>
             </Form>
-            <div className='h-[2rem]'>
+            <div className='my-6'>
                 <div className='flex justify-end'>
-                    <div className='flex flex-row justify-between gap-2'>
+                    <div className='flex flex-row self-center'>
                         <Button
                             elevated
+                            onClick={handleSubmit}
+                            text='Create Contact'
                             type='button'
-                            text='Submit Changes'
+                            icon={faSave}
                             disabled={isLoading}
                             isLoading={isLoading}
-                            onClick={handleSubmit}
                         />
                     </div>
                 </div>

@@ -43,6 +43,16 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import useCountryChange from '@/lib/hooks/useCountryChange';
 import ContactPropertiesDG from './ContactPropertiesDG';
 import { OwnershipData } from '@/lib/types/ownershipData';
+import {
+    countriesMaskItems,
+    identificationItems,
+    genderItems,
+    addressTypeItems,
+    maritalStatusItems,
+    phoneType2Items,
+    phoneTypeItems,
+    titleItems,
+} from '@/lib/utils/selectBoxItems';
 
 interface Props {
     contactData: ContactData;
@@ -52,105 +62,6 @@ interface Props {
     token: TokenRes;
     lang: Locale;
 }
-
-function Group() {
-    return <></>;
-}
-
-const countriesMaskItems = [
-    { id: 1, mask: '+34 000-00-00-00', name: 'Spain' },
-    { id: 2, mask: '+49 0000-000000', name: 'Germany' },
-    { id: 3, mask: '+1 (000) 000-0000', name: 'United States' },
-];
-
-const identificationItems = [
-    {
-        id: 1,
-        name: 'NIE',
-    },
-    {
-        id: 2,
-        name: 'DNI',
-    },
-    {
-        id: 3,
-        name: 'Passport',
-    },
-    {
-        id: 4,
-        name: 'SSN',
-    },
-    {
-        id: 5,
-        name: 'Tax Id',
-    },
-    {
-        id: 6,
-        name: 'Other',
-    },
-];
-
-const genderItems = [
-    { id: 1, name: 'Male' },
-    { id: 2, name: 'Female' },
-    { id: 3, name: 'Other' },
-];
-
-const titleItems = [
-    { id: 1, name: 'Mr.' },
-    { id: 2, name: 'Ms.' },
-    { id: 3, name: 'Mrs.' },
-    { id: 4, name: 'Miss' },
-    { id: 5, name: 'Lord' },
-    { id: 6, name: 'Lady' },
-    { id: 7, name: 'Dr.' },
-    { id: 8, name: 'Professor' },
-];
-
-const maritalStatusItems = [
-    { id: 1, name: 'Single' },
-    { id: 2, name: 'Married' },
-    { id: 3, name: 'Divorced' },
-    { id: 4, name: 'Widowed' },
-];
-
-const addressTypeItems = [
-    {
-        id: 1,
-        name: 'Physical Address',
-    },
-    {
-        id: 2,
-        name: 'Billing Address',
-    },
-];
-
-const phoneTypeItems = [
-    {
-        id: 1,
-        name: 'Mobile phone',
-    },
-    {
-        id: 2,
-        name: 'Landline phone',
-    },
-    { id: 3, name: 'Fax' },
-    {
-        id: 4,
-        name: 'Other',
-    },
-];
-
-const phoneType2Items = [
-    {
-        id: 1,
-        name: 'Business',
-    },
-    {
-        id: 2,
-        name: 'Private',
-    },
-];
 
 const ContactPage = ({
     contactData,
@@ -557,7 +468,6 @@ const ContactPage = ({
                                                     displayExpr: 'name',
                                                     valueExpr: 'id',
                                                     grouped: true,
-                                                    groupRender: Group,
                                                     searchEnabled: true,
                                                     onValueChanged: (
                                                         e: any
