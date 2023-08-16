@@ -63,3 +63,11 @@
 .dx-master-detail-row .row-focused-state {
 	color: theme(colors.primary.500);
 }
+
+.expired-document {
+	background-color: #ef444433 !important;
+}
+
+.near-expiration {
+	background-color: #eab30833 !important;
+}

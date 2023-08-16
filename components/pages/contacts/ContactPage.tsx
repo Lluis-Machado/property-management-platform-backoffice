@@ -361,9 +361,53 @@ const ContactPage = ({
                                                     }}
                                                     editorType='dxDateBox'
                                                     editorOptions={{
+                                                        elementAttr: {
+                                                            id: `expirationDate${index}`,
+                                                        },
                                                         displayFormat:
                                                             dateFormat,
                                                         showClearButton: true,
+                                                        onContentReady: () => {
+                                                            const expDate =
+                                                                contactData
+                                                                    .identifications[
+                                                                    index
+                                                                ]
+                                                                    .expirationDate;
+                                                            if (expDate) {
+                                                                const today =
+                                                                    new Date();
+                                                                const twoMonthsLater =
+                                                                    new Date();
+                                                                twoMonthsLater.setMonth(
+                                                                    today.getMonth() +
+                                                                        2
+                                                                );
+                                                                const dateElement =
+                                                                    document.getElementById(
+                                                                        `expirationDate${index}`
+                                                                    )
+                                                                        ?.firstElementChild;
+                                                                if (
+                                                                    new Date(
+                                                                        expDate
+                                                                    ) < today
+                                                                ) {
+                                                                    dateElement?.classList.add(
+                                                                        'expired-document'
+                                                                    );
+                                                                } else if (
+                                                                    new Date(
+                                                                        expDate
+                                                                    ) <
+                                                                    twoMonthsLater
+                                                                ) {
+                                                                    dateElement?.classList.add(
+                                                                        'near-expiration'
+                                                                    );
+                                                                }
+                                                            }
+                                                        },
                                                     }}
                                                 />
                                                 <Item
