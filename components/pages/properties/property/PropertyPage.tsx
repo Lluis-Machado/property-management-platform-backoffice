@@ -42,6 +42,7 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { ContactData } from '@/lib/types/contactData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import './styles.css';
 
 interface Props {
     propertyData: PropertyData;
@@ -73,16 +74,17 @@ const PropertyPage = ({
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
     );
+    const [initialValues, setInitialValues] = useState<PropertyData>(
+        structuredClone(propertyData)
+    );
     // function name property
-    const [nameProperty, setNameProperty] = useState('');
+    const [nameProperty, setNameProperty] = useState(initialValues.name);
     const onValueChange = useCallback((v: any) => {
         setNameProperty(v);
     }, []);
 
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<PropertyData>(
-        structuredClone(propertyData)
-    );
+
     const router = useRouter();
 
     const handleCountryChange = useCallback(
@@ -111,7 +113,6 @@ const PropertyPage = ({
         ref.current.saveEditData();
         // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
-        console.log(values);
 
         if (
             JSON.stringify(values) === JSON.stringify(initialValues) &&
@@ -166,6 +167,25 @@ const PropertyPage = ({
         }
     }, [propertyData, router, token]);
 
+    const changeCssTitle = (e: any) => {
+        if (e.value != propertyData.name) {
+            e.element.classList.add('styling');
+        } else {
+            e.element.classList.remove('styling');
+        }
+    };
+
+    const changeCssFormElement = (e: any) => {
+        const dataField = e.dataField;
+        document.getElementsByName(dataField)[0].classList.add('stylingForm');
+    };
+
+    const changeSelectbox = (e: any) => {
+        const dataField = e.dataField;
+        const value = e.value;
+        document.getElementsByName(dataField)[0].classList.add('stylingForm');
+    };
+
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
@@ -179,7 +199,7 @@ const PropertyPage = ({
                 {/* Contact avatar and name */}
                 <div className='ml-5 basis-1/4'>
                     <TextBox
-                        value={propertyData.name}
+                        value={nameProperty}
                         disabled={!isEditing || isLoading}
                         onValueChange={onValueChange}
                         style={{
@@ -187,10 +207,8 @@ const PropertyPage = ({
                             fontSize: '35px',
                             border: 'none',
                             opacity: '1',
-                            disabled: {
-                                opacity: 0.5,
-                            },
                         }}
+                        onValueChanged={changeCssTitle}
                     />
                 </div>
                 {/* Cards with actions */}
@@ -226,7 +244,10 @@ const PropertyPage = ({
                     )}
                     <Button
                         elevated
-                        onClick={() => setIsEditing((prev) => !prev)}
+                        onClick={() => (
+                            setIsEditing((prev) => !prev),
+                            setNameProperty(propertyData.name)
+                        )}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
                     />
@@ -244,6 +265,7 @@ const PropertyPage = ({
                 formData={propertyData}
                 readOnly={isLoading || !isEditing}
                 labelMode={'floating'}
+                onFieldDataChanged={changeCssFormElement}
             >
                 <GroupItem colCount={3}>
                     <GroupItem>
@@ -265,6 +287,7 @@ const PropertyPage = ({
                                 valueExpr: 'value',
                                 searchEnabled: true,
                                 showClearButton: true,
+                                onValueChange: { changeSelectbox },
                             }}
                         />
                         <Item visible={false}>
@@ -284,6 +307,7 @@ const PropertyPage = ({
                                 valueExpr: 'value',
                                 searchEnabled: true,
                                 showClearButton: isEditing && true,
+                                onValueChange: { changeCssFormElement },
                             }}
                         />
                         <GroupItem>

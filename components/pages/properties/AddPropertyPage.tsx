@@ -126,13 +126,13 @@ const AddPropertyPage = ({
                             editorType='dxSelectBox'
                             editorOptions={{
                                 items: [
-                                    { label: 'Apartment', value: 0 },
-                                    { label: 'Rural property', value: 1 },
-                                    { label: 'House', value: 2 },
-                                    { label: 'Plot', value: 3 },
-                                    { label: 'Parking', value: 4 },
-                                    { label: 'Storage room', value: 5 },
-                                    { label: 'Mooring', value: 6 },
+                                    { label: 'Apartment', value: '0' },
+                                    { label: 'Rural property', value: '1' },
+                                    { label: 'House', value: '2' },
+                                    { label: 'Plot', value: '3' },
+                                    { label: 'Parking', value: '4' },
+                                    { label: 'Storage room', value: '5' },
+                                    { label: 'Mooring', value: '6' },
                                 ],
                                 displayExpr: 'label',
                                 valueExpr: 'value',
