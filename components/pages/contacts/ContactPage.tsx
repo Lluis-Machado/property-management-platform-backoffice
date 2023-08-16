@@ -1,10 +1,11 @@
 'use client';
 
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from 'pg-components';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
     faFileLines,
     faPencil,
@@ -24,6 +25,7 @@ import Form, {
     TabPanelOptions,
     TabbedItem,
 } from 'devextreme-react/form';
+import DataSource from 'devextreme/data/data_source';
 
 // Local imports
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
@@ -41,7 +43,16 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import useCountryChange from '@/lib/hooks/useCountryChange';
 import ContactPropertiesDG from './ContactPropertiesDG';
 import { OwnershipData } from '@/lib/types/ownershipData';
-import DataSource from 'devextreme/data/data_source';
+import {
+    countriesMaskItems,
+    identificationItems,
+    genderItems,
+    addressTypeItems,
+    maritalStatusItems,
+    phoneType2Items,
+    phoneTypeItems,
+    titleItems,
+} from '@/lib/utils/selectBoxItems';
 
 interface Props {
     contactData: ContactData;
@@ -50,10 +61,6 @@ interface Props {
     ownershipData: OwnershipData[];
     token: TokenRes;
     lang: Locale;
-}
-
-function Group() {
-    return <></>;
 }
 
 const ContactPage = ({
@@ -111,6 +118,15 @@ const ContactPage = ({
         const toastId = toast.loading('Updating contact...');
 
         try {
+            // Format dates from ISO 8601 to DateOnly
+            if (values.identifications.length > 0) {
+                for (const id of values.identifications) {
+                    if (id.emissionDate)
+                        id.emissionDate = formatDate(id.emissionDate);
+                    if (id.expirationDate)
+                        id.expirationDate = formatDate(id.expirationDate);
+                }
+            }
             const valuesToSend: ContactData = {
                 ...values,
                 birthDay: formatDate(values.birthDay),
@@ -152,6 +168,11 @@ const ContactPage = ({
             customError(error, toastId);
         }
     }, [contactData, router, token]);
+
+    const getMaskFromDataSource = (index: number) =>
+        countriesMaskItems.filter(
+            (obj) => obj.id === contactData.phones[index].countryMaskId
+        )[0]?.mask || countriesMaskItems[0].mask;
 
     return (
         <div className='mt-4'>
@@ -228,16 +249,7 @@ const ContactPage = ({
                         label={{ text: 'Title' }}
                         editorType='dxSelectBox'
                         editorOptions={{
-                            items: [
-                                { id: 1, name: 'Mr.' },
-                                { id: 2, name: 'Ms.' },
-                                { id: 3, name: 'Mrs.' },
-                                { id: 4, name: 'Miss' },
-                                { id: 5, name: 'Lord' },
-                                { id: 6, name: 'Lady' },
-                                { id: 7, name: 'Dr.' },
-                                { id: 8, name: 'Professor' },
-                            ],
+                            items: titleItems,
                             valueExpr: 'id',
                             displayExpr: 'name',
                         }}
@@ -258,11 +270,7 @@ const ContactPage = ({
                         label={{ text: 'Gender' }}
                         editorType='dxSelectBox'
                         editorOptions={{
-                            items: [
-                                { id: 1, name: 'Male' },
-                                { id: 2, name: 'Female' },
-                                { id: 3, name: 'Other' },
-                            ],
+                            items: genderItems,
                             valueExpr: 'id',
                             displayExpr: 'name',
                         }}
@@ -285,12 +293,7 @@ const ContactPage = ({
                         label={{ text: 'Marital Status' }}
                         editorType='dxSelectBox'
                         editorOptions={{
-                            items: [
-                                { id: 1, name: 'Single' },
-                                { id: 2, name: 'Married' },
-                                { id: 3, name: 'Divorced' },
-                                { id: 4, name: 'Widowed' },
-                            ],
+                            items: maritalStatusItems,
                             valueExpr: 'id',
                             displayExpr: 'name',
                         }}
@@ -325,32 +328,7 @@ const ContactPage = ({
                                                     }}
                                                     editorType='dxSelectBox'
                                                     editorOptions={{
-                                                        items: [
-                                                            {
-                                                                id: 1,
-                                                                name: 'NIE',
-                                                            },
-                                                            {
-                                                                id: 2,
-                                                                name: 'DNI',
-                                                            },
-                                                            {
-                                                                id: 3,
-                                                                name: 'Passport',
-                                                            },
-                                                            {
-                                                                id: 4,
-                                                                name: 'SSN',
-                                                            },
-                                                            {
-                                                                id: 5,
-                                                                name: 'Tax Id',
-                                                            },
-                                                            {
-                                                                id: 6,
-                                                                name: 'Other',
-                                                            },
-                                                        ],
+                                                        items: identificationItems,
                                                         valueExpr: 'id',
                                                         displayExpr: 'name',
                                                     }}
@@ -414,7 +392,7 @@ const ContactPage = ({
                                                                 index,
                                                                 1
                                                             );
-                                                            // Trick to force react to update
+                                                            // Trick to force react update
                                                             setAddressOptions(
                                                                 []
                                                             );
@@ -442,7 +420,7 @@ const ContactPage = ({
                                             expirationDate: null,
                                             shortComment: '',
                                         });
-                                        // Trick to force react to update
+                                        // Trick to force react update
                                         setAddressOptions([]);
                                     },
                                 }}
@@ -462,16 +440,7 @@ const ContactPage = ({
                                                 label={{ text: 'Address Type' }}
                                                 editorType='dxSelectBox'
                                                 editorOptions={{
-                                                    items: [
-                                                        {
-                                                            id: 1,
-                                                            name: 'Physical Address',
-                                                        },
-                                                        {
-                                                            id: 2,
-                                                            name: 'Billing Address',
-                                                        },
-                                                    ],
+                                                    items: addressTypeItems,
                                                     valueExpr: 'id',
                                                     displayExpr: 'name',
                                                 }}
@@ -499,7 +468,6 @@ const ContactPage = ({
                                                     displayExpr: 'name',
                                                     valueExpr: 'id',
                                                     grouped: true,
-                                                    groupRender: Group,
                                                     searchEnabled: true,
                                                     onValueChanged: (
                                                         e: any
@@ -558,7 +526,7 @@ const ContactPage = ({
                                                             index,
                                                             1
                                                         );
-                                                        // Trick to force react to update
+                                                        // Trick to force react update
                                                         setAddressOptions([]);
                                                     },
                                                 }}
@@ -585,7 +553,7 @@ const ContactPage = ({
                                             postalCode: '',
                                             addressType: null,
                                         });
-                                        // Trick to force react to update
+                                        // Trick to force react update
                                         setAddressOptions([]);
                                     },
                                 }}
@@ -597,7 +565,7 @@ const ContactPage = ({
                                     return (
                                         <GroupItem
                                             key={`GroupItem2-${index}`}
-                                            colCount={5}
+                                            colCount={6}
                                         >
                                             <Item
                                                 key={`phoneType${index}`}
@@ -605,21 +573,7 @@ const ContactPage = ({
                                                 label={{ text: 'Phone Type' }}
                                                 editorType='dxSelectBox'
                                                 editorOptions={{
-                                                    items: [
-                                                        {
-                                                            id: 1,
-                                                            name: 'Mobile phone',
-                                                        },
-                                                        {
-                                                            id: 2,
-                                                            name: 'Landline phone',
-                                                        },
-                                                        { id: 3, name: 'Fax' },
-                                                        {
-                                                            id: 4,
-                                                            name: 'Other',
-                                                        },
-                                                    ],
+                                                    items: phoneTypeItems,
                                                     valueExpr: 'id',
                                                     displayExpr: 'name',
                                                 }}
@@ -630,30 +584,40 @@ const ContactPage = ({
                                                 label={{ text: 'Type' }}
                                                 editorType='dxSelectBox'
                                                 editorOptions={{
-                                                    items: [
-                                                        {
-                                                            id: 1,
-                                                            name: 'Business',
-                                                        },
-                                                        {
-                                                            id: 2,
-                                                            name: 'Private',
-                                                        },
-                                                    ],
+                                                    items: phoneType2Items,
                                                     valueExpr: 'id',
                                                     displayExpr: 'name',
                                                 }}
                                             />
                                             <Item
-                                                key={`number${index}`}
-                                                dataField={`phones[${index}].number`}
+                                                key={`countryMaskId${index}`}
+                                                dataField={`phones[${index}].countryMaskId`}
+                                                label={{ text: 'Country' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    items: countriesMaskItems,
+                                                    valueExpr: 'id',
+                                                    displayExpr: 'name',
+                                                    defaultValue:
+                                                        countriesMaskItems[0],
+                                                    onValueChanged:
+                                                        setAddressOptions, // Trick to force react update
+                                                }}
+                                            >
+                                                <RequiredRule />
+                                            </Item>
+                                            <Item
+                                                key={`phoneNumber${index}`}
+                                                dataField={`phones[${index}].phoneNumber`}
                                                 label={{ text: 'Phone Number' }}
                                                 editorOptions={{
-                                                    mask: '+(0000) 000-00-00-00',
+                                                    mask: getMaskFromDataSource(
+                                                        index
+                                                    ),
                                                 }}
                                             />
                                             <Item
-                                                key={`phonesShortComment${index}`}
+                                                key={`phoneShortComment${index}`}
                                                 dataField={`phones[${index}].shortComment`}
                                                 label={{
                                                     text: 'Short Comment',
@@ -678,7 +642,7 @@ const ContactPage = ({
                                                             index,
                                                             1
                                                         );
-                                                        // Trick to force react to update
+                                                        // Trick to force react update
                                                         setAddressOptions([]);
                                                     },
                                                 }}
@@ -699,10 +663,12 @@ const ContactPage = ({
                                         contactData.phones.push({
                                             phoneType: null,
                                             type: null,
-                                            number: '',
+                                            countryMaskId:
+                                                countriesMaskItems[0].id,
+                                            phoneNumber: '',
                                             shortComment: '',
                                         });
-                                        // Trick to force react to update
+                                        // Trick to force react update
                                         setAddressOptions([]);
                                     },
                                 }}

@@ -35,6 +35,15 @@ const AddContact = async ({ params: { lang } }: Props) => {
         ),
     ]);
 
+    // Categorize countries, 56 and 67 are DE and ES. It can be done on backend?
+    for (const country of countries) {
+        if (country.id === 56 || country.id === 67) {
+            country.category = 'Main Countries';
+        } else {
+            country.category = 'Other Countries';
+        }
+    }
+
     return (
         <>
             <Breadcrumb />

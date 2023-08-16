@@ -59,10 +59,6 @@ const ContactForm = async ({ params: { lang, id } }: Props) => {
         if (promises) statesData = (await Promise.all(promises)).flat();
     }
 
-    // TODO: Cambiar esto, deberia venir de la API
-    contactData.phones = [];
-    contactData.identifications = [];
-
     return (
         <>
             <Breadcrumb />
