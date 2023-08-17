@@ -87,7 +87,7 @@ const initialValues: PropertyData = {
         value: undefined,
     },
     type: '',
-    typeOfUse: null,
+    typeOfUse: [],
     year: null,
 };
 

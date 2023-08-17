@@ -51,13 +51,13 @@
 }
 .dx-texteditor-input {
 	color: var(--Slate_500) !important;
-	font-size: 1rem !important;
-    line-height: 1.5rem !important;
+	font-size: 1rem;
+    line-height: 1.5rem;
 }
 
 /* For the icon not to conflict with DX styles */
 .dx-row-focused .row-focused-state {
-	color: white;
+	color: white !important;
 }
 
 .dx-master-detail-row .row-focused-state {
