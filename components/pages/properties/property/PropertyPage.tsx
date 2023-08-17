@@ -43,6 +43,7 @@ import { ContactData } from '@/lib/types/contactData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import './styles.css';
+import Tooltip from 'devextreme-react/tooltip';
 
 interface Props {
     propertyData: PropertyData;
@@ -64,6 +65,7 @@ const PropertyPage = ({
     lang,
 }: Props): React.ReactElement => {
     const ref = useRef<null>(null);
+    const formRef = useRef<null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] =
@@ -166,6 +168,7 @@ const PropertyPage = ({
         }
     }, [propertyData, router, token]);
 
+    // CSS styling form element
     const changeCssTitle = (e: any) => {
         if (e.value != propertyData.name) {
             e.element.classList.add('styling');
@@ -176,11 +179,11 @@ const PropertyPage = ({
 
     const changeCssFormElement = (e: any) => {
         const dataField = e.dataField;
-        document.getElementsByName(dataField)[0].classList.add('stylingForm');
+        document.getElementsByName(dataField)[0].classList.add('styling');
     };
 
     const changeSelectbox = (e: any) => {
-        e.element.classList.add('stylingForm');
+        e.element.classList.add('styling');
     };
 
     return (
@@ -199,6 +202,7 @@ const PropertyPage = ({
                         value={nameProperty}
                         disabled={!isEditing || isLoading}
                         onValueChange={onValueChange}
+                        id='title'
                         style={{
                             fontWeight: '800',
                             fontSize: '35px',
@@ -206,7 +210,20 @@ const PropertyPage = ({
                             opacity: '1',
                         }}
                         onValueChanged={changeCssTitle}
-                    />
+                    >
+                        {isEditing && (
+                            <Tooltip
+                                target='#title'
+                                showEvent='mouseenter'
+                                hideEvent='mouseleave'
+                            >
+                                <div style={{ color: '#b99f6c' }}>
+                                    Be carefull you are changing the name of the
+                                    property
+                                </div>
+                            </Tooltip>
+                        )}
+                    </TextBox>
                 </div>
                 {/* Cards with actions */}
                 <div className='flex basis-2/4 flex-row items-center gap-4'>
@@ -231,7 +248,7 @@ const PropertyPage = ({
                     {isEditing && (
                         <Button
                             elevated
-                            onClick={handleSubmit}
+                            onClick={() => handleSubmit()}
                             type='button'
                             icon={faSave}
                             disabled={!isEditing || isLoading}
@@ -243,8 +260,7 @@ const PropertyPage = ({
                         elevated
                         onClick={() => (
                             setIsEditing((prev) => !prev),
-                            setNameProperty(propertyData.name),
-                            (propertyData = initialValues)
+                            setNameProperty(propertyData.name)
                         )}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
@@ -264,6 +280,7 @@ const PropertyPage = ({
                 readOnly={isLoading || !isEditing}
                 labelMode={'floating'}
                 onFieldDataChanged={changeCssFormElement}
+                ref={formRef}
             >
                 <GroupItem colCount={3}>
                     <GroupItem>
@@ -450,7 +467,9 @@ const PropertyPage = ({
                                 <Item>
                                     <TextBox
                                         defaultValue={cadastreRef}
-                                        onValueChange={(e) => setCadastreRef(e)}
+                                        onValueChange={(e) => {
+                                            setCadastreRef(e);
+                                        }}
                                         readOnly={isLoading || !isEditing}
                                         labelMode='floating'
                                         label='Cadastre Nr.'
@@ -478,22 +497,42 @@ const PropertyPage = ({
                                 <Item
                                     dataField='cadastreValue'
                                     label={{ text: 'Cadastre Value' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                                 <Item
                                     dataField='loanPrice.value'
                                     label={{ text: 'Loan price' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                                 <Item
                                     dataField='buildingPrice.value'
                                     label={{ text: 'Building price' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                                 <Item
                                     dataField='totalPrice.value'
                                     label={{ text: 'Total price' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                                 <Item
                                     dataField='plotPrice.value'
                                     label={{ text: 'Plot price' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                                 <Item
                                     dataField='ibiAmount'
@@ -514,27 +553,49 @@ const PropertyPage = ({
                                     editorOptions={{
                                         displayFormat: dateFormat,
                                         showClearButton: true,
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
                                     }}
                                 />
                                 <Item
                                     dataField='purchasePrice.value'
                                     label={{ text: 'Purchase price' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                                 <Item
                                     dataField='purchasePriceTax.value'
                                     label={{ text: 'Purchase Price Tax' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                                 <Item
                                     dataField='purchasePriceAJD.value'
                                     label={{ text: 'Purchase Price AJD' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                                 <Item
                                     dataField='purchasePriceTPO.value'
                                     label={{ text: 'Purchase Price TPO' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                                 <Item
                                     dataField='purchasePriceTotal.value'
                                     label={{ text: 'Purchase Price Total' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                             </GroupItem>
                         </Tab>
@@ -543,14 +604,26 @@ const PropertyPage = ({
                                 <Item
                                     dataField='furniturePrice.value'
                                     label={{ text: 'Furniture Price' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                                 <Item
                                     dataField='furniturePriceIVA.value'
                                     label={{ text: 'Furniture Price IVA' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                                 <Item
                                     dataField='furniturePriceTPO.value'
                                     label={{ text: 'Furniture Price TPO' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                             </GroupItem>
                         </Tab>
@@ -583,11 +656,17 @@ const PropertyPage = ({
                                     editorOptions={{
                                         displayFormat: dateFormat,
                                         showClearButton: true,
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
                                     }}
                                 />
                                 <Item
                                     dataField='salePrice.value'
                                     label={{ text: 'Sale Price' }}
+                                    editorOptions={{
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
+                                    }}
                                 />
                             </GroupItem>
                         </Tab>
