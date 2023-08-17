@@ -71,20 +71,3 @@
 .near-expiration {
 	background-color: #eab30833 !important;
 }
-
-/* For the icon not to conflict with DX styles */
-.dx-row-focused .row-focused-state {
-	color: white;
-}
-
-.dx-master-detail-row .row-focused-state {
-	color: theme(colors.primary.500);
-}
-
-.expired-document {
-	background-color: #ef444433 !important;
-}
-
-.near-expiration {
-	background-color: #eab30833 !important;
-}
