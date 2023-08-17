@@ -57,7 +57,7 @@
 
 /* For the icon not to conflict with DX styles */
 .dx-row-focused .row-focused-state {
-	color: white;
+	color: white !important;
 }
 
 .dx-master-detail-row .row-focused-state {
