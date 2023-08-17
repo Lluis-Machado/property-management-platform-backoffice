@@ -11,13 +11,13 @@ import DataGrid from './DataGrid';
 
 interface Props {
     data: any[];
-    lang: Locale;
+    id: string;
     searchParams: { searchParams: any };
 }
 
 const ExpensesPage = ({
     data,
-    lang,
+    id,
     searchParams,
 }: Props): React.ReactElement => {
     const [invoiceVisibility, setInvoiceVisibility] = useState<PopupVisibility>(
@@ -39,7 +39,7 @@ const ExpensesPage = ({
                     setInvoiceVisibility((p) => ({ ...p, visible: true }));
                 }}
                 params={searchParams}
-                lang={lang}
+                id={id}
             />
             {(invoiceVisibility.visible || invoiceVisibility.hasBeenOpen) && (
                 <PopupPreview

@@ -65,11 +65,8 @@ const CompanyPage = ({
     );
     const [addressOptions, setAddressOptions] = useState({});
 
-    const { states, handleCountryChange, isStateLoading } = useCountryChange(
-        lang,
-        token,
-        initialStates
-    );
+    const { states, handleCountryChange, isStateLoading, getFilteredStates } =
+        useCountryChange(lang, token, initialStates);
 
     const formRef = useRef<Form>(null);
 
@@ -125,7 +122,7 @@ const CompanyPage = ({
             await apiDelete(
                 `/contacts/contacts/${companyData.id}`,
                 token,
-                'Error while deleting a contact'
+                'Error while deleting this contact'
             );
 
             updateSuccessToast(toastId, 'Contact deleted correctly!');
@@ -134,11 +131,6 @@ const CompanyPage = ({
             customError(error, toastId);
         }
     }, [companyData, router, token]);
-
-    const getFilteredStates = (index: number) =>
-        states?.filter(
-            (state) => state.countryId === companyData.addresses[index].country
-        );
 
     return (
         <div className='mt-4'>
@@ -313,7 +305,10 @@ const CompanyPage = ({
                                     label={{ text: 'State' }}
                                     editorType='dxSelectBox'
                                     editorOptions={{
-                                        items: getFilteredStates(index),
+                                        items: getFilteredStates(
+                                            index,
+                                            companyData
+                                        ),
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
@@ -369,7 +364,7 @@ const CompanyPage = ({
                                 state: null,
                                 country: null,
                                 postalCode: '',
-                                addressType: undefined,
+                                addressType: null,
                             });
                             // Update address fields
                             setAddressOptions([]);

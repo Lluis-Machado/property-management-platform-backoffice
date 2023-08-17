@@ -4,27 +4,22 @@ import AddContactPage from '@/components/pages/contacts/AddContactPage';
 import { Locale } from '@/i18n-config';
 import { ContactData } from '@/lib/types/contactData';
 import { CountryData } from '@/lib/types/countriesData';
-import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
 const initialValues: ContactData = {
-    id: '',
+    title: null,
     firstName: '',
     lastName: '',
+    gender: null,
     birthDay: null,
-    nif: null,
     email: '',
-    phoneNumber: '',
-    mobilePhoneNumber: '',
-    address: {
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        state: null,
-        postalCode: '',
-        country: null,
-    },
+    birthPlace: '',
+    maritalStatus: 0,
+    iban: '',
+    identifications: [],
+    addresses: [],
+    phones: [],
 };
 
 interface Props {
@@ -39,6 +34,15 @@ const AddContact = async ({ params: { lang } }: Props) => {
             'Error while getting countries'
         ),
     ]);
+
+    // Categorize countries, 56 and 67 are DE and ES. It can be done on backend?
+    for (const country of countries) {
+        if (country.id === 56 || country.id === 67) {
+            country.category = 'Main Countries';
+        } else {
+            country.category = 'Other Countries';
+        }
+    }
 
     return (
         <>

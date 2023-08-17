@@ -54,16 +54,7 @@ const initialValues: PropertyData = {
         currency: '',
         value: undefined,
     },
-    propertyAddress: [
-        {
-            addressLine1: '',
-            addressLine2: '',
-            city: '',
-            country: null,
-            postalCode: '',
-            state: null,
-        },
-    ],
+    propertyAddress: [],
     propertyScanMail: '',
     purchaseDate: null,
     purchasePrice: {
@@ -121,7 +112,7 @@ const AddProperty = async ({ params: { lang } }: Props) => {
     for (const contact of contactData) {
         contacts.push({
             label: `${contact.firstName} ${contact.lastName}`,
-            value: contact.id,
+            value: contact.id as string,
         });
     }
 

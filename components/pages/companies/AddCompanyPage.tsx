@@ -40,10 +40,8 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
     );
     const [addressOptions, setAddressOptions] = useState({});
 
-    const { states, handleCountryChange, isStateLoading } = useCountryChange(
-        lang,
-        token
-    );
+    const { states, handleCountryChange, isStateLoading, getFilteredStates } =
+        useCountryChange(lang, token);
 
     const formRef = useRef<Form>(null);
 
@@ -95,11 +93,6 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
             setIsLoading(false);
         }
     }, [companyData, initialValues, token, router]);
-
-    const getFilteredStates = (index: number) =>
-        states?.filter(
-            (state) => state.countryId === companyData.addresses[index].country
-        );
 
     return (
         <div>
@@ -201,7 +194,10 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
                                     label={{ text: 'State' }}
                                     editorType='dxSelectBox'
                                     editorOptions={{
-                                        items: getFilteredStates(index),
+                                        items: getFilteredStates(
+                                            index,
+                                            companyData
+                                        ),
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
@@ -255,7 +251,7 @@ const AddCompanyPage = ({ companyData, countries, token, lang }: Props) => {
                                 state: null,
                                 country: null,
                                 postalCode: '',
-                                addressType: undefined,
+                                addressType: null,
                             });
                             // Update address fields
                             setAddressOptions([]);

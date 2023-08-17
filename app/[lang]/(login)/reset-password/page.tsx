@@ -17,7 +17,10 @@ const ResetPasswordPage = async ({
             <h2 className='mb-10 text-center text-2xl font-bold leading-9 tracking-tight text-secondary-500'>
                 {dictionary.resetPasswordPage.title}
             </h2>
-            <ResetPasswordForm dictionary={dictionary.resetPasswordPage} />
+            <ResetPasswordForm
+                dictionary={dictionary.resetPasswordPage}
+                lang={lang}
+            />
         </>
     );
 };

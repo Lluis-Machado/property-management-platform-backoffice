@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 
 const Documents = () => {
-    redirect('./documents/archives');
+    redirect('./documents/postbox');
 };
 
 export default Documents;
