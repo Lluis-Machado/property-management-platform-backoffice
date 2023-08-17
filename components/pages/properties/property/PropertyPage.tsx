@@ -74,6 +74,7 @@ const PropertyPage = ({
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
     );
+    // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
@@ -82,8 +83,6 @@ const PropertyPage = ({
     const onValueChange = useCallback((v: any) => {
         setNameProperty(v);
     }, []);
-
-    // Importante para que no se copie por referencia
 
     const router = useRouter();
 
@@ -181,9 +180,7 @@ const PropertyPage = ({
     };
 
     const changeSelectbox = (e: any) => {
-        const dataField = e.dataField;
-        const value = e.value;
-        document.getElementsByName(dataField)[0].classList.add('stylingForm');
+        e.element.classList.add('stylingForm');
     };
 
     return (
@@ -246,7 +243,8 @@ const PropertyPage = ({
                         elevated
                         onClick={() => (
                             setIsEditing((prev) => !prev),
-                            setNameProperty(propertyData.name)
+                            setNameProperty(propertyData.name),
+                            (propertyData = initialValues)
                         )}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
@@ -287,7 +285,7 @@ const PropertyPage = ({
                                 valueExpr: 'value',
                                 searchEnabled: true,
                                 showClearButton: true,
-                                onValueChange: { changeSelectbox },
+                                onValueChanged: (e: any) => changeSelectbox(e),
                             }}
                         />
                         <Item visible={false}>
@@ -307,7 +305,7 @@ const PropertyPage = ({
                                 valueExpr: 'value',
                                 searchEnabled: true,
                                 showClearButton: isEditing && true,
-                                onValueChange: { changeCssFormElement },
+                                onValueChanged: (e: any) => changeSelectbox(e),
                             }}
                         />
                         <GroupItem>
@@ -339,8 +337,10 @@ const PropertyPage = ({
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
-                                        onValueChanged: (e: any) =>
+                                        onValueChanged: (e: any) => {
                                             handleCountryChange(e.value),
+                                                changeSelectbox(e);
+                                        },
                                     }}
                                 />
                                 <Item
@@ -352,6 +352,8 @@ const PropertyPage = ({
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
+                                        onValueChanged: (e: any) =>
+                                            changeSelectbox(e),
                                     }}
                                 />
                             </GroupItem>
@@ -367,6 +369,7 @@ const PropertyPage = ({
                                 displayExpr: 'firstName',
                                 valueExpr: 'id',
                                 searchEnabled: true,
+                                onValueChanged: (e: any) => changeSelectbox(e),
                                 buttons: [
                                     {
                                         name: 'goto',
@@ -397,6 +400,7 @@ const PropertyPage = ({
                                 displayExpr: 'firstName',
                                 valueExpr: 'id',
                                 searchEnabled: true,
+                                onValueChanged: (e: any) => changeSelectbox(e),
                                 buttons: [
                                     {
                                         name: 'goto',
