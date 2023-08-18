@@ -24,6 +24,7 @@ import Form, {
 } from 'devextreme-react/form';
 import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
 import TagBox from 'devextreme-react/tag-box';
+import Tooltip from 'devextreme-react/tooltip';
 
 // Local imports
 import { PropertyData } from '@/lib/types/propertyInfo';
@@ -43,7 +44,8 @@ import { ContactData } from '@/lib/types/contactData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import './styles.css';
-import Tooltip from 'devextreme-react/tooltip';
+import { ValueChangedEvent } from 'devextreme/ui/text_box';
+import { FieldDataChangedEvent } from 'devextreme/ui/form';
 
 interface Props {
     propertyData: PropertyData;
@@ -64,8 +66,8 @@ const PropertyPage = ({
     token,
     lang,
 }: Props): React.ReactElement => {
+    const router = useRouter();
     const ref = useRef<null>(null);
-    const formRef = useRef<null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] =
@@ -80,13 +82,22 @@ const PropertyPage = ({
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
-    // function name property
-    const [nameProperty, setNameProperty] = useState(initialValues.name);
-    const onValueChange = useCallback((v: any) => {
-        setNameProperty(v);
-    }, []);
 
-    const router = useRouter();
+    // function name property
+    const [nameProperty, setNameProperty] = useState<string>(
+        initialValues.name
+    );
+    const onValueChange = useCallback(
+        (e: ValueChangedEvent) => {
+            setNameProperty(e.value);
+            if (e.value != propertyData.name) {
+                e.element.classList.add('styling');
+            } else {
+                e.element.classList.remove('styling');
+            }
+        },
+        [propertyData]
+    );
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
@@ -114,7 +125,6 @@ const PropertyPage = ({
         ref.current.saveEditData();
         // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
-
         if (
             JSON.stringify(values) === JSON.stringify(initialValues) &&
             nameProperty === initialValues.name
@@ -169,21 +179,15 @@ const PropertyPage = ({
     }, [propertyData, router, token]);
 
     // CSS styling form element
-    const changeCssTitle = (e: any) => {
-        if (e.value != propertyData.name) {
-            e.element.classList.add('styling');
-        } else {
-            e.element.classList.remove('styling');
-        }
-    };
 
-    const changeCssFormElement = (e: any) => {
-        const dataField = e.dataField;
-        document.getElementsByName(dataField)[0].classList.add('styling');
+    const changeCssFormElement = (e: FieldDataChangedEvent) => {
+        document
+            .getElementsByName(e.dataField!)[0]
+            .classList.add('stylingForm');
     };
 
     const changeSelectbox = (e: any) => {
-        e.element.classList.add('styling');
+        e.element.classList.add('stylingForm');
     };
 
     return (
@@ -201,7 +205,7 @@ const PropertyPage = ({
                     <TextBox
                         value={nameProperty}
                         disabled={!isEditing || isLoading}
-                        onValueChange={onValueChange}
+                        onValueChanged={onValueChange}
                         id='title'
                         style={{
                             fontWeight: '800',
@@ -209,7 +213,6 @@ const PropertyPage = ({
                             border: 'none',
                             opacity: '1',
                         }}
-                        onValueChanged={changeCssTitle}
                     >
                         {isEditing && (
                             <Tooltip
@@ -217,7 +220,12 @@ const PropertyPage = ({
                                 showEvent='mouseenter'
                                 hideEvent='mouseleave'
                             >
-                                <div style={{ color: '#b99f6c' }}>
+                                <div
+                                    style={{
+                                        color: '#b99f6c',
+                                        fontWeight: 'bold',
+                                    }}
+                                >
                                     Be carefull you are changing the name of the
                                     property
                                 </div>
@@ -280,7 +288,6 @@ const PropertyPage = ({
                 readOnly={isLoading || !isEditing}
                 labelMode={'floating'}
                 onFieldDataChanged={changeCssFormElement}
-                ref={formRef}
             >
                 <GroupItem colCount={3}>
                     <GroupItem>
