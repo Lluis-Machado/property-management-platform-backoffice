@@ -59,6 +59,7 @@ interface Props {
     countriesData: CountryData[];
     initialStates: StateData[];
     ownershipData: OwnershipData[];
+    contactsData: ContactData[];
     token: TokenRes;
     lang: Locale;
 }
@@ -69,6 +70,7 @@ const ContactPage = ({
     contactData,
     countriesData,
     ownershipData,
+    contactsData,
     initialStates,
     token,
     lang,
@@ -175,6 +177,45 @@ const ContactPage = ({
         countriesMaskItems.filter(
             (obj) => obj.id === contactData.phones[index].countryMaskId
         )[0]?.mask || countriesMaskItems[0].mask;
+
+    const checkExpirationDate = useCallback(
+        (index: number) => {
+            const expDate = contactData.identifications[index].expirationDate;
+            if (expDate) {
+                const today = new Date();
+                const twoMonthsLater = new Date();
+                twoMonthsLater.setMonth(today.getMonth() + 2);
+                const dateElement = document.getElementById(
+                    `expirationDate${index}`
+                )?.firstElementChild;
+                if (new Date(expDate) < today) {
+                    dateElement?.classList.add('expired-document');
+                } else if (new Date(expDate) < twoMonthsLater) {
+                    dateElement?.classList.add('near-expiration');
+                }
+            }
+        },
+        [contactData]
+    );
+
+    const getExpirationDateHelpText = useCallback(
+        (index: number) => {
+            let expirationText = undefined;
+            const expDate = contactData.identifications[index].expirationDate;
+            if (expDate) {
+                const today = new Date();
+                const twoMonthsLater = new Date();
+                twoMonthsLater.setMonth(today.getMonth() + 2);
+                if (new Date(expDate) < today) {
+                    expirationText = 'Expired';
+                } else if (new Date(expDate) < twoMonthsLater) {
+                    expirationText = 'Expiration date approaching';
+                }
+            }
+            return expirationText;
+        },
+        [contactData]
+    );
 
     return (
         <div className='mt-4'>
@@ -300,6 +341,9 @@ const ContactPage = ({
                             displayExpr: 'name',
                         }}
                     />
+                    <Item dataField='email' label={{ text: 'Email' }}>
+                        <EmailRule message='Email is invalid' />
+                    </Item>
                 </GroupItem>
                 {/* Tabs */}
                 <GroupItem cssClass='mt-4'>
@@ -358,6 +402,9 @@ const ContactPage = ({
                                                 <Item
                                                     key={`expirationDate${index}`}
                                                     dataField={`identifications[${index}].expirationDate`}
+                                                    helpText={getExpirationDateHelpText(
+                                                        index
+                                                    )}
                                                     label={{
                                                         text: 'Expiration Date',
                                                     }}
@@ -369,47 +416,10 @@ const ContactPage = ({
                                                         displayFormat:
                                                             dateFormat,
                                                         showClearButton: true,
-                                                        onContentReady: () => {
-                                                            const expDate =
-                                                                contactData
-                                                                    .identifications[
-                                                                    index
-                                                                ]
-                                                                    .expirationDate;
-                                                            if (expDate) {
-                                                                const today =
-                                                                    new Date();
-                                                                const twoMonthsLater =
-                                                                    new Date();
-                                                                twoMonthsLater.setMonth(
-                                                                    today.getMonth() +
-                                                                        2
-                                                                );
-                                                                const dateElement =
-                                                                    document.getElementById(
-                                                                        `expirationDate${index}`
-                                                                    )
-                                                                        ?.firstElementChild;
-                                                                if (
-                                                                    new Date(
-                                                                        expDate
-                                                                    ) < today
-                                                                ) {
-                                                                    dateElement?.classList.add(
-                                                                        'expired-document'
-                                                                    );
-                                                                } else if (
-                                                                    new Date(
-                                                                        expDate
-                                                                    ) <
-                                                                    twoMonthsLater
-                                                                ) {
-                                                                    dateElement?.classList.add(
-                                                                        'near-expiration'
-                                                                    );
-                                                                }
-                                                            }
-                                                        },
+                                                        onContentReady: () =>
+                                                            checkExpirationDate(
+                                                                index
+                                                            ),
                                                     }}
                                                 />
                                                 <Item
@@ -426,7 +436,7 @@ const ContactPage = ({
                                                     key={`button3-${index}`}
                                                     itemType='button'
                                                     horizontalAlignment='left'
-                                                    verticalAlignment='bottom'
+                                                    verticalAlignment='top'
                                                     buttonOptions={{
                                                         icon: 'trash',
                                                         text: undefined,
@@ -478,7 +488,7 @@ const ContactPage = ({
                                     return (
                                         <GroupItem
                                             key={`GroupItem-${index}`}
-                                            colCount={8}
+                                            colCount={9}
                                         >
                                             <Item
                                                 key={`addressType${index}`}
@@ -555,6 +565,16 @@ const ContactPage = ({
                                                 key={`postalCode${index}`}
                                                 dataField={`addresses[${index}].postalCode`}
                                                 label={{ text: 'Postal code' }}
+                                            />
+                                            <Item
+                                                key={`addressShortComment${index}`}
+                                                dataField={`addresses[${index}].shortComment`}
+                                                label={{
+                                                    text: 'Short Comment',
+                                                }}
+                                                editorOptions={{
+                                                    maxLength: 30,
+                                                }}
                                             />
                                             <Item
                                                 key={`button${index}`}
@@ -720,19 +740,112 @@ const ContactPage = ({
                                 }}
                             />
                         </Tab>
-                        <Tab title={`Other`}>
-                            <GroupItem colCount={4}>
-                                <Item
-                                    dataField='email'
-                                    label={{ text: 'Email' }}
-                                >
-                                    <EmailRule message='Email is invalid' />
-                                </Item>
-                                <Item
-                                    dataField='iban'
-                                    label={{ text: 'IBAN' }}
-                                />
+                        <Tab title={`Bank`}>
+                            <GroupItem colCount={1}>
+                                {contactData.bankInformation.map(
+                                    (bank, index) => {
+                                        return (
+                                            <GroupItem
+                                                key={`GroupItem3-${index}`}
+                                                colCount={5}
+                                            >
+                                                <Item
+                                                    key={`bankName${index}`}
+                                                    dataField={`bankInformation[${index}].bankName`}
+                                                    label={{
+                                                        text: 'Bank Name',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`iban${index}`}
+                                                    dataField={`bankInformation[${index}].iban`}
+                                                    label={{
+                                                        text: 'IBAN',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`bic${index}`}
+                                                    dataField={`bankInformation[${index}].bic`}
+                                                    label={{
+                                                        text: 'BIC',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`contactPerson${index}`}
+                                                    dataField={`bankInformation[${index}].contactPerson`}
+                                                    label={{
+                                                        text: 'Contact Person',
+                                                    }}
+                                                    editorType='dxSelectBox'
+                                                    editorOptions={{
+                                                        items: contactsData,
+                                                        displayExpr: (
+                                                            item: ContactData
+                                                        ) => {
+                                                            if (!item) return;
+                                                            if (item.firstName)
+                                                                return `${item.firstName} ${item.lastName}`;
+                                                            else
+                                                                return `${item.lastName}`;
+                                                        },
+                                                        valueExpr: 'id',
+                                                        searchEnabled: true,
+                                                        onValueChanged: (
+                                                            e: any
+                                                        ) =>
+                                                            handleCountryChange(
+                                                                e.value
+                                                            ),
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`button4-${index}`}
+                                                    itemType='button'
+                                                    horizontalAlignment='left'
+                                                    verticalAlignment='bottom'
+                                                    buttonOptions={{
+                                                        icon: 'trash',
+                                                        text: undefined,
+                                                        disabled: !isEditing,
+                                                        type: 'danger',
+                                                        onClick: () => {
+                                                            // Set a new empty address
+                                                            contactData.bankInformation.splice(
+                                                                index,
+                                                                1
+                                                            );
+                                                            // Trick to force react update
+                                                            setAddressOptions(
+                                                                []
+                                                            );
+                                                        },
+                                                    }}
+                                                />
+                                            </GroupItem>
+                                        );
+                                    }
+                                )}
                             </GroupItem>
+                            <Item
+                                itemType='button'
+                                horizontalAlignment='left'
+                                buttonOptions={{
+                                    icon: 'add',
+                                    text: undefined,
+                                    disabled: !isEditing,
+                                    onClick: () => {
+                                        // Set a new empty address
+                                        contactData.bankInformation.push({
+                                            bankName: '',
+                                            iban: undefined,
+                                            bic: undefined,
+                                            contactPerson: undefined,
+                                        });
+                                        // Trick to force react update
+                                        setAddressOptions([]);
+                                    },
+                                }}
+                            />
                         </Tab>
                     </TabbedItem>
                 </GroupItem>

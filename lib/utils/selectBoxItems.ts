@@ -58,11 +58,19 @@ export const maritalStatusItems = [
 export const addressTypeItems = [
     {
         id: 1,
-        name: 'Physical Address',
+        name: 'Fiscal',
     },
     {
         id: 2,
-        name: 'Billing Address',
+        name: 'Billing',
+    },
+    {
+        id: 3,
+        name: 'Private',
+    },
+    {
+        id: 4,
+        name: 'Other',
     },
 ];
 
