@@ -793,7 +793,7 @@ const ContactPage = ({
                                                         onValueChanged: (
                                                             e: any
                                                         ) =>
-                                                            handleCountryChange(
+                                                            console.log(
                                                                 e.value
                                                             ),
                                                     }}
