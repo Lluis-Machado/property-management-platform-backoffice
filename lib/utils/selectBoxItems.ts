@@ -100,3 +100,22 @@ export const phoneType2Items = [
         name: 'Private',
     },
 ];
+
+export const companyContactsTypeItems = [
+    {
+        id: 1,
+        name: 'CEO',
+    },
+    {
+        id: 2,
+        name: 'Contact Person',
+    },
+    {
+        id: 3,
+        name: 'Owner',
+    },
+    {
+        id: 4,
+        name: 'Other',
+    },
+];
