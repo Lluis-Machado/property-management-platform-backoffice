@@ -159,26 +159,26 @@ const AddPropertyPage = ({
                             }}
                         />
                         <Item
-                            dataField='propertyAddress[0].addressLine1'
+                            dataField='propertyAddress.addressLine1'
                             label={{ text: 'Address line' }}
                         />
                         <Item
-                            dataField='propertyAddress[0].addressLine2'
+                            dataField='propertyAddress.addressLine2'
                             label={{ text: 'Address line 2' }}
                         />
                         <GroupItem colCount={2}>
                             <Item
-                                dataField='propertyAddress[0].postalCode'
+                                dataField='propertyAddress.postalCode'
                                 label={{ text: 'Postal code' }}
                             />
                             <Item
-                                dataField='propertyAddress[0].city'
+                                dataField='propertyAddress.city'
                                 label={{ text: 'City' }}
                             />
                         </GroupItem>
                         <GroupItem colCount={2}>
                             <Item
-                                dataField='propertyAddress[0].country'
+                                dataField='propertyAddress.country'
                                 label={{ text: 'Country' }}
                                 editorType='dxSelectBox'
                                 editorOptions={{
@@ -191,7 +191,7 @@ const AddPropertyPage = ({
                                 }}
                             />
                             <Item
-                                dataField='propertyAddress[0].state'
+                                dataField='propertyAddress.state'
                                 label={{ text: 'State' }}
                                 editorType='dxSelectBox'
                                 editorOptions={{

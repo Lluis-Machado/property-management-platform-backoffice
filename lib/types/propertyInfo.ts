@@ -25,13 +25,16 @@ export interface PropertyData {
     municipality: string;
     name: string;
     plotPrice: Price;
-    propertyAddress: Address[];
+    propertyAddress: Address;
     propertyScanMail: string;
     purchaseDate: string | null;
-    purchasePrice: Price;
+    purchasePriceNet: Price;
     purchasePriceAJD: Price;
+    purchasePriceAJDPercentage: number | null;
     purchasePriceTPO: Price;
+    purchasePriceTPOPercentage: number | null;
     purchasePriceTax: Price;
+    purchasePriceTaxPercentage: number | null;
     purchasePriceTotal: Price;
     saleDate: string | null;
     salePrice?: Price;

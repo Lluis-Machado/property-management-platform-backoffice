@@ -66,6 +66,7 @@ const PropertyPage = ({
     token,
     lang,
 }: Props): React.ReactElement => {
+    let priceTax: number;
     const router = useRouter();
     const ref = useRef<null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -115,7 +116,7 @@ const PropertyPage = ({
                 .then((data: StateData[]) => setStates(data))
                 .catch((e) => console.error('Error while getting the states'));
             // Ensure state is removed
-            propertyData.propertyAddress[0].state = null;
+            propertyData.propertyAddress.state = null;
         },
         [lang, token, propertyData.propertyAddress]
     );
@@ -189,6 +190,49 @@ const PropertyPage = ({
     const changeSelectbox = (e: any) => {
         e.element.classList.add('stylingForm');
     };
+
+    // calculate Propert Price Value
+    const calculatePriceTax = (e: any) => {
+        if (e.value == 1) {
+            //@ts-ignore
+            priceTax = (propertyData.purchasePriceNet.value / 100) * 10;
+            propertyData.purchasePriceTax.value = priceTax;
+            calculateTotalPrice(e);
+            return priceTax;
+        } else if (e.value == 2) {
+            //@ts-ignore
+            priceTax = (propertyData.purchasePriceNet.value / 100) * 21;
+            propertyData.purchasePriceTax.value = priceTax;
+            calculateTotalPrice(e);
+            return priceTax;
+        } else {
+            propertyData.purchasePriceTax.value = priceTax;
+            calculateTotalPrice(e);
+            return priceTax;
+        }
+    };
+
+    const calculateTPOValue = (e: any) => {
+        //@ts-ignore
+        propertyData.purchasePriceTPO.value =
+            (propertyData.purchasePriceNet.value / 100) * e.value;
+        calculateTotalPrice(e);
+    };
+    const calculateAJDValue = (e: any) => {
+        //@ts-ignore
+        propertyData.purchasePriceAJD.value =
+            (propertyData.purchasePriceNet.value / 100) * e.value;
+        calculateTotalPrice(e);
+    };
+
+    const calculateTotalPrice = (e: any) => {
+        //@ts-ignore
+        propertyData.purchasePriceTotal.value =
+            propertyData.purchasePriceNet.value +
+            propertyData.purchasePriceTPO.value +
+            propertyData.purchasePriceAJD.value;
+    };
+    const visible = () => {};
 
     return (
         <div className='mt-4'>
@@ -334,26 +378,26 @@ const PropertyPage = ({
                         />
                         <GroupItem>
                             <Item
-                                dataField='propertyAddress[0].addressLine1'
+                                dataField='propertyAddress.addressLine1'
                                 label={{ text: 'Address line' }}
                             />
                             <Item
-                                dataField='propertyAddress[0].addressLine2'
+                                dataField='propertyAddress.addressLine2'
                                 label={{ text: 'Address line 2' }}
                             />
                             <GroupItem colCount={2}>
                                 <Item
-                                    dataField='propertyAddress[0].postalCode'
+                                    dataField='propertyAddress.postalCode'
                                     label={{ text: 'Postal code' }}
                                 />
                                 <Item
-                                    dataField='propertyAddress[0].city'
+                                    dataField='propertyAddress.city'
                                     label={{ text: 'City' }}
                                 />
                             </GroupItem>
                             <GroupItem colCount={2}>
                                 <Item
-                                    dataField='propertyAddress[0].country'
+                                    dataField='propertyAddress.country'
                                     label={{ text: 'Country' }}
                                     editorType='dxSelectBox'
                                     editorOptions={{
@@ -368,7 +412,7 @@ const PropertyPage = ({
                                     }}
                                 />
                                 <Item
-                                    dataField='propertyAddress[0].state'
+                                    dataField='propertyAddress.state'
                                     label={{ text: 'State' }}
                                     editorType='dxSelectBox'
                                     editorOptions={{
@@ -552,7 +596,7 @@ const PropertyPage = ({
                             </GroupItem>
                         </Tab>
                         <Tab title='Purchase'>
-                            <GroupItem colCount={4}>
+                            <GroupItem>
                                 <Item
                                     dataField='purchaseDate'
                                     label={{ text: 'Purchase Date' }}
@@ -565,37 +609,79 @@ const PropertyPage = ({
                                     }}
                                 />
                                 <Item
-                                    dataField='purchasePrice.value'
+                                    dataField='purchasePriceNet.value'
                                     label={{ text: 'Purchase price' }}
                                     editorOptions={{
                                         onValueChanged: (e: any) =>
                                             changeSelectbox(e),
                                     }}
                                 />
-                                <Item
-                                    dataField='purchasePriceTax.value'
-                                    label={{ text: 'Purchase Price Tax' }}
-                                    editorOptions={{
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
-                                    }}
-                                />
-                                <Item
-                                    dataField='purchasePriceAJD.value'
-                                    label={{ text: 'Purchase Price AJD' }}
-                                    editorOptions={{
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
-                                    }}
-                                />
-                                <Item
-                                    dataField='purchasePriceTPO.value'
-                                    label={{ text: 'Purchase Price TPO' }}
-                                    editorOptions={{
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
-                                    }}
-                                />
+                                <GroupItem colCount={2}>
+                                    <Item
+                                        dataField='purchasePriceTaxPercentage'
+                                        label={{ text: 'Percentage' }}
+                                        editorType='dxSelectBox'
+                                        editorOptions={{
+                                            items: [
+                                                { label: 'Sin IVA', value: 0 },
+                                                { label: '10%', value: 1 },
+                                                { label: '21%', value: 2 },
+                                            ],
+                                            displayExpr: 'label',
+                                            valueExpr: 'value',
+                                            searchEnabled: true,
+                                            showClearButton: isEditing && true,
+                                            onValueChanged: (e: any) => {
+                                                changeSelectbox(e),
+                                                    calculatePriceTax(e);
+                                            },
+                                        }}
+                                    />
+                                    <Item
+                                        dataField='purchasePriceTax.value'
+                                        label={{ text: 'Purchase Price Tax' }}
+                                        editorOptions={{
+                                            onValueChanged: (e: any) =>
+                                                changeSelectbox(e),
+                                        }}
+                                    />
+                                </GroupItem>
+                                <GroupItem colCount={2}>
+                                    <Item
+                                        dataField='purchasePriceTPOPercentage'
+                                        label={{ text: 'Percentage TPO' }}
+                                        editorOptions={{
+                                            onValueChanged: (e: any) =>
+                                                calculateTPOValue(e),
+                                        }}
+                                    />
+                                    <Item
+                                        dataField='purchasePriceTPO.value'
+                                        label={{ text: 'Purchase Price TPO' }}
+                                        editorOptions={{
+                                            onValueChanged: (e: any) =>
+                                                changeSelectbox(e),
+                                        }}
+                                    />
+                                </GroupItem>
+                                <GroupItem colCount={2}>
+                                    <Item
+                                        dataField='purchasePriceAJDPercentage'
+                                        label={{ text: 'Percentage AJD' }}
+                                        editorOptions={{
+                                            onValueChanged: (e: any) =>
+                                                calculateAJDValue(e),
+                                        }}
+                                    />
+                                    <Item
+                                        dataField='purchasePriceAJD.value'
+                                        label={{ text: 'Purchase Price AJD' }}
+                                        editorOptions={{
+                                            onValueChanged: (e: any) =>
+                                                changeSelectbox(e),
+                                        }}
+                                    />
+                                </GroupItem>
                                 <Item
                                     dataField='purchasePriceTotal.value'
                                     label={{ text: 'Purchase Price Total' }}

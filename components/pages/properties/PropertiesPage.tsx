@@ -41,18 +41,18 @@ const PropertiesPage = ({
     const { states } = useCountryChange(lang, token);
     const addressCellRender = (e: PropertyData) => {
         const countryName: any = countryData?.find(
-            (country) =>
-                country.id == propertyData[0].propertyAddress[0].country
+            (country) => country.id == e.propertyAddress.country
         );
+        const country = countryName.name;
         const stateName = states?.find(
-            (state) => state.id == propertyData[0].propertyAddress[0].state
+            (state) => state.id == e.propertyAddress.state
         );
-        const { addressLine1, city, postalCode } = e.propertyAddress[0];
+        const { addressLine1, city, postalCode } = e.propertyAddress;
         const parts = [
             addressLine1,
             postalCode && `${postalCode} - ${city}`,
             stateName,
-            countryName.name,
+            country,
         ];
         return parts.filter(Boolean).join(', ');
     };
