@@ -11,9 +11,6 @@ export interface PropertyData {
     comments?: string;
     contactPersonId: string;
     federalState: string;
-    furniturePrice: Price;
-    furniturePriceIVA: Price;
-    furniturePriceTPO: Price;
     garbageCollection: number | null;
     garbagePriceAmount: number | null;
     ibiAmount: string;
@@ -29,6 +26,7 @@ export interface PropertyData {
     propertyScanMail: string;
     purchaseDate: string | null;
     purchasePriceNet: Price;
+    purchasePriceGross: Price;
     purchasePriceAJD: Price;
     purchasePriceAJDPercentage: number | null;
     purchasePriceTPO: Price;
@@ -36,6 +34,14 @@ export interface PropertyData {
     purchasePriceTax: Price;
     purchasePriceTaxPercentage: number | null;
     purchasePriceTotal: Price;
+    priceTotal: string;
+    furniturePrice: Price;
+    furniturePriceIVA: Price;
+    furniturePriceIVAPercentage: string;
+    furniturePriceTPO: Price;
+    furniturePriceTPOPercentage: string;
+    furniturePriceTotal: Price;
+    furniturePriceGross: string;
     saleDate: string | null;
     salePrice?: Price;
     totalPrice?: Price;
