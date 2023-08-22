@@ -675,18 +675,21 @@ const PropertyPage = ({
                         </Tab>
                         <Tab title='Purchase'>
                             <GroupItem>
-                                <Item
-                                    dataField='purchaseDate'
-                                    label={{ text: 'Purchase Date' }}
-                                    editorType='dxDateBox'
-                                    editorOptions={{
-                                        displayFormat: dateFormat,
-                                        showClearButton: true,
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
-                                    }}
-                                />
-                                <GroupItem colCount={2}>
+                                <GroupItem colCount={3}>
+                                    <Item
+                                        dataField='purchaseDate'
+                                        label={{ text: 'Purchase Date' }}
+                                        editorType='dxDateBox'
+                                        colSpan={2}
+                                        editorOptions={{
+                                            displayFormat: dateFormat,
+                                            showClearButton: true,
+                                            onValueChanged: (e: any) =>
+                                                changeSelectbox(e),
+                                        }}
+                                    />
+                                </GroupItem>
+                                <GroupItem colCount={3}>
                                     <GroupItem caption='Property'>
                                         <Item
                                             dataField='purchasePriceNet.value'
@@ -901,15 +904,18 @@ const PropertyPage = ({
                                         />
                                     </GroupItem>
                                 </GroupItem>
-                                <Item
-                                    dataField='priceTotal.value'
-                                    label={{ text: 'Total Purchase Price' }}
-                                    editorOptions={{
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
-                                        readOnly: true,
-                                    }}
-                                />
+                                <GroupItem colCount={3}>
+                                    <Item
+                                        dataField='priceTotal.value'
+                                        label={{ text: 'Total Purchase Price' }}
+                                        colSpan={2}
+                                        editorOptions={{
+                                            onValueChanged: (e: any) =>
+                                                changeSelectbox(e),
+                                            readOnly: true,
+                                        }}
+                                    />
+                                </GroupItem>
                             </GroupItem>
                         </Tab>
                         <Tab title='Other Information'>
