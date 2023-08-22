@@ -212,7 +212,7 @@ const CompanyPage = ({
                         elevated
                         onClick={() =>
                             window.open(
-                                'https://crm.zoho.com/crm/org57555088/tab/Contacts/1631361000011416026',
+                                'https://crm.zoho.com/crm/org57555088/tab/Accounts/1631361000106185043',
                                 '_blank'
                             )
                         }

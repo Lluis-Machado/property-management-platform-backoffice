@@ -685,12 +685,12 @@ const AddContactPage = ({
                     <div className='flex flex-row self-center'>
                         <Button
                             elevated
-                            onClick={handleSubmit}
-                            text='Create Contact'
                             type='button'
+                            text='Create Contact'
                             icon={faSave}
                             disabled={isLoading}
                             isLoading={isLoading}
+                            onClick={handleSubmit}
                         />
                     </div>
                 </div>
