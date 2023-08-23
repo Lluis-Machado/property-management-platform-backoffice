@@ -34,14 +34,14 @@ export interface PropertyData {
     purchasePriceTax: Price;
     purchasePriceTaxPercentage: number | null;
     purchasePriceTotal: Price;
-    priceTotal: string;
+    priceTotal: Price;
     furniturePrice: Price;
     furniturePriceIVA: Price;
-    furniturePriceIVAPercentage: string;
+    furniturePriceIVAPercentage: number;
     furniturePriceTPO: Price;
-    furniturePriceTPOPercentage: string;
+    furniturePriceTPOPercentage: number;
     furniturePriceTotal: Price;
-    furniturePriceGross: string;
+    furniturePriceGross: Price;
     saleDate: string | null;
     salePrice?: Price;
     totalPrice?: Price;
@@ -52,5 +52,5 @@ export interface PropertyData {
 
 interface Price {
     currency?: string;
-    value?: number | undefined;
+    value: number;
 }
