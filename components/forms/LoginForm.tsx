@@ -70,7 +70,10 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
 
             console.log(response);
 
-            if (response.ok) return router.push('/private');
+            // If OK, redirect to the pathname requested from
+            // this user or to /private if the previous does not exist
+            if (response.ok)
+                return router.push(searchParams?.pathname || '/private');
             else {
                 const data = await response.json();
                 throw new ApiCallError(
