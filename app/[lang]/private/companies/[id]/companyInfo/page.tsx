@@ -57,11 +57,6 @@ const Company = async ({ params: { lang, id } }: Props) => {
         if (promises) statesData = (await Promise.all(promises)).flat();
     }
 
-    // TODO: Delete this
-    companyData.contacts = [];
-    companyData.bankInformation = [];
-    companyData.comments = '';
-
     return (
         <>
             <Breadcrumb />

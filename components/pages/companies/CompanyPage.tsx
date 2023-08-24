@@ -51,6 +51,7 @@ import {
     phoneTypeItems,
 } from '@/lib/utils/selectBoxItems';
 import { ContactData } from '@/lib/types/contactData';
+import { displayContactFullName } from '@/lib/utils/displayContactFullName';
 
 interface Props {
     companyData: CompanyData;
@@ -164,12 +165,6 @@ const CompanyPage = ({
         countriesMaskItems.filter(
             (obj) => obj.id === companyData.countryMaskId
         )[0]?.mask || countriesMaskItems[0].mask;
-
-    const displayContactFullName = (item: ContactData) => {
-        if (!item) return;
-        if (item.firstName) return `${item.firstName} ${item.lastName}`;
-        else return `${item.lastName}`;
-    };
 
     return (
         <div className='mt-4'>

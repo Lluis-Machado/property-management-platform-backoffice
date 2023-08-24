@@ -35,6 +35,7 @@ import {
     countriesMaskItems,
 } from '@/lib/utils/selectBoxItems';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
+import { displayContactFullName } from '@/lib/utils/displayContactFullName';
 
 interface Props {
     companyData: CompanyData;
@@ -131,12 +132,6 @@ const AddCompanyPage = ({
         countriesMaskItems.filter(
             (obj) => obj.id === companyData.countryMaskId
         )[0]?.mask || countriesMaskItems[0].mask;
-
-    const displayContactFullName = (item: ContactData) => {
-        if (!item) return;
-        if (item.firstName) return `${item.firstName} ${item.lastName}`;
-        else return `${item.lastName}`;
-    };
 
     return (
         <div>
