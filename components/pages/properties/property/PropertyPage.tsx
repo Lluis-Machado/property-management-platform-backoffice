@@ -1,7 +1,7 @@
 'use client';
 
 // React imports
-import { ForwardedRef, useCallback, useRef, useState } from 'react';
+import { LegacyRef, useCallback, useRef, useState } from 'react';
 
 // Libraries imports
 import { Button } from 'pg-components';
@@ -18,6 +18,7 @@ import { toast } from 'react-toastify';
 import Form, {
     GroupItem,
     Item,
+    Label,
     Tab,
     TabPanelOptions,
     TabbedItem,
@@ -70,13 +71,17 @@ const PropertyPage = ({
     let priceTax: number;
     const router = useRouter();
     const dataGridRef = useRef();
+    const formRef = useRef<Form>(null);
+    const statesRef = useRef<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
-    const [states, setStates] = useState<StateData[] | undefined>(
-        initialStates
-    );
+    // const [states, setStates] = useState<StateData[] | undefined>(
+    //     initialStates
+    // )
+    const data = initialStates;
+    console.log(data);
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
     );
@@ -84,7 +89,6 @@ const PropertyPage = ({
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
-    const [addressOptions, setAddressOptions] = useState({});
 
     // function name property
     const [nameProperty, setNameProperty] = useState<string>(
@@ -115,7 +119,7 @@ const PropertyPage = ({
                 }
             )
                 .then((resp) => resp.json())
-                .then((data: StateData[]) => setStates(data))
+                //.then((data: StateData[]) => (statesRef.current!.instance.option('dataSource', data)))
                 .catch((e) => console.error('Error while getting the states'));
             // Ensure state is removed
             propertyData.propertyAddress.state = null;
@@ -188,7 +192,7 @@ const PropertyPage = ({
             .classList.add('stylingForm');
     };
 
-    const changeSelectbox = (e: any) => {
+    const changeSelectbox = (e: ValueChangedEvent) => {
         e.element.classList.add('stylingForm');
     };
 
@@ -198,45 +202,63 @@ const PropertyPage = ({
         if (propertyData.purchasePriceTaxPercentage === 1) {
             propertyData.purchasePriceTax.value =
                 (propertyData.purchasePriceNet.value! / 100) * 10;
+            //AJD CALCULATION
+            propertyData.purchasePriceAJD.value =
+                (propertyData.purchasePriceNet.value / 100) *
+                propertyData.purchasePriceAJDPercentage!;
+            propertyData.purchasePriceTPO.value = 0;
+            propertyData.purchasePriceTPOPercentage = 0;
         } else if (propertyData.purchasePriceTaxPercentage === 2) {
             propertyData.purchasePriceTax.value =
                 (propertyData.purchasePriceNet.value! / 100) * 21;
+            // AJD CALCULATION
+            propertyData.purchasePriceAJD.value =
+                (propertyData.purchasePriceNet.value / 100) *
+                propertyData.purchasePriceAJDPercentage!;
+            propertyData.purchasePriceTPO.value = 0;
+            propertyData.purchasePriceTPOPercentage = 0;
         } else {
             propertyData.purchasePriceTax.value =
                 propertyData.purchasePriceNet.value;
+            //TPO CALCULATION
+            propertyData.purchasePriceTPO.value =
+                (propertyData.purchasePriceNet.value / 100) *
+                propertyData.purchasePriceTPOPercentage!;
+            propertyData.purchasePriceAJD.value = 0;
+            propertyData.purchasePriceAJDPercentage = 0;
         }
         calculateBruttoValue();
         calculateTotalPrice();
         calculatePurchasePrice();
     };
-    const calculatePriceTax = (e: any) => {
+    const calculatePriceTax = (e: ValueChangedEvent) => {
         if (e.value == 1) {
             priceTax = (propertyData.purchasePriceNet.value / 100) * 10;
             propertyData.purchasePriceTax.value = priceTax;
+            propertyData.purchasePriceTaxPercentage = e.value;
             propertyData.purchasePriceTPO.value = 0;
             propertyData.purchasePriceTPOPercentage = 0;
             calculateBruttoValue();
             calculateTotalPrice();
             calculatePurchasePrice();
-            return priceTax;
         } else if (e.value == 2) {
             priceTax = (propertyData.purchasePriceNet.value / 100) * 21;
             propertyData.purchasePriceTax.value = priceTax;
+            propertyData.purchasePriceTaxPercentage = e.value;
             propertyData.purchasePriceTPO.value = 0;
             propertyData.purchasePriceTPOPercentage = 0;
             calculateBruttoValue();
             calculateTotalPrice();
             calculatePurchasePrice();
-            return priceTax;
         } else {
             propertyData.purchasePriceTax.value = 0;
+            propertyData.purchasePriceTaxPercentage = 0;
             propertyData.purchasePriceGross.value =
                 propertyData.purchasePriceNet.value;
             propertyData.purchasePriceAJD.value = 0;
             propertyData.purchasePriceAJDPercentage = 0;
             calculateTotalPrice();
             calculatePurchasePrice();
-            return priceTax;
         }
     };
 
@@ -246,7 +268,7 @@ const PropertyPage = ({
             propertyData.purchasePriceTax.value;
     };
 
-    const calculateTPOValue = (e: any) => {
+    const calculateTPOValue = (e: ValueChangedEvent) => {
         propertyData.purchasePriceTPO.value =
             (propertyData.purchasePriceNet.value / 100) * e.value;
         propertyData.purchasePriceAJD.value = 0;
@@ -255,7 +277,7 @@ const PropertyPage = ({
         calculatePurchasePrice();
     };
 
-    const calculateAJDValue = (e: any) => {
+    const calculateAJDValue = (e: ValueChangedEvent) => {
         propertyData.purchasePriceAJD.value =
             (propertyData.purchasePriceNet.value / 100) * e.value;
         propertyData.purchasePriceTPO.value = 0;
@@ -271,7 +293,7 @@ const PropertyPage = ({
             propertyData.purchasePriceAJD.value;
     };
     // Furniture
-    const calculateNet = (e: any) => {
+    const calculateNet = (e: ValueChangedEvent) => {
         propertyData.furniturePriceIVA.value =
             (e.value / 100) * propertyData.furniturePriceIVAPercentage;
         calculateBruttoValueFurniture();
@@ -279,7 +301,7 @@ const PropertyPage = ({
         calculateTotalPriceFurniture();
         calculatePurchasePrice();
     };
-    const calculatePriceTaxFurniture = (e: any) => {
+    const calculatePriceTaxFurniture = (e: ValueChangedEvent) => {
         propertyData.furniturePriceIVA.value =
             (propertyData.furniturePrice.value / 100) * e.value;
         calculateBruttoValueFurniture();
@@ -306,6 +328,7 @@ const PropertyPage = ({
         propertyData.priceTotal.value =
             propertyData.furniturePriceTotal.value +
             propertyData.purchasePriceTotal.value;
+        formRef.current!.instance.updateData(propertyData);
     };
     return (
         <div className='mt-4'>
@@ -405,6 +428,7 @@ const PropertyPage = ({
                 labelMode='floating'
                 readOnly={isLoading || !isEditing}
                 onFieldDataChanged={changeCssFormElement}
+                ref={formRef}
             >
                 <GroupItem colCount={3}>
                     <GroupItem>
@@ -426,7 +450,8 @@ const PropertyPage = ({
                                 valueExpr: 'value',
                                 searchEnabled: true,
                                 showClearButton: true,
-                                onValueChanged: (e: any) => changeSelectbox(e),
+                                onValueChanged: (e: ValueChangedEvent) =>
+                                    changeSelectbox(e),
                             }}
                         />
                         <Item
@@ -443,7 +468,8 @@ const PropertyPage = ({
                                 valueExpr: 'value',
                                 searchEnabled: true,
                                 showClearButton: isEditing && true,
-                                onValueChanged: (e: any) => changeSelectbox(e),
+                                onValueChanged: (e: ValueChangedEvent) =>
+                                    changeSelectbox(e),
                             }}
                         />
                         <GroupItem>
@@ -475,9 +501,11 @@ const PropertyPage = ({
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
-                                        onValueChanged: (e: any) => {
-                                            handleCountryChange(e.value),
-                                                changeSelectbox(e);
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => {
+                                            handleCountryChange(e.value);
+                                            changeSelectbox(e);
                                         },
                                     }}
                                 />
@@ -486,12 +514,14 @@ const PropertyPage = ({
                                     label={{ text: 'State' }}
                                     editorType='dxSelectBox'
                                     editorOptions={{
-                                        items: states,
+                                        dataSource: data,
+                                        ref: { statesRef },
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
                                     }}
                                 />
                             </GroupItem>
@@ -538,7 +568,8 @@ const PropertyPage = ({
                                 displayExpr: 'firstName',
                                 valueExpr: 'id',
                                 searchEnabled: true,
-                                onValueChanged: (e: any) => changeSelectbox(e),
+                                onValueChanged: (e: ValueChangedEvent) =>
+                                    changeSelectbox(e),
                                 buttons: [
                                     {
                                         name: 'goto',
@@ -619,32 +650,36 @@ const PropertyPage = ({
                                     dataField='cadastreValue'
                                     label={{ text: 'Cadastre Value' }}
                                     editorOptions={{
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
                                     }}
                                 />
                                 <Item
                                     dataField='loanPrice.value'
                                     label={{ text: 'Loan price' }}
                                     editorOptions={{
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
                                     }}
                                 />
                                 <Item
                                     dataField='buildingPrice.value'
                                     label={{ text: 'Building price' }}
                                     editorOptions={{
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
                                     }}
                                 />
                                 <Item
                                     dataField='plotPrice.value'
                                     label={{ text: 'Plot price' }}
                                     editorOptions={{
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
                                     }}
                                 />
                                 <Item
@@ -663,8 +698,9 @@ const PropertyPage = ({
                                     editorOptions={{
                                         displayFormat: dateFormat,
                                         showClearButton: true,
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
                                     }}
                                 />
                             </GroupItem>
@@ -683,7 +719,6 @@ const PropertyPage = ({
                                                 ) => {
                                                     changeSelectbox(e);
                                                     calculatePurchase(e);
-                                                    setAddressOptions({});
                                                 },
                                             }}
                                         />
@@ -726,7 +761,6 @@ const PropertyPage = ({
                                                     ) => {
                                                         changeSelectbox(e);
                                                         calculatePriceTax(e);
-                                                        setAddressOptions({});
                                                     },
                                                     readOnly: !isEditing,
                                                 }}
@@ -738,7 +772,7 @@ const PropertyPage = ({
                                             editorOptions={{
                                                 onValueChanged: (
                                                     e: ValueChangedEvent
-                                                ) => calculateTPOValue(e),
+                                                ) => changeSelectbox(e),
                                                 readOnly: true,
                                             }}
                                         />
@@ -758,10 +792,12 @@ const PropertyPage = ({
                                                     editorOptions={{
                                                         onValueChanged: (
                                                             e: ValueChangedEvent
-                                                        ) =>
+                                                        ) => {
                                                             calculateTPOValue(
                                                                 e
-                                                            ),
+                                                            );
+                                                            changeSelectbox(e);
+                                                        },
                                                     }}
                                                 />
                                             </GroupItem>
@@ -785,10 +821,12 @@ const PropertyPage = ({
                                                     editorOptions={{
                                                         onValueChanged: (
                                                             e: ValueChangedEvent
-                                                        ) =>
+                                                        ) => {
                                                             calculateAJDValue(
                                                                 e
-                                                            ),
+                                                            );
+                                                            changeSelectbox(e);
+                                                        },
                                                         readOnly: !isEditing,
                                                     }}
                                                 />
@@ -812,9 +850,11 @@ const PropertyPage = ({
                                             dataField='furniturePrice.value'
                                             label={{ text: 'Netto' }}
                                             editorOptions={{
-                                                onValueChanged: (e: any) => {
-                                                    changeSelectbox(e),
-                                                        calculateNet(e);
+                                                onValueChanged: (
+                                                    e: ValueChangedEvent
+                                                ) => {
+                                                    changeSelectbox(e);
+                                                    calculateNet(e);
                                                 },
                                             }}
                                         />
@@ -823,8 +863,11 @@ const PropertyPage = ({
                                                 dataField='furniturePriceIVA.value'
                                                 label={{ text: 'IVA' }}
                                                 editorOptions={{
-                                                    onValueChanged: (e: any) =>
-                                                        changeSelectbox(e),
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => {
+                                                        changeSelectbox(e);
+                                                    },
                                                     readOnly: true,
                                                 }}
                                             />
@@ -832,10 +875,14 @@ const PropertyPage = ({
                                                 dataField='furniturePriceIVAPercentage'
                                                 label={{ text: 'IVA %' }}
                                                 editorOptions={{
-                                                    onValueChanged: (e: any) =>
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => {
                                                         calculatePriceTaxFurniture(
                                                             e
-                                                        ),
+                                                        );
+                                                        changeSelectbox(e);
+                                                    },
                                                     readOnly: !isEditing,
                                                 }}
                                             />
@@ -844,6 +891,9 @@ const PropertyPage = ({
                                             dataField='furniturePriceGross.value'
                                             label={{ text: 'Brutto' }}
                                             editorOptions={{
+                                                onValueChanged: (
+                                                    e: ValueChangedEvent
+                                                ) => changeSelectbox(e),
                                                 readOnly: true,
                                             }}
                                         />
@@ -852,8 +902,9 @@ const PropertyPage = ({
                                                 dataField='furniturePriceTPO.value'
                                                 label={{ text: 'TPO/ ITP' }}
                                                 editorOptions={{
-                                                    onValueChanged: (e: any) =>
-                                                        changeSelectbox(e),
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => changeSelectbox(e),
                                                     readOnly: true,
                                                 }}
                                             />
@@ -870,15 +921,10 @@ const PropertyPage = ({
                                                     ],
                                                     displayExpr: 'label',
                                                     valueExpr: 'value',
-                                                    searchEnabled: true,
                                                     showClearButton:
                                                         isEditing && true,
-                                                    onValueChanged: (
-                                                        e: any
-                                                    ) => {
-                                                        changeSelectbox(e),
-                                                            calculateTPOValueFurniture();
-                                                    },
+                                                    onValueChanged: () =>
+                                                        calculateTPOValueFurniture(),
                                                     readOnly: true,
                                                 }}
                                             />
@@ -889,8 +935,9 @@ const PropertyPage = ({
                                                 text: 'Total Furniture Price',
                                             }}
                                             editorOptions={{
-                                                onValueChanged: (e: any) =>
-                                                    changeSelectbox(e),
+                                                onValueChanged: (
+                                                    e: ValueChangedEvent
+                                                ) => changeSelectbox(e),
                                                 readOnly: true,
                                             }}
                                         />
@@ -902,6 +949,9 @@ const PropertyPage = ({
                                         label={{ text: 'Total Price' }}
                                         colSpan={2}
                                         editorOptions={{
+                                            onValueChanged: (
+                                                e: ValueChangedEvent
+                                            ) => changeSelectbox(e),
                                             readOnly: true,
                                         }}
                                     />
@@ -937,16 +987,18 @@ const PropertyPage = ({
                                     editorOptions={{
                                         displayFormat: dateFormat,
                                         showClearButton: true,
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
                                     }}
                                 />
                                 <Item
                                     dataField='salePrice.value'
                                     label={{ text: 'Sale Price' }}
                                     editorOptions={{
-                                        onValueChanged: (e: any) =>
-                                            changeSelectbox(e),
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
                                     }}
                                 />
                             </GroupItem>
