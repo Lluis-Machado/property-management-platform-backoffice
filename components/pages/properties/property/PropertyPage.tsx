@@ -68,7 +68,6 @@ const PropertyPage = ({
     lang,
 }: Props): React.ReactElement => {
     let priceTax: number;
-    let nameProperty: string;
     const router = useRouter();
     const dataGridRef = useRef();
     const formRef = useRef<Form>(null);
