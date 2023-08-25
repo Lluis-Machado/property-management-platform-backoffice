@@ -1,4 +1,5 @@
 import { Address } from './address';
+import { BankInformation } from './bankInformation';
 import { Identification } from './identification';
 import { Phone } from './phone';
 
@@ -15,5 +16,5 @@ export interface ContactData {
     addresses: Address[];
     phones: Phone[];
     email: string;
-    iban: string;
+    bankInformation: BankInformation[];
 }

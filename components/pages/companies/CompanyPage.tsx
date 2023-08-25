@@ -1,26 +1,33 @@
 'use client';
 
+// React imports
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from 'pg-components';
-import { memo, useCallback, useRef, useState } from 'react';
 import {
+    faArrowUpRightFromSquare,
     faFileLines,
     faPencil,
     faReceipt,
+    faSave,
     faTrash,
     faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
+import DataSource from 'devextreme/data/data_source';
 import Form, {
     EmailRule,
     GroupItem,
     Item,
     RequiredRule,
-    StringLengthRule,
+    Tab,
+    TabPanelOptions,
+    TabbedItem,
 } from 'devextreme-react/form';
-import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
+import 'devextreme-react/text-area';
 
 // Local imports
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
@@ -36,10 +43,20 @@ import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { CompanyData } from '@/lib/types/companyData';
 import useCountryChange from '@/lib/hooks/useCountryChange';
+import {
+    addressTypeItems,
+    companyContactsTypeItems,
+    countriesMaskItems,
+    phoneType2Items,
+    phoneTypeItems,
+} from '@/lib/utils/selectBoxItems';
+import { ContactData } from '@/lib/types/contactData';
+import { displayContactFullName } from '@/lib/utils/displayContactFullName';
 
 interface Props {
     companyData: CompanyData;
     countriesData?: CountryData[];
+    contactsData: ContactData[];
     initialStates?: StateData[];
     token: TokenRes;
     lang: Locale;
@@ -48,15 +65,13 @@ interface Props {
 const CompanyPage = ({
     companyData,
     countriesData,
+    contactsData,
     initialStates,
     token,
     lang,
 }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [phoneNumber, setPhoneNumber] = useState<string>(
-        companyData.phoneNumber
-    );
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
     // Importante para que no se copie por referencia
@@ -64,13 +79,28 @@ const CompanyPage = ({
         structuredClone(companyData)
     );
     const [addressOptions, setAddressOptions] = useState({});
+    const [countryDataSource, setCountryDataSource] = useState({});
 
-    const { states, handleCountryChange, isStateLoading, getFilteredStates } =
+    const { getFilteredStates, handleCountryChange, isStateLoading } =
         useCountryChange(lang, token, initialStates);
 
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
+
+    useEffect(() => {
+        // Set DataSource for DevExtreme select box grouping
+        setCountryDataSource(
+            new DataSource({
+                store: {
+                    type: 'array',
+                    data: countriesData,
+                    key: 'id',
+                },
+                group: 'category',
+            })
+        );
+    }, [countriesData]);
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
@@ -91,7 +121,6 @@ const CompanyPage = ({
         try {
             const valuesToSend: CompanyData = {
                 ...values,
-                phoneNumber,
                 foundingDate: formatDate(values.foundingDate),
             };
 
@@ -114,28 +143,33 @@ const CompanyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [companyData, initialValues, token, phoneNumber]);
+    }, [companyData, initialValues, token]);
 
     const handleDelete = useCallback(async () => {
-        const toastId = toast.loading('Deleting contact...');
+        const toastId = toast.loading('Deleting company...');
         try {
             await apiDelete(
-                `/contacts/contacts/${companyData.id}`,
+                `/companies/companies/${companyData.id}`,
                 token,
-                'Error while deleting this contact'
+                'Error while deleting this company'
             );
 
-            updateSuccessToast(toastId, 'Contact deleted correctly!');
-            router.push('/private/contacts');
+            updateSuccessToast(toastId, 'Company deleted correctly!');
+            router.push('/private/companies');
         } catch (error: unknown) {
             customError(error, toastId);
         }
     }, [companyData, router, token]);
 
+    const getMaskFromDataSource = () =>
+        countriesMaskItems.filter(
+            (obj) => obj.id === companyData.countryMaskId
+        )[0]?.mask || countriesMaskItems[0].mask;
+
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
-                message='Are you sure you want to delete this contact?'
+                message='Are you sure you want to delete this company?'
                 isVisible={confirmationVisible}
                 onClose={() => setConfirmationVisible(false)}
                 onConfirm={handleDelete}
@@ -171,6 +205,25 @@ const CompanyPage = ({
                 <div className='flex flex-row gap-4 self-center'>
                     <Button
                         elevated
+                        onClick={() =>
+                            window.open(
+                                'https://crm.zoho.com/crm/org57555088/tab/Accounts/1631361000106185043',
+                                '_blank'
+                            )
+                        }
+                        type='button'
+                        icon={faArrowUpRightFromSquare}
+                    />
+                    <Button
+                        elevated
+                        onClick={handleSubmit}
+                        type='button'
+                        icon={faSave}
+                        disabled={!isEditing || isLoading}
+                        isLoading={isLoading}
+                    />
+                    <Button
+                        elevated
                         onClick={() => setIsEditing((prev) => !prev)}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
@@ -192,40 +245,13 @@ const CompanyPage = ({
                 readOnly={isLoading || !isEditing}
                 showValidationSummary
             >
-                <GroupItem colCount={4} caption='Company Information'>
+                <GroupItem colCount={4}>
                     <Item dataField='name' label={{ text: 'Company name' }}>
                         <RequiredRule />
                     </Item>
                     <Item dataField='nif' label={{ text: 'NIF' }} />
                     <Item dataField='email' label={{ text: 'Email' }}>
                         <EmailRule message='Email is invalid' />
-                    </Item>
-                    <Item>
-                        <TextBox
-                            value={phoneNumber}
-                            label='Phone number'
-                            onValueChange={(e) => setPhoneNumber(e)}
-                            mask='+(0000) 000-00-00-00'
-                            readOnly={isLoading || !isEditing}
-                        >
-                            <TextBoxButton
-                                name='catasterBtn'
-                                location='after'
-                                options={{
-                                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="phoneNumberIcon" height="0.8em" viewBox="0 0 512 512"><style>.phoneNumberIcon{fill:#ffffff}</style><path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/></svg>',
-                                    type: 'default',
-                                    onClick: () =>
-                                        companyData.phoneNumber &&
-                                        window.open(
-                                            `tel:${companyData.phoneNumber}`,
-                                            '_self'
-                                        ),
-                                    disabled: companyData.phoneNumber
-                                        ? false
-                                        : true,
-                                }}
-                            />
-                        </TextBox>
                     </Item>
                     <Item
                         dataField='germanTaxOffice'
@@ -252,142 +278,370 @@ const CompanyPage = ({
                             showClearButton: true,
                         }}
                     />
+                    <Item
+                        dataField={`countryMaskId`}
+                        label={{ text: 'Phone Country' }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: countriesMaskItems,
+                            valueExpr: 'id',
+                            displayExpr: 'name',
+                            defaultValue: countriesMaskItems[0],
+                            onValueChanged: setAddressOptions, // Trick to force react update
+                        }}
+                    >
+                        <RequiredRule />
+                    </Item>
+                    <Item
+                        dataField={`phoneNumber`}
+                        label={{ text: 'Phone Number' }}
+                        editorOptions={{
+                            mask: getMaskFromDataSource(),
+                        }}
+                    />
                 </GroupItem>
-                <GroupItem colCount={1} caption={`Address Information`}>
-                    {companyData.addresses.map((address, index) => {
-                        return (
-                            <GroupItem key={`GroupItem${index}`} colCount={8}>
-                                <Item
-                                    key={`addressType${index}`}
-                                    dataField={`addresses[${index}].addressType`}
-                                    label={{ text: 'Address Type' }}
-                                    editorType='dxSelectBox'
-                                    editorOptions={{
-                                        items: [
-                                            { id: 1, name: 'Physical Address' },
-                                            { id: 2, name: 'Billing Address' },
-                                        ],
-                                        valueExpr: 'id',
-                                        displayExpr: 'name',
-                                    }}
-                                />
-                                <Item
-                                    key={`addressLine1${index}`}
-                                    dataField={`addresses[${index}].addressLine1`}
-                                    label={{ text: 'Address line' }}
-                                />
-                                <Item
-                                    key={`addressLine2${index}`}
-                                    dataField={`addresses[${index}].addressLine2`}
-                                    label={{ text: 'Address line 2' }}
-                                />
-                                <Item
-                                    key={`country${index}`}
-                                    dataField={`addresses[${index}].country`}
-                                    label={{ text: 'Country' }}
-                                    editorType='dxSelectBox'
-                                    editorOptions={{
-                                        items: countriesData,
-                                        displayExpr: 'name',
-                                        valueExpr: 'id',
-                                        searchEnabled: true,
-                                        onValueChanged: (e: any) => {
-                                            handleCountryChange(e.value);
-                                            // Ensure state is removed
-                                            companyData.addresses[index].state =
-                                                null;
-                                        },
-                                    }}
-                                />
-                                <Item
-                                    key={`state${index}`}
-                                    dataField={`addresses[${index}].state`}
-                                    label={{ text: 'State' }}
-                                    editorType='dxSelectBox'
-                                    editorOptions={{
-                                        items: getFilteredStates(
-                                            index,
-                                            companyData
-                                        ),
-                                        displayExpr: 'name',
-                                        valueExpr: 'id',
-                                        searchEnabled: true,
-                                        readOnly: !isEditing || isStateLoading,
-                                    }}
-                                />
-                                <Item
-                                    key={`city${index}`}
-                                    dataField={`addresses[${index}].city`}
-                                    label={{ text: 'City' }}
-                                />
-                                <Item
-                                    key={`postalCode${index}`}
-                                    dataField={`addresses[${index}].postalCode`}
-                                    label={{ text: 'Postal code' }}
-                                />
-                                <Item
-                                    key={`button${index}`}
-                                    itemType='button'
-                                    horizontalAlignment='left'
-                                    buttonOptions={{
-                                        icon: 'trash',
-                                        text: 'Remove address',
-                                        disabled: !isEditing,
-                                        onClick: () => {
-                                            // Set a new empty address
-                                            companyData.addresses.splice(
-                                                index,
-                                                1
-                                            );
-                                            // Update address fields
-                                            setAddressOptions([]);
-                                        },
-                                    }}
-                                />
+                {/* Tabs */}
+                <GroupItem cssClass='mt-4'>
+                    <TabbedItem>
+                        <TabPanelOptions
+                            deferRendering={false}
+                            height={'60vh'}
+                        />
+                        <Tab title={`Address Information`}>
+                            <GroupItem colCount={1}>
+                                {companyData.addresses.map((address, index) => {
+                                    return (
+                                        <GroupItem
+                                            key={`GroupItem-${index}`}
+                                            colCount={8}
+                                        >
+                                            <Item
+                                                key={`addressType${index}`}
+                                                dataField={`addresses[${index}].addressType`}
+                                                label={{ text: 'Address Type' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    items: addressTypeItems,
+                                                    valueExpr: 'id',
+                                                    displayExpr: 'name',
+                                                }}
+                                            />
+                                            <Item
+                                                key={`addressLine1${index}`}
+                                                dataField={`addresses[${index}].addressLine1`}
+                                                label={{ text: 'Address line' }}
+                                            />
+                                            <Item
+                                                key={`addressLine2${index}`}
+                                                dataField={`addresses[${index}].addressLine2`}
+                                                label={{
+                                                    text: 'Address line 2',
+                                                }}
+                                            />
+                                            <Item
+                                                key={`country${index}`}
+                                                dataField={`addresses[${index}].country`}
+                                                label={{ text: 'Country' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    dataSource:
+                                                        countryDataSource,
+                                                    displayExpr: 'name',
+                                                    valueExpr: 'id',
+                                                    grouped: true,
+                                                    // groupRender: Group,
+                                                    searchEnabled: true,
+                                                    onValueChanged: (
+                                                        e: any
+                                                    ) => {
+                                                        handleCountryChange(
+                                                            e.value
+                                                        );
+                                                        // Ensure state is removed
+                                                        companyData.addresses[
+                                                            index
+                                                        ].state = null;
+                                                    },
+                                                }}
+                                            />
+                                            <Item
+                                                key={`state${index}`}
+                                                dataField={`addresses[${index}].state`}
+                                                label={{ text: 'State' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    items: getFilteredStates(
+                                                        index,
+                                                        companyData
+                                                    ),
+                                                    displayExpr: 'name',
+                                                    valueExpr: 'id',
+                                                    searchEnabled: true,
+                                                    readOnly:
+                                                        !isEditing ||
+                                                        isStateLoading,
+                                                }}
+                                            />
+                                            <Item
+                                                key={`city${index}`}
+                                                dataField={`addresses[${index}].city`}
+                                                label={{ text: 'City' }}
+                                            />
+                                            <Item
+                                                key={`postalCode${index}`}
+                                                dataField={`addresses[${index}].postalCode`}
+                                                label={{ text: 'Postal code' }}
+                                            />
+                                            <Item
+                                                key={`button${index}`}
+                                                itemType='button'
+                                                horizontalAlignment='left'
+                                                verticalAlignment='bottom'
+                                                buttonOptions={{
+                                                    icon: 'trash',
+                                                    text: undefined,
+                                                    disabled: !isEditing,
+                                                    type: 'danger',
+                                                    onClick: () => {
+                                                        // Set a new empty address
+                                                        companyData.addresses.splice(
+                                                            index,
+                                                            1
+                                                        );
+                                                        // Trick to force react to update
+                                                        setAddressOptions([]);
+                                                    },
+                                                }}
+                                            />
+                                        </GroupItem>
+                                    );
+                                })}
                             </GroupItem>
-                        );
-                    })}
-                </GroupItem>
-                <Item
-                    itemType='button'
-                    horizontalAlignment='left'
-                    buttonOptions={{
-                        icon: 'add',
-                        text: 'Add address',
-                        disabled: !isEditing,
-                        onClick: () => {
-                            // Set a new empty address
-                            companyData.addresses.push({
-                                addressLine1: '',
-                                addressLine2: '',
-                                city: '',
-                                state: null,
-                                country: null,
-                                postalCode: '',
-                                addressType: null,
-                            });
-                            // Update address fields
-                            setAddressOptions([]);
-                        },
-                    }}
-                />
-            </Form>
-            <div className='h-[2rem]'>
-                <div className='flex justify-end'>
-                    <div className='flex flex-row justify-between gap-2'>
-                        {isEditing && (
-                            <Button
-                                elevated
-                                type='button'
-                                text='Submit Changes'
-                                disabled={isLoading}
-                                isLoading={isLoading}
-                                onClick={handleSubmit}
+                            <Item
+                                itemType='button'
+                                horizontalAlignment='left'
+                                buttonOptions={{
+                                    icon: 'add',
+                                    text: undefined,
+                                    disabled: !isEditing,
+                                    onClick: () => {
+                                        // Set a new empty address
+                                        companyData.addresses.push({
+                                            addressLine1: '',
+                                            addressLine2: '',
+                                            city: '',
+                                            state: null,
+                                            country: null,
+                                            postalCode: '',
+                                            addressType: null,
+                                        });
+                                        // Trick to force react to update
+                                        setAddressOptions([]);
+                                    },
+                                }}
                             />
-                        )}
-                    </div>
-                </div>
-            </div>
+                        </Tab>
+                        <Tab title={`Contacts`}>
+                            <GroupItem colCount={1}>
+                                {companyData.contacts.map((phone, index) => {
+                                    return (
+                                        <GroupItem
+                                            key={`GroupItem2-${index}`}
+                                            colCount={6}
+                                        >
+                                            <Item
+                                                key={`contactType${index}`}
+                                                dataField={`contacts[${index}].contactType`}
+                                                label={{ text: 'Contact Type' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    items: companyContactsTypeItems,
+                                                    valueExpr: 'id',
+                                                    displayExpr: 'name',
+                                                }}
+                                            />
+                                            <Item
+                                                key={`contactId${index}`}
+                                                dataField={`contacts[${index}].contactId`}
+                                                label={{ text: 'Contact' }}
+                                                editorType='dxSelectBox'
+                                                editorOptions={{
+                                                    items: contactsData,
+                                                    valueExpr: 'id',
+                                                    displayExpr:
+                                                        displayContactFullName,
+                                                    searchEnabled: true,
+                                                }}
+                                            />
+                                            <Item
+                                                key={`contactsShortComment${index}`}
+                                                dataField={`contacts[${index}].shortComment`}
+                                                label={{
+                                                    text: 'Short Comment',
+                                                }}
+                                                editorOptions={{
+                                                    maxLength: 30,
+                                                }}
+                                            />
+                                            <Item
+                                                key={`button2-${index}`}
+                                                itemType='button'
+                                                horizontalAlignment='left'
+                                                verticalAlignment='bottom'
+                                                buttonOptions={{
+                                                    icon: 'trash',
+                                                    text: undefined,
+                                                    disabled: !isEditing,
+                                                    type: 'danger',
+                                                    onClick: () => {
+                                                        // Set a new empty address
+                                                        companyData.contacts.splice(
+                                                            index,
+                                                            1
+                                                        );
+                                                        // Trick to force react to update
+                                                        setAddressOptions([]);
+                                                    },
+                                                }}
+                                            />
+                                        </GroupItem>
+                                    );
+                                })}
+                            </GroupItem>
+                            <Item
+                                itemType='button'
+                                horizontalAlignment='left'
+                                buttonOptions={{
+                                    icon: 'add',
+                                    text: undefined,
+                                    disabled: !isEditing,
+                                    onClick: () => {
+                                        // Set a new empty address
+                                        companyData.contacts.push({
+                                            contactType: null,
+                                            contactId: '',
+                                            shortComment: '',
+                                        });
+                                        // Trick to force react to update
+                                        setAddressOptions([]);
+                                    },
+                                }}
+                            />
+                        </Tab>
+                        <Tab title={`Bank`}>
+                            <GroupItem colCount={1}>
+                                {companyData.bankInformation.map(
+                                    (bank, index) => {
+                                        return (
+                                            <GroupItem
+                                                key={`GroupItem3-${index}`}
+                                                colCount={5}
+                                            >
+                                                <Item
+                                                    key={`bankName${index}`}
+                                                    dataField={`bankInformation[${index}].bankName`}
+                                                    label={{
+                                                        text: 'Bank Name',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`iban${index}`}
+                                                    dataField={`bankInformation[${index}].iban`}
+                                                    label={{
+                                                        text: 'IBAN',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`bic${index}`}
+                                                    dataField={`bankInformation[${index}].bic`}
+                                                    label={{
+                                                        text: 'BIC',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`contactPerson${index}`}
+                                                    dataField={`bankInformation[${index}].contactPerson`}
+                                                    label={{
+                                                        text: 'Contact Person',
+                                                    }}
+                                                    editorType='dxSelectBox'
+                                                    editorOptions={{
+                                                        items: contactsData,
+                                                        displayExpr:
+                                                            displayContactFullName,
+                                                        valueExpr: 'id',
+                                                        searchEnabled: true,
+                                                        onValueChanged: (
+                                                            e: any
+                                                        ) =>
+                                                            console.log(
+                                                                e.value
+                                                            ),
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`button4-${index}`}
+                                                    itemType='button'
+                                                    horizontalAlignment='left'
+                                                    verticalAlignment='bottom'
+                                                    buttonOptions={{
+                                                        icon: 'trash',
+                                                        text: undefined,
+                                                        disabled: !isEditing,
+                                                        type: 'danger',
+                                                        onClick: () => {
+                                                            // Set a new empty address
+                                                            companyData.bankInformation.splice(
+                                                                index,
+                                                                1
+                                                            );
+                                                            // Trick to force react update
+                                                            setAddressOptions(
+                                                                []
+                                                            );
+                                                        },
+                                                    }}
+                                                />
+                                            </GroupItem>
+                                        );
+                                    }
+                                )}
+                            </GroupItem>
+                            <Item
+                                itemType='button'
+                                horizontalAlignment='left'
+                                buttonOptions={{
+                                    icon: 'add',
+                                    text: undefined,
+                                    disabled: !isEditing,
+                                    onClick: () => {
+                                        // Set a new empty address
+                                        companyData.bankInformation.push({
+                                            bankName: '',
+                                            iban: undefined,
+                                            bic: undefined,
+                                            contactPerson: undefined,
+                                        });
+                                        // Trick to force react update
+                                        setAddressOptions([]);
+                                    },
+                                }}
+                            />
+                        </Tab>
+                        <Tab title={`Comments`}>
+                            <Item
+                                dataField='comments'
+                                label={{ text: 'Additional Comments' }}
+                                editorType='dxTextArea'
+                                editorOptions={{
+                                    minHeight: 200,
+                                    autoResizeEnabled: true,
+                                }}
+                            />
+                        </Tab>
+                    </TabbedItem>
+                </GroupItem>
+            </Form>
         </div>
     );
 };

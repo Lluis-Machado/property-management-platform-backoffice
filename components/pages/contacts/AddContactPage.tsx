@@ -43,11 +43,18 @@ import { faSave } from '@fortawesome/free-solid-svg-icons';
 interface Props {
     contactData: ContactData;
     countries: CountryData[];
+    contactsData: ContactData[];
     token: TokenRes;
     lang: Locale;
 }
 
-const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
+const AddContactPage = ({
+    contactData,
+    countries,
+    contactsData,
+    token,
+    lang,
+}: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<ContactData>(
@@ -198,6 +205,9 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                             displayExpr: 'name',
                         }}
                     />
+                    <Item dataField='email' label={{ text: 'Email' }}>
+                        <EmailRule message='Email is invalid' />
+                    </Item>
                 </GroupItem>
                 {/* Tabs */}
                 <GroupItem cssClass='mt-4'>
@@ -562,19 +572,110 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                                 }}
                             />
                         </Tab>
-                        <Tab title={`Other`}>
-                            <GroupItem colCount={4}>
-                                <Item
-                                    dataField='email'
-                                    label={{ text: 'Email' }}
-                                >
-                                    <EmailRule message='Email is invalid' />
-                                </Item>
-                                <Item
-                                    dataField='iban'
-                                    label={{ text: 'IBAN' }}
-                                />
+                        <Tab title={`Bank`}>
+                            <GroupItem colCount={1}>
+                                {contactData.bankInformation.map(
+                                    (bank, index) => {
+                                        return (
+                                            <GroupItem
+                                                key={`GroupItem3-${index}`}
+                                                colCount={5}
+                                            >
+                                                <Item
+                                                    key={`bankName${index}`}
+                                                    dataField={`bankInformation[${index}].bankName`}
+                                                    label={{
+                                                        text: 'Bank Name',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`iban${index}`}
+                                                    dataField={`bankInformation[${index}].iban`}
+                                                    label={{
+                                                        text: 'IBAN',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`bic${index}`}
+                                                    dataField={`bankInformation[${index}].bic`}
+                                                    label={{
+                                                        text: 'BIC',
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`contactPerson${index}`}
+                                                    dataField={`bankInformation[${index}].contactPerson`}
+                                                    label={{
+                                                        text: 'Contact Person',
+                                                    }}
+                                                    editorType='dxSelectBox'
+                                                    editorOptions={{
+                                                        items: contactsData,
+                                                        displayExpr: (
+                                                            item: ContactData
+                                                        ) => {
+                                                            if (!item) return;
+                                                            if (item.firstName)
+                                                                return `${item.firstName} ${item.lastName}`;
+                                                            else
+                                                                return `${item.lastName}`;
+                                                        },
+                                                        valueExpr: 'id',
+                                                        searchEnabled: true,
+                                                        onValueChanged: (
+                                                            e: any
+                                                        ) =>
+                                                            console.log(
+                                                                e.value
+                                                            ),
+                                                    }}
+                                                />
+                                                <Item
+                                                    key={`button4-${index}`}
+                                                    itemType='button'
+                                                    horizontalAlignment='left'
+                                                    verticalAlignment='bottom'
+                                                    buttonOptions={{
+                                                        icon: 'trash',
+                                                        text: undefined,
+                                                        type: 'danger',
+                                                        onClick: () => {
+                                                            // Set a new empty address
+                                                            contactData.bankInformation.splice(
+                                                                index,
+                                                                1
+                                                            );
+                                                            // Trick to force react update
+                                                            setAddressOptions(
+                                                                []
+                                                            );
+                                                        },
+                                                    }}
+                                                />
+                                            </GroupItem>
+                                        );
+                                    }
+                                )}
                             </GroupItem>
+                            <Item
+                                itemType='button'
+                                horizontalAlignment='left'
+                                buttonOptions={{
+                                    icon: 'add',
+                                    text: undefined,
+                                    onClick: () => {
+                                        // Set a new empty address
+                                        contactData.bankInformation.push({
+                                            bankName: '',
+                                            iban: undefined,
+                                            bic: undefined,
+                                            contactPerson: undefined,
+                                        });
+                                        // Trick to force react update
+                                        setAddressOptions([]);
+                                    },
+                                }}
+                            />
                         </Tab>
                     </TabbedItem>
                 </GroupItem>
@@ -584,12 +685,12 @@ const AddContactPage = ({ contactData, countries, token, lang }: Props) => {
                     <div className='flex flex-row self-center'>
                         <Button
                             elevated
-                            onClick={handleSubmit}
-                            text='Create Contact'
                             type='button'
+                            text='Create Contact'
                             icon={faSave}
                             disabled={isLoading}
                             isLoading={isLoading}
+                            onClick={handleSubmit}
                         />
                     </div>
                 </div>

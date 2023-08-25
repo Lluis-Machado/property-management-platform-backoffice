@@ -56,7 +56,12 @@ export async function middleware(req: NextRequest) {
 
     if (pathname.includes('/private') && !user?.isLoggedIn)
         return NextResponse.redirect(
-            new URL(`/${getLocale(req)}/?error=Login to access`, req.url)
+            new URL(
+                `/${getLocale(
+                    req
+                )}/?error=Login to access&pathname=${pathname}`,
+                req.url
+            )
         );
 
     if (

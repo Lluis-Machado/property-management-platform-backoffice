@@ -7,7 +7,8 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from 'pg-components';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Form, { EmailRule, Item, RequiredRule } from 'devextreme-react/form';
+import Form, { Item } from 'devextreme-react/form';
+import { TextBox, Button as TextBoxButton } from 'devextreme-react/text-box';
 
 // Local imports
 import { ApiCallError } from '@/lib/utils/errors';
@@ -29,14 +30,14 @@ interface Props {
     lang: Locale;
 }
 
-let loginValues = {
-    username: '',
-    password: '',
-};
-
 const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isFormLoading, setIsFormLoading] = useState<boolean>(true);
+    const [passwordMode, setPasswordMode] = useState<'password' | 'text'>(
+        'password'
+    );
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
     const formRef = useRef<Form>(null);
 
@@ -54,10 +55,10 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
     }, [searchParams]);
 
     const handleSubmit = useCallback(async () => {
-        const res = formRef.current!.instance.validate();
-        if (!res.isValid) return;
-
-        const values = structuredClone(loginValues);
+        const valuesToSend = {
+            username,
+            password,
+        };
 
         setIsLoading(true);
 
@@ -65,12 +66,15 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(values),
+                body: JSON.stringify(valuesToSend),
             });
 
             console.log(response);
 
-            if (response.ok) return router.push('/private');
+            // If OK, redirect to the pathname requested from
+            // this user or to /private if the previous does not exist
+            if (response.ok)
+                return router.push(searchParams?.pathname || '/private');
             else {
                 const data = await response.json();
                 throw new ApiCallError(
@@ -82,7 +86,7 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [router]);
+    }, [router, username, password]);
 
     // useEffect to listen for Enter key press
     useEffect(() => {
@@ -90,9 +94,9 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
             if (event.key === 'Enter') handleSubmit();
         };
 
-        document.addEventListener('keypress', handleKeyPress);
+        document.addEventListener('keydown', handleKeyPress);
 
-        return () => document.removeEventListener('keypress', handleKeyPress);
+        return () => document.removeEventListener('keydown', handleKeyPress);
     }, [handleSubmit]);
 
     return (
@@ -128,32 +132,48 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
                 )}
                 <Form
                     ref={formRef}
-                    formData={loginValues}
                     labelMode={'floating'}
-                    readOnly={isLoading}
                     colCount={1}
                     onContentReady={() => setIsFormLoading(false)}
                 >
-                    <Item
-                        dataField='username'
-                        label={{ text: dictionary.emailInputLabel }}
-                        editorOptions={{
-                            stylingMode: 'underlined',
-                            mode: 'email',
-                        }}
-                    >
-                        <EmailRule />
-                        <RequiredRule />
+                    <Item>
+                        <TextBox
+                            placeholder={dictionary.emailInputLabel}
+                            mode='email'
+                            readOnly={isLoading}
+                            value={username}
+                            onValueChange={setUsername}
+                            valueChangeEvent='keyup'
+                        />
                     </Item>
-                    <Item
-                        dataField='password'
-                        label={{ text: dictionary.passwordInputLabel }}
-                        editorOptions={{
-                            stylingMode: 'underlined',
-                            mode: 'password',
-                        }}
-                    >
-                        <RequiredRule />
+                    <Item>
+                        <TextBox
+                            placeholder={dictionary.passwordInputLabel}
+                            mode={passwordMode}
+                            readOnly={isLoading}
+                            value={password}
+                            onValueChange={setPassword}
+                            valueChangeEvent='keyup'
+                        >
+                            <TextBoxButton
+                                name='password'
+                                location='after'
+                                options={{
+                                    icon:
+                                        passwordMode === 'password'
+                                            ? 'eyeopen'
+                                            : 'eyeclose',
+                                    type: 'default',
+                                    onClick: () => {
+                                        setPasswordMode((prev) =>
+                                            prev === 'password'
+                                                ? 'text'
+                                                : 'password'
+                                        );
+                                    },
+                                }}
+                            />
+                        </TextBox>
                     </Item>
                 </Form>
             </div>

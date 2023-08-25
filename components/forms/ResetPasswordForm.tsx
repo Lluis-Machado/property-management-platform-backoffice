@@ -63,7 +63,7 @@ const ResetPasswordForm = ({ dictionary, lang }: Props) => {
 
     return (
         <>
-            <p className='text-md mb-12 text-center text-gray-400'>
+            <p className='text-md mb-6 text-center text-gray-400'>
                 {dictionary.description}
             </p>
 
@@ -77,14 +77,14 @@ const ResetPasswordForm = ({ dictionary, lang }: Props) => {
                 <Item
                     dataField='username'
                     label={{ text: dictionary.emailInputLabel }}
-                    editorOptions={{ stylingMode: 'underlined', mode: 'email' }}
+                    editorOptions={{ mode: 'email' }}
                 >
                     <EmailRule />
                     <RequiredRule />
                 </Item>
             </Form>
 
-            <div className='mt-2 flex items-center justify-end'>
+            <div className='mt-4 flex items-center justify-end'>
                 <div className='text-sm'>
                     <Link
                         href='./'

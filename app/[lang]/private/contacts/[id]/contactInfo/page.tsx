@@ -14,8 +14,8 @@ interface Props {
 }
 
 const ContactForm = async ({ params: { lang, id } }: Props) => {
-    const [user, contactData, countriesData, ownershipData] = await Promise.all(
-        [
+    const [user, contactData, countriesData, ownershipData, contactsData] =
+        await Promise.all([
             getUser(),
             getApiData<ContactData>(
                 `/contacts/contacts/${id}`,
@@ -29,8 +29,11 @@ const ContactForm = async ({ params: { lang, id } }: Props) => {
                 `/ownership/ownership/${id}/contact`,
                 'Error while getting ownership info'
             ),
-        ]
-    );
+            getApiData<ContactData[]>(
+                `/contacts/contacts`,
+                'Error while getting contacts info'
+            ),
+        ]);
 
     // Categorize countries, 56 and 67 are DE and ES. It can be done on backend?
     for (const country of countriesData) {
@@ -65,6 +68,7 @@ const ContactForm = async ({ params: { lang, id } }: Props) => {
             <ContactPage
                 contactData={contactData}
                 ownershipData={ownershipData}
+                contactsData={contactsData}
                 countriesData={countriesData}
                 initialStates={statesData}
                 token={user.token}

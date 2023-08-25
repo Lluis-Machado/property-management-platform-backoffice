@@ -6,4 +6,5 @@ export interface Address {
     postalCode: string;
     country: number | null;
     addressType: number | null;
+    shortComment?: string;
 }

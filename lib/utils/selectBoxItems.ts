@@ -58,11 +58,19 @@ export const maritalStatusItems = [
 export const addressTypeItems = [
     {
         id: 1,
-        name: 'Physical Address',
+        name: 'Fiscal',
     },
     {
         id: 2,
-        name: 'Billing Address',
+        name: 'Billing',
+    },
+    {
+        id: 3,
+        name: 'Private',
+    },
+    {
+        id: 4,
+        name: 'Other',
     },
 ];
 
@@ -90,5 +98,24 @@ export const phoneType2Items = [
     {
         id: 2,
         name: 'Private',
+    },
+];
+
+export const companyContactsTypeItems = [
+    {
+        id: 1,
+        name: 'CEO',
+    },
+    {
+        id: 2,
+        name: 'Contact Person',
+    },
+    {
+        id: 3,
+        name: 'Owner',
+    },
+    {
+        id: 4,
+        name: 'Other',
     },
 ];
