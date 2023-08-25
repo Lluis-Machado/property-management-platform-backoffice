@@ -1,7 +1,7 @@
 'use client';
 
 // React imports
-import { LegacyRef, useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 // Libraries imports
 import { Button } from 'pg-components';
@@ -18,7 +18,6 @@ import { toast } from 'react-toastify';
 import Form, {
     GroupItem,
     Item,
-    Label,
     Tab,
     TabPanelOptions,
     TabbedItem,
@@ -26,7 +25,8 @@ import Form, {
 import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
 import 'devextreme-react/tag-box';
 import 'devextreme-react/text-area';
-import Tooltip from 'devextreme-react/tooltip';
+import { ValueChangedEvent } from 'devextreme/ui/text_box';
+import { FieldDataChangedEvent } from 'devextreme/ui/form';
 
 // Local imports
 import { PropertyData } from '@/lib/types/propertyInfo';
@@ -45,9 +45,8 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { ContactData } from '@/lib/types/contactData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import PropertyPageTitle from './PropertyPageTitle';
 import './styles.css';
-import { ValueChangedEvent } from 'devextreme/ui/text_box';
-import { FieldDataChangedEvent } from 'devextreme/ui/form';
 
 interface Props {
     propertyData: PropertyData;
@@ -69,19 +68,16 @@ const PropertyPage = ({
     lang,
 }: Props): React.ReactElement => {
     let priceTax: number;
+    let nameProperty: string;
     const router = useRouter();
     const dataGridRef = useRef();
     const formRef = useRef<Form>(null);
-    const statesRef = useRef<any>(null);
+    const statesRef = useRef<Item>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
-    // const [states, setStates] = useState<StateData[] | undefined>(
-    //     initialStates
-    // )
     const data = initialStates;
-    console.log(data);
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
     );
@@ -91,20 +87,9 @@ const PropertyPage = ({
     );
 
     // function name property
-    const [nameProperty, setNameProperty] = useState<string>(
-        initialValues.name
-    );
-    const onValueChange = useCallback(
-        (e: ValueChangedEvent) => {
-            setNameProperty(e.value);
-            if (e.value != propertyData.name) {
-                e.element.classList.add('styling');
-            } else {
-                e.element.classList.remove('styling');
-            }
-        },
-        [propertyData]
-    );
+    const callbackFunction = (name: string) => {
+        propertyData.name = name;
+    };
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
@@ -119,7 +104,11 @@ const PropertyPage = ({
                 }
             )
                 .then((resp) => resp.json())
-                //.then((data: StateData[]) => (statesRef.current!.instance.option('dataSource', data)))
+                .then((data: StateData[]) =>
+                    formRef
+                        .current!.instance.getEditor('propertyAddress.state')!
+                        .option('items', data)
+                )
                 .catch((e) => console.error('Error while getting the states'));
             // Ensure state is removed
             propertyData.propertyAddress.state = null;
@@ -131,10 +120,7 @@ const PropertyPage = ({
         // @ts-ignore
         dataGridRef.current.saveEditData(); // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
-        if (
-            JSON.stringify(values) === JSON.stringify(initialValues) &&
-            nameProperty === initialValues.name
-        ) {
+        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             return;
         }
 
@@ -144,7 +130,6 @@ const PropertyPage = ({
         try {
             const dataToSend: PropertyData = {
                 ...values,
-                name: nameProperty,
                 purchaseDate: formatDate(values.purchaseDate),
                 saleDate: formatDate(values.saleDate),
                 cadastreRef,
@@ -166,7 +151,7 @@ const PropertyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [propertyData, initialValues, token, cadastreRef, nameProperty]);
+    }, [propertyData, initialValues, token, cadastreRef]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting property...');
@@ -342,36 +327,12 @@ const PropertyPage = ({
             <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
                 <div className='ml-5 basis-1/4'>
-                    <TextBox
-                        value={nameProperty}
-                        disabled={!isEditing || isLoading}
-                        onValueChanged={onValueChange}
-                        id='title'
-                        style={{
-                            fontWeight: '800',
-                            fontSize: '35px',
-                            border: 'none',
-                            opacity: '1',
-                        }}
-                    >
-                        {isEditing && (
-                            <Tooltip
-                                target='#title'
-                                showEvent='mouseenter'
-                                hideEvent='mouseleave'
-                            >
-                                <div
-                                    style={{
-                                        color: '#b99f6c',
-                                        fontWeight: 'bold',
-                                    }}
-                                >
-                                    Be carefull you are changing the name of the
-                                    property
-                                </div>
-                            </Tooltip>
-                        )}
-                    </TextBox>
+                    <PropertyPageTitle
+                        isLoading={isLoading}
+                        isEditing={isEditing}
+                        propertyData={propertyData}
+                        parentCallback={callbackFunction}
+                    />
                 </div>
                 {/* Cards with actions */}
                 <div className='flex basis-2/4 flex-row items-center gap-4'>
@@ -406,10 +367,10 @@ const PropertyPage = ({
                     )}
                     <Button
                         elevated
-                        onClick={() => (
-                            setIsEditing((prev) => !prev),
-                            setNameProperty(propertyData.name)
-                        )}
+                        onClick={() =>
+                            setIsEditing((prev) => !prev)
+                            //setNameProperty(propertyData.name)
+                        }
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
                     />
@@ -513,9 +474,11 @@ const PropertyPage = ({
                                     dataField='propertyAddress.state'
                                     label={{ text: 'State' }}
                                     editorType='dxSelectBox'
+                                    name='state'
+                                    ref={statesRef}
                                     editorOptions={{
-                                        dataSource: data,
-                                        ref: { statesRef },
+                                        items: data,
+                                        //ref: statesRef,
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
