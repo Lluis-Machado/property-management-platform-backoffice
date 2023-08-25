@@ -367,8 +367,8 @@ const PropertyPage = ({
                     )}
                     <Button
                         elevated
-                        onClick={() =>
-                            setIsEditing((prev) => !prev)
+                        onClick={
+                            () => setIsEditing((prev) => !prev)
                             //setNameProperty(propertyData.name)
                         }
                         type='button'
