@@ -10,7 +10,7 @@ const error = ({ error }: { error: Error }) => {
                     There was a problem
                 </p>
                 <h1 className='mt-4 text-3xl font-bold tracking-tight text-zinc-900'>
-                    {error.message || 'Something went wrong'}
+                    {JSON.stringify(error) || 'Something went wrong'}
                 </h1>
                 <p className='mt-6 text-base leading-7 text-zinc-600'>
                     Please try again later or contact support if the problem
