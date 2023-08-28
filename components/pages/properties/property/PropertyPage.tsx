@@ -750,6 +750,11 @@ const PropertyPage = ({
                                                     e: ValueChangedEvent
                                                 ) => changeSelectbox(e),
                                                 readOnly: true,
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                         {propertyData.purchasePriceTaxPercentage ===
