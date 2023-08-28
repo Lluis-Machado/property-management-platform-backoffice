@@ -47,6 +47,7 @@ import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import PropertyPageTitle from './PropertyPageTitle';
 import './styles.css';
+import { SelectionChangedEvent } from 'devextreme/ui/tag_box';
 
 interface Props {
     propertyData: PropertyData;
@@ -171,13 +172,16 @@ const PropertyPage = ({
     // CSS styling form element
 
     const changeCssFormElement = (e: FieldDataChangedEvent) => {
-        document
-            .getElementsByName(e.dataField!)[0]
-            .classList.add('stylingForm');
+        document.getElementsByName(e.dataField!)[0].classList.add('styling');
     };
 
     const changeSelectbox = (e: ValueChangedEvent) => {
         e.element.classList.add('stylingForm');
+    };
+
+    const changeTagbox = (e: SelectionChangedEvent) => {
+        if (e.addedItems.length > 0 || e.removedItems.length > 0)
+            e.element.classList.add('stylingForm');
     };
 
     // calculate Property
@@ -409,7 +413,7 @@ const PropertyPage = ({
                                 displayExpr: 'label',
                                 valueExpr: 'value',
                                 searchEnabled: true,
-                                showClearButton: true,
+                                showClearButton: isEditing,
                                 onValueChanged: (e: ValueChangedEvent) =>
                                     changeSelectbox(e),
                             }}
@@ -427,9 +431,10 @@ const PropertyPage = ({
                                 displayExpr: 'label',
                                 valueExpr: 'value',
                                 searchEnabled: true,
-                                showClearButton: isEditing && true,
-                                onValueChanged: (e: ValueChangedEvent) =>
-                                    changeSelectbox(e),
+                                showClearButton: isEditing,
+                                onSelectionChanged: (
+                                    e: SelectionChangedEvent
+                                ) => changeTagbox(e),
                             }}
                         />
                         <GroupItem>
@@ -477,7 +482,6 @@ const PropertyPage = ({
                                     ref={statesRef}
                                     editorOptions={{
                                         items: data,
-                                        //ref: statesRef,
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
@@ -682,6 +686,11 @@ const PropertyPage = ({
                                                     changeSelectbox(e);
                                                     calculatePurchase(e);
                                                 },
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                         <GroupItem colCount={2}>
@@ -693,6 +702,11 @@ const PropertyPage = ({
                                                         e: ValueChangedEvent
                                                     ) => changeSelectbox(e),
                                                     readOnly: true,
+                                                    format: {
+                                                        type: 'currency',
+                                                        currency: 'EUR',
+                                                        precision: 2,
+                                                    },
                                                 }}
                                             />
                                             <Item
@@ -746,6 +760,11 @@ const PropertyPage = ({
                                                     label={{ text: 'TPO' }}
                                                     editorOptions={{
                                                         readOnly: true,
+                                                        format: {
+                                                            type: 'currency',
+                                                            currency: 'EUR',
+                                                            precision: 2,
+                                                        },
                                                     }}
                                                 />
                                                 <Item
@@ -760,6 +779,7 @@ const PropertyPage = ({
                                                             );
                                                             changeSelectbox(e);
                                                         },
+                                                        format: "#0.##'%'",
                                                     }}
                                                 />
                                             </GroupItem>
@@ -775,6 +795,11 @@ const PropertyPage = ({
                                                             e: ValueChangedEvent
                                                         ) => changeSelectbox(e),
                                                         readOnly: true,
+                                                        format: {
+                                                            type: 'currency',
+                                                            currency: 'EUR',
+                                                            precision: 2,
+                                                        },
                                                     }}
                                                 />
                                                 <Item
@@ -790,6 +815,7 @@ const PropertyPage = ({
                                                             changeSelectbox(e);
                                                         },
                                                         readOnly: !isEditing,
+                                                        format: "#0.##'%'",
                                                     }}
                                                 />
                                             </GroupItem>
@@ -804,6 +830,11 @@ const PropertyPage = ({
                                                     e: ValueChangedEvent
                                                 ) => changeSelectbox(e),
                                                 readOnly: true,
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                     </GroupItem>
@@ -818,6 +849,11 @@ const PropertyPage = ({
                                                     changeSelectbox(e);
                                                     calculateNet(e);
                                                 },
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                         <GroupItem colCount={2}>
@@ -831,6 +867,11 @@ const PropertyPage = ({
                                                         changeSelectbox(e);
                                                     },
                                                     readOnly: true,
+                                                    format: {
+                                                        type: 'currency',
+                                                        currency: 'EUR',
+                                                        precision: 2,
+                                                    },
                                                 }}
                                             />
                                             <Item
@@ -845,6 +886,7 @@ const PropertyPage = ({
                                                         );
                                                         changeSelectbox(e);
                                                     },
+                                                    format: "#0.##'%'",
                                                     readOnly: !isEditing,
                                                 }}
                                             />
@@ -857,6 +899,11 @@ const PropertyPage = ({
                                                     e: ValueChangedEvent
                                                 ) => changeSelectbox(e),
                                                 readOnly: true,
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                         <GroupItem colCount={2}>
@@ -868,6 +915,11 @@ const PropertyPage = ({
                                                         e: ValueChangedEvent
                                                     ) => changeSelectbox(e),
                                                     readOnly: true,
+                                                    format: {
+                                                        type: 'currency',
+                                                        currency: 'EUR',
+                                                        precision: 2,
+                                                    },
                                                 }}
                                             />
                                             <Item
@@ -883,8 +935,7 @@ const PropertyPage = ({
                                                     ],
                                                     displayExpr: 'label',
                                                     valueExpr: 'value',
-                                                    showClearButton:
-                                                        isEditing && true,
+                                                    showClearButton: isEditing,
                                                     onValueChanged: () =>
                                                         calculateTPOValueFurniture(),
                                                     readOnly: true,
@@ -901,6 +952,11 @@ const PropertyPage = ({
                                                     e: ValueChangedEvent
                                                 ) => changeSelectbox(e),
                                                 readOnly: true,
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                     </GroupItem>
@@ -915,6 +971,11 @@ const PropertyPage = ({
                                                 e: ValueChangedEvent
                                             ) => changeSelectbox(e),
                                             readOnly: true,
+                                            format: {
+                                                type: 'currency',
+                                                currency: 'EUR',
+                                                precision: 2,
+                                            },
                                         }}
                                     />
                                 </GroupItem>

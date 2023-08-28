@@ -13,6 +13,11 @@ import Form, {
     TabPanelOptions,
     TabbedItem,
 } from 'devextreme-react/form';
+import 'devextreme-react/text-area';
+import TagBox from 'devextreme-react/tag-box';
+import { ValueChangedEvent } from 'devextreme/ui/text_box';
+import { FieldDataChangedEvent } from 'devextreme/ui/form';
+import { faSave } from '@fortawesome/free-solid-svg-icons';
 
 //local imports
 import { PropertyData } from '@/lib/types/propertyInfo';
@@ -26,10 +31,7 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import { Button } from 'pg-components';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
-import { faSave } from '@fortawesome/free-solid-svg-icons';
-import TagBox from 'devextreme-react/tag-box';
-import { ValueChangedEvent } from 'devextreme/ui/text_box';
-import { FieldDataChangedEvent } from 'devextreme/ui/form';
+import { SelectionChangedEvent } from 'devextreme/ui/tag_box';
 
 interface Props {
     propertyData: PropertyData;
@@ -57,12 +59,13 @@ const AddPropertyPage = ({
     const router = useRouter();
     // CSS CHANGES
     const changeCssFormElement = (e: FieldDataChangedEvent) => {
-        document
-            .getElementsByName(e.dataField!)[0]
-            .classList.add('stylingForm');
+        document.getElementsByName(e.dataField!)[0].classList.add('styling');
     };
 
     const changeSelectbox = (e: ValueChangedEvent) => {
+        e.element.classList.add('stylingForm');
+    };
+    const changeTagbox = (e: SelectionChangedEvent) => {
         e.element.classList.add('stylingForm');
     };
     // calculate Property
@@ -87,8 +90,7 @@ const AddPropertyPage = ({
             propertyData.purchasePriceTPO.value = 0;
             propertyData.purchasePriceTPOPercentage = 0;
         } else {
-            propertyData.purchasePriceTax.value =
-                propertyData.purchasePriceNet.value;
+            propertyData.purchasePriceTax.value = 0;
             //TPO CALCULATION
             propertyData.purchasePriceTPO.value =
                 (propertyData.purchasePriceNet.value / 100) *
@@ -287,9 +289,6 @@ const AddPropertyPage = ({
                                 searchEnabled: true,
                             }}
                         />
-                        <Item visible={false}>
-                            <TagBox />
-                        </Item>
                         <Item
                             dataField='typeOfUse'
                             label={{ text: 'Type of use' }}
@@ -300,6 +299,8 @@ const AddPropertyPage = ({
                                     { label: 'Vacational Rent', value: 1 },
                                     { label: 'Long Term Rent', value: 2 },
                                 ],
+                                onValueChanged: (e: SelectionChangedEvent) =>
+                                    changeTagbox(e),
                                 displayExpr: 'label',
                                 valueExpr: 'value',
                                 searchEnabled: true,
@@ -440,6 +441,15 @@ const AddPropertyPage = ({
                                     dataField='year'
                                     label={{ text: 'Year' }}
                                 />
+                                <Item
+                                    dataField='purchaseDate'
+                                    label={{ text: 'Purchase Date' }}
+                                    editorType='dxDateBox'
+                                    editorOptions={{
+                                        displayFormat: dateFormat,
+                                        showClearButton: true,
+                                    }}
+                                />
                             </GroupItem>
                         </Tab>
                         <Tab title='Purchase'>
@@ -457,6 +467,11 @@ const AddPropertyPage = ({
                                                     changeSelectbox(e);
                                                     calculatePurchase(e);
                                                 },
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                         <GroupItem colCount={2}>
@@ -468,6 +483,11 @@ const AddPropertyPage = ({
                                                         e: ValueChangedEvent
                                                     ) => changeSelectbox(e),
                                                     readOnly: true,
+                                                    format: {
+                                                        type: 'currency',
+                                                        currency: 'EUR',
+                                                        precision: 2,
+                                                    },
                                                 }}
                                             />
                                             <Item
@@ -509,6 +529,11 @@ const AddPropertyPage = ({
                                                     e: ValueChangedEvent
                                                 ) => changeSelectbox(e),
                                                 readOnly: true,
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                         {propertyData.purchasePriceTaxPercentage ===
@@ -519,6 +544,11 @@ const AddPropertyPage = ({
                                                     label={{ text: 'TPO' }}
                                                     editorOptions={{
                                                         readOnly: true,
+                                                        format: {
+                                                            type: 'currency',
+                                                            currency: 'EUR',
+                                                            precision: 2,
+                                                        },
                                                     }}
                                                 />
                                                 <Item
@@ -533,6 +563,7 @@ const AddPropertyPage = ({
                                                             );
                                                             changeSelectbox(e);
                                                         },
+                                                        format: "#0.##'%'",
                                                     }}
                                                 />
                                             </GroupItem>
@@ -548,6 +579,11 @@ const AddPropertyPage = ({
                                                             e: ValueChangedEvent
                                                         ) => changeSelectbox(e),
                                                         readOnly: true,
+                                                        format: {
+                                                            type: 'currency',
+                                                            currency: 'EUR',
+                                                            precision: 2,
+                                                        },
                                                     }}
                                                 />
                                                 <Item
@@ -562,6 +598,7 @@ const AddPropertyPage = ({
                                                             );
                                                             changeSelectbox(e);
                                                         },
+                                                        format: "#0.##'%'",
                                                     }}
                                                 />
                                             </GroupItem>
@@ -576,6 +613,11 @@ const AddPropertyPage = ({
                                                     e: ValueChangedEvent
                                                 ) => changeSelectbox(e),
                                                 readOnly: true,
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                     </GroupItem>
@@ -590,6 +632,11 @@ const AddPropertyPage = ({
                                                     changeSelectbox(e);
                                                     calculateNet(e);
                                                 },
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                         <GroupItem colCount={2}>
@@ -603,6 +650,11 @@ const AddPropertyPage = ({
                                                         changeSelectbox(e);
                                                     },
                                                     readOnly: true,
+                                                    format: {
+                                                        type: 'currency',
+                                                        currency: 'EUR',
+                                                        precision: 2,
+                                                    },
                                                 }}
                                             />
                                             <Item
@@ -617,6 +669,7 @@ const AddPropertyPage = ({
                                                         );
                                                         changeSelectbox(e);
                                                     },
+                                                    format: "#0.##'%'",
                                                 }}
                                             />
                                         </GroupItem>
@@ -628,6 +681,11 @@ const AddPropertyPage = ({
                                                     e: ValueChangedEvent
                                                 ) => changeSelectbox(e),
                                                 readOnly: true,
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                         <GroupItem colCount={2}>
@@ -639,6 +697,11 @@ const AddPropertyPage = ({
                                                         e: ValueChangedEvent
                                                     ) => changeSelectbox(e),
                                                     readOnly: true,
+                                                    format: {
+                                                        type: 'currency',
+                                                        currency: 'EUR',
+                                                        precision: 2,
+                                                    },
                                                 }}
                                             />
                                             <Item
@@ -670,6 +733,11 @@ const AddPropertyPage = ({
                                                     e: ValueChangedEvent
                                                 ) => changeSelectbox(e),
                                                 readOnly: true,
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
                                             }}
                                         />
                                     </GroupItem>
@@ -684,6 +752,11 @@ const AddPropertyPage = ({
                                                 e: ValueChangedEvent
                                             ) => changeSelectbox(e),
                                             readOnly: true,
+                                            format: {
+                                                type: 'currency',
+                                                currency: 'EUR',
+                                                precision: 2,
+                                            },
                                         }}
                                     />
                                 </GroupItem>
@@ -718,17 +791,16 @@ const AddPropertyPage = ({
                             <Item
                                 dataField='comments'
                                 label={{ text: 'Additional Comments' }}
-                                editorType='dxTextBox'
+                                editorType='dxTextArea'
                                 editorOptions={{
-                                    showClearButton: true,
-                                    height: '100px',
+                                    minHeight: '100',
+                                    autoResizeEnabled: true,
                                 }}
                             />
                         </Tab>
                     </TabbedItem>
                 </GroupItem>
             </Form>
-
             <div className='h-[2rem]'>
                 <div className='flex justify-end'>
                     <div className='mt-2 flex flex-row justify-between gap-2'>
