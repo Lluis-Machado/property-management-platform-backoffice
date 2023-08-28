@@ -19,7 +19,6 @@ import LinkWithIcon from '@/components/buttons/LinkWithIcon';
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
 import { CountryData } from '@/lib/types/countriesData';
-import useCountryChange from '@/lib/hooks/useCountryChange';
 import { Locale } from '@/i18n-config';
 import { TokenRes } from '@/lib/types/token';
 
@@ -38,20 +37,16 @@ const PropertiesPage = ({
     lang,
     token,
 }: Props): React.ReactElement => {
-    const { states } = useCountryChange(lang, token);
     const addressCellRender = (e: PropertyData) => {
         const countryName: any = countryData?.find(
             (country) => country.id == e.propertyAddress.country
         );
         const country = countryName.name;
-        const stateName = states?.find(
-            (state) => state.id == e.propertyAddress.state
-        );
+
         const { addressLine1, city, postalCode } = e.propertyAddress;
         const parts = [
             addressLine1,
             postalCode && `${postalCode} - ${city}`,
-            stateName,
             country,
         ];
         return parts.filter(Boolean).join(', ');

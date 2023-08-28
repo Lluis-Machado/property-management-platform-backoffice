@@ -179,9 +179,10 @@ const PropertyPage = ({
         e.element.classList.add('stylingForm');
     };
 
-    const changeTagbox = (e: SelectionChangedEvent) => {
-        if (e.addedItems.length > 0 || e.removedItems.length > 0)
+    const changeTagbox = (e: ValueChangedEvent) => {
+        if (e.event !== undefined) {
             e.element.classList.add('stylingForm');
+        }
     };
 
     // calculate Property
@@ -432,9 +433,8 @@ const PropertyPage = ({
                                 valueExpr: 'value',
                                 searchEnabled: true,
                                 showClearButton: isEditing,
-                                onSelectionChanged: (
-                                    e: SelectionChangedEvent
-                                ) => changeTagbox(e),
+                                onValueChanged: (e: ValueChangedEvent) =>
+                                    changeTagbox(e),
                             }}
                         />
                         <GroupItem>
