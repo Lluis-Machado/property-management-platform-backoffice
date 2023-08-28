@@ -12,6 +12,7 @@ import {
     faXmark,
     faPencil,
     faSave,
+    faArrowUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -392,18 +393,26 @@ const PropertyPage = ({
                     />
                 </div>
                 {/* Button toolbar */}
-                <div className='mr-6 flex flex-row gap-4 self-center'>
-                    {isEditing && (
-                        <Button
-                            elevated
-                            onClick={() => handleSubmit()}
-                            type='button'
-                            icon={faSave}
-                            disabled={!isEditing || isLoading}
-                            isLoading={isLoading}
-                            style='success'
-                        />
-                    )}
+                <div className='flex flex-row gap-4 self-center'>
+                    <Button
+                        elevated
+                        onClick={() =>
+                            window.open(
+                                'https://crm.zoho.com/crm/org57555088/tab/Accounts/1631361000106185043',
+                                '_blank'
+                            )
+                        }
+                        type='button'
+                        icon={faArrowUpRightFromSquare}
+                    />
+                    <Button
+                        elevated
+                        onClick={handleSubmit}
+                        type='button'
+                        icon={faSave}
+                        disabled={!isEditing || isLoading}
+                        isLoading={isLoading}
+                    />
                     <Button
                         elevated
                         onClick={() => setIsEditing((prev) => !prev)}
