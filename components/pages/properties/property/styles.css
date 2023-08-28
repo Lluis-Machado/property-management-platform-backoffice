@@ -1,6 +1,7 @@
 .styling {
-    border: 1px solid red !important;
+    background-color: #EFE5D1 !important;
 }
 .stylingForm {
+    font-weight: 800;
     background-color: #EFE5D1 !important;
 }

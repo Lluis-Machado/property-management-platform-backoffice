@@ -37,9 +37,9 @@ const Property = async ({ params: { id, lang } }: Props) => {
         ]);
 
     let statesData: StateData[] = [];
-    if (propertyData.propertyAddress[0].country) {
+    if (propertyData.propertyAddress.country) {
         statesData = await getApiDataWithCache(
-            `/countries/countries/${propertyData.propertyAddress[0].country}/states?languageCode=${lang}`,
+            `/countries/countries/${propertyData.propertyAddress.country}/states?languageCode=${lang}`,
             'Error while getting states'
         );
     }

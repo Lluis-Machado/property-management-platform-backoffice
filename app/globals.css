@@ -51,7 +51,6 @@
 }
 .dx-texteditor-input {
 	color: var(--Slate_500) !important;
-	font-size: 1rem;
     line-height: 1.5rem;
 }
 
@@ -70,4 +69,7 @@
 
 .near-expiration {
 	background-color: #eab30833 !important;
+}
+.dx-tag-container {
+	padding-top: 0px !important;
 }

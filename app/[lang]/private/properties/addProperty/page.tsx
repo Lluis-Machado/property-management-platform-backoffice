@@ -16,7 +16,7 @@ const initialValues: PropertyData = {
     billingContactId: '',
     buildingPrice: {
         currency: '',
-        value: undefined,
+        value: 0,
     },
     cadastreNumber: '',
     cadastreRef: '',
@@ -25,18 +25,6 @@ const initialValues: PropertyData = {
     comments: '',
     contactPersonId: '',
     federalState: '',
-    furniturePrice: {
-        currency: '',
-        value: undefined,
-    },
-    furniturePriceIVA: {
-        currency: '',
-        value: undefined,
-    },
-    furniturePriceTPO: {
-        currency: '',
-        value: undefined,
-    },
     garbageCollection: null,
     garbagePriceAmount: null,
     ibiAmount: '',
@@ -44,7 +32,7 @@ const initialValues: PropertyData = {
     id: '',
     loanPrice: {
         currency: '',
-        value: undefined,
+        value: 0,
     },
     mainOwnerId: '',
     mainPropertyId: null,
@@ -52,39 +40,80 @@ const initialValues: PropertyData = {
     name: '',
     plotPrice: {
         currency: '',
-        value: undefined,
+        value: 0,
     },
-    propertyAddress: [],
+    propertyAddress: {
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: null,
+        postalCode: '',
+        country: null,
+        addressType: null,
+    },
     propertyScanMail: '',
     purchaseDate: null,
-    purchasePrice: {
+    purchasePriceNet: {
         currency: '',
-        value: undefined,
+        value: 0,
     },
+    purchasePriceGross: {
+        currency: '',
+        value: 0,
+    },
+    purchasePriceAJDPercentage: null,
     purchasePriceAJD: {
         currency: '',
-        value: undefined,
+        value: 0,
     },
+    purchasePriceTPOPercentage: null,
     purchasePriceTPO: {
         currency: '',
-        value: undefined,
+        value: 0,
     },
+    purchasePriceTaxPercentage: null,
     purchasePriceTax: {
         currency: '',
-        value: undefined,
+        value: 0,
     },
     purchasePriceTotal: {
         currency: '',
-        value: undefined,
+        value: 0,
+    },
+    priceTotal: {
+        currency: '',
+        value: 0,
+    },
+    furniturePrice: {
+        currency: '',
+        value: 0,
+    },
+    furniturePriceIVA: {
+        currency: '',
+        value: 0,
+    },
+    furniturePriceIVAPercentage: 0,
+    furniturePriceTPO: {
+        currency: '',
+        value: 0,
+    },
+    furniturePriceTPOPercentage: 0,
+    furniturePriceTotal: {
+        currency: '',
+        value: 0,
+    },
+    furniturePriceGross: {
+        currency: '',
+        value: 0,
     },
     saleDate: null,
     salePrice: {
         currency: '',
-        value: undefined,
+        value: 0,
     },
     totalPrice: {
         currency: '',
-        value: undefined,
+        value: 0,
     },
     type: '',
     typeOfUse: [],
