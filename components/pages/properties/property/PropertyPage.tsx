@@ -47,7 +47,6 @@ import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import PropertyPageTitle from './PropertyPageTitle';
 import './styles.css';
-import { SelectionChangedEvent } from 'devextreme/ui/tag_box';
 
 interface Props {
     propertyData: PropertyData;
@@ -371,10 +370,7 @@ const PropertyPage = ({
                     )}
                     <Button
                         elevated
-                        onClick={
-                            () => setIsEditing((prev) => !prev)
-                            //setNameProperty(propertyData.name)
-                        }
+                        onClick={() => setIsEditing((prev) => !prev)}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
                     />
