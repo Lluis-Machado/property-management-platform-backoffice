@@ -789,7 +789,6 @@ const PropertyPage = ({
                                                 },
                                             }}
                                         />
-
                                         <GroupItem colCount={2} name='TPO'>
                                             <Item
                                                 dataField='purchasePriceTPO.value'
@@ -825,7 +824,6 @@ const PropertyPage = ({
                                                 }}
                                             />
                                         </GroupItem>
-
                                         <GroupItem colCount={2}>
                                             <Item
                                                 dataField='purchasePriceAJD.value'
