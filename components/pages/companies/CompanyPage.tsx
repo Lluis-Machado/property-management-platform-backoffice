@@ -28,6 +28,8 @@ import Form, {
     TabbedItem,
 } from 'devextreme-react/form';
 import 'devextreme-react/text-area';
+import { FieldDataChangedEvent } from 'devextreme/ui/form';
+import { ValueChangedEvent } from 'devextreme/ui/text_area';
 
 // Local imports
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
@@ -52,6 +54,7 @@ import {
 } from '@/lib/utils/selectBoxItems';
 import { ContactData } from '@/lib/types/contactData';
 import { displayContactFullName } from '@/lib/utils/displayContactFullName';
+import '../properties/property/styles.css';
 
 interface Props {
     companyData: CompanyData;
@@ -167,6 +170,21 @@ const CompanyPage = ({
             (obj) => obj.id === companyData.countryMaskId
         )[0]?.mask || countriesMaskItems[0].mask;
 
+    const getMaskValueChange = (e: any) => {
+        const result = countriesMaskItems.filter((obj) => obj.id === e.value);
+        formRef
+            .current!.instance.getEditor('phoneNumber')!
+            .option('mask', result[0].mask);
+    };
+
+    // CHANGES FIELDS
+    const changeCssFormElement = (e: FieldDataChangedEvent) => {
+        document.getElementsByName(e.dataField!)[0].classList.add('styling');
+    };
+    const changeSelectbox = (e: ValueChangedEvent) => {
+        e.element.classList.add('stylingForm');
+    };
+
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
@@ -245,6 +263,7 @@ const CompanyPage = ({
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
                 showValidationSummary
+                onFieldDataChanged={changeCssFormElement}
             >
                 <GroupItem colCount={4}>
                     <Item dataField='name' label={{ text: 'Company name' }}>
@@ -277,6 +296,9 @@ const CompanyPage = ({
                         editorOptions={{
                             displayFormat: dateFormat,
                             showClearButton: true,
+                            onValueChanged: (e: ValueChangedEvent) => {
+                                changeSelectbox(e);
+                            },
                         }}
                     />
                     <Item
@@ -288,7 +310,10 @@ const CompanyPage = ({
                             valueExpr: 'id',
                             displayExpr: 'name',
                             defaultValue: countriesMaskItems[0],
-                            onValueChanged: setAddressOptions, // Trick to force react update
+                            onValueChanged: (e: ValueChangedEvent) => {
+                                getMaskValueChange(e);
+                                changeSelectbox(e);
+                            },
                         }}
                     >
                         <RequiredRule />
@@ -298,6 +323,9 @@ const CompanyPage = ({
                         label={{ text: 'Phone Number' }}
                         editorOptions={{
                             mask: getMaskFromDataSource(),
+                            onValueChanged: (e: ValueChangedEvent) => {
+                                changeSelectbox(e);
+                            },
                         }}
                     />
                 </GroupItem>
@@ -325,6 +353,9 @@ const CompanyPage = ({
                                                     items: addressTypeItems,
                                                     valueExpr: 'id',
                                                     displayExpr: 'name',
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => changeSelectbox(e),
                                                 }}
                                             />
                                             <Item
@@ -459,6 +490,9 @@ const CompanyPage = ({
                                                     items: companyContactsTypeItems,
                                                     valueExpr: 'id',
                                                     displayExpr: 'name',
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => changeSelectbox(e),
                                                 }}
                                             />
                                             <Item
@@ -472,6 +506,9 @@ const CompanyPage = ({
                                                     displayExpr:
                                                         displayContactFullName,
                                                     searchEnabled: true,
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => changeSelectbox(e),
                                                 }}
                                             />
                                             <Item
@@ -574,10 +611,12 @@ const CompanyPage = ({
                                                         searchEnabled: true,
                                                         onValueChanged: (
                                                             e: any
-                                                        ) =>
+                                                        ) => {
                                                             console.log(
                                                                 e.value
-                                                            ),
+                                                            );
+                                                            changeSelectbox(e);
+                                                        },
                                                     }}
                                                 />
                                                 <Item
