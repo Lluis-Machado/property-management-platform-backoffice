@@ -46,8 +46,7 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
 
     useEffect(() => {
         localeDevExtreme(lang);
-        router.prefetch(searchParams?.pathname || '/private');
-    }, [lang, searchParams?.pathname]);
+    }, [lang]);
 
     // useEffect for errors on the URL
     useEffect(() => {
