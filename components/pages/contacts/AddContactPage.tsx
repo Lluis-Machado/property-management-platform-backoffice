@@ -127,7 +127,8 @@ const AddContactPage = ({
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 
             updateSuccessToast(toastId, 'Contact created correctly!');
-            router.push('/private/contacts');
+            // Pass the ID to reload the page
+            router.push(`/private/contacts?createdId=${data.id}`);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {

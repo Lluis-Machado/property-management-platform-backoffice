@@ -82,7 +82,14 @@ export async function middleware(req: NextRequest) {
         // e.g. incoming req is /products
         // The new URL is now /en-US/products
         return NextResponse.redirect(
-            new URL(`/${locale}/${pathname}`, req.url)
+            new URL(
+                `/${locale}/${pathname}${
+                    req.nextUrl.searchParams
+                        ? `?${req.nextUrl.searchParams}`
+                        : ''
+                }`,
+                req.url
+            )
         );
     }
 

@@ -86,7 +86,7 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [router, username, password]);
+    }, [router, username, password, searchParams?.pathname]);
 
     // useEffect to listen for Enter key press
     useEffect(() => {

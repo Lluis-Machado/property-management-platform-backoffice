@@ -155,7 +155,8 @@ const CompanyPage = ({
             );
 
             updateSuccessToast(toastId, 'Company deleted correctly!');
-            router.push('/private/companies');
+            // Pass the ID to reload the page
+            router.push(`/private/companies?deletedId=${companyData.id}`);
         } catch (error: unknown) {
             customError(error, toastId);
         }

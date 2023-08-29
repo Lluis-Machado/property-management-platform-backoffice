@@ -6,9 +6,10 @@ import { getApiData } from '@/lib/utils/getApiData';
 
 interface Props {
     params: { lang: Locale };
+    searchParams: any;
 }
 
-const Contacts = async ({ params: { lang } }: Props) => {
+const Contacts = async ({ params: { lang }, searchParams }: Props) => {
     const contactData = await getApiData<ContactData[]>(
         '/contacts/contacts',
         'Error while getting contacts'
