@@ -45,7 +45,8 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
 
     useEffect(() => {
         localeDevExtreme(lang);
-    }, [lang]);
+        router.prefetch(searchParams?.pathname || '/private');
+    }, [lang, searchParams?.pathname]);
 
     // useEffect for errors on the URL
     useEffect(() => {
@@ -68,8 +69,6 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(valuesToSend),
             });
-
-            console.log(response);
 
             // If OK, redirect to the pathname requested from
             // this user or to /private if the previous does not exist
