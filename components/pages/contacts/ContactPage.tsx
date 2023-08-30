@@ -26,6 +26,8 @@ import Form, {
     TabbedItem,
 } from 'devextreme-react/form';
 import DataSource from 'devextreme/data/data_source';
+import { FieldDataChangedEvent } from 'devextreme/ui/form';
+import { ValueChangedEvent } from 'devextreme/ui/text_box';
 
 // Local imports
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
@@ -53,6 +55,7 @@ import {
     phoneTypeItems,
     titleItems,
 } from '@/lib/utils/selectBoxItems';
+import '../properties/property/styles.css';
 
 interface Props {
     contactData: ContactData;
@@ -86,8 +89,11 @@ const ContactPage = ({
     const [addressOptions, setAddressOptions] = useState({});
     const [countryDataSource, setCountryDataSource] = useState({});
 
-    const { getFilteredStates, handleCountryChange, isStateLoading } =
-        useCountryChange(lang, token, initialStates);
+    const { getFilteredStates, isStateLoading } = useCountryChange(
+        lang,
+        token,
+        initialStates
+    );
 
     const formRef = useRef<Form>(null);
 
@@ -106,6 +112,33 @@ const ContactPage = ({
             })
         );
     }, [countriesData]);
+
+    const handleCountryChange = useCallback(
+        (countryId: number, index: number) => {
+            fetch(
+                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `${token.token_type} ${token.access_token}`,
+                    },
+                    cache: 'no-store',
+                }
+            )
+                .then((resp) => resp.json())
+                .then((data: StateData[]) =>
+                    formRef
+                        .current!.instance.getEditor(
+                            `addresses[${index}].state`
+                        )!
+                        .option('items', data)
+                )
+                .catch((e) => console.error('Error while getting the states'));
+            // Ensure state is removed
+            contactData.addresses[index].state = null;
+        },
+        [lang, token, contactData.addresses]
+    );
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
@@ -217,7 +250,20 @@ const ContactPage = ({
         },
         [contactData]
     );
+    // STYLING WHEN FIELD CHANGES
+    const changeCssFormElement = (e: FieldDataChangedEvent) => {
+        document.getElementsByName(e.dataField!)[0].classList.add('styling');
+    };
 
+    const changeSelectbox = (e: ValueChangedEvent) => {
+        e.element.classList.add('stylingForm');
+    };
+    const getMaskValueChange = (e: ValueChangedEvent, index: number) => {
+        const result = countriesMaskItems.filter((obj) => obj.id === e.value);
+        formRef
+            .current!.instance.getEditor(`phones[${index}].phoneNumber`)!
+            .option('mask', result[index].mask);
+    };
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
@@ -285,6 +331,7 @@ const ContactPage = ({
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
                 showValidationSummary
+                onFieldDataChanged={changeCssFormElement}
             >
                 {/* Main Information */}
                 <GroupItem colCount={4}>
@@ -296,6 +343,8 @@ const ContactPage = ({
                             items: titleItems,
                             valueExpr: 'id',
                             displayExpr: 'name',
+                            onValueChanged: (e: ValueChangedEvent) =>
+                                changeSelectbox(e),
                         }}
                     />
                     <Item
@@ -317,6 +366,8 @@ const ContactPage = ({
                             items: genderItems,
                             valueExpr: 'id',
                             displayExpr: 'name',
+                            onValueChanged: (e: ValueChangedEvent) =>
+                                changeSelectbox(e),
                         }}
                     />
                     <Item
@@ -330,6 +381,8 @@ const ContactPage = ({
                         editorOptions={{
                             displayFormat: dateFormat,
                             showClearButton: true,
+                            onValueChanged: (e: ValueChangedEvent) =>
+                                changeSelectbox(e),
                         }}
                     />
                     <Item
@@ -340,6 +393,8 @@ const ContactPage = ({
                             items: maritalStatusItems,
                             valueExpr: 'id',
                             displayExpr: 'name',
+                            onValueChanged: (e: ValueChangedEvent) =>
+                                changeSelectbox(e),
                         }}
                     />
                     <Item dataField='email' label={{ text: 'Email' }}>
@@ -378,6 +433,9 @@ const ContactPage = ({
                                                         items: identificationItems,
                                                         valueExpr: 'id',
                                                         displayExpr: 'name',
+                                                        onValueChanged: (
+                                                            e: ValueChangedEvent
+                                                        ) => changeSelectbox(e),
                                                     }}
                                                 />
                                                 <Item
@@ -398,6 +456,9 @@ const ContactPage = ({
                                                         displayFormat:
                                                             dateFormat,
                                                         showClearButton: true,
+                                                        onValueChanged: (
+                                                            e: ValueChangedEvent
+                                                        ) => changeSelectbox(e),
                                                     }}
                                                 />
                                                 <Item
@@ -421,6 +482,9 @@ const ContactPage = ({
                                                             checkExpirationDate(
                                                                 index
                                                             ),
+                                                        onValueChanged: (
+                                                            e: ValueChangedEvent
+                                                        ) => changeSelectbox(e),
                                                     }}
                                                 />
                                                 <Item
@@ -500,6 +564,9 @@ const ContactPage = ({
                                                     items: addressTypeItems,
                                                     valueExpr: 'id',
                                                     displayExpr: 'name',
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => changeSelectbox(e),
                                                 }}
                                             />
                                             <Item
@@ -530,8 +597,10 @@ const ContactPage = ({
                                                         e: any
                                                     ) => {
                                                         handleCountryChange(
-                                                            e.value
+                                                            e.value,
+                                                            index
                                                         );
+                                                        changeSelectbox(e);
                                                         // Ensure state is removed
                                                         contactData.addresses[
                                                             index
@@ -555,6 +624,9 @@ const ContactPage = ({
                                                     readOnly:
                                                         !isEditing ||
                                                         isStateLoading,
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => changeSelectbox(e),
                                                 }}
                                             />
                                             <Item
@@ -643,6 +715,9 @@ const ContactPage = ({
                                                     items: phoneTypeItems,
                                                     valueExpr: 'id',
                                                     displayExpr: 'name',
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => changeSelectbox(e),
                                                 }}
                                             />
                                             <Item
@@ -654,6 +729,9 @@ const ContactPage = ({
                                                     items: phoneType2Items,
                                                     valueExpr: 'id',
                                                     displayExpr: 'name',
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => changeSelectbox(e),
                                                 }}
                                             />
                                             <Item
@@ -667,8 +745,15 @@ const ContactPage = ({
                                                     displayExpr: 'name',
                                                     defaultValue:
                                                         countriesMaskItems[0],
-                                                    onValueChanged:
-                                                        setAddressOptions, // Trick to force react update
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => {
+                                                        getMaskValueChange(
+                                                            e,
+                                                            index
+                                                        );
+                                                        changeSelectbox(e);
+                                                    },
                                                 }}
                                             >
                                                 <RequiredRule />
@@ -681,6 +766,9 @@ const ContactPage = ({
                                                     mask: getMaskFromDataSource(
                                                         index
                                                     ),
+                                                    onValueChanged: (
+                                                        e: ValueChangedEvent
+                                                    ) => changeSelectbox(e),
                                                 }}
                                             />
                                             <Item
@@ -793,10 +881,12 @@ const ContactPage = ({
                                                         searchEnabled: true,
                                                         onValueChanged: (
                                                             e: any
-                                                        ) =>
+                                                        ) => {
                                                             console.log(
                                                                 e.value
-                                                            ),
+                                                            );
+                                                            changeSelectbox(e);
+                                                        },
                                                     }}
                                                 />
                                                 <Item
