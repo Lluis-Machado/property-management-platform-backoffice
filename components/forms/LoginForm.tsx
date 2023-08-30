@@ -17,6 +17,7 @@ import { toast } from 'react-toastify';
 import ContentLoader from 'react-content-loader';
 import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 import { Locale } from '@/i18n-config';
+import { useNavigationEvent } from '@/lib/hooks/useNavigationEvent';
 
 interface Props {
     dictionary: {
@@ -45,8 +46,7 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
 
     useEffect(() => {
         localeDevExtreme(lang);
-        router.prefetch(searchParams?.pathname || '/private');
-    }, [lang, searchParams?.pathname]);
+    }, [lang]);
 
     // useEffect for errors on the URL
     useEffect(() => {
@@ -82,7 +82,6 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
             }
         } catch (err) {
             err instanceof ApiCallError && toast.error(err.message);
-        } finally {
             setIsLoading(false);
         }
     }, [router, username, password, searchParams?.pathname]);
