@@ -30,7 +30,6 @@ const PropertyPageTitle = ({
         }
         setName(value);
         parentCallback(e.value);
-        console.log(e);
     };
 
     return (

@@ -120,7 +120,8 @@ const AddCompanyPage = ({
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 
             updateSuccessToast(toastId, 'Company created correctly!');
-            router.push('/private/companies');
+            // Pass the ID to reload the page
+            router.push(`/private/companies?createdId=${data.id}`);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {

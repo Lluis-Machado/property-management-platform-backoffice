@@ -1,8 +1,6 @@
 'use client';
-
 // React imports
 import { useCallback, useRef, useState } from 'react';
-
 // Libraries imports
 import { Button } from 'pg-components';
 import {
@@ -17,7 +15,6 @@ import {
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Form, {
-    EmptyItem,
     GroupItem,
     Item,
     Tab,
@@ -29,8 +26,8 @@ import 'devextreme-react/tag-box';
 import 'devextreme-react/text-area';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
-
 // Local imports
+import '@/lib/styles/highlightFields.css';
 import { PropertyData } from '@/lib/types/propertyInfo';
 import PropertiesOwnersDatagrid from './PropertiesOwnersDatagrid';
 import PropertySidePropertiesDatagrid from './PropertySidePropertiesDatagrid';
@@ -48,7 +45,6 @@ import { ContactData } from '@/lib/types/contactData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import PropertyPageTitle from './PropertyPageTitle';
-import './styles.css';
 
 interface Props {
     propertyData: PropertyData;
