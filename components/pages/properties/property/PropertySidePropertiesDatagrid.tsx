@@ -18,7 +18,6 @@ interface Props {
 
 const PropertySidePropertiesDatagrid = ({ dataSource }: Props) => {
     const data = dataSource.childProperties;
-    // console.log(data)
 
     return (
         <DataGrid
