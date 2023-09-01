@@ -1,8 +1,6 @@
 'use client';
-
 // React imports
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -30,8 +28,8 @@ import Form, {
 import 'devextreme-react/text-area';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
 import { ValueChangedEvent } from 'devextreme/ui/text_area';
-
 // Local imports
+import '@/lib/styles/highlightFields.css';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
@@ -54,7 +52,6 @@ import {
 } from '@/lib/utils/selectBoxItems';
 import { ContactData } from '@/lib/types/contactData';
 import { displayContactFullName } from '@/lib/utils/displayContactFullName';
-import '../properties/property/styles.css';
 
 interface Props {
     companyData: CompanyData;
