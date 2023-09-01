@@ -15,26 +15,36 @@ interface Props {
 }
 
 const Property = async ({ params: { id, lang } }: Props) => {
-    const [user, propertyData, contactData, ownershipData, countriesData] =
-        await Promise.all([
-            getUser(),
-            getApiData<PropertyData>(
-                `/properties/properties/${id}`,
-                'Error while getting property info'
-            ),
-            getApiData<ContactData[]>(
-                '/contacts/contacts',
-                'Error while getting contacts'
-            ),
-            getApiData<OwnershipPropertyData[]>(
-                `/ownership/ownership/${id}/property`,
-                'Error while getting ownerships'
-            ),
-            getApiDataWithCache<CountryData[]>(
-                `/countries/countries?languageCode=${lang}`,
-                'Error while getting countries'
-            ),
-        ]);
+    const [
+        user,
+        propertyData,
+        propertiesData,
+        contactData,
+        ownershipData,
+        countriesData,
+    ] = await Promise.all([
+        getUser(),
+        getApiData<PropertyData>(
+            `/properties/properties/${id}`,
+            'Error while getting property info'
+        ),
+        getApiData<PropertyData[]>(
+            `/properties/properties/`,
+            'Error while getting properties info'
+        ),
+        getApiData<ContactData[]>(
+            '/contacts/contacts',
+            'Error while getting contacts'
+        ),
+        getApiData<OwnershipPropertyData[]>(
+            `/ownership/ownership/${id}/property`,
+            'Error while getting ownerships'
+        ),
+        getApiDataWithCache<CountryData[]>(
+            `/countries/countries?languageCode=${lang}`,
+            'Error while getting countries'
+        ),
+    ]);
 
     let statesData: StateData[] = [];
     if (propertyData.propertyAddress.country) {
@@ -57,6 +67,7 @@ const Property = async ({ params: { id, lang } }: Props) => {
             <Breadcrumb />
             <PropertyPage
                 propertyData={propertyData}
+                propertiesData={propertiesData}
                 lang={lang}
                 token={user.token}
                 contacts={contacts}

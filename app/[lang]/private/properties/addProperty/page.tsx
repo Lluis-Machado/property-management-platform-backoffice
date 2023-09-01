@@ -125,8 +125,12 @@ interface Props {
 }
 
 const AddProperty = async ({ params: { lang } }: Props) => {
-    const [user, contactData, countriesData] = await Promise.all([
+    const [user, properties, contactData, countriesData] = await Promise.all([
         getUser(),
+        getApiData<PropertyData[]>(
+            `/properties/properties/`,
+            'Error while getting properties info'
+        ),
         getApiData<ContactData[]>(
             '/contacts/contacts',
             'Error while getting contacts'
@@ -150,6 +154,7 @@ const AddProperty = async ({ params: { lang } }: Props) => {
             <Breadcrumb />
             <AddPropertyPage
                 propertyData={initialValues}
+                properties={properties}
                 contacts={contacts}
                 countries={countriesData}
                 token={user.token}

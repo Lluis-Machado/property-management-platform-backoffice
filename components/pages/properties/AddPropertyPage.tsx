@@ -14,7 +14,7 @@ import Form, {
     TabbedItem,
 } from 'devextreme-react/form';
 import 'devextreme-react/text-area';
-import TagBox from 'devextreme-react/tag-box';
+import 'devextreme-react/tag-box';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
@@ -31,10 +31,10 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import { Button } from 'pg-components';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
-import { SelectionChangedEvent } from 'devextreme/ui/tag_box';
 
 interface Props {
     propertyData: PropertyData;
+    properties: PropertyData[];
     contacts: SelectData[];
     countries: CountryData[];
     token: TokenRes;
@@ -43,6 +43,7 @@ interface Props {
 
 const AddPropertyPage = ({
     propertyData,
+    properties,
     contacts,
     countries,
     token,
@@ -65,8 +66,10 @@ const AddPropertyPage = ({
     const changeSelectbox = (e: ValueChangedEvent) => {
         e.element.classList.add('stylingForm');
     };
-    const changeTagbox = (e: SelectionChangedEvent) => {
-        e.element.classList.add('stylingForm');
+    const changeTagbox = (e: ValueChangedEvent) => {
+        if (e.event !== undefined) {
+            e.element.classList.add('stylingForm');
+        }
     };
     // calculate Property
     const calculatePurchase = (e: ValueChangedEvent) => {
@@ -278,7 +281,10 @@ const AddPropertyPage = ({
                                 items: [
                                     { label: 'Apartment', value: '0' },
                                     { label: 'Rural property', value: '1' },
-                                    { label: 'House', value: '2' },
+                                    {
+                                        label: 'Residential property',
+                                        value: '2',
+                                    },
                                     { label: 'Plot', value: '3' },
                                     { label: 'Parking', value: '4' },
                                     { label: 'Storage room', value: '5' },
@@ -299,12 +305,9 @@ const AddPropertyPage = ({
                                     { label: 'Vacational Rent', value: 1 },
                                     { label: 'Long Term Rent', value: 2 },
                                 ],
-                                onValueChanged: (e: SelectionChangedEvent) =>
-                                    changeTagbox(e),
                                 displayExpr: 'label',
                                 valueExpr: 'value',
                                 searchEnabled: true,
-                                showClearButton: true,
                             }}
                         />
                         <Item
@@ -390,6 +393,17 @@ const AddPropertyPage = ({
                             <Item
                                 dataField='propertyScanMail'
                                 label={{ text: 'Property Scan Mail' }}
+                            />
+                            <Item
+                                dataField='mainPropertyId'
+                                label={{ text: 'Main Property' }}
+                                editorType='dxSelectBox'
+                                editorOptions={{
+                                    items: properties,
+                                    displayExpr: 'name',
+                                    valueExpr: 'id',
+                                    searchEnabled: true,
+                                }}
                             />
                         </GroupItem>
                     </GroupItem>

@@ -52,6 +52,7 @@ import './styles.css';
 
 interface Props {
     propertyData: PropertyData;
+    propertiesData: PropertyData[];
     contacts: ContactData[];
     ownershipData: OwnershipPropertyData[];
     countries: CountryData[];
@@ -62,6 +63,7 @@ interface Props {
 
 const PropertyPage = ({
     propertyData,
+    propertiesData,
     contacts,
     ownershipData,
     countries,
@@ -173,11 +175,23 @@ const PropertyPage = ({
     // CSS styling form element
 
     const changeCssFormElement = (e: FieldDataChangedEvent) => {
-        document.getElementsByName(e.dataField!)[0].classList.add('styling');
+        console.log(e);
+        if (!e.dataField) {
+            document
+                .getElementById(e.element.attributes[1].nodeValue!)
+                ?.classList.add('styling');
+        } else {
+            document
+                .getElementsByName(e.dataField!)[0]
+                .classList.add('styling');
+        }
     };
 
     const changeSelectbox = (e: ValueChangedEvent) => {
-        e.element.classList.add('stylingForm');
+        console.log(e);
+        document
+            .getElementById(e.element.attributes[1].nodeValue!)
+            ?.classList.add('stylingForm');
     };
 
     const changeTagbox = (e: ValueChangedEvent) => {
@@ -463,7 +477,7 @@ const PropertyPage = ({
                                 items: [
                                     { label: 'Apartment', value: 0 },
                                     { label: 'Rural property', value: 1 },
-                                    { label: 'House', value: 2 },
+                                    { label: 'Residential property', value: 2 },
                                     { label: 'Plot', value: 3 },
                                     { label: 'Parking', value: 4 },
                                     { label: 'Storage room', value: 5 },
@@ -619,6 +633,37 @@ const PropertyPage = ({
                             dataField='propertyScanMail'
                             label={{ text: 'Property Scan Mail' }}
                         />
+                        <Item
+                            dataField='mainPropertyId'
+                            label={{ text: 'Main Property' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                items: propertiesData,
+                                displayExpr: 'name',
+                                valueExpr: 'id',
+                                searchEnabled: true,
+                                onValueChanged: (e: any) => changeSelectbox(e),
+                                buttons: [
+                                    {
+                                        name: 'goto',
+                                        location: 'after',
+                                        options: {
+                                            icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
+                                            type: 'default',
+                                            onClick: () => {
+                                                router.push(
+                                                    `/private/properties/${propertyData.mainPropertyId}/property`
+                                                );
+                                            },
+                                            disabled:
+                                                propertyData.mainPropertyId
+                                                    ? false
+                                                    : true,
+                                        },
+                                    },
+                                ],
+                            }}
+                        />
                     </GroupItem>
                 </GroupItem>
                 <GroupItem>
@@ -716,6 +761,9 @@ const PropertyPage = ({
                                             editorType='dxNumberBox'
                                             colSpan={2}
                                             editorOptions={{
+                                                elementAttr: {
+                                                    id: `purchasePriceNet`,
+                                                },
                                                 onValueChanged: (
                                                     e: ValueChangedEvent
                                                 ) => {
