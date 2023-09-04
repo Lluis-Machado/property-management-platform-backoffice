@@ -21,7 +21,6 @@ import Form, {
     TabPanelOptions,
     TabbedItem,
 } from 'devextreme-react/form';
-import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
 import 'devextreme-react/tag-box';
 import 'devextreme-react/text-area';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
@@ -43,12 +42,11 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { ContactData } from '@/lib/types/contactData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
-import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import PropertyPageTitle from './PropertyPageTitle';
-import { Purchase } from '@/components/Tabs/Purchase';
-import Cadastre from '@/components/Tabs/Cadastre';
-import OtherInformatiom from '@/components/Tabs/OtherInformation';
-import Sale from '@/components/Tabs/Sale';
+import { Purchase } from '@/components/Tabs/PurchaseTab';
+import Cadastre from '@/components/Tabs/CadastreTab';
+import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
+import Sale from '@/components/Tabs/SalesTab';
 
 interface Props {
     propertyData: PropertyData;
