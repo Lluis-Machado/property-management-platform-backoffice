@@ -45,15 +45,6 @@ export const Purchase = ({ propertyData, isEditing, isLoading }: Props) => {
         setElementsList((prev) => [...prev, e]);
     };
 
-    const editorOptionsValue = {
-        onValueChanged: (e: ValueChangedEvent) => changeSelectbox(e),
-        readOnly: true,
-        format: {
-            type: 'currency',
-            currency: 'EUR',
-            precision: 2,
-        },
-    };
     // calculate Property
     const calculatePurchase = (e: ValueChangedEvent) => {
         propertyData.purchasePriceNet.value = e.value || 0;

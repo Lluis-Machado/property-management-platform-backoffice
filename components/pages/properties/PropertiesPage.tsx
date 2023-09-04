@@ -34,8 +34,6 @@ const PropertiesPage = ({
     propertyData,
     contactData,
     countryData,
-    lang,
-    token,
 }: Props): React.ReactElement => {
     const addressCellRender = (e: PropertyData) => {
         const countryName: any = countryData?.find(

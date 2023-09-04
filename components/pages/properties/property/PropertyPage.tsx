@@ -46,6 +46,9 @@ import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import PropertyPageTitle from './PropertyPageTitle';
 import { Purchase } from '@/components/Tabs/Purchase';
+import Cadastre from '@/components/Tabs/Cadastre';
+import OtherInformatiom from '@/components/Tabs/OtherInformation';
+import Sale from '@/components/Tabs/Sale';
 
 interface Props {
     propertyData: PropertyData;
@@ -68,7 +71,6 @@ const PropertyPage = ({
     token,
     lang,
 }: Props): React.ReactElement => {
-    let priceTax: number;
     const router = useRouter();
     const dataGridRef = useRef();
     const formRef = useRef<Form>(null);
@@ -172,7 +174,6 @@ const PropertyPage = ({
     // CSS styling form element
 
     const changeCssFormElement = (e: FieldDataChangedEvent) => {
-        console.log(e);
         if (!e.dataField) {
             document
                 .getElementById(e.element.attributes[1].nodeValue!)
@@ -185,7 +186,6 @@ const PropertyPage = ({
     };
 
     const changeSelectbox = (e: ValueChangedEvent) => {
-        console.log(e);
         document
             .getElementById(e.element.attributes[1].nodeValue!)
             ?.classList.add('stylingForm');
@@ -195,193 +195,6 @@ const PropertyPage = ({
         if (e.event !== undefined) {
             e.element.classList.add('stylingForm');
         }
-    };
-    const editorOptions = {
-        onValueChanged: (e: ValueChangedEvent) => changeSelectbox(e),
-    };
-    const editorOptionsDate = {
-        displayFormat: dateFormat,
-        showClearButton: true,
-        onValueChanged: (e: ValueChangedEvent) => changeSelectbox(e),
-    };
-    const editorOptionsValue = {
-        onValueChanged: (e: ValueChangedEvent) => changeSelectbox(e),
-        readOnly: true,
-        format: {
-            type: 'currency',
-            currency: 'EUR',
-            precision: 2,
-        },
-    };
-    // calculate Property
-    const calculatePurchase = (e: ValueChangedEvent) => {
-        propertyData.purchasePriceNet.value = e.value || 0;
-        if (propertyData.purchasePriceTaxPercentage === 1) {
-            propertyData.purchasePriceTax.value =
-                (propertyData.purchasePriceNet.value! / 100) * 10;
-            //AJD CALCULATION
-            propertyData.purchasePriceAJD.value =
-                (propertyData.purchasePriceNet.value / 100) *
-                propertyData.purchasePriceAJDPercentage!;
-            propertyData.purchasePriceTPO.value = 0;
-            propertyData.purchasePriceTPOPercentage = 0;
-        } else if (propertyData.purchasePriceTaxPercentage === 2) {
-            propertyData.purchasePriceTax.value =
-                (propertyData.purchasePriceNet.value! / 100) * 21;
-            // AJD CALCULATION
-            propertyData.purchasePriceAJD.value =
-                (propertyData.purchasePriceNet.value / 100) *
-                propertyData.purchasePriceAJDPercentage!;
-            propertyData.purchasePriceTPO.value = 0;
-            propertyData.purchasePriceTPOPercentage = 0;
-        } else {
-            propertyData.purchasePriceTax.value =
-                propertyData.purchasePriceNet.value;
-            //TPO CALCULATION
-            propertyData.purchasePriceTPO.value =
-                (propertyData.purchasePriceNet.value / 100) *
-                propertyData.purchasePriceTPOPercentage!;
-            propertyData.purchasePriceAJD.value = 0;
-            propertyData.purchasePriceAJDPercentage = 0;
-        }
-        calculateBruttoValue();
-        calculateTotalPrice();
-        calculatePurchasePrice();
-    };
-    const calculatePriceTax = (e: ValueChangedEvent) => {
-        if (e.value == 1) {
-            priceTax = (propertyData.purchasePriceNet.value / 100) * 10;
-            propertyData.purchasePriceTax.value = priceTax;
-            propertyData.purchasePriceTaxPercentage = e.value;
-            propertyData.purchasePriceTPO.value = 0;
-            propertyData.purchasePriceTPOPercentage = 0;
-            calculateBruttoValue();
-            calculateTotalPrice();
-            calculatePurchasePrice();
-            formRef
-                .current!.instance.getEditor('purchasePriceAJD.value')!
-                .option('visible', true);
-            formRef
-                .current!.instance.getEditor('purchasePriceAJDPercentage')!
-                .option('visible', true);
-            formRef
-                .current!.instance.getEditor('purchasePriceTPO.value')!
-                .option('visible', false);
-            formRef
-                .current!.instance.getEditor('purchasePriceTPOPercentage')!
-                .option('visible', false);
-        } else if (e.value == 2) {
-            priceTax = (propertyData.purchasePriceNet.value / 100) * 21;
-            propertyData.purchasePriceTax.value = priceTax;
-            propertyData.purchasePriceTaxPercentage = e.value;
-            propertyData.purchasePriceTPO.value = 0;
-            propertyData.purchasePriceTPOPercentage = 0;
-            calculateBruttoValue();
-            calculateTotalPrice();
-            calculatePurchasePrice();
-            formRef
-                .current!.instance.getEditor('purchasePriceAJD.value')!
-                .option('visible', true);
-            formRef
-                .current!.instance.getEditor('purchasePriceAJDPercentage')!
-                .option('visible', true);
-            formRef
-                .current!.instance.getEditor('purchasePriceTPO.value')!
-                .option('visible', false);
-            formRef
-                .current!.instance.getEditor('purchasePriceTPOPercentage')!
-                .option('visible', false);
-        } else {
-            propertyData.purchasePriceTax.value = 0;
-            propertyData.purchasePriceTaxPercentage = 0;
-            propertyData.purchasePriceGross.value =
-                propertyData.purchasePriceNet.value;
-            propertyData.purchasePriceAJD.value = 0;
-            propertyData.purchasePriceAJDPercentage = 0;
-            calculateTotalPrice();
-            calculatePurchasePrice();
-            formRef
-                .current!.instance.getEditor('purchasePriceAJD.value')!
-                .option('visible', false);
-            formRef
-                .current!.instance.getEditor('purchasePriceAJDPercentage')!
-                .option('visible', false);
-            formRef
-                .current!.instance.getEditor('purchasePriceTPO.value')!
-                .option('visible', true);
-            formRef
-                .current!.instance.getEditor('purchasePriceTPOPercentage')!
-                .option('visible', true);
-        }
-    };
-
-    const calculateBruttoValue = () => {
-        propertyData.purchasePriceGross.value =
-            propertyData.purchasePriceNet.value +
-            propertyData.purchasePriceTax.value;
-    };
-
-    const calculateTPOValue = (e: ValueChangedEvent) => {
-        propertyData.purchasePriceTPO.value =
-            (propertyData.purchasePriceNet.value / 100) * e.value;
-        propertyData.purchasePriceAJD.value = 0;
-        propertyData.purchasePriceAJDPercentage = 0;
-        calculateTotalPrice();
-        calculatePurchasePrice();
-    };
-
-    const calculateAJDValue = (e: ValueChangedEvent) => {
-        propertyData.purchasePriceAJD.value =
-            (propertyData.purchasePriceNet.value / 100) * e.value;
-        propertyData.purchasePriceTPO.value = 0;
-        propertyData.purchasePriceTPOPercentage = 0;
-        calculateTotalPrice();
-        calculatePurchasePrice();
-    };
-
-    const calculateTotalPrice = () => {
-        propertyData.purchasePriceTotal.value =
-            propertyData.purchasePriceGross.value +
-            propertyData.purchasePriceTPO.value +
-            propertyData.purchasePriceAJD.value;
-    };
-    // Furniture
-    const calculateNet = (e: ValueChangedEvent) => {
-        propertyData.furniturePriceIVA.value =
-            (e.value / 100) * propertyData.furniturePriceIVAPercentage;
-        calculateBruttoValueFurniture();
-        calculateTPOValueFurniture();
-        calculateTotalPriceFurniture();
-        calculatePurchasePrice();
-    };
-    const calculatePriceTaxFurniture = (e: ValueChangedEvent) => {
-        propertyData.furniturePriceIVA.value =
-            (propertyData.furniturePrice.value / 100) * e.value;
-        calculateBruttoValueFurniture();
-        calculateTPOValueFurniture();
-        calculateTotalPriceFurniture();
-        calculatePurchasePrice();
-    };
-    const calculateBruttoValueFurniture = () => {
-        propertyData.furniturePriceGross.value =
-            propertyData.furniturePrice.value +
-            propertyData.furniturePriceIVA.value;
-    };
-    const calculateTPOValueFurniture = () => {
-        propertyData.furniturePriceTPO.value =
-            (propertyData.furniturePrice.value / 100) * 2;
-    };
-    const calculateTotalPriceFurniture = () => {
-        propertyData.furniturePriceTotal.value =
-            propertyData.furniturePriceGross.value +
-            propertyData.furniturePriceTPO.value;
-    };
-    // TOTAL PURCHASE CALCULATION
-    const calculatePurchasePrice = () => {
-        propertyData.priceTotal.value =
-            propertyData.furniturePriceTotal.value +
-            propertyData.purchasePriceTotal.value;
-        formRef.current!.instance.updateData(propertyData);
     };
     return (
         <div className='mt-4'>
@@ -471,6 +284,9 @@ const PropertyPage = ({
                             label={{ text: 'Type' }}
                             editorType='dxSelectBox'
                             editorOptions={{
+                                elementAttr: {
+                                    id: `propertyType`,
+                                },
                                 items: [
                                     { label: 'Apartment', value: 0 },
                                     { label: 'Rural property', value: 1 },
@@ -531,6 +347,9 @@ const PropertyPage = ({
                                     label={{ text: 'Country' }}
                                     editorType='dxSelectBox'
                                     editorOptions={{
+                                        elementAttr: {
+                                            id: `propertycountry`,
+                                        },
                                         items: countries,
                                         displayExpr: 'name',
                                         valueExpr: 'id',
@@ -550,6 +369,9 @@ const PropertyPage = ({
                                     name='state'
                                     ref={statesRef}
                                     editorOptions={{
+                                        elementAttr: {
+                                            id: `propertyState`,
+                                        },
                                         items: data,
                                         displayExpr: 'name',
                                         valueExpr: 'id',
@@ -568,6 +390,9 @@ const PropertyPage = ({
                             label={{ text: 'Contact Person' }}
                             editorType='dxSelectBox'
                             editorOptions={{
+                                elementAttr: {
+                                    id: `propertyContactPerson`,
+                                },
                                 items: contacts,
                                 displayExpr: 'firstName',
                                 valueExpr: 'id',
@@ -599,6 +424,9 @@ const PropertyPage = ({
                             label={{ text: 'Billing Contact' }}
                             editorType='dxSelectBox'
                             editorOptions={{
+                                elementAttr: {
+                                    id: `propertyBillingContact`,
+                                },
                                 items: contacts,
                                 displayExpr: 'firstName',
                                 valueExpr: 'id',
@@ -635,6 +463,9 @@ const PropertyPage = ({
                             label={{ text: 'Main Property' }}
                             editorType='dxSelectBox'
                             editorOptions={{
+                                elementAttr: {
+                                    id: `propertyMainProperty`,
+                                },
                                 items: propertiesData,
                                 displayExpr: 'name',
                                 valueExpr: 'id',
@@ -681,72 +512,11 @@ const PropertyPage = ({
                             />
                         </Tab>
                         <Tab title='Cadastre'>
-                            <GroupItem colCount={4}>
-                                <Item>
-                                    <TextBox
-                                        defaultValue={cadastreRef}
-                                        onValueChange={(e) => {
-                                            setCadastreRef(e);
-                                        }}
-                                        readOnly={isLoading || !isEditing}
-                                        labelMode='floating'
-                                        label='Cadastre Nr.'
-                                    >
-                                        <TextBoxButton
-                                            name='catasterBtn'
-                                            location='after'
-                                            options={{
-                                                icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
-                                                type: 'default',
-                                                onClick: () =>
-                                                    propertyData.cadastreUrl &&
-                                                    window.open(
-                                                        propertyData.cadastreUrl,
-                                                        '_blank'
-                                                    ),
-                                                disabled:
-                                                    propertyData.cadastreUrl
-                                                        ? false
-                                                        : true,
-                                            }}
-                                        />
-                                    </TextBox>
-                                </Item>
-                                <Item
-                                    dataField='cadastreValue'
-                                    label={{ text: 'Cadastre Value' }}
-                                    editorOptions={editorOptions}
-                                />
-                                <Item
-                                    dataField='loanPrice.value'
-                                    label={{ text: 'Loan price' }}
-                                    editorOptions={editorOptions}
-                                />
-                                <Item
-                                    dataField='buildingPrice.value'
-                                    label={{ text: 'Building price' }}
-                                    editorOptions={editorOptions}
-                                />
-                                <Item
-                                    dataField='plotPrice.value'
-                                    label={{ text: 'Plot price' }}
-                                    editorOptions={editorOptions}
-                                />
-                                <Item
-                                    dataField='ibiAmount'
-                                    label={{ text: 'IBI Amount' }}
-                                />
-                                <Item
-                                    dataField='ibiCollection'
-                                    label={{ text: 'IBI Collection' }}
-                                />
-                                <Item
-                                    dataField='purchaseDate'
-                                    label={{ text: 'Purchase Date' }}
-                                    editorType='dxDateBox'
-                                    editorOptions={editorOptionsDate}
-                                />
-                            </GroupItem>
+                            <Cadastre
+                                propertyData={propertyData}
+                                isLoading={isLoading}
+                                isEditing={isEditing}
+                            />
                         </Tab>
                         <Tab title='Purchase'>
                             <Purchase
@@ -756,39 +526,18 @@ const PropertyPage = ({
                             />
                         </Tab>
                         <Tab title='Other Information'>
-                            <GroupItem colCount={4}>
-                                <Item
-                                    dataField='bedNumber'
-                                    label={{ text: 'Bed Number' }}
-                                />
-                                <Item
-                                    dataField='year'
-                                    label={{ text: 'Year' }}
-                                />
-                                <Item
-                                    dataField='garbageCollection'
-                                    label={{ text: 'Garbage Collection' }}
-                                />
-                                <Item
-                                    dataField='garbagePriceAmount'
-                                    label={{ text: 'Garbage Price Amount' }}
-                                />
-                            </GroupItem>
+                            <OtherInformatiom
+                                propertyData={propertyData}
+                                isLoading={isLoading}
+                                isEditing={isEditing}
+                            />
                         </Tab>
                         <Tab title='Sale'>
-                            <GroupItem colCount={4}>
-                                <Item
-                                    dataField='saleDate'
-                                    label={{ text: 'Sale Date' }}
-                                    editorType='dxDateBox'
-                                    editorOptions={editorOptionsDate}
-                                />
-                                <Item
-                                    dataField='salePrice.value'
-                                    label={{ text: 'Sale Price' }}
-                                    editorOptions={editorOptions}
-                                />
-                            </GroupItem>
+                            <Sale
+                                propertyData={propertyData}
+                                isLoading={isLoading}
+                                isEditing={isEditing}
+                            />
                         </Tab>
                         <Tab title='Comments'>
                             <Item

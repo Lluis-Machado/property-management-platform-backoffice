@@ -6,6 +6,8 @@ import TextBox from 'devextreme-react/text-box';
 import Tooltip from 'devextreme-react/tooltip';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { PropertyData } from '@/lib/types/propertyInfo';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
     propertyData: PropertyData;
@@ -17,9 +19,10 @@ interface Props {
 const PropertyPageTitle = ({
     propertyData,
     isEditing,
-    isLoading,
     parentCallback,
 }: Props) => {
+    const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
+    const [effect, setEffect] = useState(false);
     const [name, setName] = useState(propertyData.name);
     const sendData = (e: ValueChangedEvent) => {
         const value = e.value;
@@ -30,14 +33,15 @@ const PropertyPageTitle = ({
         }
         setName(value);
         parentCallback(e.value);
+        setIsEditingTitle(false);
     };
 
     return (
-        <div>
+        <div className='flex flex-row'>
             {/* Contact avatar and name */}
             <TextBox
                 value={propertyData.name}
-                disabled={!isEditing || isLoading}
+                disabled={!isEditingTitle}
                 onValueChanged={sendData}
                 id='title'
                 style={{
@@ -65,6 +69,20 @@ const PropertyPageTitle = ({
                     </Tooltip>
                 )}
             </TextBox>
+            <div className='flex items-center justify-center'>
+                {isEditing && (
+                    <FontAwesomeIcon
+                        icon={faPenToSquare}
+                        size='2x'
+                        color='#b99f6c'
+                        onClick={() => setIsEditingTitle((prev) => !prev)}
+                        style={{
+                            color: isEditingTitle ? '#163047' : '',
+                            backgroundColor: isEditingTitle ? '#EFE5D1' : '',
+                        }}
+                    />
+                )}
+            </div>
         </div>
     );
 };
