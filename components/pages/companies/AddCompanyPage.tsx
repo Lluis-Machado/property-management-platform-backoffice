@@ -37,21 +37,31 @@ import {
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 import { displayContactFullName } from '@/lib/utils/displayContactFullName';
 
+let companyData: CompanyData = {
+    name: '',
+    nif: null,
+    email: '',
+    countryMaskId: 1,
+    phoneNumber: '',
+    companyPurpose: '',
+    foundingDate: null,
+    germanTaxOffice: '',
+    taxNumber: '',
+    uStIDNumber: '',
+    addresses: [],
+    bankInformation: [],
+    contacts: [],
+    comments: '',
+};
+
 interface Props {
-    companyData: CompanyData;
     countries: CountryData[];
     contactsData: ContactData[];
     token: TokenRes;
     lang: Locale;
 }
 
-const AddCompanyPage = ({
-    companyData,
-    countries,
-    contactsData,
-    token,
-    lang,
-}: Props) => {
+const AddCompanyPage = ({ countries, contactsData, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<CompanyData>(
@@ -120,6 +130,8 @@ const AddCompanyPage = ({
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 
             updateSuccessToast(toastId, 'Company created correctly!');
+            // Clear company data
+            companyData = structuredClone(initialValues);
             // Pass the ID to reload the page
             router.push(`/private/companies?createdId=${data.id}`);
         } catch (error: unknown) {
@@ -127,7 +139,7 @@ const AddCompanyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [companyData, initialValues, token, router]);
+    }, [initialValues, token, router]);
 
     const getMaskFromDataSource = () =>
         countriesMaskItems.filter(

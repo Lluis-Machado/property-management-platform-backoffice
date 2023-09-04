@@ -8,21 +8,6 @@ import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
-const initialValues: ContactData = {
-    title: null,
-    firstName: '',
-    lastName: '',
-    gender: null,
-    birthDay: null,
-    email: '',
-    birthPlace: '',
-    maritalStatus: 0,
-    bankInformation: [],
-    identifications: [],
-    addresses: [],
-    phones: [],
-};
-
 interface Props {
     params: { lang: Locale };
 }
@@ -53,7 +38,6 @@ const AddContact = async ({ params: { lang } }: Props) => {
         <>
             <Breadcrumb />
             <AddContactPage
-                contactData={initialValues}
                 countries={countries}
                 contactsData={contactsData}
                 lang={lang}
