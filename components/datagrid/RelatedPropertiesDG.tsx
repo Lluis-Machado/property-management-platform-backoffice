@@ -19,7 +19,7 @@ interface Props {
     ownershipData: OwnershipData[];
 }
 
-const ContactPropertiesDG = ({ ownershipData }: Props) => {
+const RelatedPropertiesDG = ({ ownershipData }: Props) => {
     const CellRender = useCallback(
         ({ data }: { data: any }): React.ReactElement => (
             <LinkWithIcon
@@ -62,4 +62,4 @@ const ContactPropertiesDG = ({ ownershipData }: Props) => {
     );
 };
 
-export default ContactPropertiesDG;
+export default RelatedPropertiesDG;

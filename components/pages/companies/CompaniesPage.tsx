@@ -68,11 +68,11 @@ const CompaniesPage = ({ dataSource }: Props) => {
             <Column caption='Company Name' dataField='name' dataType='string' />
             <Column caption='NIF' dataField='nif' dataType='string' />
             <Column caption='Email' dataField='email' dataType='string' />
-            <Column
+            {/* <Column
                 caption='Phone Number'
                 dataField='phoneNumber'
                 dataType='string'
-            />
+            /> */}
             {/* <MasterDetail enabled={true} component={DetailTemplate} /> */}
         </DataGrid>
     );

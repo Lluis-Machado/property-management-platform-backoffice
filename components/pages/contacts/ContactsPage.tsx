@@ -77,12 +77,12 @@ const ContactsPage = ({ dataSource }: Props) => {
                 dataType='string'
                 hidingPriority={1}
             />
-            <Column
+            {/* <Column
                 caption='NIF'
                 dataField='nif'
                 dataType='string'
                 hidingPriority={2}
-            />
+            /> */}
             <Column
                 caption='Email'
                 dataField='email'

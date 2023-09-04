@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from 'pg-components';
 import {
-    faClockRotateLeft,
+    faArrowUpRightFromSquare,
     faFileLines,
     faPencil,
     faReceipt,
@@ -29,7 +29,7 @@ import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
 // Local imports
 import '@/lib/styles/highlightFields.css';
-import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
+import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import { ContactData } from '@/lib/types/contactData';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
@@ -41,7 +41,7 @@ import { customError } from '@/lib/utils/customError';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
-import ContactPropertiesDG from './ContactPropertiesDG';
+import RelatedPropertiesDG from '../../datagrid/RelatedPropertiesDG';
 import { OwnershipData } from '@/lib/types/ownershipData';
 import {
     genderItems,
@@ -77,8 +77,8 @@ const ContactPage = ({
 }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [confirmationVisible, setConfirmationVisible] =
-        useState<boolean>(false);
+    const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
+    const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<ContactData>(
         structuredClone(contactData)
@@ -163,13 +163,28 @@ const ContactPage = ({
         e.element.classList.add('stylingForm');
     };
 
+    const handleEditingButton = () => {
+        const values = structuredClone(contactData);
+        if (JSON.stringify(values) !== JSON.stringify(initialValues)) {
+            setUnsavedVisible(true);
+        } else {
+            setIsEditing((prev) => !prev);
+        }
+    };
+
     return (
         <div className='mt-4'>
-            <ConfirmDeletePopup
+            <ConfirmationPopup
                 message='Are you sure you want to delete this contact?'
-                isVisible={confirmationVisible}
-                onClose={() => setConfirmationVisible(false)}
+                isVisible={deleteVisible}
+                onClose={() => setDeleteVisible(false)}
                 onConfirm={handleDelete}
+            />
+            <ConfirmationPopup
+                message='Are you sure you want to exit without saving?'
+                isVisible={unsavedVisible}
+                onClose={() => setUnsavedVisible(false)}
+                onConfirm={() => router.refresh()}
             />
             <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
@@ -200,7 +215,17 @@ const ContactPage = ({
                 </div>
                 {/* Button toolbar */}
                 <div className='flex flex-row gap-4 self-center'>
-                    <Button elevated type='button' icon={faClockRotateLeft} />
+                    <Button
+                        elevated
+                        onClick={() =>
+                            window.open(
+                                'https://crm.zoho.com/crm/org57555088/tab/Contacts/1631361000011416026',
+                                '_blank'
+                            )
+                        }
+                        type='button'
+                        icon={faArrowUpRightFromSquare}
+                    />
                     <Button
                         elevated
                         onClick={handleSubmit}
@@ -211,13 +236,13 @@ const ContactPage = ({
                     />
                     <Button
                         elevated
-                        onClick={() => setIsEditing((prev) => !prev)}
+                        onClick={() => handleEditingButton()}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
                     />
                     <Button
                         elevated
-                        onClick={() => setConfirmationVisible(true)}
+                        onClick={() => setDeleteVisible(true)}
                         type='button'
                         icon={faTrash}
                         style='danger'
@@ -309,7 +334,7 @@ const ContactPage = ({
                             height={'60vh'}
                         />
                         <Tab title={`Properties`}>
-                            <ContactPropertiesDG
+                            <RelatedPropertiesDG
                                 ownershipData={ownershipData}
                             />
                         </Tab>
