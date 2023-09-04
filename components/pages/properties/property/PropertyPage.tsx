@@ -47,6 +47,7 @@ import { Purchase } from '@/components/Tabs/PurchaseTab';
 import Cadastre from '@/components/Tabs/CadastreTab';
 import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
 import Sale from '@/components/Tabs/SalesTab';
+import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 
 interface Props {
     propertyData: PropertyData;
@@ -75,8 +76,8 @@ const PropertyPage = ({
     const statesRef = useRef<Item>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [confirmationVisible, setConfirmationVisible] =
-        useState<boolean>(false);
+    const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
+    const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
     const data = initialStates;
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
@@ -146,6 +147,8 @@ const PropertyPage = ({
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'Property updated correctly!');
+            setInitialValues(data);
+            setIsEditing(false);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
@@ -163,7 +166,8 @@ const PropertyPage = ({
             );
 
             updateSuccessToast(toastId, 'Property deleted correctly!');
-            router.push('/private/properties');
+            // Pass the ID to reload the page
+            router.push(`/private/properties?deletedId=${propertyData.id}`);
         } catch (error: unknown) {
             customError(error, toastId);
         }
@@ -194,13 +198,29 @@ const PropertyPage = ({
             e.element.classList.add('stylingForm');
         }
     };
+
+    const handleEditingButton = () => {
+        const values = structuredClone(propertyData);
+        if (JSON.stringify(values) !== JSON.stringify(initialValues)) {
+            setUnsavedVisible(true);
+        } else {
+            setIsEditing((prev) => !prev);
+        }
+    };
+
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
                 message='Are you sure you want to delete this property?'
-                isVisible={confirmationVisible}
-                onClose={() => setConfirmationVisible(false)}
+                isVisible={deleteVisible}
+                onClose={() => setDeleteVisible(false)}
                 onConfirm={handleDelete}
+            />
+            <ConfirmationPopup
+                message='Are you sure you want to exit without saving the changes?'
+                isVisible={unsavedVisible}
+                onClose={() => setUnsavedVisible(false)}
+                onConfirm={() => router.refresh()}
             />
 
             <div className='my-6 flex w-full justify-between'>
@@ -254,13 +274,13 @@ const PropertyPage = ({
                     />
                     <Button
                         elevated
-                        onClick={() => setIsEditing((prev) => !prev)}
+                        onClick={() => handleEditingButton()}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
                     />
                     <Button
                         elevated
-                        onClick={() => setConfirmationVisible(true)}
+                        onClick={() => setDeleteVisible(true)}
                         type='button'
                         icon={faTrash}
                         style='danger'
@@ -523,15 +543,15 @@ const PropertyPage = ({
                                 isEditing={isEditing}
                             />
                         </Tab>
-                        <Tab title='Other Information'>
-                            <OtherInformatiom
+                        <Tab title='Sale'>
+                            <Sale
                                 propertyData={propertyData}
                                 isLoading={isLoading}
                                 isEditing={isEditing}
                             />
                         </Tab>
-                        <Tab title='Sale'>
-                            <Sale
+                        <Tab title='Other Information'>
+                            <OtherInformatiom
                                 propertyData={propertyData}
                                 isLoading={isLoading}
                                 isEditing={isEditing}

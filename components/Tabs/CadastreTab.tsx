@@ -89,6 +89,22 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
                             changeSelectbox(e),
                     }}
                 />
+                <Item
+                    dataField='loanPrice.value'
+                    label={{ text: 'Loan' }}
+                    editorOptions={{
+                        elementAttr: {
+                            id: `loanPrice`,
+                        },
+                        onValueChanged: (e: ValueChangedEvent) =>
+                            changeSelectbox(e),
+                        format: {
+                            type: 'currency',
+                            currency: 'EUR',
+                            precision: 2,
+                        },
+                    }}
+                />
             </GroupItem>
             <GroupItem colCount={4}>
                 <Item>
@@ -177,36 +193,6 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
                         }}
                     />
                 </GroupItem>
-            </GroupItem>
-            <GroupItem colCount={4}>
-                <Item
-                    dataField='purchaseDate'
-                    label={{ text: 'Purchase Date' }}
-                    editorType='dxDateBox'
-                    editorOptions={{
-                        elementAttr: {
-                            id: `purchaseDate`,
-                        },
-                        onValueChanged: (e: ValueChangedEvent) =>
-                            changeSelectbox(e),
-                    }}
-                />
-                <Item
-                    dataField='loanPrice.value'
-                    label={{ text: 'Loan' }}
-                    editorOptions={{
-                        elementAttr: {
-                            id: `loanPrice`,
-                        },
-                        onValueChanged: (e: ValueChangedEvent) =>
-                            changeSelectbox(e),
-                        format: {
-                            type: 'currency',
-                            currency: 'EUR',
-                            precision: 2,
-                        },
-                    }}
-                />
             </GroupItem>
         </Form>
     );

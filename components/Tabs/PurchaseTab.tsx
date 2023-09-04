@@ -544,6 +544,20 @@ export const Purchase = ({ propertyData, isEditing, isLoading }: Props) => {
                             }}
                         />
                     </GroupItem>
+                    <GroupItem caption='Purchase Date'>
+                        <Item
+                            dataField='purchaseDate'
+                            label={{ text: 'Purchase Date' }}
+                            editorType='dxDateBox'
+                            editorOptions={{
+                                elementAttr: {
+                                    id: `purchaseDate`,
+                                },
+                                onValueChanged: (e: ValueChangedEvent) =>
+                                    changeSelectbox(e),
+                            }}
+                        />
+                    </GroupItem>
                 </GroupItem>
                 <GroupItem colCount={3}>
                     <Item

@@ -248,13 +248,16 @@ const AddPropertyPage = ({
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 
             updateSuccessToast(toastId, 'Property created correctly!');
-            router.push('/private/properties');
+            // Clear contact data
+            propertyData = structuredClone(initialValues);
+            // Pass the ID to reload the page
+            router.push(`/private/properties?createdId=${data.id}`);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
             setIsLoading(false);
         }
-    }, [router, propertyData, initialValues, token]);
+    }, [router, initialValues, token]);
 
     const calculateCadastreValue = (e: ValueChangedEvent) => {
         propertyData.cadastreValue.value =
@@ -270,7 +273,7 @@ const AddPropertyPage = ({
                 ref={formRef}
             >
                 <GroupItem colCount={3}>
-                    <GroupItem caption='Property Information'>
+                    <GroupItem>
                         <Item dataField='name' label={{ text: 'Name' }} />
                         <Item
                             dataField='type'
@@ -355,7 +358,7 @@ const AddPropertyPage = ({
                         </GroupItem>
                     </GroupItem>
                     <GroupItem>
-                        <GroupItem caption='Contact Information'>
+                        <GroupItem>
                             <Item
                                 dataField='mainOwnerId'
                                 label={{ text: 'Main Owner' }}
@@ -442,6 +445,20 @@ const AddPropertyPage = ({
                                         ) => changeSelectbox(e),
                                     }}
                                 />
+                                <Item
+                                    dataField='loanPrice.value'
+                                    label={{ text: 'Loan' }}
+                                    editorOptions={{
+                                        elementAttr: {
+                                            id: `loanPrice`,
+                                        },
+                                        format: {
+                                            type: 'currency',
+                                            currency: 'EUR',
+                                            precision: 2,
+                                        },
+                                    }}
+                                />
                             </GroupItem>
                             <GroupItem colCount={4}>
                                 <Item
@@ -511,32 +528,6 @@ const AddPropertyPage = ({
                                         }}
                                     />
                                 </GroupItem>
-                            </GroupItem>
-                            <GroupItem colCount={4}>
-                                <Item
-                                    dataField='purchaseDate'
-                                    label={{ text: 'Purchase Date' }}
-                                    editorType='dxDateBox'
-                                    editorOptions={{
-                                        elementAttr: {
-                                            id: `purchaseDate`,
-                                        },
-                                    }}
-                                />
-                                <Item
-                                    dataField='loanPrice.value'
-                                    label={{ text: 'Loan' }}
-                                    editorOptions={{
-                                        elementAttr: {
-                                            id: `loanPrice`,
-                                        },
-                                        format: {
-                                            type: 'currency',
-                                            currency: 'EUR',
-                                            precision: 2,
-                                        },
-                                    }}
-                                />
                             </GroupItem>
                         </Tab>
                         <Tab title='Purchase'>
@@ -824,6 +815,18 @@ const AddPropertyPage = ({
                                                     type: 'currency',
                                                     currency: 'EUR',
                                                     precision: 2,
+                                                },
+                                            }}
+                                        />
+                                    </GroupItem>
+                                    <GroupItem caption='Purchase Date'>
+                                        <Item
+                                            dataField='purchaseDate'
+                                            label={{ text: 'Purchase Date' }}
+                                            editorType='dxDateBox'
+                                            editorOptions={{
+                                                elementAttr: {
+                                                    id: `purchaseDate`,
                                                 },
                                             }}
                                         />

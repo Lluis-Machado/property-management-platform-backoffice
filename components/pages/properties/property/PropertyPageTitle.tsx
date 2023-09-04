@@ -26,7 +26,6 @@ const PropertyPageTitle = ({
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
-    console.log(initialValues.name);
     const [name, setName] = useState(propertyData.name);
     const sendData = (e: ValueChangedEvent) => {
         const value = e.value;
@@ -82,7 +81,7 @@ const PropertyPageTitle = ({
                     </Tooltip>
                 )}
             </TextBox>
-            <div className='flex items-center justify-center'>
+            {/* <div className='flex items-center justify-center'>
                 {isEditing && (
                     <FontAwesomeIcon
                         icon={faPencil}
@@ -94,7 +93,7 @@ const PropertyPageTitle = ({
                         }}
                     />
                 )}
-            </div>
+            </div> */}
         </div>
     );
 };
