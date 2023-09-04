@@ -41,7 +41,7 @@ import { customError } from '@/lib/utils/customError';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
-import ContactPropertiesDG from './ContactPropertiesDG';
+import RelatedPropertiesDG from '../../datagrid/RelatedPropertiesDG';
 import { OwnershipData } from '@/lib/types/ownershipData';
 import {
     genderItems,
@@ -309,7 +309,7 @@ const ContactPage = ({
                             height={'60vh'}
                         />
                         <Tab title={`Properties`}>
-                            <ContactPropertiesDG
+                            <RelatedPropertiesDG
                                 ownershipData={ownershipData}
                             />
                         </Tab>
