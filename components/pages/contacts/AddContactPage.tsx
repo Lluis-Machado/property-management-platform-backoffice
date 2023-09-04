@@ -148,7 +148,7 @@ const AddContactPage = ({ countries, contactsData, token, lang }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [contactData, initialValues, token, router]);
+    }, [initialValues, token, router]);
 
     const getMaskFromDataSource = (index: number) =>
         countriesMaskItems.filter(

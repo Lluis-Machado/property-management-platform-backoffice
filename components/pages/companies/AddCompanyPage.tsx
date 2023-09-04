@@ -139,7 +139,7 @@ const AddCompanyPage = ({ countries, contactsData, token, lang }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [companyData, initialValues, token, router]);
+    }, [initialValues, token, router]);
 
     const getMaskFromDataSource = () =>
         countriesMaskItems.filter(
