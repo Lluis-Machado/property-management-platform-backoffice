@@ -8,16 +8,24 @@ import { FieldDataChangedEvent } from 'devextreme/ui/form';
 // Local imports
 import { ContactData } from '@/lib/types/contactData';
 import { CompanyData } from '@/lib/types/companyData';
-import ContactAddItem from './TabButtons/ContactAddItem';
-import ContactDeleteItem from './TabButtons/ContactDeleteItem';
+import AddItem from './TabButtons/AddItem';
+import DeleteItem from './TabButtons/DeleteItem';
+import { displayContactFullName } from '@/lib/utils/displayContactFullName';
+import { companyContactsTypeItems } from '@/lib/utils/selectBoxItems';
 
 interface Props {
+    dataSource: CompanyData;
     contactsData: ContactData[];
-    contactData: ContactData;
     isEditing: boolean;
     isLoading: boolean;
 }
-const Bank = ({ contactData, contactsData, isEditing, isLoading }: Props) => {
+
+const ContactsTab = ({
+    dataSource,
+    contactsData,
+    isEditing,
+    isLoading,
+}: Props) => {
     const [addressOptions, setAddressOptions] = useState({});
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
     const [elementsList, setElementsList] = useState<ValueChangedEvent[]>([]);
@@ -47,15 +55,15 @@ const Bank = ({ contactData, contactsData, isEditing, isLoading }: Props) => {
     };
 
     const callbackFunction = useCallback(
-        (contactData: ContactData | CompanyData) => {
-            formRef.current?.instance.updateData('formData', contactData);
+        (dataSource: ContactData | CompanyData) => {
+            formRef.current?.instance.updateData('formData', dataSource);
             setAddressOptions([]);
         },
         []
     );
     return (
         <Form
-            formData={contactData}
+            formData={dataSource}
             ref={formRef}
             labelMode={'floating'}
             readOnly={isLoading || !isEditing}
@@ -63,61 +71,61 @@ const Bank = ({ contactData, contactsData, isEditing, isLoading }: Props) => {
             onFieldDataChanged={changeCssFormElement}
         >
             <GroupItem colCount={1}>
-                {contactData.bankInformation.map((bank, index) => {
+                {dataSource.contacts.map((phone, index) => {
                     return (
-                        <GroupItem key={`GroupItem4-${index}`} colCount={5}>
+                        <GroupItem
+                            key={`GroupItemContacts-${index}`}
+                            colCount={6}
+                        >
                             <Item
-                                key={`bankName${index}`}
-                                dataField={`bankInformation[${index}].bankName`}
-                                label={{
-                                    text: 'Bank Name',
-                                }}
-                            />
-                            <Item
-                                key={`iban${index}`}
-                                dataField={`bankInformation[${index}].iban`}
-                                label={{
-                                    text: 'IBAN',
-                                }}
-                            />
-                            <Item
-                                key={`bic${index}`}
-                                dataField={`bankInformation[${index}].bic`}
-                                label={{
-                                    text: 'BIC',
-                                }}
-                            />
-                            <Item
-                                key={`contactPerson${index}`}
-                                dataField={`bankInformation[${index}].contactPerson`}
-                                label={{
-                                    text: 'Contact Person',
-                                }}
+                                key={`contactType${index}`}
+                                dataField={`contacts[${index}].contactType`}
+                                label={{ text: 'Contact Type' }}
                                 editorType='dxSelectBox'
                                 editorOptions={{
                                     elementAttr: {
-                                        id: `contactPerson${index}`,
+                                        id: `contactType65435456${index}`,
+                                    },
+                                    items: companyContactsTypeItems,
+                                    valueExpr: 'id',
+                                    displayExpr: 'name',
+                                    onValueChanged: (e: ValueChangedEvent) =>
+                                        changeSelectbox(e),
+                                }}
+                            />
+                            <Item
+                                key={`contactId${index}`}
+                                dataField={`contacts[${index}].contactId`}
+                                label={{ text: 'Contact' }}
+                                editorType='dxSelectBox'
+                                editorOptions={{
+                                    elementAttr: {
+                                        id: `contactPerson23456234${index}`,
                                     },
                                     items: contactsData,
-                                    displayExpr: (item: ContactData) => {
-                                        if (!item) return;
-                                        if (item.firstName)
-                                            return `${item.firstName} ${item.lastName}`;
-                                        else return `${item.lastName}`;
-                                    },
                                     valueExpr: 'id',
+                                    displayExpr: displayContactFullName,
                                     searchEnabled: true,
-                                    onValueChanged: (e: any) => {
-                                        changeSelectbox(e);
-                                    },
+                                    onValueChanged: (e: ValueChangedEvent) =>
+                                        changeSelectbox(e),
+                                }}
+                            />
+                            <Item
+                                key={`contactsShortComment${index}`}
+                                dataField={`contacts[${index}].shortComment`}
+                                label={{
+                                    text: 'Short Comment',
+                                }}
+                                editorOptions={{
+                                    maxLength: 30,
                                 }}
                             />
                             <Item>
-                                <ContactDeleteItem
-                                    data={contactData}
-                                    key={`button4-${index}`}
+                                <DeleteItem
+                                    data={dataSource}
+                                    customKey={`buttonDeleteContact-${index}`}
                                     index={index}
-                                    arrayType={'bankInformation'}
+                                    arrayType={'contacts'}
                                     isEditing={isEditing}
                                     callbackFunction={callbackFunction}
                                 />
@@ -127,9 +135,9 @@ const Bank = ({ contactData, contactsData, isEditing, isLoading }: Props) => {
                 })}
             </GroupItem>
             <Item>
-                <ContactAddItem
-                    data={contactData}
-                    arrayType={'bankInformation'}
+                <AddItem
+                    data={dataSource}
+                    arrayType={'contacts'}
                     isEditing={isEditing}
                     callbackFunction={callbackFunction}
                 />
@@ -138,4 +146,4 @@ const Bank = ({ contactData, contactsData, isEditing, isLoading }: Props) => {
     );
 };
 
-export default Bank;
+export default ContactsTab;

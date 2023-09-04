@@ -10,15 +10,15 @@ interface Props {
     data: ContactData | CompanyData;
     isEditing: boolean;
     callbackFunction: (data: ContactData | CompanyData) => void;
-    arrayType: 'identifications' | 'addresses' | 'phones' | 'bankInformation';
+    arrayType:
+        | 'identifications'
+        | 'addresses'
+        | 'phones'
+        | 'bankInformation'
+        | 'contacts';
 }
 
-const ContactAddItem = ({
-    data,
-    isEditing,
-    arrayType,
-    callbackFunction,
-}: Props) => {
+const AddItem = ({ data, isEditing, arrayType, callbackFunction }: Props) => {
     const addItem = () => {
         switch (arrayType) {
             case 'identifications':
@@ -61,6 +61,15 @@ const ContactAddItem = ({
                     bic: undefined,
                     contactPerson: undefined,
                 });
+            case 'contacts':
+                if ('contacts' in data) {
+                    data.contacts.push({
+                        contactType: null,
+                        contactId: '',
+                        shortComment: '',
+                    });
+                    break;
+                }
             default:
                 break;
         }
@@ -84,4 +93,4 @@ const ContactAddItem = ({
     );
 };
 
-export default ContactAddItem;
+export default AddItem;

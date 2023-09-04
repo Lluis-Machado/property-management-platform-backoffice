@@ -9,8 +9,8 @@ import { identificationItems } from '@/lib/utils/selectBoxItems';
 // Local imports
 import { ContactData } from '@/lib/types/contactData';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
-import ContactDeleteItem from './TabButtons/ContactDeleteItem';
-import ContactAddItem from './TabButtons/ContactAddItem';
+import DeleteItem from './TabButtons/DeleteItem';
+import AddItem from './TabButtons/AddItem';
 import { CompanyData } from '@/lib/types/companyData';
 
 interface Props {
@@ -19,11 +19,7 @@ interface Props {
     isLoading: boolean;
 }
 
-const IdentificationDocuments = ({
-    contactData,
-    isEditing,
-    isLoading,
-}: Props) => {
+const IdDocumentsTab = ({ contactData, isEditing, isLoading }: Props) => {
     const [addressOptions, setAddressOptions] = useState({});
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
     const [elementsList, setElementsList] = useState<ValueChangedEvent[]>([]);
@@ -185,9 +181,9 @@ const IdentificationDocuments = ({
                                 }}
                             />
                             <Item>
-                                <ContactDeleteItem
+                                <DeleteItem
                                     data={contactData}
-                                    key={`button3-${index}`}
+                                    customKey={`button3-${index}`}
                                     index={index}
                                     arrayType={'identifications'}
                                     isEditing={isEditing}
@@ -199,7 +195,7 @@ const IdentificationDocuments = ({
                 })}
             </GroupItem>
             <Item>
-                <ContactAddItem
+                <AddItem
                     data={contactData}
                     arrayType={'identifications'}
                     isEditing={isEditing}
@@ -210,4 +206,4 @@ const IdentificationDocuments = ({
     );
 };
 
-export default IdentificationDocuments;
+export default IdDocumentsTab;

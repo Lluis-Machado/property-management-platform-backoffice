@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -25,7 +25,6 @@ import Form, {
     TabPanelOptions,
     TabbedItem,
 } from 'devextreme-react/form';
-import DataSource from 'devextreme/data/data_source';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
 // Local imports
@@ -49,10 +48,12 @@ import {
     maritalStatusItems,
     titleItems,
 } from '@/lib/utils/selectBoxItems';
-import IdentificationDocuments from '@/components/Tabs/IdentificationDocuments';
-import AddressInformation from '@/components/Tabs/AddressInformation';
-import Phones from '@/components/Tabs/Phones';
-import Bank from '@/components/Tabs/Bank';
+import {
+    AddressInfoTab,
+    BankTab,
+    IdDocumentsTab,
+    PhonesTab,
+} from '@/components/Tabs';
 
 interface Props {
     contactData: ContactData;
@@ -65,7 +66,6 @@ interface Props {
 }
 
 //////// TODOOOOOOO: https://github.com/run4w4y/nextjs-router-events
-
 const ContactPage = ({
     contactData,
     countriesData,
@@ -77,8 +77,6 @@ const ContactPage = ({
 }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
-    const [countryDataSource, setCountryDataSource] = useState({});
     const [confirmationVisible, setConfirmationVisible] =
         useState<boolean>(false);
     // Importante para que no se copie por referencia
@@ -89,20 +87,6 @@ const ContactPage = ({
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
-
-    useEffect(() => {
-        // Set DataSource for DevExtreme select box grouping
-        setCountryDataSource(
-            new DataSource({
-                store: {
-                    type: 'array',
-                    data: countriesData,
-                    key: 'id',
-                },
-                group: 'category',
-            })
-        );
-    }, [countriesData]);
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
@@ -330,15 +314,15 @@ const ContactPage = ({
                             />
                         </Tab>
                         <Tab title={`Identification Documents`}>
-                            <IdentificationDocuments
+                            <IdDocumentsTab
                                 contactData={contactData}
                                 isEditing={isEditing}
                                 isLoading={isLoading}
                             />
                         </Tab>
                         <Tab title={`Address Information`}>
-                            <AddressInformation
-                                contactData={contactData}
+                            <AddressInfoTab
+                                dataSource={contactData}
                                 initialStates={initialStates}
                                 countriesData={countriesData}
                                 isEditing={isEditing}
@@ -348,16 +332,16 @@ const ContactPage = ({
                             />
                         </Tab>
                         <Tab title={`Phones`}>
-                            <Phones
+                            <PhonesTab
                                 contactData={contactData}
                                 isEditing={isEditing}
                                 isLoading={isLoading}
                             />
                         </Tab>
                         <Tab title={`Bank`}>
-                            <Bank
+                            <BankTab
+                                dataSource={contactData}
                                 contactsData={contactsData}
-                                contactData={contactData}
                                 isEditing={isEditing}
                                 isLoading={isLoading}
                             />
