@@ -44,11 +44,14 @@ import { CompanyData } from '@/lib/types/companyData';
 import { countriesMaskItems } from '@/lib/utils/selectBoxItems';
 import { ContactData } from '@/lib/types/contactData';
 import { AddressInfoTab, BankTab, ContactsTab } from '@/components/Tabs';
+import { OwnershipData } from '@/lib/types/ownershipData';
+import RelatedPropertiesDG from '../../datagrid/RelatedPropertiesDG';
 
 interface Props {
     companyData: CompanyData;
     countriesData: CountryData[];
     contactsData: ContactData[];
+    ownershipData: OwnershipData[];
     initialStates: StateData[];
     token: TokenRes;
     lang: Locale;
@@ -57,6 +60,7 @@ interface Props {
 const CompanyPage = ({
     companyData,
     countriesData,
+    ownershipData,
     contactsData,
     initialStates,
     token,
@@ -318,6 +322,11 @@ const CompanyPage = ({
                             deferRendering={false}
                             height={'60vh'}
                         />
+                        <Tab title={`Properties`}>
+                            <RelatedPropertiesDG
+                                ownershipData={ownershipData}
+                            />
+                        </Tab>
                         <Tab title={`Address Information`}>
                             <AddressInfoTab
                                 dataSource={companyData}

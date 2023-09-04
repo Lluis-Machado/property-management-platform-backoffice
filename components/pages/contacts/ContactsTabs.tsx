@@ -1,6 +1,6 @@
 'use client';
 
-import ContactPropertiesDG from '@/components/pages/contacts/ContactPropertiesDG';
+import ContactPropertiesDG from '@/components/datagrid/RelatedPropertiesDG';
 import { Locale } from '@/i18n-config';
 import { OwnershipData } from '@/lib/types/ownershipData';
 import { faHouseUser } from '@fortawesome/free-solid-svg-icons';
