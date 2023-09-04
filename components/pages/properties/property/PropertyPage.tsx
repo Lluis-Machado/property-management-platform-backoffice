@@ -31,7 +31,7 @@ import '@/lib/styles/highlightFields.css';
 import { PropertyData } from '@/lib/types/propertyInfo';
 import PropertiesOwnersDatagrid from './PropertiesOwnersDatagrid';
 import PropertySidePropertiesDatagrid from './PropertySidePropertiesDatagrid';
-import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
+import ConfirmDeletePopup from '@/components/popups/ConfirmationPopup';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 import { TokenRes } from '@/lib/types/token';

@@ -40,21 +40,29 @@ import {
 } from '@/lib/utils/selectBoxItems';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 
+let contactData: ContactData = {
+    title: null,
+    firstName: '',
+    lastName: '',
+    gender: null,
+    birthDay: null,
+    email: '',
+    birthPlace: '',
+    maritalStatus: 0,
+    bankInformation: [],
+    identifications: [],
+    addresses: [],
+    phones: [],
+};
+
 interface Props {
-    contactData: ContactData;
     countries: CountryData[];
     contactsData: ContactData[];
     token: TokenRes;
     lang: Locale;
 }
 
-const AddContactPage = ({
-    contactData,
-    countries,
-    contactsData,
-    token,
-    lang,
-}: Props) => {
+const AddContactPage = ({ countries, contactsData, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<ContactData>(
@@ -69,6 +77,10 @@ const AddContactPage = ({
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
+
+    useEffect(() => {
+        console.log('contactData: ', contactData);
+    }, []);
 
     useEffect(() => {
         // Set DataSource for DevExtreme select box grouping
@@ -127,6 +139,8 @@ const AddContactPage = ({
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 
             updateSuccessToast(toastId, 'Contact created correctly!');
+            // Clear contact data
+            contactData = structuredClone(initialValues);
             // Pass the ID to reload the page
             router.push(`/private/contacts?createdId=${data.id}`);
         } catch (error: unknown) {
