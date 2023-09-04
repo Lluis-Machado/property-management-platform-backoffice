@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 // Libraries imports
 import TextBox from 'devextreme-react/text-box';
@@ -7,7 +7,7 @@ import Tooltip from 'devextreme-react/tooltip';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { PropertyData } from '@/lib/types/propertyInfo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faPencil } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
     propertyData: PropertyData;
@@ -22,11 +22,14 @@ const PropertyPageTitle = ({
     parentCallback,
 }: Props) => {
     const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
-    const [effect, setEffect] = useState(false);
+    const [initialValues, setInitialValues] = useState<PropertyData>(
+        structuredClone(propertyData)
+    );
+    console.log(initialValues.name);
     const [name, setName] = useState(propertyData.name);
     const sendData = (e: ValueChangedEvent) => {
         const value = e.value;
-        if (e.value != propertyData.name) {
+        if (e.value != initialValues.name) {
             e.element.classList.add('styling');
         } else {
             e.element.classList.remove('styling');
@@ -72,13 +75,12 @@ const PropertyPageTitle = ({
             <div className='flex items-center justify-center'>
                 {isEditing && (
                     <FontAwesomeIcon
-                        icon={faPenToSquare}
-                        size='2x'
+                        icon={faPencil}
+                        size='xl'
                         color='#b99f6c'
                         onClick={() => setIsEditingTitle((prev) => !prev)}
                         style={{
                             color: isEditingTitle ? '#163047' : '',
-                            backgroundColor: isEditingTitle ? '#EFE5D1' : '',
                         }}
                     />
                 )}
