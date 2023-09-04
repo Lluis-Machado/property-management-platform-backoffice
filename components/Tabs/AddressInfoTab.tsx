@@ -14,11 +14,11 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import { TokenRes } from '@/lib/types/token';
 import useCountryChange from '@/lib/hooks/useCountryChange';
 import { CompanyData } from '@/lib/types/companyData';
-import ContactDeleteItem from './TabButtons/ContactDeleteItem';
-import ContactAddItem from './TabButtons/ContactAddItem';
+import DeleteItem from './TabButtons/DeleteItem';
+import AddItem from './TabButtons/AddItem';
 
 interface Props {
-    contactData: ContactData;
+    dataSource: ContactData | CompanyData;
     countriesData: CountryData[];
     initialStates: StateData[];
     isEditing: boolean;
@@ -27,8 +27,8 @@ interface Props {
     lang: Locale;
 }
 
-const AddressInformation = ({
-    contactData,
+const AddressInfoTab = ({
+    dataSource,
     countriesData,
     initialStates,
     isEditing,
@@ -91,9 +91,9 @@ const AddressInformation = ({
                 )
                 .catch((e) => console.error('Error while getting the states'));
             // Ensure state is removed
-            contactData.addresses[index].state = null;
+            dataSource.addresses[index].state = null;
         },
-        [lang, token, contactData.addresses]
+        [lang, token, dataSource.addresses]
     );
 
     const { getFilteredStates, isStateLoading } = useCountryChange(
@@ -113,8 +113,8 @@ const AddressInformation = ({
     };
 
     const callbackFunction = useCallback(
-        (contactData: ContactData | CompanyData) => {
-            formRef.current?.instance.updateData('formData', contactData);
+        (dataSource: ContactData | CompanyData) => {
+            formRef.current?.instance.updateData('formData', dataSource);
             setAddressOptions([]);
         },
         []
@@ -122,7 +122,7 @@ const AddressInformation = ({
 
     return (
         <Form
-            formData={contactData}
+            formData={dataSource}
             ref={formRef}
             labelMode={'floating'}
             readOnly={isLoading || !isEditing}
@@ -130,7 +130,7 @@ const AddressInformation = ({
             onFieldDataChanged={changeCssFormElement}
         >
             <GroupItem colCount={1}>
-                {contactData.addresses.map((address, index) => {
+                {dataSource.addresses.map((address, index) => {
                     return (
                         <GroupItem key={`GroupItem-${index}`} colCount={9}>
                             <Item
@@ -179,7 +179,7 @@ const AddressInformation = ({
                                         handleCountryChange(e.value, index);
                                         changeSelectbox(e);
                                         // Ensure state is removed
-                                        contactData.addresses[index].state =
+                                        dataSource.addresses[index].state =
                                             null;
                                     },
                                 }}
@@ -193,10 +193,7 @@ const AddressInformation = ({
                                     elementAttr: {
                                         id: `state${index}`,
                                     },
-                                    items: getFilteredStates(
-                                        index,
-                                        contactData
-                                    ),
+                                    items: getFilteredStates(index, dataSource),
                                     displayExpr: 'name',
                                     valueExpr: 'id',
                                     searchEnabled: true,
@@ -226,9 +223,9 @@ const AddressInformation = ({
                                 }}
                             />
                             <Item>
-                                <ContactDeleteItem
-                                    data={contactData}
-                                    key={`button${index}`}
+                                <DeleteItem
+                                    data={dataSource}
+                                    customKey={`button${index}`}
                                     index={index}
                                     arrayType={'addresses'}
                                     isEditing={isEditing}
@@ -240,8 +237,8 @@ const AddressInformation = ({
                 })}
             </GroupItem>
             <Item>
-                <ContactAddItem
-                    data={contactData}
+                <AddItem
+                    data={dataSource}
                     isEditing={isEditing}
                     callbackFunction={callbackFunction}
                     arrayType={'addresses'}
@@ -251,4 +248,4 @@ const AddressInformation = ({
     );
 };
 
-export default AddressInformation;
+export default AddressInfoTab;

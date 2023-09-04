@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -15,7 +15,6 @@ import {
     faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
-import DataSource from 'devextreme/data/data_source';
 import Form, {
     EmailRule,
     GroupItem,
@@ -42,22 +41,15 @@ import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { CompanyData } from '@/lib/types/companyData';
-import useCountryChange from '@/lib/hooks/useCountryChange';
-import {
-    addressTypeItems,
-    companyContactsTypeItems,
-    countriesMaskItems,
-    phoneType2Items,
-    phoneTypeItems,
-} from '@/lib/utils/selectBoxItems';
+import { countriesMaskItems } from '@/lib/utils/selectBoxItems';
 import { ContactData } from '@/lib/types/contactData';
-import { displayContactFullName } from '@/lib/utils/displayContactFullName';
+import { AddressInfoTab, BankTab, ContactsTab } from '@/components/Tabs';
 
 interface Props {
     companyData: CompanyData;
-    countriesData?: CountryData[];
+    countriesData: CountryData[];
     contactsData: ContactData[];
-    initialStates?: StateData[];
+    initialStates: StateData[];
     token: TokenRes;
     lang: Locale;
 }
@@ -78,59 +70,10 @@ const CompanyPage = ({
     const [initialValues, setInitialValues] = useState<CompanyData>(
         structuredClone(companyData)
     );
-    const [addressOptions, setAddressOptions] = useState({});
-    const [countryDataSource, setCountryDataSource] = useState({});
-
-    const { getFilteredStates, isStateLoading } = useCountryChange(
-        lang,
-        token,
-        initialStates
-    );
 
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
-
-    useEffect(() => {
-        // Set DataSource for DevExtreme select box grouping
-        setCountryDataSource(
-            new DataSource({
-                store: {
-                    type: 'array',
-                    data: countriesData,
-                    key: 'id',
-                },
-                group: 'category',
-            })
-        );
-    }, [countriesData]);
-
-    const handleCountryChange = useCallback(
-        (countryId: number, index: number) => {
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
-                .then((resp) => resp.json())
-                .then((data: StateData[]) =>
-                    formRef
-                        .current!.instance.getEditor(
-                            `addresses[${index}].state`
-                        )!
-                        .option('items', data)
-                )
-                .catch((e) => console.error('Error while getting the states'));
-            // Ensure state is removed
-            companyData.addresses[index].state = null;
-        },
-        [lang, token, companyData.addresses]
-    );
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
@@ -292,7 +235,8 @@ const CompanyPage = ({
                 showValidationSummary
                 onFieldDataChanged={changeCssFormElement}
             >
-                <GroupItem colCount={4}>
+                {/* Main Information */}
+                <GroupItem colCount={5}>
                     <Item dataField='name' label={{ text: 'Company name' }}>
                         <RequiredRule />
                     </Item>
@@ -303,10 +247,6 @@ const CompanyPage = ({
                     <Item
                         dataField='germanTaxOffice'
                         label={{ text: 'German Tax Office' }}
-                    />
-                    <Item
-                        dataField='companyPurpose'
-                        label={{ text: 'Company Purpose' }}
                     />
                     <Item
                         dataField='taxNumber'
@@ -364,339 +304,40 @@ const CompanyPage = ({
                             height={'60vh'}
                         />
                         <Tab title={`Address Information`}>
-                            <GroupItem colCount={1}>
-                                {companyData.addresses.map((address, index) => {
-                                    return (
-                                        <GroupItem
-                                            key={`GroupItem-${index}`}
-                                            colCount={8}
-                                        >
-                                            <Item
-                                                key={`addressType${index}`}
-                                                dataField={`addresses[${index}].addressType`}
-                                                label={{ text: 'Address Type' }}
-                                                editorType='dxSelectBox'
-                                                editorOptions={{
-                                                    items: addressTypeItems,
-                                                    valueExpr: 'id',
-                                                    displayExpr: 'name',
-                                                    onValueChanged: (
-                                                        e: ValueChangedEvent
-                                                    ) => changeSelectbox(e),
-                                                }}
-                                            />
-                                            <Item
-                                                key={`addressLine1${index}`}
-                                                dataField={`addresses[${index}].addressLine1`}
-                                                label={{ text: 'Address line' }}
-                                            />
-                                            <Item
-                                                key={`addressLine2${index}`}
-                                                dataField={`addresses[${index}].addressLine2`}
-                                                label={{
-                                                    text: 'Address line 2',
-                                                }}
-                                            />
-                                            <Item
-                                                key={`country${index}`}
-                                                dataField={`addresses[${index}].country`}
-                                                label={{ text: 'Country' }}
-                                                editorType='dxSelectBox'
-                                                editorOptions={{
-                                                    dataSource:
-                                                        countryDataSource,
-                                                    displayExpr: 'name',
-                                                    valueExpr: 'id',
-                                                    grouped: true,
-                                                    // groupRender: Group,
-                                                    searchEnabled: true,
-                                                    onValueChanged: (
-                                                        e: any
-                                                    ) => {
-                                                        handleCountryChange(
-                                                            e.value,
-                                                            index
-                                                        );
-                                                        changeSelectbox(e);
-                                                        // Ensure state is removed
-                                                        companyData.addresses[
-                                                            index
-                                                        ].state = null;
-                                                    },
-                                                }}
-                                            />
-                                            <Item
-                                                key={`state${index}`}
-                                                dataField={`addresses[${index}].state`}
-                                                label={{ text: 'State' }}
-                                                editorType='dxSelectBox'
-                                                editorOptions={{
-                                                    items: getFilteredStates(
-                                                        index,
-                                                        companyData
-                                                    ),
-                                                    displayExpr: 'name',
-                                                    valueExpr: 'id',
-                                                    searchEnabled: true,
-                                                    readOnly:
-                                                        !isEditing ||
-                                                        isStateLoading,
-                                                    onValueChanged: (
-                                                        e: ValueChangedEvent
-                                                    ) => changeSelectbox(e),
-                                                }}
-                                            />
-                                            <Item
-                                                key={`city${index}`}
-                                                dataField={`addresses[${index}].city`}
-                                                label={{ text: 'City' }}
-                                            />
-                                            <Item
-                                                key={`postalCode${index}`}
-                                                dataField={`addresses[${index}].postalCode`}
-                                                label={{ text: 'Postal code' }}
-                                            />
-                                            <Item
-                                                key={`button${index}`}
-                                                itemType='button'
-                                                horizontalAlignment='left'
-                                                verticalAlignment='bottom'
-                                                buttonOptions={{
-                                                    icon: 'trash',
-                                                    text: undefined,
-                                                    disabled: !isEditing,
-                                                    type: 'danger',
-                                                    onClick: () => {
-                                                        // Set a new empty address
-                                                        companyData.addresses.splice(
-                                                            index,
-                                                            1
-                                                        );
-                                                        // Trick to force react to update
-                                                        setAddressOptions([]);
-                                                    },
-                                                }}
-                                            />
-                                        </GroupItem>
-                                    );
-                                })}
-                            </GroupItem>
-                            <Item
-                                itemType='button'
-                                horizontalAlignment='left'
-                                buttonOptions={{
-                                    icon: 'add',
-                                    text: undefined,
-                                    disabled: !isEditing,
-                                    onClick: () => {
-                                        // Set a new empty address
-                                        companyData.addresses.push({
-                                            addressLine1: '',
-                                            addressLine2: '',
-                                            city: '',
-                                            state: null,
-                                            country: null,
-                                            postalCode: '',
-                                            addressType: null,
-                                        });
-                                        // Trick to force react to update
-                                        setAddressOptions([]);
-                                    },
-                                }}
+                            <AddressInfoTab
+                                dataSource={companyData}
+                                initialStates={initialStates}
+                                countriesData={countriesData}
+                                isEditing={isEditing}
+                                isLoading={isLoading}
+                                lang={lang}
+                                token={token}
                             />
                         </Tab>
                         <Tab title={`Contacts`}>
-                            <GroupItem colCount={1}>
-                                {companyData.contacts.map((phone, index) => {
-                                    return (
-                                        <GroupItem
-                                            key={`GroupItem2-${index}`}
-                                            colCount={6}
-                                        >
-                                            <Item
-                                                key={`contactType${index}`}
-                                                dataField={`contacts[${index}].contactType`}
-                                                label={{ text: 'Contact Type' }}
-                                                editorType='dxSelectBox'
-                                                editorOptions={{
-                                                    items: companyContactsTypeItems,
-                                                    valueExpr: 'id',
-                                                    displayExpr: 'name',
-                                                    onValueChanged: (
-                                                        e: ValueChangedEvent
-                                                    ) => changeSelectbox(e),
-                                                }}
-                                            />
-                                            <Item
-                                                key={`contactId${index}`}
-                                                dataField={`contacts[${index}].contactId`}
-                                                label={{ text: 'Contact' }}
-                                                editorType='dxSelectBox'
-                                                editorOptions={{
-                                                    items: contactsData,
-                                                    valueExpr: 'id',
-                                                    displayExpr:
-                                                        displayContactFullName,
-                                                    searchEnabled: true,
-                                                    onValueChanged: (
-                                                        e: ValueChangedEvent
-                                                    ) => changeSelectbox(e),
-                                                }}
-                                            />
-                                            <Item
-                                                key={`contactsShortComment${index}`}
-                                                dataField={`contacts[${index}].shortComment`}
-                                                label={{
-                                                    text: 'Short Comment',
-                                                }}
-                                                editorOptions={{
-                                                    maxLength: 30,
-                                                }}
-                                            />
-                                            <Item
-                                                key={`button2-${index}`}
-                                                itemType='button'
-                                                horizontalAlignment='left'
-                                                verticalAlignment='bottom'
-                                                buttonOptions={{
-                                                    icon: 'trash',
-                                                    text: undefined,
-                                                    disabled: !isEditing,
-                                                    type: 'danger',
-                                                    onClick: () => {
-                                                        // Set a new empty address
-                                                        companyData.contacts.splice(
-                                                            index,
-                                                            1
-                                                        );
-                                                        // Trick to force react to update
-                                                        setAddressOptions([]);
-                                                    },
-                                                }}
-                                            />
-                                        </GroupItem>
-                                    );
-                                })}
-                            </GroupItem>
-                            <Item
-                                itemType='button'
-                                horizontalAlignment='left'
-                                buttonOptions={{
-                                    icon: 'add',
-                                    text: undefined,
-                                    disabled: !isEditing,
-                                    onClick: () => {
-                                        // Set a new empty address
-                                        companyData.contacts.push({
-                                            contactType: null,
-                                            contactId: '',
-                                            shortComment: '',
-                                        });
-                                        // Trick to force react to update
-                                        setAddressOptions([]);
-                                    },
-                                }}
+                            <ContactsTab
+                                dataSource={companyData}
+                                contactsData={contactsData}
+                                isEditing={isEditing}
+                                isLoading={isLoading}
                             />
                         </Tab>
                         <Tab title={`Bank`}>
-                            <GroupItem colCount={1}>
-                                {companyData.bankInformation.map(
-                                    (bank, index) => {
-                                        return (
-                                            <GroupItem
-                                                key={`GroupItem3-${index}`}
-                                                colCount={5}
-                                            >
-                                                <Item
-                                                    key={`bankName${index}`}
-                                                    dataField={`bankInformation[${index}].bankName`}
-                                                    label={{
-                                                        text: 'Bank Name',
-                                                    }}
-                                                />
-                                                <Item
-                                                    key={`iban${index}`}
-                                                    dataField={`bankInformation[${index}].iban`}
-                                                    label={{
-                                                        text: 'IBAN',
-                                                    }}
-                                                />
-                                                <Item
-                                                    key={`bic${index}`}
-                                                    dataField={`bankInformation[${index}].bic`}
-                                                    label={{
-                                                        text: 'BIC',
-                                                    }}
-                                                />
-                                                <Item
-                                                    key={`contactPerson${index}`}
-                                                    dataField={`bankInformation[${index}].contactPerson`}
-                                                    label={{
-                                                        text: 'Contact Person',
-                                                    }}
-                                                    editorType='dxSelectBox'
-                                                    editorOptions={{
-                                                        items: contactsData,
-                                                        displayExpr:
-                                                            displayContactFullName,
-                                                        valueExpr: 'id',
-                                                        searchEnabled: true,
-                                                        onValueChanged: (
-                                                            e: any
-                                                        ) => {
-                                                            console.log(
-                                                                e.value
-                                                            );
-                                                            changeSelectbox(e);
-                                                        },
-                                                    }}
-                                                />
-                                                <Item
-                                                    key={`button4-${index}`}
-                                                    itemType='button'
-                                                    horizontalAlignment='left'
-                                                    verticalAlignment='bottom'
-                                                    buttonOptions={{
-                                                        icon: 'trash',
-                                                        text: undefined,
-                                                        disabled: !isEditing,
-                                                        type: 'danger',
-                                                        onClick: () => {
-                                                            // Set a new empty address
-                                                            companyData.bankInformation.splice(
-                                                                index,
-                                                                1
-                                                            );
-                                                            // Trick to force react update
-                                                            setAddressOptions(
-                                                                []
-                                                            );
-                                                        },
-                                                    }}
-                                                />
-                                            </GroupItem>
-                                        );
-                                    }
-                                )}
-                            </GroupItem>
+                            <BankTab
+                                dataSource={companyData}
+                                contactsData={contactsData}
+                                isEditing={isEditing}
+                                isLoading={isLoading}
+                            />
+                        </Tab>
+                        <Tab title={`Company Purpose`}>
                             <Item
-                                itemType='button'
-                                horizontalAlignment='left'
-                                buttonOptions={{
-                                    icon: 'add',
-                                    text: undefined,
-                                    disabled: !isEditing,
-                                    onClick: () => {
-                                        // Set a new empty address
-                                        companyData.bankInformation.push({
-                                            bankName: '',
-                                            iban: undefined,
-                                            bic: undefined,
-                                            contactPerson: undefined,
-                                        });
-                                        // Trick to force react update
-                                        setAddressOptions([]);
-                                    },
+                                dataField='companyPurpose'
+                                label={{ text: 'Company Purpose' }}
+                                editorType='dxTextArea'
+                                editorOptions={{
+                                    minHeight: 200,
+                                    autoResizeEnabled: true,
                                 }}
                             />
                         </Tab>

@@ -13,8 +13,8 @@ import { FieldDataChangedEvent } from 'devextreme/ui/form';
 // Local imports
 import { ContactData } from '@/lib/types/contactData';
 import { CompanyData } from '@/lib/types/companyData';
-import ContactAddItem from './TabButtons/ContactAddItem';
-import ContactDeleteItem from './TabButtons/ContactDeleteItem';
+import AddItem from './TabButtons/AddItem';
+import DeleteItem from './TabButtons/DeleteItem';
 
 interface Props {
     contactData: ContactData;
@@ -22,7 +22,7 @@ interface Props {
     isLoading: boolean;
 }
 
-const Phones = ({ contactData, isEditing, isLoading }: Props) => {
+const PhonesTab = ({ contactData, isEditing, isLoading }: Props) => {
     const [addressOptions, setAddressOptions] = useState({});
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
     const [elementsList, setElementsList] = useState<ValueChangedEvent[]>([]);
@@ -160,8 +160,8 @@ const Phones = ({ contactData, isEditing, isLoading }: Props) => {
                                 }}
                             />
                             <Item>
-                                <ContactDeleteItem
-                                    key={`button2-${index}`}
+                                <DeleteItem
+                                    customKey={`button2-${index}`}
                                     data={contactData}
                                     index={index}
                                     arrayType={'phones'}
@@ -174,37 +174,15 @@ const Phones = ({ contactData, isEditing, isLoading }: Props) => {
                 })}
             </GroupItem>
             <Item>
-                <ContactAddItem
+                <AddItem
                     data={contactData}
                     arrayType={'phones'}
                     isEditing={isEditing}
                     callbackFunction={callbackFunction}
                 />
             </Item>
-            {/* <Item
-                itemType='button'
-                horizontalAlignment='left'
-                buttonOptions={{
-                    icon: 'add',
-                    text: undefined,
-                    disabled: !isEditing,
-                    onClick: () => {
-                        // Set a new empty address
-                        contactData.phones.push({
-                            phoneType: null,
-                            type: null,
-                            countryMaskId:
-                                countriesMaskItems[0].id,
-                            phoneNumber: '',
-                            shortComment: '',
-                        });
-                        // Trick to force react update
-                        setAddressOptions([]);
-                    },
-                }}
-            /> */}
         </Form>
     );
 };
 
-export default Phones;
+export default PhonesTab;

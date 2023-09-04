@@ -7,16 +7,21 @@ import { ContactData } from '@/lib/types/contactData';
 
 interface Props {
     data: ContactData | CompanyData;
-    key: string;
-    arrayType: 'identifications' | 'addresses' | 'phones' | 'bankInformation';
+    customKey: string;
+    arrayType:
+        | 'identifications'
+        | 'addresses'
+        | 'phones'
+        | 'bankInformation'
+        | 'contacts';
     index: number;
     isEditing: boolean;
     callbackFunction: (data: ContactData | CompanyData) => void;
 }
 
-const ContactDeleteItem = ({
+const DeleteItem = ({
     data,
-    key,
+    customKey,
     index,
     isEditing,
     callbackFunction,
@@ -37,6 +42,10 @@ const ContactDeleteItem = ({
                 }
             case 'bankInformation':
                 data.bankInformation.splice(index, 1);
+            case 'contacts':
+                if ('contacts' in data) {
+                    data.contacts.splice(index, 1);
+                }
             default:
                 break;
         }
@@ -45,10 +54,10 @@ const ContactDeleteItem = ({
     return (
         <Form formData={data}>
             <Item
-                key={key}
+                key={customKey}
                 itemType='button'
                 horizontalAlignment='left'
-                verticalAlignment='top'
+                verticalAlignment='bottom'
                 buttonOptions={{
                     icon: 'trash',
                     text: undefined,
@@ -61,4 +70,4 @@ const ContactDeleteItem = ({
     );
 };
 
-export default ContactDeleteItem;
+export default DeleteItem;
