@@ -128,8 +128,10 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
                             elementAttr: {
                                 id: `buildingPrice`,
                             },
-                            onValueChanged: (e: ValueChangedEvent) =>
-                                changeSelectbox(e),
+                            onValueChanged: (e: ValueChangedEvent) => {
+                                changeSelectbox(e);
+                                calculateCadastreValue(e);
+                            },
                             format: {
                                 type: 'currency',
                                 currency: 'EUR',
@@ -145,7 +147,8 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
                                 id: `plotPrice`,
                             },
                             onValueChanged: (e: ValueChangedEvent) => {
-                                changeSelectbox(e), calculateCadastreValue(e);
+                                changeSelectbox(e);
+                                calculateCadastreValue(e);
                             },
                             format: {
                                 type: 'currency',
@@ -155,14 +158,15 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
                         }}
                     />
                     <Item
-                        dataField='cadastreValue'
+                        dataField='cadastreValue.value'
                         label={{ text: 'Cadastre Value' }}
                         editorOptions={{
                             elementAttr: {
                                 id: `cadastreValue`,
                             },
                             onValueChanged: (e: ValueChangedEvent) => {
-                                changeSelectbox(e), calculateCadastreValue(e);
+                                changeSelectbox(e);
+                                calculateCadastreValue(e);
                             },
                             readOnly: true,
                             format: {

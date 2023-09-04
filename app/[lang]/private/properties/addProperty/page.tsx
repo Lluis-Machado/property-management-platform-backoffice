@@ -21,13 +21,22 @@ const initialValues: PropertyData = {
     cadastreNumber: '',
     cadastreRef: '',
     cadastreUrl: '',
-    cadastreValue: '',
+    cadastreValue: {
+        currency: '',
+        value: 0,
+    },
     comments: '',
     contactPersonId: '',
     federalState: '',
     garbageCollection: null,
-    garbagePriceAmount: null,
-    ibiAmount: '',
+    garbagePriceAmount: {
+        currency: '',
+        value: 0,
+    },
+    ibiAmount: {
+        currency: '',
+        value: 0,
+    },
     ibiCollection: null,
     id: '',
     loanPrice: {
