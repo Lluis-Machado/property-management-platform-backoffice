@@ -46,6 +46,8 @@ import { ContactData } from '@/lib/types/contactData';
 import { AddressInfoTab, BankTab, ContactsTab } from '@/components/Tabs';
 import { OwnershipData } from '@/lib/types/ownershipData';
 import RelatedPropertiesDG from '../../datagrid/RelatedPropertiesDG';
+import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
+import crmZoho from '@/lib/icons/crmZoho.svg';
 
 interface Props {
     companyData: CompanyData;
@@ -171,6 +173,7 @@ const CompanyPage = ({
 
     return (
         <div className='mt-4'>
+            {/* Popups */}
             <ConfirmationPopup
                 message='Are you sure you want to delete this company?'
                 isVisible={deleteVisible}
@@ -178,11 +181,13 @@ const CompanyPage = ({
                 onConfirm={handleDelete}
             />
             <ConfirmationPopup
-                message='Are you sure you want to exit without saving?'
+                message='Are you sure you want to exit without saving changes?'
                 isVisible={unsavedVisible}
                 onClose={() => setUnsavedVisible(false)}
                 onConfirm={() => router.refresh()}
             />
+            {/* Toolbar tooltips */}
+            <ToolbarTooltips isEditing={isEditing} />
             <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
                 <div className='ml-5 flex items-center gap-5'>
@@ -213,6 +218,7 @@ const CompanyPage = ({
                 {/* Button toolbar */}
                 <div className='flex flex-row gap-4 self-center'>
                     <Button
+                        id='crmButton'
                         elevated
                         onClick={() =>
                             window.open(
@@ -224,6 +230,7 @@ const CompanyPage = ({
                         icon={faArrowUpRightFromSquare}
                     />
                     <Button
+                        id='saveButton'
                         elevated
                         onClick={handleSubmit}
                         type='button'
@@ -232,12 +239,14 @@ const CompanyPage = ({
                         isLoading={isLoading}
                     />
                     <Button
+                        id='editButton'
                         elevated
                         onClick={() => handleEditingButton()}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
                     />
                     <Button
+                        id='deleteButton'
                         elevated
                         onClick={() => setDeleteVisible(true)}
                         type='button'
