@@ -115,6 +115,7 @@ const CompanyPage = ({
 
             updateSuccessToast(toastId, 'Company updated correctly!');
             setInitialValues(data);
+            setIsEditing(false);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
