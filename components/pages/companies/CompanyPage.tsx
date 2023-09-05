@@ -319,6 +319,7 @@ const CompanyPage = ({
                         label={{ text: 'Phone Number' }}
                         editorOptions={{
                             mask: getMaskFromDataSource(),
+                            useMaskedValue: true,
                             onValueChanged: (e: ValueChangedEvent) => {
                                 changeSelectbox(e);
                             },

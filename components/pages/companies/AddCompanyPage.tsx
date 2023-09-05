@@ -207,6 +207,7 @@ const AddCompanyPage = ({ countries, contactsData, token, lang }: Props) => {
                         label={{ text: 'Phone Number' }}
                         editorOptions={{
                             mask: getMaskFromDataSource(),
+                            useMaskedValue: true,
                         }}
                     />
                 </GroupItem>
