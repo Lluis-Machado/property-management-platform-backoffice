@@ -60,14 +60,6 @@ const ContactsTab = ({
         setElementsList((prev) => [...prev, e]);
     };
 
-    const handleContactValueChange = (e: ValueChangedEvent) => {
-        console.log(
-            'EEEEEEEE: ',
-            contactsData.filter((obj) => obj.id === e.value)[0]
-        );
-        changeSelectbox(e);
-    };
-
     const handlePopover = (idx: number) => {
         setPopoverTarget(`infoButtonContact-${idx}`);
         setIsPopoverVisible(true);
@@ -94,39 +86,43 @@ const ContactsTab = ({
                 position='top'
                 width={'auto'}
             >
-                Email:{' '}
-                {!selectedContactInfo?.email ? (
-                    'No email found'
-                ) : (
-                    <ul className='mb-2 ml-8 list-disc'>
-                        <li>
-                            <a
-                                href={`mailto:${selectedContactInfo?.email}`}
-                                className='text-blue-500'
-                            >
-                                {selectedContactInfo?.email}
-                            </a>
-                        </li>
-                    </ul>
-                )}
-                Phones:{' '}
-                {selectedContactInfo?.phones.length === 0 ? (
-                    'No phones found'
-                ) : (
-                    <ul className='mb-2 ml-8 list-disc'>
-                        {selectedContactInfo?.phones.map((phone, index) => (
-                            <li key={`phones-${index}`}>
+                <div className='mb-2'>
+                    Email:{' '}
+                    {!selectedContactInfo?.email ? (
+                        'No email found'
+                    ) : (
+                        <ul className='ml-8 list-disc'>
+                            <li>
                                 <a
-                                    href={`tel:${phone.phoneNumber}`}
+                                    href={`mailto:${selectedContactInfo?.email}`}
                                     className='text-blue-500'
                                 >
-                                    {phone.phoneNumber}
+                                    {selectedContactInfo?.email}
                                 </a>
-                                <br />
                             </li>
-                        ))}
-                    </ul>
-                )}
+                        </ul>
+                    )}
+                </div>
+                <div className='mb-2'>
+                    Phones:{' '}
+                    {selectedContactInfo?.phones.length === 0 ? (
+                        'No phones found'
+                    ) : (
+                        <ul className='ml-8 list-disc'>
+                            {selectedContactInfo?.phones.map((phone, index) => (
+                                <li key={`phones-${index}`}>
+                                    <a
+                                        href={`tel:${phone.phoneNumber}`}
+                                        className='text-blue-500'
+                                    >
+                                        {phone.phoneNumber}
+                                    </a>
+                                    <br />
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
                 <Button
                     text='View full details'
                     onClick={() =>
@@ -184,7 +180,7 @@ const ContactsTab = ({
                                         searchEnabled: true,
                                         onValueChanged: (
                                             e: ValueChangedEvent
-                                        ) => handleContactValueChange(e),
+                                        ) => changeSelectbox(e),
                                     }}
                                 />
                                 <Item
