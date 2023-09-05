@@ -274,7 +274,7 @@ const CompanyPage = ({
                     />
                     <Item
                         dataField='uStIDNumber'
-                        label={{ text: 'uSt ID Number' }}
+                        label={{ text: 'USt. ID Number' }}
                     />
                     <Item
                         dataField='foundingDate'
