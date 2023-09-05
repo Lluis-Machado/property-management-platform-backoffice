@@ -14,7 +14,7 @@ interface Props {
     isLoading: boolean;
 }
 
-const OtherInformation = ({ propertyData, isEditing, isLoading }: Props) => {
+const AccountingTab = ({ propertyData, isEditing, isLoading }: Props) => {
     const [addressOptions, setAddressOptions] = useState({});
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
     const [elementsList, setElementsList] = useState<ValueChangedEvent[]>([]);
@@ -52,30 +52,23 @@ const OtherInformation = ({ propertyData, isEditing, isLoading }: Props) => {
         >
             <GroupItem colCount={4}>
                 <Item
-                    dataField='bedNumber'
-                    label={{ text: 'Bed Number' }}
+                    dataField='loanPrice.value'
+                    label={{ text: 'Loan' }}
                     editorOptions={{
                         elementAttr: {
-                            id: `bedNumber`,
+                            id: `loanPrice`,
                         },
                         onValueChanged: (e: ValueChangedEvent) =>
                             changeSelectbox(e),
-                    }}
-                />
-                <Item
-                    dataField='year'
-                    label={{ text: 'Year' }}
-                    editorOptions={{
-                        elementAttr: {
-                            id: `year`,
+                        format: {
+                            type: 'currency',
+                            currency: 'EUR',
+                            precision: 2,
                         },
-                        onValueChanged: (e: ValueChangedEvent) =>
-                            changeSelectbox(e),
                     }}
                 />
             </GroupItem>
         </Form>
     );
 };
-
-export default OtherInformation;
+export default AccountingTab;

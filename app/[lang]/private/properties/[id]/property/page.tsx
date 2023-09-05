@@ -2,10 +2,12 @@
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import PropertyPage from '@/components/pages/properties/property/PropertyPage';
 import { Locale } from '@/i18n-config';
+import { CompanyData, CompanyDataProperty } from '@/lib/types/companyData';
 import { ContactData } from '@/lib/types/contactData';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { PropertyData } from '@/lib/types/propertyInfo';
+import { SelectData } from '@/lib/types/selectData';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
@@ -20,6 +22,7 @@ const Property = async ({ params: { id, lang } }: Props) => {
         propertyData,
         propertiesData,
         contactData,
+        companyData,
         ownershipData,
         countriesData,
     ] = await Promise.all([
@@ -34,6 +37,10 @@ const Property = async ({ params: { id, lang } }: Props) => {
         ),
         getApiData<ContactData[]>(
             '/contacts/contacts',
+            'Error while getting contacts'
+        ),
+        getApiData<CompanyData[]>(
+            '/companies/companies?includeDeteted=false',
             'Error while getting contacts'
         ),
         getApiData<OwnershipPropertyData[]>(
@@ -62,12 +69,23 @@ const Property = async ({ params: { id, lang } }: Props) => {
         });
     }
 
+    let companieslist: CompanyDataProperty[] = [];
+    for (const company of companyData) {
+        companieslist.push({
+            ...company,
+            firstName: company.name,
+        });
+    }
+
+    const contactList = [...contacts, ...companieslist];
+
     return (
         <>
             <Breadcrumb />
             <PropertyPage
                 propertyData={propertyData}
                 propertiesData={propertiesData}
+                contactList={contactList}
                 lang={lang}
                 token={user.token}
                 contacts={contacts}

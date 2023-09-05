@@ -48,10 +48,11 @@ import Cadastre from '@/components/Tabs/CadastreTab';
 import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
 import Sale from '@/components/Tabs/SalesTab';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
-
+import AccountingTab from '@/components/Tabs/AccountingTab';
 interface Props {
     propertyData: PropertyData;
     propertiesData: PropertyData[];
+    contactList: any[];
     contacts: ContactData[];
     ownershipData: OwnershipPropertyData[];
     countries: CountryData[];
@@ -63,6 +64,7 @@ interface Props {
 const PropertyPage = ({
     propertyData,
     propertiesData,
+    contactList,
     contacts,
     ownershipData,
     countries,
@@ -133,6 +135,8 @@ const PropertyPage = ({
                 ...values,
                 purchaseDate: formatDate(values.purchaseDate),
                 saleDate: formatDate(values.saleDate),
+                ibiCollectionDate: formatDate(values.ibiCollectionDate),
+                garbageCollectionDate: formatDate(values.garbageCollectionDate),
                 cadastreRef,
             };
             console.log('Valores a enviar: ', dataToSend);
@@ -207,7 +211,7 @@ const PropertyPage = ({
             setIsEditing((prev) => !prev);
         }
     };
-
+    console.log(ownershipData);
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
@@ -518,6 +522,7 @@ const PropertyPage = ({
                         <Tab title='Owners'>
                             <PropertiesOwnersDatagrid
                                 dataSource={ownershipData}
+                                contactlist={contactList}
                                 token={token}
                                 contactData={contacts}
                                 isEditing={isEditing}
@@ -538,6 +543,13 @@ const PropertyPage = ({
                         </Tab>
                         <Tab title='Purchase'>
                             <Purchase
+                                propertyData={propertyData}
+                                isLoading={isLoading}
+                                isEditing={isEditing}
+                            />
+                        </Tab>
+                        <Tab title='Accounting'>
+                            <AccountingTab
                                 propertyData={propertyData}
                                 isLoading={isLoading}
                                 isEditing={isEditing}

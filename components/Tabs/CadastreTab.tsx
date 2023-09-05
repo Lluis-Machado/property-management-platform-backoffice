@@ -78,7 +78,7 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
                     }}
                 />
                 <Item
-                    dataField='ibiCollection'
+                    dataField='ibiCollectionDate'
                     label={{ text: 'IBI Collection' }}
                     editorType='dxDateBox'
                     editorOptions={{
@@ -89,12 +89,14 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
                             changeSelectbox(e),
                     }}
                 />
+            </GroupItem>
+            <GroupItem colCount={4}>
                 <Item
-                    dataField='loanPrice.value'
-                    label={{ text: 'Loan' }}
+                    dataField='garbagePriceAmount.value'
+                    label={{ text: 'Garbage Price Amount' }}
                     editorOptions={{
                         elementAttr: {
-                            id: `loanPrice`,
+                            id: `garbagePriceAmount`,
                         },
                         onValueChanged: (e: ValueChangedEvent) =>
                             changeSelectbox(e),
@@ -103,6 +105,18 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
                             currency: 'EUR',
                             precision: 2,
                         },
+                    }}
+                />
+                <Item
+                    dataField='garbageCollectionDate'
+                    label={{ text: 'Garbage Collection' }}
+                    editorType='dxDateBox'
+                    editorOptions={{
+                        elementAttr: {
+                            id: `garbageCollection`,
+                        },
+                        onValueChanged: (e: ValueChangedEvent) =>
+                            changeSelectbox(e),
                     }}
                 />
             </GroupItem>

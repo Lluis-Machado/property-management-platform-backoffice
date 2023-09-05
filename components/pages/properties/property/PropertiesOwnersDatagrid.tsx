@@ -22,7 +22,6 @@ import DataGrid, {
 } from 'devextreme-react/data-grid';
 import { SavedEvent } from 'devextreme/ui/data_grid';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/navigation';
 
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
@@ -43,6 +42,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface Props {
     dataSource: OwnershipPropertyData[];
+    contactlist: any[];
     token: TokenRes;
     contactData: ContactData[];
     isEditing: boolean;
@@ -55,7 +55,10 @@ interface idToasts {
 }
 
 const PropertiesOwnersDatagrid = forwardRef(
-    ({ dataSource, token, contactData, isEditing }: Props, ref) => {
+    (
+        { dataSource, contactlist, token, contactData, isEditing }: Props,
+        ref
+    ) => {
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
         const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -158,9 +161,13 @@ const PropertiesOwnersDatagrid = forwardRef(
             [token, propertyId]
         );
         const CellRender = useCallback(
-            ({ data }: { data: any }): React.ReactElement => (
+            ({ data }: { data: any }) => (
                 <LinkWithIcon
-                    href={`/private/contacts/${data.ownerId}/contactInfo`}
+                    href={
+                        data.ownerType === 'Contact'
+                            ? `/private/contacts/${data.ownerId}/contactInfo`
+                            : `/private/companies/${data.ownerId}/companyInfo`
+                    }
                     icon={faArrowUpRightFromSquare}
                 />
             ),
@@ -231,7 +238,7 @@ const PropertiesOwnersDatagrid = forwardRef(
                             editCellComponent={OwnerDropdownComponent}
                         >
                             <Lookup
-                                dataSource={contactData}
+                                dataSource={contactlist}
                                 valueExpr='id'
                                 displayExpr='firstName'
                             />

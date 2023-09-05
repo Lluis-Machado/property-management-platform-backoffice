@@ -11,11 +11,9 @@ import { PropertyData } from '@/lib/types/propertyInfo';
 
 interface Props {
     propertyData: PropertyData;
-    isEditing: boolean;
-    isLoading: boolean;
 }
 
-export const Purchase = ({ propertyData, isEditing, isLoading }: Props) => {
+export const PurchaseAddProperty = ({ propertyData }: Props) => {
     let priceTax: number;
     const [addressOptions, setAddressOptions] = useState({});
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
@@ -218,7 +216,6 @@ export const Purchase = ({ propertyData, isEditing, isLoading }: Props) => {
         <Form
             formData={propertyData}
             labelMode='floating'
-            readOnly={isLoading || !isEditing}
             onFieldDataChanged={changeCssFormElement}
             ref={formRef}
         >
@@ -287,12 +284,10 @@ export const Purchase = ({ propertyData, isEditing, isLoading }: Props) => {
                                 displayExpr: 'label',
                                 valueExpr: 'value',
                                 searchEnabled: true,
-                                showClearButton: isEditing,
                                 onValueChanged: (e: ValueChangedEvent) => {
                                     changeSelectbox(e);
                                     calculatePriceTax(e);
                                 },
-                                readOnly: !isEditing,
                             }}
                         />
                         <Item
@@ -325,9 +320,11 @@ export const Purchase = ({ propertyData, isEditing, isLoading }: Props) => {
                                     precision: 2,
                                 },
                                 visible:
-                                    true &&
+                                    (true &&
+                                        propertyData.purchasePriceTaxPercentage ==
+                                            0) ||
                                     propertyData.purchasePriceTaxPercentage ==
-                                        0,
+                                        undefined,
                             }}
                         />
                         <Item
@@ -344,9 +341,11 @@ export const Purchase = ({ propertyData, isEditing, isLoading }: Props) => {
                                 },
                                 format: "#0.##'%'",
                                 visible:
-                                    true &&
+                                    (true &&
+                                        propertyData.purchasePriceTaxPercentage ==
+                                            0) ||
                                     propertyData.purchasePriceTaxPercentage ==
-                                        0,
+                                        undefined,
                             }}
                         />
                         <Item
@@ -365,9 +364,11 @@ export const Purchase = ({ propertyData, isEditing, isLoading }: Props) => {
                                     precision: 2,
                                 },
                                 visible:
-                                    true &&
-                                    propertyData.purchasePriceTaxPercentage !==
-                                        0,
+                                    (true &&
+                                        propertyData.purchasePriceTaxPercentage ==
+                                            1) ||
+                                    propertyData.purchasePriceTaxPercentage ==
+                                        2,
                             }}
                         />
                         <Item
@@ -381,12 +382,13 @@ export const Purchase = ({ propertyData, isEditing, isLoading }: Props) => {
                                     calculateAJDValue(e);
                                     changeSelectbox(e);
                                 },
-                                readOnly: !isEditing,
                                 format: "#0.##'%'",
                                 visible:
-                                    true &&
-                                    propertyData.purchasePriceTaxPercentage !==
-                                        0,
+                                    (true &&
+                                        propertyData.purchasePriceTaxPercentage ==
+                                            1) ||
+                                    propertyData.purchasePriceTaxPercentage ==
+                                        2,
                             }}
                         />
                         <Item
@@ -459,7 +461,6 @@ export const Purchase = ({ propertyData, isEditing, isLoading }: Props) => {
                                         changeSelectbox(e);
                                     },
                                     format: "#0.##'%'",
-                                    readOnly: !isEditing,
                                 }}
                             />
                         </GroupItem>
@@ -514,7 +515,6 @@ export const Purchase = ({ propertyData, isEditing, isLoading }: Props) => {
                                     ],
                                     displayExpr: 'label',
                                     valueExpr: 'value',
-                                    showClearButton: isEditing,
                                     onValueChanged: () =>
                                         calculateTPOValueFurniture(),
                                     readOnly: true,
