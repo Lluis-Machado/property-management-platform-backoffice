@@ -3,17 +3,17 @@ export interface PropertyData {
     autonomousRegion: string;
     bedNumber: number | null;
     billingContactId: string;
-    buildingPrice?: Price;
+    buildingPrice: Price;
     cadastreNumber: string;
     cadastreRef: string;
     cadastreUrl: string;
-    cadastreValue: string;
+    cadastreValue: Price;
     comments?: string;
     contactPersonId: string;
     federalState: string;
     garbageCollection: number | null;
-    garbagePriceAmount: number | null;
-    ibiAmount: string;
+    garbagePriceAmount: Price;
+    ibiAmount: Price;
     ibiCollection: number | null;
     id: string;
     loanPrice: Price;
@@ -43,11 +43,11 @@ export interface PropertyData {
     furniturePriceTotal: Price;
     furniturePriceGross: Price;
     saleDate: string | null;
-    salePrice?: Price;
-    totalPrice?: Price;
+    salePrice: Price;
+    totalPrice: Price;
     type: string;
     typeOfUse: number[];
-    year?: number | null;
+    year: number | null;
 }
 
 interface Price {

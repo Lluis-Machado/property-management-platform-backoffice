@@ -14,7 +14,7 @@ import Form, {
     TabbedItem,
 } from 'devextreme-react/form';
 import 'devextreme-react/text-area';
-import TagBox from 'devextreme-react/tag-box';
+import 'devextreme-react/tag-box';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
@@ -31,10 +31,11 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import { Button } from 'pg-components';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
-import { SelectionChangedEvent } from 'devextreme/ui/tag_box';
+import Cadastre from '@/components/Tabs/CadastreTab';
 
 interface Props {
     propertyData: PropertyData;
+    properties: PropertyData[];
     contacts: SelectData[];
     countries: CountryData[];
     token: TokenRes;
@@ -43,6 +44,7 @@ interface Props {
 
 const AddPropertyPage = ({
     propertyData,
+    properties,
     contacts,
     countries,
     token,
@@ -58,16 +60,11 @@ const AddPropertyPage = ({
 
     const router = useRouter();
     // CSS CHANGES
-    const changeCssFormElement = (e: FieldDataChangedEvent) => {
-        document.getElementsByName(e.dataField!)[0].classList.add('styling');
-    };
 
     const changeSelectbox = (e: ValueChangedEvent) => {
         e.element.classList.add('stylingForm');
     };
-    const changeTagbox = (e: SelectionChangedEvent) => {
-        e.element.classList.add('stylingForm');
-    };
+
     // calculate Property
     const calculatePurchase = (e: ValueChangedEvent) => {
         propertyData.purchasePriceNet.value = e.value || 0;
@@ -251,13 +248,21 @@ const AddPropertyPage = ({
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 
             updateSuccessToast(toastId, 'Property created correctly!');
-            router.push('/private/properties');
+            // Clear contact data
+            propertyData = structuredClone(initialValues);
+            // Pass the ID to reload the page
+            router.push(`/private/properties?createdId=${data.id}`);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
             setIsLoading(false);
         }
-    }, [router, propertyData, initialValues, token]);
+    }, [router, initialValues, token]);
+
+    const calculateCadastreValue = (e: ValueChangedEvent) => {
+        propertyData.cadastreValue.value =
+            propertyData.buildingPrice.value + propertyData.plotPrice.value;
+    };
 
     return (
         <div>
@@ -268,7 +273,7 @@ const AddPropertyPage = ({
                 ref={formRef}
             >
                 <GroupItem colCount={3}>
-                    <GroupItem caption='Property Information'>
+                    <GroupItem>
                         <Item dataField='name' label={{ text: 'Name' }} />
                         <Item
                             dataField='type'
@@ -278,7 +283,10 @@ const AddPropertyPage = ({
                                 items: [
                                     { label: 'Apartment', value: '0' },
                                     { label: 'Rural property', value: '1' },
-                                    { label: 'House', value: '2' },
+                                    {
+                                        label: 'Residential property',
+                                        value: '2',
+                                    },
                                     { label: 'Plot', value: '3' },
                                     { label: 'Parking', value: '4' },
                                     { label: 'Storage room', value: '5' },
@@ -299,12 +307,9 @@ const AddPropertyPage = ({
                                     { label: 'Vacational Rent', value: 1 },
                                     { label: 'Long Term Rent', value: 2 },
                                 ],
-                                onValueChanged: (e: SelectionChangedEvent) =>
-                                    changeTagbox(e),
                                 displayExpr: 'label',
                                 valueExpr: 'value',
                                 searchEnabled: true,
-                                showClearButton: true,
                             }}
                         />
                         <Item
@@ -353,7 +358,7 @@ const AddPropertyPage = ({
                         </GroupItem>
                     </GroupItem>
                     <GroupItem>
-                        <GroupItem caption='Contact Information'>
+                        <GroupItem>
                             <Item
                                 dataField='mainOwnerId'
                                 label={{ text: 'Main Owner' }}
@@ -391,6 +396,17 @@ const AddPropertyPage = ({
                                 dataField='propertyScanMail'
                                 label={{ text: 'Property Scan Mail' }}
                             />
+                            <Item
+                                dataField='mainPropertyId'
+                                label={{ text: 'Main Property' }}
+                                editorType='dxSelectBox'
+                                editorOptions={{
+                                    items: properties,
+                                    displayExpr: 'name',
+                                    valueExpr: 'id',
+                                    searchEnabled: true,
+                                }}
+                            />
                         </GroupItem>
                     </GroupItem>
                 </GroupItem>
@@ -398,58 +414,120 @@ const AddPropertyPage = ({
                     <TabbedItem>
                         <TabPanelOptions deferRendering={false} />
                         <Tab title='Cadastre'>
-                            <GroupItem colCount={5}>
+                            <GroupItem colCount={4}>
                                 <Item
-                                    dataField='cadastreRef'
-                                    label={{ text: 'Catastral Reference' }}
-                                />
-                                <Item
-                                    dataField='cadastreUrl'
-                                    label={{ text: 'Cadastre Url' }}
-                                />
-                                <Item
-                                    dataField='cadastreValue'
-                                    label={{ text: 'Cadastre Value' }}
-                                />
-                            </GroupItem>
-                            <GroupItem colCount={5}>
-                                <Item
-                                    dataField='loanPrice.value'
-                                    label={{ text: 'Loan price' }}
-                                />
-                                <Item
-                                    dataField='buildingPrice.value'
-                                    label={{ text: 'Building price' }}
-                                />
-                                <Item
-                                    dataField='totalPrice.value'
-                                    label={{ text: 'Total price' }}
-                                />
-                                <Item
-                                    dataField='plotPrice.value'
-                                    label={{ text: 'Plot price' }}
-                                />
-                                <Item
-                                    dataField='ibiAmount'
+                                    dataField='ibiAmount.value'
                                     label={{ text: 'IBI Amount' }}
+                                    editorOptions={{
+                                        elementAttr: {
+                                            id: `ibiAmount`,
+                                        },
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
+                                        format: {
+                                            type: 'currency',
+                                            currency: 'EUR',
+                                            precision: 2,
+                                        },
+                                    }}
                                 />
                                 <Item
                                     dataField='ibiCollection'
                                     label={{ text: 'IBI Collection' }}
-                                />
-                                <Item
-                                    dataField='year'
-                                    label={{ text: 'Year' }}
-                                />
-                                <Item
-                                    dataField='purchaseDate'
-                                    label={{ text: 'Purchase Date' }}
                                     editorType='dxDateBox'
                                     editorOptions={{
-                                        displayFormat: dateFormat,
-                                        showClearButton: true,
+                                        elementAttr: {
+                                            id: `ibiCollection`,
+                                        },
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
                                     }}
                                 />
+                                <Item
+                                    dataField='loanPrice.value'
+                                    label={{ text: 'Loan' }}
+                                    editorOptions={{
+                                        elementAttr: {
+                                            id: `loanPrice`,
+                                        },
+                                        format: {
+                                            type: 'currency',
+                                            currency: 'EUR',
+                                            precision: 2,
+                                        },
+                                    }}
+                                />
+                            </GroupItem>
+                            <GroupItem colCount={4}>
+                                <Item
+                                    dataField='cadastreRef'
+                                    label={{ text: 'Catastral Reference' }}
+                                />
+                                <GroupItem>
+                                    <Item
+                                        dataField='buildingPrice.value'
+                                        label={{ text: 'Building price' }}
+                                        editorOptions={{
+                                            elementAttr: {
+                                                id: `buildingPrice`,
+                                            },
+                                            onValueChanged: (
+                                                e: ValueChangedEvent
+                                            ) => {
+                                                changeSelectbox(e);
+                                                calculateCadastreValue(e);
+                                            },
+                                            format: {
+                                                type: 'currency',
+                                                currency: 'EUR',
+                                                precision: 2,
+                                            },
+                                        }}
+                                    />
+                                    <Item
+                                        dataField='plotPrice.value'
+                                        label={{ text: 'Plot price' }}
+                                        editorOptions={{
+                                            elementAttr: {
+                                                id: `plotPrice`,
+                                            },
+                                            onValueChanged: (
+                                                e: ValueChangedEvent
+                                            ) => {
+                                                changeSelectbox(e);
+                                                calculateCadastreValue(e);
+                                            },
+                                            format: {
+                                                type: 'currency',
+                                                currency: 'EUR',
+                                                precision: 2,
+                                            },
+                                        }}
+                                    />
+                                    <Item
+                                        dataField='cadastreValue.value'
+                                        label={{ text: 'Cadastre Value' }}
+                                        editorOptions={{
+                                            elementAttr: {
+                                                id: `cadastreValue`,
+                                            },
+                                            onValueChanged: (
+                                                e: ValueChangedEvent
+                                            ) => {
+                                                changeSelectbox(e);
+                                                calculateCadastreValue(e);
+                                            },
+                                            readOnly: true,
+                                            format: {
+                                                type: 'currency',
+                                                currency: 'EUR',
+                                                precision: 2,
+                                            },
+                                        }}
+                                    />
+                                </GroupItem>
                             </GroupItem>
                         </Tab>
                         <Tab title='Purchase'>
@@ -741,6 +819,18 @@ const AddPropertyPage = ({
                                             }}
                                         />
                                     </GroupItem>
+                                    <GroupItem caption='Purchase Date'>
+                                        <Item
+                                            dataField='purchaseDate'
+                                            label={{ text: 'Purchase Date' }}
+                                            editorType='dxDateBox'
+                                            editorOptions={{
+                                                elementAttr: {
+                                                    id: `purchaseDate`,
+                                                },
+                                            }}
+                                        />
+                                    </GroupItem>
                                 </GroupItem>
                                 <GroupItem colCount={3}>
                                     <Item
@@ -776,6 +866,13 @@ const AddPropertyPage = ({
                                 <Item
                                     dataField='salePrice.value'
                                     label={{ text: 'Sale Price' }}
+                                    editorOptions={{
+                                        format: {
+                                            type: 'currency',
+                                            currency: 'EUR',
+                                            precision: 2,
+                                        },
+                                    }}
                                 />
                             </GroupItem>
                         </Tab>
@@ -784,6 +881,30 @@ const AddPropertyPage = ({
                                 <Item
                                     dataField='bedNumber'
                                     label={{ text: 'Bed Number' }}
+                                />
+                                <Item
+                                    dataField='year'
+                                    label={{ text: 'Year' }}
+                                />
+                                <Item
+                                    dataField='garbagePriceAmount.value'
+                                    label={{ text: 'Garbage Price Amount' }}
+                                    editorOptions={{
+                                        format: {
+                                            type: 'currency',
+                                            currency: 'EUR',
+                                            precision: 2,
+                                        },
+                                    }}
+                                />
+                                <Item
+                                    dataField='garbageCollection'
+                                    label={{ text: 'Garbage Collection' }}
+                                    editorType='dxDateBox'
+                                    editorOptions={{
+                                        displayFormat: dateFormat,
+                                        showClearButton: true,
+                                    }}
                                 />
                             </GroupItem>
                         </Tab>
