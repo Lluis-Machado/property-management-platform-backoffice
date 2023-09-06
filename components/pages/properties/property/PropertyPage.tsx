@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 // Libraries imports
 import { Button } from 'pg-components';
 import {
@@ -588,4 +588,4 @@ const PropertyPage = ({
         </div>
     );
 };
-export default PropertyPage;
+export default memo(PropertyPage);
