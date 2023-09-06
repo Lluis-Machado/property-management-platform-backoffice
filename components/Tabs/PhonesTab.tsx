@@ -145,6 +145,7 @@ const PhonesTab = ({ contactData, isEditing, isLoading }: Props) => {
                                         id: `phoneNumber${index}`,
                                     },
                                     mask: getMaskFromDataSource(index),
+                                    useMaskedValue: true,
                                     onValueChanged: (e: ValueChangedEvent) =>
                                         changeSelectbox(e),
                                 }}

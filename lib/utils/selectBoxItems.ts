@@ -1,6 +1,19 @@
+/**
+ * Masking Element Description
+ * 0	A digit.
+ * 9	A digit or a space.
+ * #	A digit, a space, "+" or "-" sign.
+ * L	A literal.
+ * C	Any character except space.
+ * c	Any character.
+ * A	An alphanumeric.
+ * a	An alphanumeric or a space.
+ * NOTE: To escape the masking elements, use the double
+ * backslash character (\). For example, "000.\\0\\0".
+ */
 export const countriesMaskItems = [
     { id: 1, mask: '+34 000-00-00-00', name: 'Spain' },
-    { id: 2, mask: '+49 0000-000000', name: 'Germany' },
+    { id: 2, mask: '+4\\9 0000-000000', name: 'Germany' },
     { id: 3, mask: '+1 (000) 000-0000', name: 'United States' },
 ];
 

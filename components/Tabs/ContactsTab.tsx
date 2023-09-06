@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Form, { Item, GroupItem } from 'devextreme-react/form';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
+import { Popover, Position } from 'devextreme-react/popover';
 // Local imports
 import { ContactData } from '@/lib/types/contactData';
 import { CompanyData } from '@/lib/types/companyData';
@@ -12,6 +13,7 @@ import AddItem from './TabButtons/AddItem';
 import DeleteItem from './TabButtons/DeleteItem';
 import { displayContactFullName } from '@/lib/utils/displayContactFullName';
 import { companyContactsTypeItems } from '@/lib/utils/selectBoxItems';
+import { Button } from 'pg-components';
 
 interface Props {
     dataSource: CompanyData;
@@ -27,6 +29,10 @@ const ContactsTab = ({
     isLoading,
 }: Props) => {
     const [addressOptions, setAddressOptions] = useState({});
+    const [isPopoverVisible, setIsPopoverVisible] = useState(false);
+    const [popoverTarget, setPopoverTarget] = useState('');
+    const [selectedContactInfo, setSelectedContactInfo] =
+        useState<ContactData>();
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
     const [elementsList, setElementsList] = useState<ValueChangedEvent[]>([]);
     const formRef = useRef<Form>(null);
@@ -54,6 +60,16 @@ const ContactsTab = ({
         setElementsList((prev) => [...prev, e]);
     };
 
+    const handlePopover = (idx: number) => {
+        setPopoverTarget(`infoButtonContact-${idx}`);
+        setIsPopoverVisible(true);
+        setSelectedContactInfo(
+            contactsData.filter(
+                (obj) => obj.id === dataSource.contacts[idx].contactId
+            )[0]
+        );
+    };
+
     const callbackFunction = useCallback(
         (dataSource: ContactData | CompanyData) => {
             formRef.current?.instance.updateData('formData', dataSource);
@@ -62,87 +78,163 @@ const ContactsTab = ({
         []
     );
     return (
-        <Form
-            formData={dataSource}
-            ref={formRef}
-            labelMode={'floating'}
-            readOnly={isLoading || !isEditing}
-            showValidationSummary
-            onFieldDataChanged={changeCssFormElement}
-        >
-            <GroupItem colCount={1}>
-                {dataSource.contacts.map((phone, index) => {
-                    return (
-                        <GroupItem
-                            key={`GroupItemContacts-${index}`}
-                            colCount={6}
-                        >
-                            <Item
-                                key={`contactType${index}`}
-                                dataField={`contacts[${index}].contactType`}
-                                label={{ text: 'Contact Type' }}
-                                editorType='dxSelectBox'
-                                editorOptions={{
-                                    elementAttr: {
-                                        id: `contactType65435456${index}`,
-                                    },
-                                    items: companyContactsTypeItems,
-                                    valueExpr: 'id',
-                                    displayExpr: 'name',
-                                    onValueChanged: (e: ValueChangedEvent) =>
-                                        changeSelectbox(e),
-                                }}
-                            />
-                            <Item
-                                key={`contactId${index}`}
-                                dataField={`contacts[${index}].contactId`}
-                                label={{ text: 'Contact' }}
-                                editorType='dxSelectBox'
-                                editorOptions={{
-                                    elementAttr: {
-                                        id: `contactPerson23456234${index}`,
-                                    },
-                                    items: contactsData,
-                                    valueExpr: 'id',
-                                    displayExpr: displayContactFullName,
-                                    searchEnabled: true,
-                                    onValueChanged: (e: ValueChangedEvent) =>
-                                        changeSelectbox(e),
-                                }}
-                            />
-                            <Item
-                                key={`contactsShortComment${index}`}
-                                dataField={`contacts[${index}].shortComment`}
-                                label={{
-                                    text: 'Short Comment',
-                                }}
-                                editorOptions={{
-                                    maxLength: 30,
-                                }}
-                            />
-                            <Item>
-                                <DeleteItem
-                                    data={dataSource}
-                                    customKey={`buttonDeleteContact-${index}`}
-                                    index={index}
-                                    arrayType={'contacts'}
-                                    isEditing={isEditing}
-                                    callbackFunction={callbackFunction}
-                                />
-                            </Item>
-                        </GroupItem>
-                    );
-                })}
-            </GroupItem>
-            <Item>
-                <AddItem
-                    data={dataSource}
-                    arrayType={'contacts'}
-                    isEditing={isEditing}
-                    callbackFunction={callbackFunction}
+        <>
+            <Popover
+                target={'#' + popoverTarget}
+                visible={isPopoverVisible}
+                onHidden={() => setIsPopoverVisible(false)}
+                position='top'
+                width={'auto'}
+            >
+                <div className='mb-2'>
+                    Email:{' '}
+                    {!selectedContactInfo?.email ? (
+                        'No email found'
+                    ) : (
+                        <ul className='ml-8 list-disc'>
+                            <li>
+                                <a
+                                    href={`mailto:${selectedContactInfo?.email}`}
+                                    className='text-blue-500'
+                                >
+                                    {selectedContactInfo?.email}
+                                </a>
+                            </li>
+                        </ul>
+                    )}
+                </div>
+                <div className='mb-2'>
+                    Phones:{' '}
+                    {selectedContactInfo?.phones.length === 0 ? (
+                        'No phones found'
+                    ) : (
+                        <ul className='ml-8 list-disc'>
+                            {selectedContactInfo?.phones.map((phone, index) => (
+                                <li key={`phones-${index}`}>
+                                    <a
+                                        href={`tel:${phone.phoneNumber}`}
+                                        className='text-blue-500'
+                                    >
+                                        {phone.phoneNumber}
+                                    </a>
+                                    <br />
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+                <Button
+                    text='View full details'
+                    onClick={() =>
+                        window.open(
+                            `${location.origin}/private/contacts/${selectedContactInfo?.id}/contactInfo`,
+                            '_blank'
+                        )
+                    }
                 />
-            </Item>
-        </Form>
+            </Popover>
+            <Form
+                formData={dataSource}
+                ref={formRef}
+                labelMode={'floating'}
+                readOnly={isLoading || !isEditing}
+                showValidationSummary
+                onFieldDataChanged={changeCssFormElement}
+            >
+                <GroupItem colCount={1}>
+                    {dataSource.contacts.map((phone, index) => {
+                        return (
+                            <GroupItem
+                                key={`GroupItemContacts-${index}`}
+                                colCount={6}
+                            >
+                                <Item
+                                    key={`contactType${index}`}
+                                    dataField={`contacts[${index}].contactType`}
+                                    label={{ text: 'Contact Type' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        elementAttr: {
+                                            id: `contactType65435456${index}`,
+                                        },
+                                        items: companyContactsTypeItems,
+                                        valueExpr: 'id',
+                                        displayExpr: 'name',
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
+                                    }}
+                                />
+                                <Item
+                                    key={`contactId${index}`}
+                                    dataField={`contacts[${index}].contactId`}
+                                    label={{ text: 'Contact' }}
+                                    editorType='dxSelectBox'
+                                    editorOptions={{
+                                        elementAttr: {
+                                            id: `contactPerson23456234${index}`,
+                                        },
+                                        items: contactsData,
+                                        valueExpr: 'id',
+                                        displayExpr: displayContactFullName,
+                                        searchEnabled: true,
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
+                                    }}
+                                />
+                                <Item
+                                    key={`contactsShortComment${index}`}
+                                    dataField={`contacts[${index}].shortComment`}
+                                    label={{
+                                        text: 'Short Comment',
+                                    }}
+                                    editorOptions={{
+                                        maxLength: 30,
+                                    }}
+                                />
+                                <GroupItem colCount={4}>
+                                    <Item>
+                                        <DeleteItem
+                                            data={dataSource}
+                                            customKey={`buttonDeleteContact-${index}`}
+                                            index={index}
+                                            arrayType={'contacts'}
+                                            isEditing={isEditing}
+                                            callbackFunction={callbackFunction}
+                                        />
+                                    </Item>
+                                    <Item
+                                        key={`infoButtonContact-${index}`}
+                                        itemType='button'
+                                        horizontalAlignment='left'
+                                        verticalAlignment='bottom'
+                                        buttonOptions={{
+                                            elementAttr: {
+                                                id: `infoButtonContact-${index}`,
+                                            },
+                                            icon: 'info',
+                                            text: undefined,
+                                            disabled: false,
+                                            type: 'default',
+                                            onClick: () => handlePopover(index),
+                                        }}
+                                    />
+                                </GroupItem>
+                            </GroupItem>
+                        );
+                    })}
+                </GroupItem>
+                <Item>
+                    <AddItem
+                        data={dataSource}
+                        arrayType={'contacts'}
+                        isEditing={isEditing}
+                        callbackFunction={callbackFunction}
+                    />
+                </Item>
+            </Form>
+        </>
     );
 };
 

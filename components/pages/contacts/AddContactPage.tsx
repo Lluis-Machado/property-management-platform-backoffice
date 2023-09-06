@@ -529,6 +529,7 @@ const AddContactPage = ({ countries, contactsData, token, lang }: Props) => {
                                                     mask: getMaskFromDataSource(
                                                         index
                                                     ),
+                                                    useMaskedValue: true,
                                                 }}
                                             />
                                             <Item

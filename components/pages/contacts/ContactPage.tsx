@@ -131,6 +131,7 @@ const ContactPage = ({
 
             updateSuccessToast(toastId, 'Contact updated correctly!');
             setInitialValues(data);
+            setIsEditing(false);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
