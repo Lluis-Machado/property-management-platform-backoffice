@@ -49,6 +49,7 @@ import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
 import Sale from '@/components/Tabs/SalesTab';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import AccountingTab from '@/components/Tabs/AccountingTab';
+import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 
 interface Props {
     propertyData: PropertyData;
@@ -228,7 +229,8 @@ const PropertyPage = ({
                 onClose={() => setUnsavedVisible(false)}
                 onConfirm={() => router.refresh()}
             />
-
+            {/* Toolbar tooltips */}
+            <ToolbarTooltips isEditing={isEditing} />
             <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
                 <div className='ml-5 basis-1/4'>
@@ -260,6 +262,7 @@ const PropertyPage = ({
                 {/* Button toolbar */}
                 <div className='flex flex-row gap-4 self-center'>
                     <Button
+                        id='crmButton'
                         elevated
                         onClick={() =>
                             window.open(
@@ -271,6 +274,7 @@ const PropertyPage = ({
                         icon={faArrowUpRightFromSquare}
                     />
                     <Button
+                        id='saveButton'
                         elevated
                         onClick={handleSubmit}
                         type='button'
@@ -279,12 +283,14 @@ const PropertyPage = ({
                         isLoading={isLoading}
                     />
                     <Button
+                        id='editButton'
                         elevated
                         onClick={() => handleEditingButton()}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
                     />
                     <Button
+                        id='deleteButton'
                         elevated
                         onClick={() => setDeleteVisible(true)}
                         type='button'
