@@ -15,6 +15,8 @@ import Form, {
     TabPanelOptions,
     TabbedItem,
 } from 'devextreme-react/form';
+import 'devextreme-react/text-area';
+import 'devextreme-react/tag-box';
 // Local imports
 import { ContactData } from '@/lib/types/contactData';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
@@ -26,7 +28,6 @@ import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
 import { CountryData } from '@/lib/types/countriesData';
 import {
-    countriesMaskItems,
     genderItems,
     maritalStatusItems,
     titleItems,
@@ -143,9 +144,19 @@ const AddContactPage = ({
                 {/* Main Information */}
                 <GroupItem colCount={4}>
                     <Item
+                        dataField={'gender'}
+                        label={{ text: 'Gender' }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: genderItems,
+                            valueExpr: 'id',
+                            displayExpr: 'name',
+                        }}
+                    />
+                    <Item
                         dataField={'title'}
                         label={{ text: 'Title' }}
-                        editorType='dxSelectBox'
+                        editorType='dxTagBox'
                         editorOptions={{
                             items: titleItems,
                             valueExpr: 'id',
@@ -163,16 +174,6 @@ const AddContactPage = ({
                             message='Last name have at least 2 letters'
                         />
                     </Item>
-                    <Item
-                        dataField={'gender'}
-                        label={{ text: 'Gender' }}
-                        editorType='dxSelectBox'
-                        editorOptions={{
-                            items: genderItems,
-                            valueExpr: 'id',
-                            displayExpr: 'name',
-                        }}
-                    />
                     <Item
                         dataField='birthPlace'
                         label={{ text: 'Birth Place' }}
@@ -238,6 +239,17 @@ const AddContactPage = ({
                                 contactsData={contactsData}
                                 isEditing={true}
                                 isLoading={isLoading}
+                            />
+                        </Tab>
+                        <Tab title={`Comments`}>
+                            <Item
+                                dataField='comments'
+                                label={{ text: 'Additional Comments' }}
+                                editorType='dxTextArea'
+                                editorOptions={{
+                                    minHeight: 200,
+                                    autoResizeEnabled: true,
+                                }}
                             />
                         </Tab>
                     </TabbedItem>

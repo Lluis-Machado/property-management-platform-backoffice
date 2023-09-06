@@ -149,10 +149,6 @@ const AddCompanyPage = ({
                         label={{ text: 'German Tax Office' }}
                     />
                     <Item
-                        dataField='taxNumber'
-                        label={{ text: 'Tax Number' }}
-                    />
-                    <Item
                         dataField='uStIDNumber'
                         label={{ text: 'USt. ID Number' }}
                     />

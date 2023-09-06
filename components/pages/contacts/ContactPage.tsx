@@ -27,6 +27,8 @@ import Form, {
 } from 'devextreme-react/form';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
+import 'devextreme-react/text-area';
+import 'devextreme-react/tag-box';
 // Local imports
 import '@/lib/styles/highlightFields.css';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
@@ -262,9 +264,21 @@ const ContactPage = ({
                 {/* Main Information */}
                 <GroupItem colCount={4}>
                     <Item
+                        dataField={'gender'}
+                        label={{ text: 'Gender' }}
+                        editorType='dxSelectBox'
+                        editorOptions={{
+                            items: genderItems,
+                            valueExpr: 'id',
+                            displayExpr: 'name',
+                            onValueChanged: (e: ValueChangedEvent) =>
+                                changeSelectbox(e),
+                        }}
+                    />
+                    <Item
                         dataField={'title'}
                         label={{ text: 'Title' }}
-                        editorType='dxSelectBox'
+                        editorType='dxTagBox'
                         editorOptions={{
                             items: titleItems,
                             valueExpr: 'id',
@@ -284,18 +298,6 @@ const ContactPage = ({
                             message='Last name have at least 2 letters'
                         />
                     </Item>
-                    <Item
-                        dataField={'gender'}
-                        label={{ text: 'Gender' }}
-                        editorType='dxSelectBox'
-                        editorOptions={{
-                            items: genderItems,
-                            valueExpr: 'id',
-                            displayExpr: 'name',
-                            onValueChanged: (e: ValueChangedEvent) =>
-                                changeSelectbox(e),
-                        }}
-                    />
                     <Item
                         dataField='birthPlace'
                         label={{ text: 'Birth Place' }}
@@ -370,6 +372,17 @@ const ContactPage = ({
                                 contactsData={contactsData}
                                 isEditing={isEditing}
                                 isLoading={isLoading}
+                            />
+                        </Tab>
+                        <Tab title={`Comments`}>
+                            <Item
+                                dataField='comments'
+                                label={{ text: 'Additional Comments' }}
+                                editorType='dxTextArea'
+                                editorOptions={{
+                                    minHeight: 200,
+                                    autoResizeEnabled: true,
+                                }}
                             />
                         </Tab>
                     </TabbedItem>

@@ -189,7 +189,7 @@ const AddressInfoTab = ({
                                     text: 'Short Comment',
                                 }}
                                 editorOptions={{
-                                    maxLength: 30,
+                                    maxLength: 20,
                                 }}
                             />
                             <Item>
