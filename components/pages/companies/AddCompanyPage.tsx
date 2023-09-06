@@ -136,7 +136,7 @@ const AddCompanyPage = ({
                 showValidationSummary
             >
                 {/* Main Information */}
-                <GroupItem colCount={5}>
+                <GroupItem colCount={4}>
                     <Item dataField='name' label={{ text: 'Company name' }}>
                         <RequiredRule />
                     </Item>
