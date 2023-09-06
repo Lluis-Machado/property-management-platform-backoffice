@@ -11,126 +11,6 @@ import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
 
-const initialValues: PropertyData = {
-    autonomousRegion: '',
-    bedNumber: null,
-    billingContactId: null,
-    buildingPrice: {
-        currency: '',
-        value: 0,
-    },
-    cadastreNumber: '',
-    cadastreRef: '',
-    cadastreUrl: '',
-    cadastreValue: {
-        currency: '',
-        value: 0,
-    },
-    comments: '',
-    contactPersonId: '',
-    federalState: '',
-    garbageCollectionDate: null,
-    garbagePriceAmount: {
-        currency: '',
-        value: 0,
-    },
-    ibiAmount: {
-        currency: '',
-        value: 0,
-    },
-    ibiCollectionDate: null,
-    id: '',
-    loanPrice: {
-        currency: '',
-        value: 0,
-    },
-    mainOwnerId: '',
-    mainOwnerType: '',
-    mainPropertyId: null,
-    municipality: '',
-    name: '',
-    plotPrice: {
-        currency: '',
-        value: 0,
-    },
-    propertyAddress: {
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        state: null,
-        postalCode: '',
-        country: null,
-        addressType: null,
-    },
-    propertyScanMail: '',
-    purchaseDate: null,
-    purchasePriceNet: {
-        currency: '',
-        value: 0,
-    },
-    purchasePriceGross: {
-        currency: '',
-        value: 0,
-    },
-    purchasePriceAJDPercentage: null,
-    purchasePriceAJD: {
-        currency: '',
-        value: 0,
-    },
-    purchasePriceTPOPercentage: 0,
-    purchasePriceTPO: {
-        currency: '',
-        value: 0,
-    },
-    purchasePriceTaxPercentage: null,
-    purchasePriceTax: {
-        currency: '',
-        value: 0,
-    },
-    purchasePriceTotal: {
-        currency: '',
-        value: 0,
-    },
-    priceTotal: {
-        currency: '',
-        value: 0,
-    },
-    furniturePrice: {
-        currency: '',
-        value: 0,
-    },
-    furniturePriceIVA: {
-        currency: '',
-        value: 0,
-    },
-    furniturePriceIVAPercentage: 21,
-    furniturePriceTPO: {
-        currency: '',
-        value: 0,
-    },
-    furniturePriceTPOPercentage: 0,
-    furniturePriceTotal: {
-        currency: '',
-        value: 0,
-    },
-    furniturePriceGross: {
-        currency: '',
-        value: 0,
-    },
-    saleDate: null,
-    salePrice: {
-        currency: '',
-        value: 0,
-    },
-    totalPrice: {
-        currency: '',
-        value: 0,
-    },
-    type: '',
-    typeOfUse: [],
-    year: null,
-};
-
 interface Props {
     params: { lang: Locale };
 }
@@ -174,19 +54,18 @@ const AddProperty = async ({ params: { lang } }: Props) => {
             type: 'Company',
         });
     }
-    const items = [...contacts, ...companies];
+    const contactList = [...contacts, ...companies];
 
     return (
         <>
             <Breadcrumb />
             <AddPropertyPage
-                propertyData={initialValues}
                 properties={properties}
                 contacts={contacts}
                 countries={countriesData}
                 token={user.token}
                 lang={lang}
-                items={items}
+                contactList={contactList}
             />
         </>
     );

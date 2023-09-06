@@ -33,24 +33,141 @@ import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { PurchaseAddProperty } from '@/components/Tabs/PurchaseAddProperty';
 
+let propertyData: PropertyData = {
+    autonomousRegion: '',
+    bedNumber: null,
+    billingContactId: null,
+    buildingPrice: {
+        currency: '',
+        value: 0,
+    },
+    cadastreNumber: '',
+    cadastreRef: '',
+    cadastreUrl: '',
+    cadastreValue: {
+        currency: '',
+        value: 0,
+    },
+    comments: '',
+    contactPersonId: '',
+    federalState: '',
+    garbageCollectionDate: null,
+    garbagePriceAmount: {
+        currency: '',
+        value: 0,
+    },
+    ibiAmount: {
+        currency: '',
+        value: 0,
+    },
+    ibiCollectionDate: null,
+    id: '',
+    loanPrice: {
+        currency: '',
+        value: 0,
+    },
+    mainOwnerId: '',
+    mainOwnerType: '',
+    mainPropertyId: null,
+    municipality: '',
+    name: '',
+    plotPrice: {
+        currency: '',
+        value: 0,
+    },
+    propertyAddress: {
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: null,
+        postalCode: '',
+        country: null,
+        addressType: null,
+    },
+    propertyScanMail: '',
+    purchaseDate: null,
+    purchasePriceNet: {
+        currency: '',
+        value: 0,
+    },
+    purchasePriceGross: {
+        currency: '',
+        value: 0,
+    },
+    purchasePriceAJDPercentage: null,
+    purchasePriceAJD: {
+        currency: '',
+        value: 0,
+    },
+    purchasePriceTPOPercentage: 0,
+    purchasePriceTPO: {
+        currency: '',
+        value: 0,
+    },
+    purchasePriceTaxPercentage: null,
+    purchasePriceTax: {
+        currency: '',
+        value: 0,
+    },
+    purchasePriceTotal: {
+        currency: '',
+        value: 0,
+    },
+    priceTotal: {
+        currency: '',
+        value: 0,
+    },
+    furniturePrice: {
+        currency: '',
+        value: 0,
+    },
+    furniturePriceIVA: {
+        currency: '',
+        value: 0,
+    },
+    furniturePriceIVAPercentage: 21,
+    furniturePriceTPO: {
+        currency: '',
+        value: 0,
+    },
+    furniturePriceTPOPercentage: 0,
+    furniturePriceTotal: {
+        currency: '',
+        value: 0,
+    },
+    furniturePriceGross: {
+        currency: '',
+        value: 0,
+    },
+    saleDate: null,
+    salePrice: {
+        currency: '',
+        value: 0,
+    },
+    totalPrice: {
+        currency: '',
+        value: 0,
+    },
+    type: '',
+    typeOfUse: [],
+    year: null,
+};
 interface Props {
-    propertyData: PropertyData;
     properties: PropertyData[];
     contacts: SelectData[];
     countries: CountryData[];
     token: TokenRes;
     lang: Locale;
-    items: any[];
+    contactList: any[];
 }
 
 const AddPropertyPage = ({
-    propertyData,
     properties,
     contacts,
     countries,
     token,
     lang,
-    items,
+    contactList,
 }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [states, setStates] = useState<StateData[] | undefined>(undefined);
@@ -100,7 +217,7 @@ const AddPropertyPage = ({
     const handleSubmit = useCallback(async () => {
         const values = structuredClone(propertyData);
 
-        const contactType: any = items?.find(
+        const contactType: any = contactList?.find(
             (item) => item.id == values.mainOwnerId
         );
 
@@ -143,7 +260,7 @@ const AddPropertyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [router, initialValues, token]);
+    }, [router, initialValues, token, contactList]);
 
     const calculateCadastreValue = () => {
         propertyData.cadastreValue.value =
@@ -252,7 +369,7 @@ const AddPropertyPage = ({
                                 label={{ text: 'Main Owner' }}
                                 editorType='dxSelectBox'
                                 editorOptions={{
-                                    items: items,
+                                    items: contactList,
                                     displayExpr: 'label',
                                     valueExpr: 'id',
                                     searchEnabled: true,
