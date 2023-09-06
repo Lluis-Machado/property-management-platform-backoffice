@@ -150,16 +150,6 @@ const ContactsTab = ({
                                     colCount={2}
                                     cssClass='flex flex-start'
                                 >
-                                    <Item>
-                                        <DeleteItem
-                                            data={dataSource}
-                                            customKey={`buttonDeleteContact-${index}`}
-                                            index={index}
-                                            arrayType={'contacts'}
-                                            isEditing={isEditing}
-                                            callbackFunction={callbackFunction}
-                                        />
-                                    </Item>
                                     <Item
                                         key={`infoButtonContact-${index}`}
                                         itemType='button'
@@ -176,6 +166,16 @@ const ContactsTab = ({
                                             onClick: () => handlePopover(index),
                                         }}
                                     />
+                                    <Item>
+                                        <DeleteItem
+                                            data={dataSource}
+                                            customKey={`buttonDeleteContact-${index}`}
+                                            index={index}
+                                            arrayType={'contacts'}
+                                            isEditing={isEditing}
+                                            callbackFunction={callbackFunction}
+                                        />
+                                    </Item>
                                 </GroupItem>
                             </GroupItem>
                         );

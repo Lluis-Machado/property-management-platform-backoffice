@@ -140,16 +140,6 @@ const BankTab = ({ dataSource, contactsData, isEditing, isLoading }: Props) => {
                                     colCount={2}
                                     cssClass='flex flex-start'
                                 >
-                                    <Item>
-                                        <DeleteItem
-                                            data={dataSource}
-                                            customKey={`button4-${index}`}
-                                            index={index}
-                                            arrayType={'bankInformation'}
-                                            isEditing={isEditing}
-                                            callbackFunction={callbackFunction}
-                                        />
-                                    </Item>
                                     <Item
                                         key={`infoButtonBankContact-${index}`}
                                         itemType='button'
@@ -166,6 +156,16 @@ const BankTab = ({ dataSource, contactsData, isEditing, isLoading }: Props) => {
                                             onClick: () => handlePopover(index),
                                         }}
                                     />
+                                    <Item>
+                                        <DeleteItem
+                                            data={dataSource}
+                                            customKey={`button4-${index}`}
+                                            index={index}
+                                            arrayType={'bankInformation'}
+                                            isEditing={isEditing}
+                                            callbackFunction={callbackFunction}
+                                        />
+                                    </Item>
                                 </GroupItem>
                             </GroupItem>
                         );
