@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import Form, { Item, GroupItem } from 'devextreme-react/form';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
@@ -194,4 +194,4 @@ const ContactsTab = ({
     );
 };
 
-export default ContactsTab;
+export default memo(ContactsTab);

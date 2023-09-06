@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import Form, { Item, GroupItem } from 'devextreme-react/form';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
@@ -10,8 +10,6 @@ import { ContactData } from '@/lib/types/contactData';
 import { CompanyData } from '@/lib/types/companyData';
 import AddItem from './TabButtons/AddItem';
 import DeleteItem from './TabButtons/DeleteItem';
-import Popover from 'devextreme-react/popover';
-import { Button } from 'pg-components';
 import ContactInfoPopover from '../popover/ContactInfoPopover';
 
 interface Props {
@@ -186,4 +184,4 @@ const BankTab = ({ dataSource, contactsData, isEditing, isLoading }: Props) => {
     );
 };
 
-export default BankTab;
+export default memo(BankTab);

@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import Form, { Item, GroupItem } from 'devextreme-react/form';
 import { addressTypeItems } from '@/lib/utils/selectBoxItems';
@@ -42,6 +42,9 @@ const AddressInfoTab = ({
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
     const [elementsList, setElementsList] = useState<ValueChangedEvent[]>([]);
 
+    const { handleCountryChange, getFilteredStates, isStateLoading } =
+        useCountryChange(lang, token, initialStates);
+
     useEffect(() => {
         for (const element of elementsList) {
             document
@@ -53,7 +56,7 @@ const AddressInfoTab = ({
                 .getElementsByName(event.dataField!)[0]
                 ?.classList.add('styling');
         }
-    }, [eventsList, elementsList, addressOptions]);
+    }, [eventsList, elementsList, addressOptions, isStateLoading]);
 
     useEffect(() => {
         // Set DataSource for DevExtreme select box grouping
@@ -68,39 +71,6 @@ const AddressInfoTab = ({
             })
         );
     }, [countriesData]);
-
-    const handleCountryChange = useCallback(
-        (countryId: number, index: number) => {
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
-                .then((resp) => resp.json())
-                .then((data: StateData[]) =>
-                    formRef
-                        .current!.instance.getEditor(
-                            `addresses[${index}].state`
-                        )!
-                        .option('items', data)
-                )
-                .catch((e) => console.error('Error while getting the states'));
-            // Ensure state is removed
-            dataSource.addresses[index].state = null;
-        },
-        [lang, token, dataSource.addresses]
-    );
-
-    const { getFilteredStates, isStateLoading } = useCountryChange(
-        lang,
-        token,
-        initialStates
-    );
 
     const changeCssFormElement = (e: FieldDataChangedEvent) => {
         if (e.dataField !== 'formData') {
@@ -176,7 +146,7 @@ const AddressInfoTab = ({
                                     grouped: true,
                                     searchEnabled: true,
                                     onValueChanged: (e: any) => {
-                                        handleCountryChange(e.value, index);
+                                        handleCountryChange(e.value);
                                         changeSelectbox(e);
                                         // Ensure state is removed
                                         dataSource.addresses[index].state =
@@ -248,4 +218,4 @@ const AddressInfoTab = ({
     );
 };
 
-export default AddressInfoTab;
+export default memo(AddressInfoTab);
