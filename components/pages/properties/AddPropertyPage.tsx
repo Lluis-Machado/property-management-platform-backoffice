@@ -101,7 +101,7 @@ const AddPropertyPage = ({
         const values = structuredClone(propertyData);
 
         const contactType: any = items?.find(
-            (item) => item.value == values.mainOwnerId
+            (item) => item.id == values.mainOwnerId
         );
 
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
@@ -254,7 +254,7 @@ const AddPropertyPage = ({
                                 editorOptions={{
                                     items: items,
                                     displayExpr: 'label',
-                                    valueExpr: 'value',
+                                    valueExpr: 'id',
                                     searchEnabled: true,
                                 }}
                             />
@@ -265,21 +265,21 @@ const AddPropertyPage = ({
                                 editorOptions={{
                                     items: contacts,
                                     displayExpr: 'label',
-                                    valueExpr: 'value',
+                                    valueExpr: 'id',
                                     searchEnabled: true,
                                 }}
                             />
-                            <Item
+                            {/* <Item
                                 dataField='billingContactId'
                                 label={{ text: 'Billing Contact' }}
                                 editorType='dxSelectBox'
                                 editorOptions={{
                                     items: contacts,
                                     displayExpr: 'label',
-                                    valueExpr: 'value',
+                                    valueExpr: 'id',
                                     searchEnabled: true,
                                 }}
-                            />
+                            />  */}
                             <Item
                                 dataField='propertyScanMail'
                                 label={{ text: 'Property Scan Mail' }}

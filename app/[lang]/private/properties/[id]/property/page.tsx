@@ -3,11 +3,10 @@ import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import PropertyPage from '@/components/pages/properties/property/PropertyPage';
 import { Locale } from '@/i18n-config';
 import { CompanyData, CompanyDataProperty } from '@/lib/types/companyData';
-import { ContactData } from '@/lib/types/contactData';
+import { ContactData, ContactDataProperty } from '@/lib/types/contactData';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { PropertyData } from '@/lib/types/propertyInfo';
-import { SelectData } from '@/lib/types/selectData';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
@@ -61,11 +60,12 @@ const Property = async ({ params: { id, lang } }: Props) => {
         );
     }
 
-    let contacts: ContactData[] = [];
+    let contacts: ContactDataProperty[] = [];
     for (const contact of contactData) {
         contacts.push({
             ...contact,
             firstName: `${contact.firstName} ${contact.lastName}`,
+            type: 'Contact',
         });
     }
 
@@ -74,6 +74,7 @@ const Property = async ({ params: { id, lang } }: Props) => {
         companieslist.push({
             ...company,
             firstName: company.name,
+            type: 'Company',
         });
     }
 

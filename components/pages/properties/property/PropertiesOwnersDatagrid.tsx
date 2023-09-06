@@ -19,6 +19,7 @@ import DataGrid, {
     Lookup,
     Toolbar,
     Item,
+    Change,
 } from 'devextreme-react/data-grid';
 import { SavedEvent } from 'devextreme/ui/data_grid';
 import { toast } from 'react-toastify';
@@ -62,6 +63,7 @@ const PropertiesOwnersDatagrid = forwardRef(
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
         const [isLoading, setIsLoading] = useState<boolean>(false);
+        console.log(dataSource);
         const propertyId: number = dataSource[0].propertyId;
 
         // API CALLS
@@ -80,7 +82,15 @@ const PropertiesOwnersDatagrid = forwardRef(
                         const toastId = toast.loading(
                             'Updating ownership property'
                         );
-                        const values = change.data;
+                        const contactType: any = contactlist?.find(
+                            (item) => item.id == change.data.ownerId
+                        );
+
+                        const values = {
+                            ...change.data,
+                            ownerType: contactType.type,
+                        };
+                        console.log(values);
                         promises.push(
                             apiPatch(
                                 `/ownership/ownership`,
@@ -89,7 +99,10 @@ const PropertiesOwnersDatagrid = forwardRef(
                                 'Error while updating a ownership property'
                             )
                         );
-                        // console.log('TODO CORRECTO, valores de vuelta: ', data);
+                        console.log(
+                            'TODO CORRECTO, valores de vuelta: ',
+                            values
+                        );
                         idToasts.push({
                             toastId: toastId,
                             msg: 'Ownership updated correctly!',
@@ -117,8 +130,11 @@ const PropertiesOwnersDatagrid = forwardRef(
                         const toastId = toast.loading(
                             'Adding contact ownership property'
                         );
+                        const contactType: any = contactlist?.find(
+                            (item) => item.id == change.data.ownerId
+                        );
                         const { ownerId, share, mainOwnership } = change.data;
-                        const ownerType: string = 'Contact';
+                        const ownerType: string = contactType.type;
                         const values = {
                             propertyId,
                             ownerId,
@@ -149,7 +165,6 @@ const PropertiesOwnersDatagrid = forwardRef(
                                 idToasts[index].msg
                             );
                         } else if (result.status == 'rejected') {
-                            //customError(Error, idToasts[index].toastId);
                             updateErrorToast(
                                 idToasts[index].errormsg,
                                 idToasts[index].toastId

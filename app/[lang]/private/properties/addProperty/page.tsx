@@ -10,12 +10,11 @@ import { SelectData } from '@/lib/types/selectData';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
-import { useState } from 'react';
 
 const initialValues: PropertyData = {
     autonomousRegion: '',
     bedNumber: null,
-    billingContactId: '',
+    billingContactId: null,
     buildingPrice: {
         currency: '',
         value: 0,
@@ -30,7 +29,7 @@ const initialValues: PropertyData = {
     comments: '',
     contactPersonId: '',
     federalState: '',
-    garbageCollectionDate: '',
+    garbageCollectionDate: null,
     garbagePriceAmount: {
         currency: '',
         value: 0,
@@ -39,7 +38,7 @@ const initialValues: PropertyData = {
         currency: '',
         value: 0,
     },
-    ibiCollectionDate: '',
+    ibiCollectionDate: null,
     id: '',
     loanPrice: {
         currency: '',

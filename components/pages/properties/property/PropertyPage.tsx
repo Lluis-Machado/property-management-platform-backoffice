@@ -49,6 +49,7 @@ import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
 import Sale from '@/components/Tabs/SalesTab';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import AccountingTab from '@/components/Tabs/AccountingTab';
+
 interface Props {
     propertyData: PropertyData;
     propertiesData: PropertyData[];
@@ -121,7 +122,8 @@ const PropertyPage = ({
 
     const handleSubmit = useCallback(async () => {
         // @ts-ignore
-        dataGridRef.current.saveEditData(); // CHANGES PROPERTY FORM
+        dataGridRef.current.saveEditData();
+        // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             return;
@@ -211,7 +213,7 @@ const PropertyPage = ({
             setIsEditing((prev) => !prev);
         }
     };
-    console.log(ownershipData);
+
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
@@ -441,7 +443,7 @@ const PropertyPage = ({
                                 ],
                             }}
                         />
-                        <Item
+                        {/* <Item
                             dataField='billingContactId'
                             label={{ text: 'Billing Contact' }}
                             editorType='dxSelectBox'
@@ -475,7 +477,7 @@ const PropertyPage = ({
                                     },
                                 ],
                             }}
-                        />
+                        /> */}
                         <Item
                             dataField='propertyScanMail'
                             label={{ text: 'Property Scan Mail' }}

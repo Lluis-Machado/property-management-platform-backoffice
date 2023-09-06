@@ -37,4 +37,5 @@ export interface CompanyDataProperty {
     addresses: Address[];
     contacts: CompanyContacts[];
     bankInformation: BankInformation[];
+    type: string;
 }

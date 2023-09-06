@@ -2,7 +2,7 @@ import { Address } from './address';
 export interface PropertyData {
     autonomousRegion: string;
     bedNumber: number | null;
-    billingContactId: string;
+    billingContactId: string | null;
     buildingPrice: Price;
     cadastreNumber: string;
     cadastreRef: string;
