@@ -55,8 +55,9 @@ const DeleteItem = ({
         <Form formData={data}>
             <Item
                 key={customKey}
-                cssClass='mt-1'
+                cssClass='mt-1.5'
                 itemType='button'
+                horizontalAlignment='left'
                 buttonOptions={{
                     icon: 'trash',
                     text: undefined,

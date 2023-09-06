@@ -138,7 +138,10 @@ const BankTab = ({ dataSource, contactsData, isEditing, isLoading }: Props) => {
                                     }}
                                 />
 
-                                <GroupItem colCount={4}>
+                                <GroupItem
+                                    colCount={2}
+                                    cssClass='flex flex-start'
+                                >
                                     <Item>
                                         <DeleteItem
                                             data={dataSource}

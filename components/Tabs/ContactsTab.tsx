@@ -146,7 +146,10 @@ const ContactsTab = ({
                                         maxLength: 30,
                                     }}
                                 />
-                                <GroupItem colCount={4}>
+                                <GroupItem
+                                    colCount={2}
+                                    cssClass='flex flex-start'
+                                >
                                     <Item>
                                         <DeleteItem
                                             data={dataSource}
