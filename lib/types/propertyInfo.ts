@@ -11,9 +11,11 @@ export interface PropertyData {
     comments?: string;
     contactPersonId: string;
     federalState: string;
+    garbageCollection: number;
     garbageCollectionDate: string | null;
     garbagePriceAmount: Price;
     ibiAmount: Price;
+    ibiCollection: number;
     ibiCollectionDate: string | null;
     id: string;
     loanPrice: Price;
