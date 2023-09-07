@@ -142,7 +142,7 @@ const AddContactPage = ({
                 showValidationSummary
             >
                 {/* Main Information */}
-                <GroupItem colCount={4}>
+                <GroupItem colCount={5}>
                     <Item
                         dataField={'gender'}
                         label={{ text: 'Gender' }}
