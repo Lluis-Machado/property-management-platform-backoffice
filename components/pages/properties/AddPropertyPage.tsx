@@ -86,6 +86,7 @@ let propertyData: PropertyData = {
         postalCode: '',
         country: null,
         addressType: null,
+        shortComment: '',
     },
     propertyScanMail: '',
     purchaseDate: null,
