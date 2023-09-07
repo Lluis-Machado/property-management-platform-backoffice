@@ -19,10 +19,17 @@ import DataGrid, {
     Lookup,
     Toolbar,
     Item,
-    Change,
+    Summary,
+    TotalItem,
 } from 'devextreme-react/data-grid';
 import { SavedEvent } from 'devextreme/ui/data_grid';
 import { toast } from 'react-toastify';
+import {
+    faArrowUpRightFromSquare,
+    faCheck,
+    faXmark,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
@@ -31,39 +38,24 @@ import { TokenRes } from '@/lib/types/token';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { apiDelete } from '@/lib/utils/apiDelete';
-import { ContactData } from '@/lib/types/contactData';
 import { apiPost } from '@/lib/utils/apiPost';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
-import {
-    faArrowUpRightFromSquare,
-    faCheck,
-    faXmark,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import SharesPopup from '@/components/popups/SharesPopup';
 
 interface Props {
     dataSource: OwnershipPropertyData[];
-    contactlist: any[];
+    totalContactsList: any[];
     token: TokenRes;
-    contactData: ContactData[];
     isEditing: boolean;
     ref: MutableRefObject<null>;
 }
-interface idToasts {
-    toastId: any;
-    msg: string;
-    errormsg: string;
-}
 
 const PropertiesOwnersDatagrid = forwardRef(
-    (
-        { dataSource, contactlist, token, contactData, isEditing }: Props,
-        ref
-    ) => {
+    ({ dataSource, totalContactsList, token, isEditing }: Props, ref) => {
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
         const [isLoading, setIsLoading] = useState<boolean>(false);
-        console.log(dataSource);
+        const [sharesVisible, setSharesVisible] = useState<boolean>(false);
         const propertyId: number = dataSource[0].propertyId;
 
         // API CALLS
@@ -71,26 +63,61 @@ const PropertiesOwnersDatagrid = forwardRef(
 
         const saveEditData = () => datagridRef.current!.instance.saveEditData();
 
+        // Remove duplicats contact
+
+        let arrayID: string[] = [];
+        for (const item of dataSource) {
+            if (!arrayID.includes(item.ownerId)) {
+                arrayID.push(item.ownerId);
+            }
+        }
+
+        // CSS FOR SUMMARY SHARES
+        const summaryShares = (e: any) => {
+            if (e.rowType == 'totalFooter') {
+                if (e.summaryItems[0]?.column == 'share') {
+                    if (e.summaryItems[0]?.value !== 100) {
+                        e.cellElement.querySelector(
+                            '.dx-datagrid-summary-item'
+                        ).style.color = 'red';
+                    } else {
+                        e.cellElement.querySelector(
+                            '.dx-datagrid-summary-item'
+                        ).style.color = 'rgba(51,51,51,.7)';
+                    }
+                }
+            }
+        };
+
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
                 const promises: Promise<any>[] = [];
-                const idToasts: idToasts[] = [];
                 setIsLoading(true);
 
+                // LOGIC SUM OF SHARES
+                const dataSource: any =
+                    datagridRef.current?.instance.getDataSource();
+                const data = dataSource._store._array;
+                let sum: number = 0;
+                let array: number[] = [];
+                for (const item of data) {
+                    array.push(item.share);
+                    sum = array.reduce((sum: number, p: number) => sum + p);
+                }
+                if (sum !== 100) {
+                    setSharesVisible(true);
+                    return;
+                }
+                const toastId = toast.loading('Updating ownership property');
                 for (const change of e.changes) {
                     if (change.type == 'update') {
-                        const toastId = toast.loading(
-                            'Updating ownership property'
-                        );
-                        const contactType: any = contactlist?.find(
+                        const contactType: any = totalContactsList?.find(
                             (item) => item.id == change.data.ownerId
                         );
-
                         const values = {
                             ...change.data,
                             ownerType: contactType.type,
                         };
-                        console.log(values);
                         promises.push(
                             apiPatch(
                                 `/ownership/ownership`,
@@ -103,16 +130,7 @@ const PropertiesOwnersDatagrid = forwardRef(
                             'TODO CORRECTO, valores de vuelta: ',
                             values
                         );
-                        idToasts.push({
-                            toastId: toastId,
-                            msg: 'Ownership updated correctly!',
-                            errormsg:
-                                'Error while updating a ownership property',
-                        });
                     } else if (change.type == 'remove') {
-                        const toastId = toast.loading(
-                            'Updating ownership property'
-                        );
                         promises.push(
                             apiDelete(
                                 `/ownership/ownership/${change.key}`,
@@ -120,17 +138,8 @@ const PropertiesOwnersDatagrid = forwardRef(
                                 'Error while deleting an ownership'
                             )
                         );
-                        //console.log('TODO CORRECTO, contact deleted');
-                        idToasts.push({
-                            toastId: toastId,
-                            msg: 'Ownership Contact deleted correctly!',
-                            errormsg: 'Error while deleting an ownership',
-                        });
                     } else if (change.type == 'insert') {
-                        const toastId = toast.loading(
-                            'Adding contact ownership property'
-                        );
-                        const contactType: any = contactlist?.find(
+                        const contactType: any = totalContactsList?.find(
                             (item) => item.id == change.data.ownerId
                         );
                         const { ownerId, share, mainOwnership } = change.data;
@@ -150,30 +159,29 @@ const PropertiesOwnersDatagrid = forwardRef(
                                 'Error while adding contact to property'
                             )
                         );
-                        idToasts.push({
-                            toastId: toastId,
-                            msg: 'Ownership Contact added correctly!',
-                            errormsg: 'Error while adding contact to property',
-                        });
                     }
                 }
-                Promise.allSettled(promises).then((results) =>
-                    results.forEach((result, index) => {
-                        if (result.status == 'fulfilled') {
-                            updateSuccessToast(
-                                idToasts[index].toastId,
-                                idToasts[index].msg
-                            );
-                        } else if (result.status == 'rejected') {
-                            updateErrorToast(
-                                idToasts[index].errormsg,
-                                idToasts[index].toastId
-                            );
+                Promise.allSettled(promises).then((results) => {
+                    let rejectedPromises = 0;
+                    results.forEach((result) => {
+                        if (result.status == 'rejected') {
+                            rejectedPromises++;
                         }
-                    })
-                );
+                    });
+                    if (rejectedPromises > 0) {
+                        updateErrorToast(
+                            toastId,
+                            'Error while updating property ownerships'
+                        );
+                    } else {
+                        updateSuccessToast(
+                            toastId,
+                            'Property ownerships updated correctly!'
+                        );
+                    }
+                });
             },
-            [token, propertyId]
+            [token, propertyId, totalContactsList]
         );
         const CellRender = useCallback(
             ({ data }: { data: any }) => (
@@ -196,6 +204,11 @@ const PropertiesOwnersDatagrid = forwardRef(
         );
         return (
             <div className='flex'>
+                <SharesPopup
+                    message='The sum of shares is less or more then 100%'
+                    isVisible={sharesVisible}
+                    onClose={() => setSharesVisible(false)}
+                />
                 <div className='basis-2/3'>
                     <DataGrid
                         dataSource={dataSource}
@@ -209,6 +222,8 @@ const PropertiesOwnersDatagrid = forwardRef(
                         columnMinWidth={100}
                         onSaved={saveData}
                         ref={datagridRef}
+                        onCellPrepared={summaryShares}
+                        onEditingStart={summaryShares}
                     >
                         <SearchPanel
                             visible
@@ -253,7 +268,7 @@ const PropertiesOwnersDatagrid = forwardRef(
                             editCellComponent={OwnerDropdownComponent}
                         >
                             <Lookup
-                                dataSource={contactlist}
+                                dataSource={totalContactsList}
                                 valueExpr='id'
                                 displayExpr='firstName'
                             />
@@ -270,6 +285,13 @@ const PropertiesOwnersDatagrid = forwardRef(
                             cellRender={MainOwnerCellRender}
                             width={100}
                         />
+                        <Summary>
+                            <TotalItem
+                                column='share'
+                                summaryType='sum'
+                                displayFormat='{0}'
+                            />
+                        </Summary>
                     </DataGrid>
                 </div>
                 <div className='basis-1/3'></div>

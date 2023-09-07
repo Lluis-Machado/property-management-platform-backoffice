@@ -78,7 +78,7 @@ const Property = async ({ params: { id, lang } }: Props) => {
         });
     }
 
-    const contactList = [...contacts, ...companieslist];
+    const totalContactsList = [...contacts, ...companieslist];
 
     return (
         <>
@@ -86,7 +86,7 @@ const Property = async ({ params: { id, lang } }: Props) => {
             <PropertyPage
                 propertyData={propertyData}
                 propertiesData={propertiesData}
-                contactList={contactList}
+                totalContactsList={totalContactsList}
                 lang={lang}
                 token={user.token}
                 contacts={contacts}

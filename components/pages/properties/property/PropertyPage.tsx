@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 // Libraries imports
 import { Button } from 'pg-components';
 import {
@@ -49,11 +49,12 @@ import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
 import Sale from '@/components/Tabs/SalesTab';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import AccountingTab from '@/components/Tabs/AccountingTab';
+import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 
 interface Props {
     propertyData: PropertyData;
     propertiesData: PropertyData[];
-    contactList: any[];
+    totalContactsList: any[];
     contacts: ContactData[];
     ownershipData: OwnershipPropertyData[];
     countries: CountryData[];
@@ -65,7 +66,7 @@ interface Props {
 const PropertyPage = ({
     propertyData,
     propertiesData,
-    contactList,
+    totalContactsList,
     contacts,
     ownershipData,
     countries,
@@ -89,6 +90,9 @@ const PropertyPage = ({
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
+    const [initialValuesOwnerShips, setInitialValuesOwnerShips] = useState<
+        OwnershipPropertyData[]
+    >(structuredClone(ownershipData));
 
     // function name property
     const callbackFunction = (name: string) => {
@@ -122,7 +126,7 @@ const PropertyPage = ({
 
     const handleSubmit = useCallback(async () => {
         // @ts-ignore
-        dataGridRef.current.saveEditData();
+        await dataGridRef.current.saveEditData();
         // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
@@ -228,7 +232,8 @@ const PropertyPage = ({
                 onClose={() => setUnsavedVisible(false)}
                 onConfirm={() => router.refresh()}
             />
-
+            {/* Toolbar tooltips */}
+            <ToolbarTooltips isEditing={isEditing} />
             <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
                 <div className='ml-5 basis-1/4'>
@@ -260,6 +265,7 @@ const PropertyPage = ({
                 {/* Button toolbar */}
                 <div className='flex flex-row gap-4 self-center'>
                     <Button
+                        id='crmButton'
                         elevated
                         onClick={() =>
                             window.open(
@@ -271,6 +277,7 @@ const PropertyPage = ({
                         icon={faArrowUpRightFromSquare}
                     />
                     <Button
+                        id='saveButton'
                         elevated
                         onClick={handleSubmit}
                         type='button'
@@ -279,12 +286,14 @@ const PropertyPage = ({
                         isLoading={isLoading}
                     />
                     <Button
+                        id='editButton'
                         elevated
                         onClick={() => handleEditingButton()}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
                     />
                     <Button
+                        id='deleteButton'
                         elevated
                         onClick={() => setDeleteVisible(true)}
                         type='button'
@@ -524,9 +533,8 @@ const PropertyPage = ({
                         <Tab title='Owners'>
                             <PropertiesOwnersDatagrid
                                 dataSource={ownershipData}
-                                contactlist={contactList}
+                                totalContactsList={totalContactsList}
                                 token={token}
-                                contactData={contacts}
                                 isEditing={isEditing}
                                 ref={dataGridRef}
                             />
@@ -588,4 +596,4 @@ const PropertyPage = ({
         </div>
     );
 };
-export default PropertyPage;
+export default memo(PropertyPage);
