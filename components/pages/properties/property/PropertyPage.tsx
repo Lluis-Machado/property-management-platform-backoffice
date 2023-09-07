@@ -54,7 +54,7 @@ import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 interface Props {
     propertyData: PropertyData;
     propertiesData: PropertyData[];
-    contactList: any[];
+    totalContactsList: any[];
     contacts: ContactData[];
     ownershipData: OwnershipPropertyData[];
     countries: CountryData[];
@@ -66,7 +66,7 @@ interface Props {
 const PropertyPage = ({
     propertyData,
     propertiesData,
-    contactList,
+    totalContactsList,
     contacts,
     ownershipData,
     countries,
@@ -90,6 +90,9 @@ const PropertyPage = ({
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
+    const [initialValuesOwnerShips, setInitialValuesOwnerShips] = useState<
+        OwnershipPropertyData[]
+    >(structuredClone(ownershipData));
 
     // function name property
     const callbackFunction = (name: string) => {
@@ -123,7 +126,7 @@ const PropertyPage = ({
 
     const handleSubmit = useCallback(async () => {
         // @ts-ignore
-        dataGridRef.current.saveEditData();
+        await dataGridRef.current.saveEditData();
         // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
@@ -530,9 +533,8 @@ const PropertyPage = ({
                         <Tab title='Owners'>
                             <PropertiesOwnersDatagrid
                                 dataSource={ownershipData}
-                                contactlist={contactList}
+                                totalContactsList={totalContactsList}
                                 token={token}
-                                contactData={contacts}
                                 isEditing={isEditing}
                                 ref={dataGridRef}
                             />

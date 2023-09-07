@@ -54,7 +54,7 @@ const AddProperty = async ({ params: { lang } }: Props) => {
             type: 'Company',
         });
     }
-    const contactList = [...contacts, ...companies];
+    const totalContactsList = [...contacts, ...companies];
 
     return (
         <>
@@ -65,7 +65,7 @@ const AddProperty = async ({ params: { lang } }: Props) => {
                 countries={countriesData}
                 token={user.token}
                 lang={lang}
-                contactList={contactList}
+                totalContactsList={totalContactsList}
             />
         </>
     );

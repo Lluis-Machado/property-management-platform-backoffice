@@ -9,31 +9,18 @@ interface PopupProps {
     message: string;
     isVisible: boolean;
     onClose: () => void;
-    onConfirm: () => void;
 }
 
-const ConfirmChangePopup = ({
-    message,
-    isVisible,
-    onClose,
-    onConfirm,
-}: PopupProps) => {
+const SharesPopup = ({ message, isVisible, onClose }: PopupProps) => {
     const contentRender = useCallback(
         () => (
-            <div className='flex flex-col gap-4'>
-                <div className='flex gap-4'>
-                    <Button text='Cancel' style='outline' onClick={onClose} />
-                    <Button
-                        text='Continue'
-                        onClick={() => {
-                            onClose();
-                            onConfirm();
-                        }}
-                    />
+            <div className='flex items-center justify-center'>
+                <div className='w-2/5'>
+                    <Button text='Close' onClick={onClose} />
                 </div>
             </div>
         ),
-        [onClose, onConfirm]
+        [onClose]
     );
 
     const titleComponent = useCallback(
@@ -60,4 +47,4 @@ const ConfirmChangePopup = ({
     );
 };
 
-export default ConfirmChangePopup;
+export default SharesPopup;

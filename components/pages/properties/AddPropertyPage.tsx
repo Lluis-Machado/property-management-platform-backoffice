@@ -7,6 +7,7 @@ import { memo, useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Form, {
+    EmptyItem,
     GroupItem,
     Item,
     Tab,
@@ -17,6 +18,7 @@ import 'devextreme-react/text-area';
 import 'devextreme-react/tag-box';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
+import { Switch } from 'devextreme-react/switch';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 
 //local imports
@@ -32,6 +34,7 @@ import { Button } from 'pg-components';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { PurchaseAddProperty } from '@/components/Tabs/PurchaseAddProperty';
+import { ContentReadyEvent } from 'devextreme/ui/switch';
 
 let propertyData: PropertyData = {
     autonomousRegion: '',
@@ -158,7 +161,7 @@ interface Props {
     countries: CountryData[];
     token: TokenRes;
     lang: Locale;
-    contactList: any[];
+    totalContactsList: any[];
 }
 
 const AddPropertyPage = ({
@@ -167,7 +170,7 @@ const AddPropertyPage = ({
     countries,
     token,
     lang,
-    contactList,
+    totalContactsList,
 }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [states, setStates] = useState<StateData[] | undefined>(undefined);
@@ -175,6 +178,20 @@ const AddPropertyPage = ({
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
+    const [switchGarbage, setSwitchGarbage] = useState<boolean>(false);
+
+    const valueChanged = () => {
+        setSwitchGarbage(!switchGarbage);
+        formRef.current!.instance.updateData(propertyData);
+    };
+
+    const changeTextSwitch = (e: ContentReadyEvent) => {
+        let switchOn = e.element.querySelector('.dx-switch-on');
+        switchOn!.innerHTML = 'Yes';
+        let switchOff = e.element.querySelector('.dx-switch-off');
+        switchOff!.innerHTML = 'No';
+    };
+
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
@@ -217,7 +234,7 @@ const AddPropertyPage = ({
     const handleSubmit = useCallback(async () => {
         const values = structuredClone(propertyData);
 
-        const contactType: any = contactList?.find(
+        const contactType: any = totalContactsList?.find(
             (item) => item.id == values.mainOwnerId
         );
 
@@ -260,7 +277,7 @@ const AddPropertyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [router, initialValues, token, contactList]);
+    }, [router, initialValues, token, totalContactsList]);
 
     const calculateCadastreValue = () => {
         propertyData.cadastreValue.value =
@@ -369,7 +386,7 @@ const AddPropertyPage = ({
                                 label={{ text: 'Main Owner' }}
                                 editorType='dxSelectBox'
                                 editorOptions={{
-                                    items: contactList,
+                                    items: totalContactsList,
                                     displayExpr: 'label',
                                     valueExpr: 'id',
                                     searchEnabled: true,
@@ -447,20 +464,24 @@ const AddPropertyPage = ({
                                         ) => changeSelectbox(e),
                                     }}
                                 />
-                                <Item
-                                    dataField='loanPrice.value'
-                                    label={{ text: 'Loan' }}
-                                    editorOptions={{
-                                        elementAttr: {
-                                            id: `addProperty-loanPrice`,
-                                        },
-                                        format: {
-                                            type: 'currency',
-                                            currency: 'EUR',
-                                            precision: 2,
-                                        },
-                                    }}
-                                />
+                            </GroupItem>
+                            <GroupItem colCount={4}>
+                                <GroupItem>
+                                    <Item>
+                                        <div>
+                                            <p className='text-gray-400'>
+                                                Garbage Collection
+                                            </p>
+                                            <Switch
+                                                value={switchGarbage}
+                                                onValueChanged={valueChanged}
+                                                onContentReady={
+                                                    changeTextSwitch
+                                                }
+                                            />
+                                        </div>
+                                    </Item>
+                                </GroupItem>
                             </GroupItem>
                             <GroupItem colCount={4}>
                                 <Item
@@ -472,8 +493,9 @@ const AddPropertyPage = ({
                                             currency: 'EUR',
                                             precision: 2,
                                         },
+                                        visible: true && switchGarbage == true,
                                     }}
-                                />
+                                ></Item>
                                 <Item
                                     dataField='garbageCollectionDate'
                                     label={{ text: 'Garbage Collection' }}
@@ -481,7 +503,11 @@ const AddPropertyPage = ({
                                     editorOptions={{
                                         displayFormat: dateFormat,
                                         showClearButton: true,
+                                        visible: true && switchGarbage == true,
                                     }}
+                                />
+                                <EmptyItem
+                                    visible={true && switchGarbage == false}
                                 />
                             </GroupItem>
                             <GroupItem colCount={4}>
