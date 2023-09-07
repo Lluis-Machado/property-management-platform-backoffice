@@ -200,6 +200,10 @@ const AddContactPage = ({
                     <Item dataField='email' label={{ text: 'Email' }}>
                         <EmailRule message='Email is invalid' />
                     </Item>
+                    <Item
+                        dataField='salutation'
+                        label={{ text: 'Email Salutation' }}
+                    />
                 </GroupItem>
                 {/* Tabs */}
                 <GroupItem cssClass='mt-4'>
