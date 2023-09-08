@@ -5,7 +5,6 @@ import {
     forwardRef,
     useCallback,
     useImperativeHandle,
-    useState,
     useRef,
     LegacyRef,
 } from 'react';
@@ -40,7 +39,6 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPost } from '@/lib/utils/apiPost';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
-import SharesPopup from '@/components/popups/SharesPopup';
 
 interface Props {
     dataSource: OwnershipPropertyData[];
@@ -54,17 +52,23 @@ const PropertiesOwnersDatagrid = forwardRef(
     ({ dataSource, totalContactsList, token, isEditing }: Props, ref) => {
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
-        const [isLoading, setIsLoading] = useState<boolean>(false);
-        const [sharesVisible, setSharesVisible] = useState<boolean>(false);
+        //const [sharesVisible, setSharesVisible] = useState<boolean>(false);
         const propertyId: number = dataSource[0].propertyId;
+        // Importante para que no se copie por referencia
 
         // API CALLS
-        useImperativeHandle(ref, () => ({ saveEditData }));
+        useImperativeHandle(ref, () => ({
+            saveEditData,
+            hasEditData,
+            getDataSource,
+        }));
 
         const saveEditData = () => datagridRef.current!.instance.saveEditData();
+        const hasEditData = () => datagridRef.current!.instance.hasEditData();
+        const getDataSource = () =>
+            datagridRef.current!.instance.getDataSource();
 
         // Remove duplicats contact
-
         let arrayID: string[] = [];
         for (const item of dataSource) {
             if (!arrayID.includes(item.ownerId)) {
@@ -92,7 +96,6 @@ const PropertiesOwnersDatagrid = forwardRef(
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
                 const promises: Promise<any>[] = [];
-                setIsLoading(true);
 
                 // LOGIC SUM OF SHARES
                 const dataSource: any =
@@ -104,10 +107,11 @@ const PropertiesOwnersDatagrid = forwardRef(
                     array.push(item.share);
                     sum = array.reduce((sum: number, p: number) => sum + p);
                 }
+
                 if (sum !== 100) {
-                    setSharesVisible(true);
                     return;
                 }
+
                 const toastId = toast.loading('Updating ownership property');
                 for (const change of e.changes) {
                     if (change.type == 'update') {
@@ -204,11 +208,6 @@ const PropertiesOwnersDatagrid = forwardRef(
         );
         return (
             <div className='flex'>
-                <SharesPopup
-                    message='The sum of shares is less or more then 100%'
-                    isVisible={sharesVisible}
-                    onClose={() => setSharesVisible(false)}
-                />
                 <div className='basis-2/3'>
                     <DataGrid
                         dataSource={dataSource}

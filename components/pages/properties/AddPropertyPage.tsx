@@ -229,6 +229,11 @@ const AddPropertyPage = ({
             return;
         }
 
+        if (values.propertyAddress.country == null) {
+            toast.warning('Add a country');
+            return;
+        }
+
         setIsLoading(true);
 
         const toastId = toast.loading('Creating property...');
@@ -245,7 +250,7 @@ const AddPropertyPage = ({
             console.log('Valores a enviar: ', values);
             console.log('Valores a enviar JSON: ', JSON.stringify(values));
             const data = await apiPost(
-                '/properties/properties',
+                '/core/core',
                 dataToSend,
                 token,
                 'Error while creating a property'
@@ -547,6 +552,9 @@ const AddPropertyPage = ({
                                             onValueChanged: (
                                                 e: ValueChangedEvent
                                             ) => changeSelectbox(e),
+                                            elementAttr: {
+                                                id: `addpropertyCadastreValue`,
+                                            },
                                             readOnly: true,
                                             format: {
                                                 type: 'currency',
