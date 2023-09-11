@@ -153,7 +153,6 @@ const PropertyPage = ({
                 }
             }
         }
-
         setIsLoading(true);
         const toastId = toast.loading('Updating property...');
 
