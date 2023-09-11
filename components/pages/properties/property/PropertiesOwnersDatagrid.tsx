@@ -88,10 +88,10 @@ const PropertiesOwnersDatagrid = forwardRef(
                 }
             }
         };
-
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
-                const promises: Promise<any>[] = [];
+                //const promises: Promise<any>[] = [];
+                let valuesArray: any[] = [];
 
                 // LOGIC SUM OF SHARES
                 const dataSource: any =
@@ -118,26 +118,36 @@ const PropertiesOwnersDatagrid = forwardRef(
                             ...change.data,
                             ownerType: contactType.type,
                         };
-                        promises.push(
-                            apiPatch(
-                                `/ownership/ownership`,
-                                values,
-                                token,
-                                'Error while updating a ownership property'
-                            )
-                        );
-                        console.log(
-                            'TODO CORRECTO, valores de vuelta: ',
-                            values
-                        );
+                        const objectArray = {
+                            values: values,
+                            operation: 'patch',
+                        };
+                        valuesArray.push(objectArray);
+                        // promises.push(
+                        //     apiPatch(
+                        //         `/ownership/ownership`,
+                        //         values,
+                        //         token,
+                        //         'Error while updating a ownership property'
+                        //     )
+                        // );
+                        // console.log(
+                        //     'TODO CORRECTO, valores de vuelta: ',
+                        //     values
+                        // );
                     } else if (change.type == 'remove') {
-                        promises.push(
-                            apiDelete(
-                                `/ownership/ownership/${change.key}`,
-                                token,
-                                'Error while deleting an ownership'
-                            )
-                        );
+                        const objectArray = {
+                            values: change.key,
+                            operation: 'delete',
+                        };
+                        valuesArray.push(objectArray);
+                        // promises.push(
+                        //     apiDelete(
+                        //         `/ownership/ownership/${change.key}`,
+                        //         token,
+                        //         'Error while deleting an ownership'
+                        //     )
+                        // );
                     } else if (change.type == 'insert') {
                         const contactType: any = totalContactsList?.find(
                             (item) => item.id == change.data.ownerId
@@ -151,35 +161,46 @@ const PropertiesOwnersDatagrid = forwardRef(
                             share,
                             mainOwnership,
                         };
-                        promises.push(
-                            apiPost(
-                                `/ownership/ownership/`,
-                                values,
-                                token,
-                                'Error while adding contact to property'
-                            )
-                        );
+                        const objectArray = {
+                            values: values,
+                            operation: 'post',
+                        };
+                        valuesArray.push(objectArray);
+                        // promises.push(
+                        //     apiPost(
+                        //         `/ownership/ownership/`,
+                        //         values,
+                        //         token,
+                        //         'Error while adding contact to property'
+                        //     )
+                        // );
                     }
                 }
-                Promise.allSettled(promises).then((results) => {
-                    let rejectedPromises = 0;
-                    results.forEach((result) => {
-                        if (result.status == 'rejected') {
-                            rejectedPromises++;
-                        }
-                    });
-                    if (rejectedPromises > 0) {
-                        updateErrorToast(
-                            toastId,
-                            'Error while updating property ownerships'
-                        );
-                    } else {
-                        updateSuccessToast(
-                            toastId,
-                            'Property ownerships updated correctly!'
-                        );
-                    }
-                });
+                apiPost(
+                    `/ownership/ownership`,
+                    valuesArray,
+                    token,
+                    'Error while updating property ownerships'
+                );
+                // Promise.allSettled(promises).then((results) => {
+                //     let rejectedPromises = 0;
+                //     results.forEach((result) => {
+                //         if (result.status == 'rejected') {
+                //             rejectedPromises++;
+                //         }
+                //     });
+                //     if (rejectedPromises > 0) {
+                //         updateErrorToast(
+                //             toastId,
+                //             'Error while updating property ownerships'
+                //         );
+                //     } else {
+                //         updateSuccessToast(
+                //             toastId,
+                //             'Property ownerships updated correctly!'
+                //         );
+                //     }
+                // });
             },
             [token, propertyId, totalContactsList]
         );
