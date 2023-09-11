@@ -48,7 +48,6 @@ import Cadastre from '@/components/Tabs/CadastreTab';
 import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
 import Sale from '@/components/Tabs/SalesTab';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
-import AccountingTab from '@/components/Tabs/AccountingTab';
 import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 import SharesPopup from '@/components/popups/SharesPopup';
 
@@ -135,8 +134,8 @@ const PropertyPage = ({
                 toast.warning('Change at least one field');
                 return;
             } else {
-                // @ts-ignore
                 const dataSource: any =
+                    // @ts-ignore
                     await dataGridRef.current.getDataSource();
                 const data = dataSource._store._array;
                 let sum: number = 0;
@@ -588,13 +587,6 @@ const PropertyPage = ({
                         </Tab>
                         <Tab title='Purchase'>
                             <Purchase
-                                propertyData={propertyData}
-                                isLoading={isLoading}
-                                isEditing={isEditing}
-                            />
-                        </Tab>
-                        <Tab title='Accounting'>
-                            <AccountingTab
                                 propertyData={propertyData}
                                 isLoading={isLoading}
                                 isEditing={isEditing}

@@ -569,27 +569,6 @@ const AddPropertyPage = ({
                         <Tab title='Purchase'>
                             <PurchaseAddProperty propertyData={propertyData} />
                         </Tab>
-                        <Tab title='Accounting'>
-                            <GroupItem colCount={4}>
-                                <Item
-                                    dataField='loanPrice.value'
-                                    label={{ text: 'Loan' }}
-                                    editorOptions={{
-                                        elementAttr: {
-                                            id: `loanPrice`,
-                                        },
-                                        onValueChanged: (
-                                            e: ValueChangedEvent
-                                        ) => changeSelectbox(e),
-                                        format: {
-                                            type: 'currency',
-                                            currency: 'EUR',
-                                            precision: 2,
-                                        },
-                                    }}
-                                />
-                            </GroupItem>
-                        </Tab>
                         <Tab title='Sale'>
                             <GroupItem colCount={4}>
                                 <Item

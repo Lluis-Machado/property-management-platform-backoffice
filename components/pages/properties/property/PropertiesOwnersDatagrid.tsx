@@ -52,9 +52,7 @@ const PropertiesOwnersDatagrid = forwardRef(
     ({ dataSource, totalContactsList, token, isEditing }: Props, ref) => {
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
-        //const [sharesVisible, setSharesVisible] = useState<boolean>(false);
         const propertyId: number = dataSource[0].propertyId;
-        // Importante para que no se copie por referencia
 
         // API CALLS
         useImperativeHandle(ref, () => ({
@@ -68,12 +66,10 @@ const PropertiesOwnersDatagrid = forwardRef(
         const getDataSource = () =>
             datagridRef.current!.instance.getDataSource();
 
-        // Remove duplicats contact
-        let arrayID: string[] = [];
-        for (const item of dataSource) {
-            if (!arrayID.includes(item.ownerId)) {
-                arrayID.push(item.ownerId);
-            }
+        //Filter Owners
+        let idArray: any[] = [];
+        for (const ownership of dataSource) {
+            idArray.push(ownership.ownerId);
         }
 
         // CSS FOR SUMMARY SHARES
@@ -222,7 +218,6 @@ const PropertiesOwnersDatagrid = forwardRef(
                         onSaved={saveData}
                         ref={datagridRef}
                         onCellPrepared={summaryShares}
-                        onEditingStart={summaryShares}
                     >
                         <SearchPanel
                             visible
@@ -270,7 +265,7 @@ const PropertiesOwnersDatagrid = forwardRef(
                                 dataSource={totalContactsList}
                                 valueExpr='id'
                                 displayExpr='firstName'
-                            />
+                            ></Lookup>
                         </Column>
                         <Column
                             dataField='share'

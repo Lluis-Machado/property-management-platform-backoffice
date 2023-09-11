@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 
 // Libraries imports
 import DataGrid, {
@@ -16,6 +16,7 @@ const OwnerDropdownComponent = (props: any) => {
         props.data.value,
     ]);
     const [isDropDownOpened, setIsDropDownOpened] = useState<boolean>(false);
+    const dropdownRef = useRef<any>();
 
     useEffect(() => {
         if (props.data.value) setSelectedRowKeys([props.data.value]);
@@ -31,7 +32,26 @@ const OwnerDropdownComponent = (props: any) => {
     const handleOptionChange = (e: any) => {
         if (e.name === 'opened') setIsDropDownOpened(e.value);
     };
+    // const EditorPreparing = (e: EditorPreparingEvent<any, string>) => {
+    //     console.log(e)
+    //     if (e.parentType === 'dataRow' && e.dataField === 'firstName') {
+    //         e.editorOptions.dataSource = new DataSource({
+    //             store: {
+    //                 type: 'array',
+    //                 data: props.data.column.lookup.dataSource,
+    //                 key: 'id',
+    //             },
+    //             filter: function (item: any) {
+    //                 console.log(item)
+    //                 if (item.id == props.data.column.lookup.dataSource) {
+    //                     return false;
+    //                 }
+    //                 return true;
+    //             }
+    //         });
 
+    //     }
+    // };
     const contentRender = () => (
         <DataGrid
             dataSource={props.data.column.lookup.dataSource}
@@ -43,6 +63,7 @@ const OwnerDropdownComponent = (props: any) => {
             focusedRowEnabled
             hoverStateEnabled
             onSelectionChanged={handleSelectionChange}
+            //onEditorPreparing={EditorPreparing}
         >
             <SearchPanel visible />
             <Column dataField='firstName' caption='Full name' />
@@ -62,6 +83,7 @@ const OwnerDropdownComponent = (props: any) => {
             opened={isDropDownOpened}
             contentRender={contentRender}
             onOptionChanged={handleOptionChange}
+            ref={dropdownRef}
         />
     );
 };
