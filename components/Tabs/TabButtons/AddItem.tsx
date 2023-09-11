@@ -41,6 +41,7 @@ const AddItem = ({ data, isEditing, arrayType, callbackFunction }: Props) => {
                     country: null,
                     postalCode: '',
                     addressType: null,
+                    shortComment: '',
                 });
                 break;
             case 'phones':

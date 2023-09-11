@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import Form, { Item, GroupItem, RequiredRule } from 'devextreme-react/form';
 import {
@@ -186,4 +186,4 @@ const PhonesTab = ({ contactData, isEditing, isLoading }: Props) => {
     );
 };
 
-export default PhonesTab;
+export default memo(PhonesTab);

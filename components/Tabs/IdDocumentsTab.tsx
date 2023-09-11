@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import Form, { Item, GroupItem } from 'devextreme-react/form';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
@@ -206,4 +206,4 @@ const IdDocumentsTab = ({ contactData, isEditing, isLoading }: Props) => {
     );
 };
 
-export default IdDocumentsTab;
+export default memo(IdDocumentsTab);

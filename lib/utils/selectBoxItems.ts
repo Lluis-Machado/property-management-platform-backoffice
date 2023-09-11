@@ -15,6 +15,9 @@ export const countriesMaskItems = [
     { id: 1, mask: '+34 000-00-00-00', name: 'Spain' },
     { id: 2, mask: '+4\\9 0000-000000', name: 'Germany' },
     { id: 3, mask: '+1 (000) 000-0000', name: 'United States' },
+    { id: 4, mask: '+33 00-00-00-00-00', name: 'France' },
+    { id: 5, mask: '+43 9999-999999', name: 'Austria' },
+    { id: 6, mask: '+41 000-000-00-00', name: 'Switzerland' },
 ];
 
 export const identificationItems = [

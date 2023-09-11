@@ -39,7 +39,7 @@ const AddCompany = async ({ params: { lang } }: Props) => {
             <Breadcrumb />
             <AddCompanyPage
                 contactsData={contactsData}
-                countries={countriesData}
+                countriesData={countriesData}
                 lang={lang}
                 token={user.token}
             />

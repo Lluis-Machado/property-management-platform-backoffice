@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import Form, { Item, GroupItem } from 'devextreme-react/form';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
@@ -14,6 +14,7 @@ import DeleteItem from './TabButtons/DeleteItem';
 import { displayContactFullName } from '@/lib/utils/displayContactFullName';
 import { companyContactsTypeItems } from '@/lib/utils/selectBoxItems';
 import { Button } from 'pg-components';
+import ContactInfoPopover from '../popover/ContactInfoPopover';
 
 interface Props {
     dataSource: CompanyData;
@@ -79,60 +80,12 @@ const ContactsTab = ({
     );
     return (
         <>
-            <Popover
-                target={'#' + popoverTarget}
-                visible={isPopoverVisible}
+            <ContactInfoPopover
+                popoverTarget={popoverTarget}
+                isPopoverVisible={isPopoverVisible}
+                selectedContactInfo={selectedContactInfo!}
                 onHidden={() => setIsPopoverVisible(false)}
-                position='top'
-                width={'auto'}
-            >
-                <div className='mb-2'>
-                    Email:{' '}
-                    {!selectedContactInfo?.email ? (
-                        'No email found'
-                    ) : (
-                        <ul className='ml-8 list-disc'>
-                            <li>
-                                <a
-                                    href={`mailto:${selectedContactInfo?.email}`}
-                                    className='text-blue-500'
-                                >
-                                    {selectedContactInfo?.email}
-                                </a>
-                            </li>
-                        </ul>
-                    )}
-                </div>
-                <div className='mb-2'>
-                    Phones:{' '}
-                    {selectedContactInfo?.phones.length === 0 ? (
-                        'No phones found'
-                    ) : (
-                        <ul className='ml-8 list-disc'>
-                            {selectedContactInfo?.phones.map((phone, index) => (
-                                <li key={`phones-${index}`}>
-                                    <a
-                                        href={`tel:${phone.phoneNumber}`}
-                                        className='text-blue-500'
-                                    >
-                                        {phone.phoneNumber}
-                                    </a>
-                                    <br />
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-                <Button
-                    text='View full details'
-                    onClick={() =>
-                        window.open(
-                            `${location.origin}/private/contacts/${selectedContactInfo?.id}/contactInfo`,
-                            '_blank'
-                        )
-                    }
-                />
-            </Popover>
+            />
             <Form
                 formData={dataSource}
                 ref={formRef}
@@ -193,17 +146,10 @@ const ContactsTab = ({
                                         maxLength: 30,
                                     }}
                                 />
-                                <GroupItem colCount={4}>
-                                    <Item>
-                                        <DeleteItem
-                                            data={dataSource}
-                                            customKey={`buttonDeleteContact-${index}`}
-                                            index={index}
-                                            arrayType={'contacts'}
-                                            isEditing={isEditing}
-                                            callbackFunction={callbackFunction}
-                                        />
-                                    </Item>
+                                <GroupItem
+                                    colCount={2}
+                                    cssClass='flex flex-start'
+                                >
                                     <Item
                                         key={`infoButtonContact-${index}`}
                                         itemType='button'
@@ -220,6 +166,16 @@ const ContactsTab = ({
                                             onClick: () => handlePopover(index),
                                         }}
                                     />
+                                    <Item>
+                                        <DeleteItem
+                                            data={dataSource}
+                                            customKey={`buttonDeleteContact-${index}`}
+                                            index={index}
+                                            arrayType={'contacts'}
+                                            isEditing={isEditing}
+                                            callbackFunction={callbackFunction}
+                                        />
+                                    </Item>
                                 </GroupItem>
                             </GroupItem>
                         );
@@ -238,4 +194,4 @@ const ContactsTab = ({
     );
 };
 
-export default ContactsTab;
+export default memo(ContactsTab);
