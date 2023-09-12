@@ -50,6 +50,7 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
     const calculateCadastreValue = (e: ValueChangedEvent) => {
         propertyData.cadastreValue.value =
             propertyData.buildingPrice.value + propertyData.plotPrice.value;
+        formRef.current!.instance.updateData(propertyData);
     };
 
     return (
@@ -106,7 +107,7 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
                     editorType='dxSelectBox'
                     editorOptions={{
                         elementAttr: {
-                            id: `garbageCollection`,
+                            id: `cadastreGarbageCollection`,
                         },
                         items: [
                             { label: 'None', value: 0 },
@@ -210,11 +211,10 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
                         label={{ text: 'Cadastre Value' }}
                         editorOptions={{
                             elementAttr: {
-                                id: `cadastreValue`,
+                                id: `propertyCadastreValue`,
                             },
                             onValueChanged: (e: ValueChangedEvent) => {
                                 changeSelectbox(e);
-                                calculateCadastreValue(e);
                             },
                             readOnly: true,
                             format: {
