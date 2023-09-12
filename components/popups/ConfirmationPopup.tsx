@@ -12,7 +12,7 @@ interface PopupProps {
     onConfirm: () => void;
 }
 
-const ConfirmDeletePopup = ({
+const ConfirmationPopup = ({
     message,
     isVisible,
     onClose,
@@ -60,4 +60,4 @@ const ConfirmDeletePopup = ({
     );
 };
 
-export default ConfirmDeletePopup;
+export default ConfirmationPopup;

@@ -10,7 +10,9 @@ const error = ({ error }: { error: Error }) => {
                     There was a problem
                 </p>
                 <h1 className='mt-4 text-3xl font-bold tracking-tight text-zinc-900'>
-                    {error.message || 'Something went wrong'}
+                    {process.env.NODE_ENV === 'production'
+                        ? 'Something went wrong'
+                        : error.message}
                 </h1>
                 <p className='mt-6 text-base leading-7 text-zinc-600'>
                     Please try again later or contact support if the problem

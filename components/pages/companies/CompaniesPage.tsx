@@ -4,7 +4,6 @@
 import { memo, useCallback } from 'react';
 
 // Libraries imports
-import { useRouter } from 'next/navigation';
 import {
     Column,
     DataGrid,
@@ -12,24 +11,25 @@ import {
     Pager,
     SearchPanel,
     Toolbar,
-    MasterDetail,
 } from 'devextreme-react/data-grid';
-import Form, { SimpleItem } from 'devextreme-react/form';
 import AddRowButton from '@/components/buttons/AddRowButton';
 import { CompanyData } from '@/lib/types/companyData';
+import LinkWithIcon from '@/components/buttons/LinkWithIcon';
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
     dataSource: CompanyData[];
 }
 
 const CompaniesPage = ({ dataSource }: Props) => {
-    const router = useRouter();
-
-    const handleDouleClick = useCallback(
-        ({ data }: any) => {
-            router.push(`./companies/${data.id}/companyInfo`);
-        },
-        [router]
+    const CellRender = useCallback(
+        ({ data }: { data: any }): React.ReactElement => (
+            <LinkWithIcon
+                href={`./companies/${data.id}/companyInfo`}
+                icon={faArrowUpRightFromSquare}
+            />
+        ),
+        []
     );
 
     return (
@@ -38,7 +38,6 @@ const CompaniesPage = ({ dataSource }: Props) => {
             dataSource={dataSource}
             focusedRowEnabled
             keyExpr='id'
-            onRowDblClick={handleDouleClick}
             columnHidingEnabled={false}
             rowAlternationEnabled
             allowColumnResizing
@@ -60,14 +59,20 @@ const CompaniesPage = ({ dataSource }: Props) => {
                 <Item name='searchPanel' />
             </Toolbar>
 
+            <Column
+                alignment='center'
+                caption='Details / Edit'
+                cellRender={CellRender}
+                width={100}
+            />
             <Column caption='Company Name' dataField='name' dataType='string' />
             <Column caption='NIF' dataField='nif' dataType='string' />
             <Column caption='Email' dataField='email' dataType='string' />
-            <Column
+            {/* <Column
                 caption='Phone Number'
                 dataField='phoneNumber'
                 dataType='string'
-            />
+            /> */}
             {/* <MasterDetail enabled={true} component={DetailTemplate} /> */}
         </DataGrid>
     );

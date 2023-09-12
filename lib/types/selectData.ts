@@ -1,4 +1,5 @@
 export interface SelectData {
     label: string;
-    value: string | number;
+    id: string | number;
+    type?: string;
 }

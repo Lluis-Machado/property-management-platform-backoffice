@@ -4,59 +4,42 @@ import AddContactPage from '@/components/pages/contacts/AddContactPage';
 import { Locale } from '@/i18n-config';
 import { ContactData } from '@/lib/types/contactData';
 import { CountryData } from '@/lib/types/countriesData';
+import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
-
-const initialValues: ContactData = {
-    firstName: '',
-    lastName: '',
-    birthDay: null,
-    nif: null,
-    email: '',
-    secondaryEmail: '',
-    phoneNumber: '',
-    mobilePhoneNumber: '',
-    otherPhoneNumber: '',
-    birthPlace: '',
-    faxNumber: '',
-    maritalStatus: 0,
-    nifExpirationDate: null,
-    passportExpirationDate: null,
-    passportNumber: '',
-    scanMail: '',
-    socialSecurityNumber: '',
-    taxId: '',
-    addresses: [
-        {
-            addressLine1: '',
-            addressLine2: '',
-            city: '',
-            state: null,
-            postalCode: '',
-            country: null,
-        },
-    ],
-};
 
 interface Props {
     params: { lang: Locale };
 }
 
 const AddContact = async ({ params: { lang } }: Props) => {
-    const [user, countries] = await Promise.all([
+    const [user, countries, contactsData] = await Promise.all([
         getUser(),
         getApiDataWithCache<CountryData[]>(
             `/countries/countries?languageCode=${lang}`,
             'Error while getting countries'
         ),
+        getApiData<ContactData[]>(
+            `/contacts/contacts`,
+            'Error while getting contacts info'
+        ),
     ]);
+
+    // Categorize countries, 56 and 67 are DE and ES. It can be done on backend?
+    for (const country of countries) {
+        if (country.id === 56 || country.id === 67) {
+            country.category = 'Main Countries';
+        } else {
+            country.category = 'Other Countries';
+        }
+    }
 
     return (
         <>
             <Breadcrumb />
             <AddContactPage
-                contactData={initialValues}
-                countries={countries}
+                countriesData={countries}
+                contactsData={contactsData}
                 lang={lang}
                 token={user.token}
             />

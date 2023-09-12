@@ -1,19 +1,16 @@
 'use client';
-
 // React imports
-import { useCallback, useState } from 'react';
-
+import { memo, useCallback, useRef, useState } from 'react';
 // Libraries imports
-import { Button, Tabs } from 'pg-components';
+import { Button } from 'pg-components';
 import {
     faFileLines,
-    faNoteSticky,
     faReceipt,
-    faUserGroup,
-    faWarehouse,
     faTrash,
     faXmark,
     faPencil,
+    faSave,
+    faArrowUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -24,14 +21,16 @@ import Form, {
     TabPanelOptions,
     TabbedItem,
 } from 'devextreme-react/form';
-import TextBox, { Button as TextBoxButton } from 'devextreme-react/text-box';
-
+import 'devextreme-react/tag-box';
+import 'devextreme-react/text-area';
+import { ValueChangedEvent } from 'devextreme/ui/text_box';
+import { FieldDataChangedEvent } from 'devextreme/ui/form';
 // Local imports
+import '@/lib/styles/highlightFields.css';
 import { PropertyData } from '@/lib/types/propertyInfo';
 import PropertiesOwnersDatagrid from './PropertiesOwnersDatagrid';
-import PropertyTextArea from '@/components/textArea/PropertyTextArea';
 import PropertySidePropertiesDatagrid from './PropertySidePropertiesDatagrid';
-import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup';
+import ConfirmDeletePopup from '@/components/popups/ConfirmationPopup';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 import { TokenRes } from '@/lib/types/token';
@@ -43,10 +42,19 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { ContactData } from '@/lib/types/contactData';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
-import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import PropertyPageTitle from './PropertyPageTitle';
+import { Purchase } from '@/components/Tabs/PurchaseTab';
+import Cadastre from '@/components/Tabs/CadastreTab';
+import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
+import Sale from '@/components/Tabs/SalesTab';
+import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
+import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
+import SharesPopup from '@/components/popups/SharesPopup';
 
 interface Props {
     propertyData: PropertyData;
+    propertiesData: PropertyData[];
+    totalContactsList: any[];
     contacts: ContactData[];
     ownershipData: OwnershipPropertyData[];
     countries: CountryData[];
@@ -57,6 +65,8 @@ interface Props {
 
 const PropertyPage = ({
     propertyData,
+    propertiesData,
+    totalContactsList,
     contacts,
     ownershipData,
     countries,
@@ -64,13 +74,16 @@ const PropertyPage = ({
     token,
     lang,
 }: Props): React.ReactElement => {
+    const router = useRouter();
+    const dataGridRef = useRef();
+    const formRef = useRef<Form>(null);
+    const statesRef = useRef<Item>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [confirmationVisible, setConfirmationVisible] =
-        useState<boolean>(false);
-    const [states, setStates] = useState<StateData[] | undefined>(
-        initialStates
-    );
+    const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
+    const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
+    const [sharesVisible, setSharesVisible] = useState<boolean>(false);
+    const data = initialStates;
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
     );
@@ -78,16 +91,10 @@ const PropertyPage = ({
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
-    console.log(initialValues);
-    const router = useRouter();
-
-    const handleDoubleClick = useCallback(
-        ({ data }: any) => {
-            console.log(data);
-            router.push(`/private/contacts/${data.ownerId}/contactInfo`);
-        },
-        [router]
-    );
+    // function name property
+    const callbackFunction = (name: string) => {
+        propertyData.name = name;
+    };
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
@@ -102,23 +109,50 @@ const PropertyPage = ({
                 }
             )
                 .then((resp) => resp.json())
-                .then((data: StateData[]) => setStates(data))
+                .then((data: StateData[]) =>
+                    formRef
+                        .current!.instance.getEditor('propertyAddress.state')!
+                        .option('items', data)
+                )
                 .catch((e) => console.error('Error while getting the states'));
             // Ensure state is removed
-            propertyData.propertyAddress[0].state = null;
+            propertyData.propertyAddress.state = null;
         },
         [lang, token, propertyData.propertyAddress]
     );
 
     const handleSubmit = useCallback(async () => {
+        // @ts-ignore
+        const response = await dataGridRef.current.hasEditData();
+        // @ts-ignore
+        await dataGridRef.current.saveEditData();
+        // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
-        console.log(values);
-
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            toast.warning('Change at least one field');
-            return;
+            if (response == false) {
+                setIsEditing(true);
+                toast.warning('Change at least one field');
+                return;
+            } else {
+                const dataSource: any =
+                    // @ts-ignore
+                    await dataGridRef.current.getDataSource();
+                const data = dataSource._store._array;
+                let sum: number = 0;
+                let array: number[] = [];
+                for (const item of data) {
+                    array.push(item.share);
+                    sum = array.reduce((sum: number, p: number) => sum + p);
+                }
+                if (sum !== 100) {
+                    setSharesVisible(true);
+                    setIsEditing(true);
+                    return;
+                } else {
+                    setIsEditing(false);
+                }
+            }
         }
-
         setIsLoading(true);
         const toastId = toast.loading('Updating property...');
 
@@ -127,6 +161,8 @@ const PropertyPage = ({
                 ...values,
                 purchaseDate: formatDate(values.purchaseDate),
                 saleDate: formatDate(values.saleDate),
+                ibiCollectionDate: formatDate(values.ibiCollectionDate),
+                garbageCollectionDate: formatDate(values.garbageCollectionDate),
                 cadastreRef,
             };
             console.log('Valores a enviar: ', dataToSend);
@@ -141,6 +177,8 @@ const PropertyPage = ({
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'Property updated correctly!');
+            setInitialValues(data);
+            setIsEditing(false);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
@@ -158,29 +196,89 @@ const PropertyPage = ({
             );
 
             updateSuccessToast(toastId, 'Property deleted correctly!');
-            router.push('/private/properties');
+            // Pass the ID to reload the page
+            router.push(`/private/properties?deletedId=${propertyData.id}`);
         } catch (error: unknown) {
             customError(error, toastId);
         }
     }, [propertyData, router, token]);
 
+    // CSS styling form element
+
+    const changeCssFormElement = (e: FieldDataChangedEvent) => {
+        if (!e.dataField) {
+            document
+                .getElementById(e.element.attributes[1].nodeValue!)
+                ?.classList.add('styling');
+        } else {
+            document
+                .getElementsByName(e.dataField!)[0]
+                .classList.add('styling');
+        }
+    };
+
+    const changeSelectbox = (e: ValueChangedEvent) => {
+        document
+            .getElementById(e.element.attributes[1].nodeValue!)
+            ?.classList.add('stylingForm');
+    };
+
+    const changeTagbox = (e: ValueChangedEvent) => {
+        if (e.event !== undefined) {
+            e.element.classList.add('stylingForm');
+        }
+    };
+
+    const handleEditingButton = () => {
+        const values = structuredClone(propertyData);
+        if (JSON.stringify(values) !== JSON.stringify(initialValues)) {
+            setUnsavedVisible(true);
+        } else {
+            setIsEditing((prev) => !prev);
+        }
+    };
+
+    // LISTADO MAIN PROPERTIES WITHOUT PROPERTY
+    let propertiesList: PropertyData[] = [];
+    for (const property of propertiesData) {
+        if (!property.id.includes(propertyData.id)) {
+            propertiesList.push(property);
+        }
+    }
+
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
                 message='Are you sure you want to delete this property?'
-                isVisible={confirmationVisible}
-                onClose={() => setConfirmationVisible(false)}
+                isVisible={deleteVisible}
+                onClose={() => setDeleteVisible(false)}
                 onConfirm={handleDelete}
             />
+            <ConfirmationPopup
+                message='Are you sure you want to exit without saving the changes?'
+                isVisible={unsavedVisible}
+                onClose={() => setUnsavedVisible(false)}
+                onConfirm={() => router.refresh()}
+            />
+            <SharesPopup
+                message='The sum of shares is less or more then 100%'
+                isVisible={sharesVisible}
+                onClose={() => setSharesVisible(false)}
+            />
+            {/* Toolbar tooltips */}
+            <ToolbarTooltips isEditing={isEditing} />
             <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
-                <div className='ml-5 flex items-center gap-5'>
-                    <span className='text-4xl tracking-tight text-zinc-900'>
-                        {initialValues.name}
-                    </span>
+                <div className='ml-5 basis-1/4'>
+                    <PropertyPageTitle
+                        isLoading={isLoading}
+                        isEditing={isEditing}
+                        propertyData={propertyData}
+                        parentCallback={callbackFunction}
+                    />
                 </div>
                 {/* Cards with actions */}
-                <div className='flex flex-row items-center gap-4'>
+                <div className='flex basis-2/4 flex-row items-center gap-4'>
                     <SimpleLinkCard
                         href={`/private/documents?propertyId=${propertyData.id}`}
                         text='Documents'
@@ -200,14 +298,37 @@ const PropertyPage = ({
                 {/* Button toolbar */}
                 <div className='flex flex-row gap-4 self-center'>
                     <Button
+                        id='crmButton'
                         elevated
-                        onClick={() => setIsEditing((prev) => !prev)}
+                        onClick={() =>
+                            window.open(
+                                'https://crm.zoho.com/crm/org57555088/tab/Accounts/1631361000106185043',
+                                '_blank'
+                            )
+                        }
+                        type='button'
+                        icon={faArrowUpRightFromSquare}
+                    />
+                    <Button
+                        id='saveButton'
+                        elevated
+                        onClick={handleSubmit}
+                        type='button'
+                        icon={faSave}
+                        disabled={!isEditing || isLoading}
+                        isLoading={isLoading}
+                    />
+                    <Button
+                        id='editButton'
+                        elevated
+                        onClick={() => handleEditingButton()}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
                     />
                     <Button
+                        id='deleteButton'
                         elevated
-                        onClick={() => setConfirmationVisible(true)}
+                        onClick={() => setDeleteVisible(true)}
                         type='button'
                         icon={faTrash}
                         style='danger'
@@ -215,15 +336,44 @@ const PropertyPage = ({
                 </div>
             </div>
             {/* Property form */}
-            <Form formData={propertyData} readOnly={isLoading || !isEditing}>
+            <Form
+                formData={propertyData}
+                labelMode='floating'
+                readOnly={isLoading || !isEditing}
+                onFieldDataChanged={changeCssFormElement}
+                ref={formRef}
+            >
                 <GroupItem colCount={3}>
-                    <GroupItem caption='Property Information'>
-                        <Item dataField='name' label={{ text: 'Name' }} />
-                        <Item dataField='type' label={{ text: 'Type' }} />
+                    <GroupItem>
+                        <Item
+                            dataField='type'
+                            label={{ text: 'Type' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                elementAttr: {
+                                    id: `propertyType`,
+                                },
+                                items: [
+                                    { label: 'Apartment', value: 0 },
+                                    { label: 'Rural property', value: 1 },
+                                    { label: 'Residential property', value: 2 },
+                                    { label: 'Plot', value: 3 },
+                                    { label: 'Parking', value: 4 },
+                                    { label: 'Storage room', value: 5 },
+                                    { label: 'Mooring', value: 6 },
+                                ],
+                                displayExpr: 'label',
+                                valueExpr: 'value',
+                                searchEnabled: true,
+                                showClearButton: isEditing,
+                                onValueChanged: (e: ValueChangedEvent) =>
+                                    changeSelectbox(e),
+                            }}
+                        />
                         <Item
                             dataField='typeOfUse'
                             label={{ text: 'Type of use' }}
-                            editorType='dxSelectBox'
+                            editorType='dxTagBox'
                             editorOptions={{
                                 items: [
                                     { label: 'Private', value: 0 },
@@ -233,317 +383,243 @@ const PropertyPage = ({
                                 displayExpr: 'label',
                                 valueExpr: 'value',
                                 searchEnabled: true,
+                                showClearButton: isEditing,
+                                onValueChanged: (e: ValueChangedEvent) =>
+                                    changeTagbox(e),
                             }}
                         />
-                        <Item>
-                            <div className='flex'>
-                                <div className='float-left mt-3 w-1/5'>
-                                    Catastral Ref:
-                                </div>
-                                <div className='w-11/12'>
-                                    <TextBox
-                                        defaultValue={cadastreRef}
-                                        onValueChange={(e) => setCadastreRef(e)}
-                                        readOnly={isLoading || !isEditing}
-                                    >
-                                        <TextBoxButton
-                                            name='catasterBtn'
-                                            location='after'
-                                            options={{
-                                                icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
-                                                type: 'default',
-                                                onClick: () =>
-                                                    propertyData.cadastreUrl &&
-                                                    window.open(
-                                                        propertyData.cadastreUrl,
-                                                        '_blank'
-                                                    ),
-                                                disabled:
-                                                    propertyData.cadastreUrl
-                                                        ? false
-                                                        : true,
-                                            }}
-                                        />
-                                    </TextBox>
-                                </div>
-                            </div>
-                        </Item>
-                    </GroupItem>
-                    <GroupItem caption='Contact Information'>
-                        <Item
-                            dataField='contactPersonId'
-                            label={{ text: 'Contact Person' }}
-                            editorType='dxSelectBox'
-                            editorOptions={{
-                                items: contacts,
-                                displayExpr: 'firstName',
-                                valueExpr: 'id',
-                                searchEnabled: true,
-                            }}
-                        />
-                        <Item
-                            dataField='billingContactId'
-                            label={{ text: 'Billing Contact' }}
-                            editorType='dxSelectBox'
-                            editorOptions={{
-                                items: contacts,
-                                displayExpr: 'firstName',
-                                valueExpr: 'id',
-                                searchEnabled: true,
-                            }}
-                        />
-                    </GroupItem>
-                    <GroupItem caption='Address Information'>
                         <GroupItem>
                             <Item
-                                dataField='propertyAddress[0].addressLine1'
+                                dataField='propertyAddress.addressLine1'
                                 label={{ text: 'Address line' }}
                             />
                             <Item
-                                dataField='propertyAddress[0].addressLine2'
+                                dataField='propertyAddress.addressLine2'
                                 label={{ text: 'Address line 2' }}
                             />
                             <GroupItem colCount={2}>
                                 <Item
-                                    dataField='propertyAddress[0].postalCode'
+                                    dataField='propertyAddress.postalCode'
                                     label={{ text: 'Postal code' }}
                                 />
                                 <Item
-                                    dataField='propertyAddress[0].city'
+                                    dataField='propertyAddress.city'
                                     label={{ text: 'City' }}
                                 />
                             </GroupItem>
                             <GroupItem colCount={2}>
                                 <Item
-                                    dataField='propertyAddress[0].country'
+                                    dataField='propertyAddress.country'
                                     label={{ text: 'Country' }}
                                     editorType='dxSelectBox'
                                     editorOptions={{
+                                        elementAttr: {
+                                            id: `propertycountry`,
+                                        },
                                         items: countries,
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
-                                        onValueChanged: (e: any) =>
-                                            handleCountryChange(e.value),
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => {
+                                            handleCountryChange(e.value);
+                                            changeSelectbox(e);
+                                        },
                                     }}
                                 />
                                 <Item
-                                    dataField='propertyAddress[0].state'
+                                    dataField='propertyAddress.state'
                                     label={{ text: 'State' }}
                                     editorType='dxSelectBox'
+                                    name='state'
+                                    ref={statesRef}
                                     editorOptions={{
-                                        items: states,
+                                        elementAttr: {
+                                            id: `propertyState`,
+                                        },
+                                        items: data,
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
+                                        onValueChanged: (
+                                            e: ValueChangedEvent
+                                        ) => changeSelectbox(e),
                                     }}
                                 />
                             </GroupItem>
                         </GroupItem>
                     </GroupItem>
+                    <GroupItem>
+                        <Item
+                            dataField='contactPersonId'
+                            label={{ text: 'Contact Person' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                elementAttr: {
+                                    id: `propertyContactPerson`,
+                                },
+                                items: contacts,
+                                displayExpr: 'firstName',
+                                valueExpr: 'id',
+                                searchEnabled: true,
+                                onValueChanged: (e: any) => changeSelectbox(e),
+                                buttons: [
+                                    {
+                                        name: 'goto',
+                                        location: 'after',
+                                        options: {
+                                            icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
+                                            type: 'default',
+                                            onClick: () => {
+                                                router.push(
+                                                    `/private/contacts/${propertyData.contactPersonId}/contactInfo`
+                                                );
+                                            },
+                                            disabled:
+                                                propertyData.contactPersonId
+                                                    ? false
+                                                    : true,
+                                        },
+                                    },
+                                ],
+                            }}
+                        />
+                        {/* <Item
+                            dataField='billingContactId'
+                            label={{ text: 'Billing Contact' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                elementAttr: {
+                                    id: `propertyBillingContact`,
+                                },
+                                items: contacts,
+                                displayExpr: 'firstName',
+                                valueExpr: 'id',
+                                searchEnabled: true,
+                                onValueChanged: (e: ValueChangedEvent) =>
+                                    changeSelectbox(e),
+                                buttons: [
+                                    {
+                                        name: 'goto',
+                                        location: 'after',
+                                        options: {
+                                            icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
+                                            type: 'default',
+                                            onClick: () => {
+                                                router.push(
+                                                    `/private/contacts/${propertyData.billingContactId}/contactInfo`
+                                                );
+                                            },
+                                            disabled:
+                                                propertyData.billingContactId
+                                                    ? false
+                                                    : true,
+                                        },
+                                    },
+                                ],
+                            }}
+                        /> */}
+                        <Item
+                            dataField='propertyScanMail'
+                            label={{ text: 'Property Scan Mail' }}
+                        />
+                        <Item
+                            dataField='mainPropertyId'
+                            label={{ text: 'Main Property' }}
+                            editorType='dxSelectBox'
+                            editorOptions={{
+                                elementAttr: {
+                                    id: `propertyMainProperty`,
+                                },
+                                items: propertiesList,
+                                displayExpr: 'name',
+                                valueExpr: 'id',
+                                searchEnabled: true,
+                                onValueChanged: (e: any) => changeSelectbox(e),
+                                buttons: [
+                                    {
+                                        name: 'goto',
+                                        location: 'after',
+                                        options: {
+                                            icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
+                                            type: 'default',
+                                            onClick: () => {
+                                                router.push(
+                                                    `/private/properties/${propertyData.mainPropertyId}/property`
+                                                );
+                                            },
+                                            disabled:
+                                                propertyData.mainPropertyId
+                                                    ? false
+                                                    : true,
+                                        },
+                                    },
+                                ],
+                            }}
+                        />
+                    </GroupItem>
                 </GroupItem>
                 <GroupItem>
                     <TabbedItem>
                         <TabPanelOptions deferRendering={false} />
-                        <Tab title='Cadastre Information'>
-                            <GroupItem colCount={5}>
-                                <Item
-                                    dataField='cadastreNumber'
-                                    label={{ text: 'Cadastre Number' }}
-                                />
-                                <Item
-                                    dataField='cadastreUrl'
-                                    label={{ text: 'Cadastre Url' }}
-                                />
-                                <Item
-                                    dataField='cadastreValue'
-                                    label={{ text: 'Cadastre Value' }}
-                                />
-                            </GroupItem>
-                            <GroupItem colCount={5}>
-                                <Item
-                                    dataField='loanPrice.value'
-                                    label={{ text: 'Loan price' }}
-                                />
-                                <Item
-                                    dataField='buildingPrice.value'
-                                    label={{ text: 'Building price' }}
-                                />
-                                <Item
-                                    dataField='totalPrice.value'
-                                    label={{ text: 'Total price' }}
-                                />
-                                <Item
-                                    dataField='plotPrice.value'
-                                    label={{ text: 'Plot price' }}
-                                />
-                                <Item
-                                    dataField='ibiAmount'
-                                    label={{ text: 'IBI Amount' }}
-                                />
-                                <Item
-                                    dataField='ibiCollection'
-                                    label={{ text: 'IBI Collection' }}
-                                />
-                                <Item
-                                    dataField='year'
-                                    label={{ text: 'Year' }}
-                                />
-                                <Item
-                                    dataField='propertyScanMail'
-                                    label={{ text: 'Property Scan Mail' }}
-                                />
-                            </GroupItem>
+                        <Tab title='Owners'>
+                            <PropertiesOwnersDatagrid
+                                dataSource={ownershipData}
+                                totalContactsList={totalContactsList}
+                                token={token}
+                                isEditing={isEditing}
+                                ref={dataGridRef}
+                            />
                         </Tab>
-                        <Tab title='Purchase Information'>
-                            <GroupItem colCount={5}>
-                                <GroupItem>
-                                    <Item
-                                        dataField='purchaseDate'
-                                        label={{ text: 'Purchase Date' }}
-                                        editorType='dxDateBox'
-                                        editorOptions={{
-                                            displayFormat: dateFormat,
-                                            showClearButton: true,
-                                        }}
-                                    />
-                                    <Item
-                                        dataField='purchasePrice.value'
-                                        label={{ text: 'Purchase price' }}
-                                    />
-                                    <Item
-                                        dataField='purchasePriceTax.value'
-                                        label={{ text: 'Purchase Price Tax' }}
-                                    />
-                                </GroupItem>
-                                <GroupItem>
-                                    <Item
-                                        dataField='purchasePriceAJD.value'
-                                        label={{ text: 'Purchase Price AJD' }}
-                                    />
-                                    <Item
-                                        dataField='purchasePriceTPO.value'
-                                        label={{ text: 'Purchase Price TPO' }}
-                                    />
-                                    <Item
-                                        dataField='purchasePriceTotal.value'
-                                        label={{ text: 'Purchase Price Total' }}
-                                    />
-                                </GroupItem>
-                            </GroupItem>
+                        <Tab title='Side Properties'>
+                            <PropertySidePropertiesDatagrid
+                                dataSource={propertyData}
+                            />
                         </Tab>
-                        <Tab title='Furniture Information'>
-                            <GroupItem colCount={5}>
-                                <Item
-                                    dataField='furniturePrice.value'
-                                    label={{ text: 'Furniture Price' }}
-                                />
-                                <Item
-                                    dataField='furniturePriceIVA.value'
-                                    label={{ text: 'Furniture Price IVA' }}
-                                />
-                                <Item
-                                    dataField='furniturePriceTPO.value'
-                                    label={{ text: 'Furniture Price TPO' }}
-                                />
-                            </GroupItem>
-                            <GroupItem colCount={5}>
-                                <Item
-                                    dataField='garbageCollection'
-                                    label={{ text: 'Garbage Collection' }}
-                                />
-                                <Item
-                                    dataField='garbagePriceAmount'
-                                    label={{ text: 'Garbage Price Amount' }}
-                                />
-                            </GroupItem>
+                        <Tab title='Cadastre'>
+                            <Cadastre
+                                propertyData={propertyData}
+                                isLoading={isLoading}
+                                isEditing={isEditing}
+                            />
                         </Tab>
-                        <Tab title='Sale Information'>
-                            <GroupItem colCount={5}>
-                                <Item
-                                    dataField='saleDate'
-                                    label={{ text: 'Sale Date' }}
-                                    editorType='dxDateBox'
-                                    editorOptions={{
-                                        displayFormat: dateFormat,
-                                        showClearButton: true,
-                                    }}
-                                />
-                                <Item
-                                    dataField='salePrice.value'
-                                    label={{ text: 'Sale Price' }}
-                                />
-                            </GroupItem>
+                        <Tab title='Purchase'>
+                            <Purchase
+                                propertyData={propertyData}
+                                isLoading={isLoading}
+                                isEditing={isEditing}
+                            />
+                        </Tab>
+                        <Tab title='Sale'>
+                            <Sale
+                                propertyData={propertyData}
+                                isLoading={isLoading}
+                                isEditing={isEditing}
+                            />
                         </Tab>
                         <Tab title='Other Information'>
-                            <GroupItem colCount={5}>
-                                <Item
-                                    dataField='bedNumber'
-                                    label={{ text: 'Bed Number' }}
-                                />
-                                <Item
-                                    dataField='comments'
-                                    label={{ text: 'Comments' }}
-                                />
-                            </GroupItem>
+                            <OtherInformatiom
+                                propertyData={propertyData}
+                                isLoading={isLoading}
+                                isEditing={isEditing}
+                            />
+                        </Tab>
+                        <Tab title='Comments'>
+                            <Item
+                                dataField='comments'
+                                label={{ text: 'Additional Comments' }}
+                                editorType='dxTextArea'
+                                editorOptions={{
+                                    minHeight: '100',
+                                    autoResizeEnabled: true,
+                                }}
+                            />
                         </Tab>
                     </TabbedItem>
                 </GroupItem>
             </Form>
-            <div className='mt-2 h-[2rem]'>
-                <div className='flex justify-end'>
-                    <div className='flex flex-row justify-between gap-2'>
-                        {isEditing && (
-                            <Button
-                                elevated
-                                type='button'
-                                text='Submit Changes'
-                                disabled={isLoading}
-                                isLoading={isLoading}
-                                onClick={handleSubmit}
-                            />
-                        )}
-                    </div>
-                </div>
-            </div>
-            {/* Tabs */}
-            <Tabs
-                dataSource={[
-                    {
-                        children: (
-                            <PropertiesOwnersDatagrid
-                                dataSource={ownershipData}
-                                token={token}
-                                contactData={contacts}
-                            />
-                        ),
-                        icon: faUserGroup,
-                        title: 'Owners',
-                    },
-                    {
-                        children: (
-                            <PropertySidePropertiesDatagrid
-                                dataSource={propertyData}
-                            />
-                        ),
-                        icon: faWarehouse,
-                        title: 'Side properties',
-                    },
-                    {
-                        children: (
-                            <PropertyTextArea
-                                propertyData={propertyData}
-                                token={token}
-                                lang={lang}
-                            />
-                        ),
-                        icon: faNoteSticky,
-                        title: 'Comments',
-                    },
-                ]}
-            />
         </div>
     );
 };
-
-export default PropertyPage;
+export default memo(PropertyPage);

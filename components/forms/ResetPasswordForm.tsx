@@ -1,7 +1,7 @@
 'use client';
 
 // React imports
-import { memo, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 
 import { Button } from 'pg-components';
 import Link from 'next/link';
@@ -12,6 +12,8 @@ import { ApiCallError } from '@/lib/utils/errors';
 import { toast } from 'react-toastify';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
+import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
+import { Locale } from '@/i18n-config';
 
 interface Props {
     dictionary: {
@@ -21,16 +23,21 @@ interface Props {
         backToLoginButton: string;
         submitButton: string;
     };
+    lang: Locale;
 }
 
 let formValues = {
     username: '',
 };
 
-const ResetPasswordForm = ({ dictionary }: Props) => {
+const ResetPasswordForm = ({ dictionary, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const formRef = useRef<Form>(null);
+
+    useEffect(() => {
+        localeDevExtreme(lang);
+    }, [lang]);
 
     const handleSubmit = async () => {
         const res = formRef.current!.instance.validate();
@@ -56,7 +63,7 @@ const ResetPasswordForm = ({ dictionary }: Props) => {
 
     return (
         <>
-            <p className='text-md mb-12 text-center text-gray-400'>
+            <p className='text-md mb-6 text-center text-gray-400'>
                 {dictionary.description}
             </p>
 
@@ -70,14 +77,14 @@ const ResetPasswordForm = ({ dictionary }: Props) => {
                 <Item
                     dataField='username'
                     label={{ text: dictionary.emailInputLabel }}
-                    editorOptions={{ stylingMode: 'underlined', mode: 'email' }}
+                    editorOptions={{ mode: 'email' }}
                 >
-                    <EmailRule message='Email is invalid' />
+                    <EmailRule />
                     <RequiredRule />
                 </Item>
             </Form>
 
-            <div className='mt-2 flex items-center justify-end'>
+            <div className='mt-4 flex items-center justify-end'>
                 <div className='text-sm'>
                     <Link
                         href='./'

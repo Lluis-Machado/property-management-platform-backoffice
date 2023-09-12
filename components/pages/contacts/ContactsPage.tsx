@@ -4,7 +4,6 @@
 import { memo, useCallback } from 'react';
 
 // Libraries imports
-import { useRouter } from 'next/navigation';
 import {
     Column,
     DataGrid,
@@ -15,19 +14,22 @@ import {
 } from 'devextreme-react/data-grid';
 import AddRowButton from '@/components/buttons/AddRowButton';
 import { ContactData } from '@/lib/types/contactData';
+import LinkWithIcon from '@/components/buttons/LinkWithIcon';
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
     dataSource: ContactData[];
 }
 
 const ContactsPage = ({ dataSource }: Props) => {
-    const router = useRouter();
-
-    const handleDouleClick = useCallback(
-        ({ data }: any) => {
-            router.push(`./contacts/${data.id}/contactInfo`);
-        },
-        [router]
+    const CellRender = useCallback(
+        ({ data }: { data: any }): React.ReactElement => (
+            <LinkWithIcon
+                href={`./contacts/${data.id}/contactInfo`}
+                icon={faArrowUpRightFromSquare}
+            />
+        ),
+        []
     );
 
     return (
@@ -36,7 +38,6 @@ const ContactsPage = ({ dataSource }: Props) => {
             dataSource={dataSource}
             focusedRowEnabled
             keyExpr='id'
-            onRowDblClick={handleDouleClick}
             columnHidingEnabled={false}
             rowAlternationEnabled
             allowColumnResizing
@@ -59,6 +60,12 @@ const ContactsPage = ({ dataSource }: Props) => {
             </Toolbar>
 
             <Column
+                alignment='center'
+                caption='Details / Edit'
+                cellRender={CellRender}
+                width={100}
+            />
+            <Column
                 caption='First Name'
                 dataField='firstName'
                 dataType='string'
@@ -70,12 +77,12 @@ const ContactsPage = ({ dataSource }: Props) => {
                 dataType='string'
                 hidingPriority={1}
             />
-            <Column
+            {/* <Column
                 caption='NIF'
                 dataField='nif'
                 dataType='string'
                 hidingPriority={2}
-            />
+            /> */}
             <Column
                 caption='Email'
                 dataField='email'

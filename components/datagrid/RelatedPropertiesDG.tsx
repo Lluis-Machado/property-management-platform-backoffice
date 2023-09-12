@@ -12,19 +12,22 @@ import DataGrid, {
     Pager,
 } from 'devextreme-react/data-grid';
 import { OwnershipData } from '@/lib/types/ownershipData';
+import LinkWithIcon from '@/components/buttons/LinkWithIcon';
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
     ownershipData: OwnershipData[];
 }
 
-const ContactPropertiesDG = ({ ownershipData }: Props) => {
-    const router = useRouter();
-
-    const handleDoubleClick = useCallback(
-        ({ data }: any) => {
-            router.push(`/private/properties/${data.propertyId}/property`);
-        },
-        [router]
+const RelatedPropertiesDG = ({ ownershipData }: Props) => {
+    const CellRender = useCallback(
+        ({ data }: { data: any }): React.ReactElement => (
+            <LinkWithIcon
+                href={`/private/properties/${data.propertyId}/property`}
+                icon={faArrowUpRightFromSquare}
+            />
+        ),
+        []
     );
 
     return (
@@ -33,7 +36,6 @@ const ContactPropertiesDG = ({ ownershipData }: Props) => {
             dataSource={ownershipData}
             focusedRowEnabled
             keyExpr='id'
-            onRowDblClick={handleDoubleClick}
             columnHidingEnabled={false}
             rowAlternationEnabled
             allowColumnResizing
@@ -44,19 +46,20 @@ const ContactPropertiesDG = ({ ownershipData }: Props) => {
             <Paging defaultPageSize={20} />
             <Pager visible={true} showInfo showNavigationButtons />
 
+            <Column
+                alignment='center'
+                caption='Details / Edit'
+                cellRender={CellRender}
+                width={100}
+            />
             <Column dataField='propertyName' caption='Property Name' />
             <Column
                 dataField='share'
                 dataType='number'
                 caption='Property share (%)'
             />
-            <Column
-                dataField='mainOwnership'
-                dataType='boolean'
-                caption='Main Contact Person'
-            />
         </DataGrid>
     );
 };
 
-export default ContactPropertiesDG;
+export default RelatedPropertiesDG;

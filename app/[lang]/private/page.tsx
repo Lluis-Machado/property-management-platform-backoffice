@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 
 const Private = () => {
-    redirect('/private/documents');
+    redirect('/private/properties');
 };
 
 export default Private;

@@ -2,7 +2,8 @@
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import PropertyPage from '@/components/pages/properties/property/PropertyPage';
 import { Locale } from '@/i18n-config';
-import { ContactData } from '@/lib/types/contactData';
+import { CompanyData, CompanyDataProperty } from '@/lib/types/companyData';
+import { ContactData, ContactDataProperty } from '@/lib/types/contactData';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { PropertyData } from '@/lib/types/propertyInfo';
@@ -15,48 +16,77 @@ interface Props {
 }
 
 const Property = async ({ params: { id, lang } }: Props) => {
-    const [user, propertyData, contactData, ownershipData, countriesData] =
-        await Promise.all([
-            getUser(),
-            getApiData<PropertyData>(
-                `/properties/properties/${id}`,
-                'Error while getting property info'
-            ),
-            getApiData<ContactData[]>(
-                '/contacts/contacts',
-                'Error while getting contacts'
-            ),
-            getApiData<OwnershipPropertyData[]>(
-                `/ownership/ownership/${id}/property`,
-                'Error while getting ownerships'
-            ),
-            getApiDataWithCache<CountryData[]>(
-                `/countries/countries?languageCode=${lang}`,
-                'Error while getting countries'
-            ),
-        ]);
+    const [
+        user,
+        propertyData,
+        propertiesData,
+        contactData,
+        companyData,
+        ownershipData,
+        countriesData,
+    ] = await Promise.all([
+        getUser(),
+        getApiData<PropertyData>(
+            `/properties/properties/${id}`,
+            'Error while getting property info'
+        ),
+        getApiData<PropertyData[]>(
+            `/properties/properties/`,
+            'Error while getting properties info'
+        ),
+        getApiData<ContactData[]>(
+            '/contacts/contacts',
+            'Error while getting contacts'
+        ),
+        getApiData<CompanyData[]>(
+            '/companies/companies?includeDeteted=false',
+            'Error while getting contacts'
+        ),
+        getApiData<OwnershipPropertyData[]>(
+            `/ownership/ownership/${id}/property`,
+            'Error while getting ownerships'
+        ),
+        getApiDataWithCache<CountryData[]>(
+            `/countries/countries?languageCode=${lang}`,
+            'Error while getting countries'
+        ),
+    ]);
 
     let statesData: StateData[] = [];
-    if (propertyData.propertyAddress[0].country) {
+    if (propertyData.propertyAddress.country) {
         statesData = await getApiDataWithCache(
-            `/countries/countries/${propertyData.propertyAddress[0].country}/states?languageCode=${lang}`,
+            `/countries/countries/${propertyData.propertyAddress.country}/states?languageCode=${lang}`,
             'Error while getting states'
         );
     }
 
-    let contacts: ContactData[] = [];
+    let contacts: ContactDataProperty[] = [];
     for (const contact of contactData) {
         contacts.push({
             ...contact,
             firstName: `${contact.firstName} ${contact.lastName}`,
+            type: 'Contact',
         });
     }
+
+    let companieslist: CompanyDataProperty[] = [];
+    for (const company of companyData) {
+        companieslist.push({
+            ...company,
+            firstName: company.name,
+            type: 'Company',
+        });
+    }
+
+    const totalContactsList = [...contacts, ...companieslist];
 
     return (
         <>
             <Breadcrumb />
             <PropertyPage
                 propertyData={propertyData}
+                propertiesData={propertiesData}
+                totalContactsList={totalContactsList}
                 lang={lang}
                 token={user.token}
                 contacts={contacts}
