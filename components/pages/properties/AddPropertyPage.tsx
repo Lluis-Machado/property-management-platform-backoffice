@@ -230,6 +230,11 @@ const AddPropertyPage = ({
             return;
         }
 
+        if (values.propertyAddress.country == null) {
+            toast.warning('Add a country');
+            return;
+        }
+
         setIsLoading(true);
 
         const toastId = toast.loading('Creating property...');
@@ -246,7 +251,7 @@ const AddPropertyPage = ({
             console.log('Valores a enviar: ', values);
             console.log('Valores a enviar JSON: ', JSON.stringify(values));
             const data = await apiPost(
-                '/properties/properties',
+                '/core/core',
                 dataToSend,
                 token,
                 'Error while creating a property'
@@ -548,6 +553,9 @@ const AddPropertyPage = ({
                                             onValueChanged: (
                                                 e: ValueChangedEvent
                                             ) => changeSelectbox(e),
+                                            elementAttr: {
+                                                id: `addpropertyCadastreValue`,
+                                            },
                                             readOnly: true,
                                             format: {
                                                 type: 'currency',
@@ -561,27 +569,6 @@ const AddPropertyPage = ({
                         </Tab>
                         <Tab title='Purchase'>
                             <PurchaseAddProperty propertyData={propertyData} />
-                        </Tab>
-                        <Tab title='Accounting'>
-                            <GroupItem colCount={4}>
-                                <Item
-                                    dataField='loanPrice.value'
-                                    label={{ text: 'Loan' }}
-                                    editorOptions={{
-                                        elementAttr: {
-                                            id: `loanPrice`,
-                                        },
-                                        onValueChanged: (
-                                            e: ValueChangedEvent
-                                        ) => changeSelectbox(e),
-                                        format: {
-                                            type: 'currency',
-                                            currency: 'EUR',
-                                            precision: 2,
-                                        },
-                                    }}
-                                />
-                            </GroupItem>
                         </Tab>
                         <Tab title='Sale'>
                             <GroupItem colCount={4}>

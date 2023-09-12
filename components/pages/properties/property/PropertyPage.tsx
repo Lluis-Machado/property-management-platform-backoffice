@@ -48,8 +48,8 @@ import Cadastre from '@/components/Tabs/CadastreTab';
 import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
 import Sale from '@/components/Tabs/SalesTab';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
-import AccountingTab from '@/components/Tabs/AccountingTab';
 import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
+import SharesPopup from '@/components/popups/SharesPopup';
 
 interface Props {
     propertyData: PropertyData;
@@ -82,6 +82,7 @@ const PropertyPage = ({
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
     const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
+    const [sharesVisible, setSharesVisible] = useState<boolean>(false);
     const data = initialStates;
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
@@ -90,10 +91,6 @@ const PropertyPage = ({
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
-    const [initialValuesOwnerShips, setInitialValuesOwnerShips] = useState<
-        OwnershipPropertyData[]
-    >(structuredClone(ownershipData));
-
     // function name property
     const callbackFunction = (name: string) => {
         propertyData.name = name;
@@ -126,13 +123,36 @@ const PropertyPage = ({
 
     const handleSubmit = useCallback(async () => {
         // @ts-ignore
+        const response = await dataGridRef.current.hasEditData();
+        // @ts-ignore
         await dataGridRef.current.saveEditData();
         // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            return;
+            if (response == false) {
+                setIsEditing(true);
+                toast.warning('Change at least one field');
+                return;
+            } else {
+                const dataSource: any =
+                    // @ts-ignore
+                    await dataGridRef.current.getDataSource();
+                const data = dataSource._store._array;
+                let sum: number = 0;
+                let array: number[] = [];
+                for (const item of data) {
+                    array.push(item.share);
+                    sum = array.reduce((sum: number, p: number) => sum + p);
+                }
+                if (sum !== 100) {
+                    setSharesVisible(true);
+                    setIsEditing(true);
+                    return;
+                } else {
+                    setIsEditing(false);
+                }
+            }
         }
-
         setIsLoading(true);
         const toastId = toast.loading('Updating property...');
 
@@ -218,6 +238,14 @@ const PropertyPage = ({
         }
     };
 
+    // LISTADO MAIN PROPERTIES WITHOUT PROPERTY
+    let propertiesList: PropertyData[] = [];
+    for (const property of propertiesData) {
+        if (!property.id.includes(propertyData.id)) {
+            propertiesList.push(property);
+        }
+    }
+
     return (
         <div className='mt-4'>
             <ConfirmDeletePopup
@@ -231,6 +259,11 @@ const PropertyPage = ({
                 isVisible={unsavedVisible}
                 onClose={() => setUnsavedVisible(false)}
                 onConfirm={() => router.refresh()}
+            />
+            <SharesPopup
+                message='The sum of shares is less or more then 100%'
+                isVisible={sharesVisible}
+                onClose={() => setSharesVisible(false)}
             />
             {/* Toolbar tooltips */}
             <ToolbarTooltips isEditing={isEditing} />
@@ -499,7 +532,7 @@ const PropertyPage = ({
                                 elementAttr: {
                                     id: `propertyMainProperty`,
                                 },
-                                items: propertiesData,
+                                items: propertiesList,
                                 displayExpr: 'name',
                                 valueExpr: 'id',
                                 searchEnabled: true,
@@ -553,13 +586,6 @@ const PropertyPage = ({
                         </Tab>
                         <Tab title='Purchase'>
                             <Purchase
-                                propertyData={propertyData}
-                                isLoading={isLoading}
-                                isEditing={isEditing}
-                            />
-                        </Tab>
-                        <Tab title='Accounting'>
-                            <AccountingTab
                                 propertyData={propertyData}
                                 isLoading={isLoading}
                                 isEditing={isEditing}
