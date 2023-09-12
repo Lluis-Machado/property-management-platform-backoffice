@@ -52,10 +52,30 @@ const AddApInvoicePage = ({ token, id }: Props) => {
         }
         setFile(e.target.files[0]);
     };
-    //console.log(token);
+    const handleUpload = useCallback(async () => {
+        const toastId = toast.loading('Creating ..');
+        try {
+            console.log('Valores a enviar: ', file);
+            console.log('Valores a enviar en JSON: ', JSON.stringify(file));
+
+            const data = await apiPost(
+                '/docanalyzer/DocumentAnalyzer/APInvoice',
+                file,
+                token,
+                'Error while analyzing AP Invoice'
+            );
+
+            console.log('TODO CORRECTO, valores de vuelta: ', data);
+            setInvoiceData(data);
+        } catch (error: unknown) {
+            customError(error, toastId);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [token, file]);
 
     const handleSubmit = useCallback(async () => {
-        const toastId = toast.loading('Creating contact...');
+        const toastId = toast.loading('Creating..');
         try {
             console.log('Valores a enviar: ', file);
             console.log('Valores a enviar en JSON: ', JSON.stringify(file));
