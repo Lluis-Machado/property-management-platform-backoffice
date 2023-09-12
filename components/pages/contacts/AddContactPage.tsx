@@ -41,7 +41,7 @@ import {
 } from '@/components/Tabs';
 
 let contactData: ContactData = {
-    title: null,
+    title: [],
     firstName: '',
     lastName: '',
     gender: null,

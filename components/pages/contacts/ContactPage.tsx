@@ -1,5 +1,4 @@
 'use client';
-
 import { memo, useCallback, useRef, useState } from 'react';
 // Libraries imports
 import { useRouter } from 'next/navigation';
@@ -7,6 +6,7 @@ import Image from 'next/image';
 import { Button } from 'pg-components';
 import {
     faArrowUpRightFromSquare,
+    faClockRotateLeft,
     faFileLines,
     faPencil,
     faReceipt,
@@ -29,6 +29,7 @@ import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
 import 'devextreme-react/text-area';
 import 'devextreme-react/tag-box';
+import { useAtom } from 'jotai';
 // Local imports
 import '@/lib/styles/highlightFields.css';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
@@ -56,6 +57,8 @@ import {
     IdDocumentsTab,
     PhonesTab,
 } from '@/components/Tabs';
+import { logOpened } from '@/lib/atoms/logOpened';
+import { selectedUserId } from '@/lib/atoms/selectedUserId';
 
 interface Props {
     contactData: ContactData;
@@ -77,6 +80,8 @@ const ContactPage = ({
     token,
     lang,
 }: Props) => {
+    const [_, setIsLogOpened] = useAtom(logOpened);
+    const [__, setUserId] = useAtom(selectedUserId);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
@@ -218,6 +223,15 @@ const ContactPage = ({
                 </div>
                 {/* Button toolbar */}
                 <div className='flex flex-row gap-4 self-center'>
+                    <Button
+                        elevated
+                        onClick={() => {
+                            setUserId(contactData.id!);
+                            setIsLogOpened(true);
+                        }}
+                        type='button'
+                        icon={faClockRotateLeft}
+                    />
                     <Button
                         elevated
                         onClick={() =>

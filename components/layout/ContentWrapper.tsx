@@ -1,25 +1,42 @@
 'use client';
-
 // React imports
 import { useEffect } from 'react';
-
+import { useAtom } from 'jotai';
+import Drawer from 'devextreme-react/drawer';
 // Local imports
 import { Locale } from '@/i18n-config';
 import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
+import { logOpened } from '@/lib/atoms/logOpened';
+import AuditLog from '@/components/auditLog/AuditLog';
+import { TokenRes } from '@/lib/types/token';
 
 interface Props {
     children: React.ReactNode;
     lang: Locale;
+    token: TokenRes;
 }
 
-export function ContentWrapper({ children, lang }: Props) {
+export function ContentWrapper({ children, lang, token }: Props) {
+    const [isLogOpened, setIsLogOpened] = useAtom(logOpened);
+
     useEffect(() => {
         localeDevExtreme(lang);
     }, [lang]);
 
     return (
-        <section className='relative h-full overflow-x-hidden' id='content'>
-            <div className='m-4'>{children}</div>
-        </section>
+        <Drawer
+            opened={isLogOpened}
+            openedStateMode='overlap'
+            position='right'
+            component={() => <AuditLog token={token} />}
+            //@ts-ignore bad DevExtreme type
+            closeOnOutsideClick={() => setIsLogOpened(false)}
+            height={'100%'}
+            shading
+        >
+            <section className='relative h-full overflow-x-hidden' id='content'>
+                <div className='m-4'>{children}</div>
+            </section>
+        </Drawer>
     );
 }
