@@ -48,7 +48,7 @@ const PropertyPageTitle = ({
             {/* Contact avatar and name */}
             <TextBox
                 value={propertyData.name}
-                disabled={!isEditingTitle}
+                disabled={!isEditing}
                 onValueChanged={sendData}
                 id='title'
                 style={{
@@ -87,13 +87,13 @@ const PropertyPageTitle = ({
                         icon={faPencil}
                         size='xl'
                         color='#b99f6c'
-                        onClick={() => setIsEditingTitle((prev) => !prev)}
+                        onClick={() => setIsEditingTitle(true)}
                         style={{
                             color: isEditingTitle ? '#163047' : '',
                         }}
                     />
                 )}
-            </div> */}
+            </div>  */}
         </div>
     );
 };
