@@ -53,7 +53,10 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
                     errorMessage = `Error while getting archive {${archiveId}}, folder {${folderId}} documents`;
                 }
 
-                const resp = await fetch(endpoint, { cache: 'no-cache' });
+                const resp = await fetch(endpoint, {
+                    headers: { 'Content-Type': 'application/json' },
+                    cache: 'no-store',
+                });
                 if (!resp.ok) throw new ApiCallError(errorMessage);
                 const aux = await resp.json();
                 setDocuments(aux);

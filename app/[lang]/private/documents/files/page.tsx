@@ -10,7 +10,7 @@ const page = async (): Promise<React.ReactElement> => {
 
     const getArchivesBase = async (): Promise<TreeItem<Archive>[]> => {
         const resp = await fetch(`${documentsUrl}/archives`, {
-            cache: 'no-cache',
+            cache: 'no-store',
         });
         if (!resp.ok) throw new ApiCallError('Error while getting archives');
         const archivesResp: Archive[] = await resp.json();
@@ -36,7 +36,7 @@ const page = async (): Promise<React.ReactElement> => {
         const foldersResponses = await Promise.all(
             archiveIds.map((archiveId) =>
                 fetch(`${documentsUrl}/${archiveId}/folders`, {
-                    cache: 'no-cache',
+                    cache: 'no-store',
                 })
             )
         );

@@ -20,7 +20,7 @@ const makeApiRequest = async (
     const response = await toast.promise(
         fetch(endPoint, {
             body: aux,
-            cache: 'no-cache',
+            cache: 'no-store',
             headers:
                 body instanceof FormData
                     ? undefined
