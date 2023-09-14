@@ -1,5 +1,5 @@
 // React imports
-import { FC, memo, useCallback, useRef, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useRef, useState } from 'react';
 
 // Libraries imports
 import {
@@ -26,6 +26,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Document } from '@/lib/types/documentsAPI';
 import { formatDocumentSize } from '@/lib/utils/documents/utilsDocuments';
 import ContextMenu from './ContextMenu';
+import { isLoadingFileManager } from '@/lib/atoms/isLoadingFileManager';
+import { useAtom } from 'jotai';
 
 /**
  * Type for the possible types of toolbar items.
@@ -116,6 +118,15 @@ const DataGrid: FC<Props> = memo(function DataGrid({
     onSelectionChanged,
 }): React.ReactElement {
     const DataGridRef = useRef<DxDataGrid>(null);
+    const [isLoading, _] = useAtom(isLoadingFileManager);
+
+    useEffect(() => {
+        if (isLoading) {
+            DataGridRef.current?.instance.beginCustomLoading('');
+        } else {
+            DataGridRef.current?.instance.endCustomLoading();
+        }
+    }, [isLoading]);
 
     const [selectedFilesQuantity, setSelectedFilesQuantity] =
         useState<number>(0);
