@@ -24,7 +24,7 @@ interface Props {
 export const DocumentsFilesWrapper: FC<Props> = memo(
     function DocumentsFilesWrapper({ archives }): React.ReactElement {
         const TreeViewRef = useRef<DxTreeView>(null);
-        const [isLoading, setIsLoading] = useAtom(isLoadingFileManager);
+        const [_, setIsLoading] = useAtom(isLoadingFileManager);
 
         const [selectedFolder, setSelectedFolder] = useState<
             Archive | Folder | undefined
