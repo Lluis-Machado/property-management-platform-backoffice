@@ -32,6 +32,7 @@ import { apiPost } from '@/lib/utils/apiPost';
 import { BusinessPartners } from '@/lib/types/businessPartners';
 import { ApInvoice } from '@/lib/types/apInvoice';
 import BpPopup from '@/components/popups/BpPopup';
+import ToolbarTooltipsApInvoice from '@/components/tooltips/ToolbarTooltipsApInvoice';
 
 const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}`;
 
@@ -238,12 +239,14 @@ const AddApInvoicePage = ({
                     id={id}
                     allBusinessPartners={totalBP}
                 />
+                <ToolbarTooltipsApInvoice />
                 <Allotment defaultSizes={[65, 35]}>
                     <Allotment.Pane>
                         <div className='mr-4'>
                             <div className='flex flex-row justify-end gap-4'>
                                 <div className='w-10'>
                                     <Button
+                                        id='saveButton'
                                         icon={faFloppyDisk}
                                         onClick={handleSave}
                                         disabled={handleDisabled()}
@@ -251,6 +254,7 @@ const AddApInvoicePage = ({
                                 </div>
                                 <div className='w-10'>
                                     <Button
+                                        id='annalyzeButton'
                                         icon={faGears}
                                         iconPosition={'leading'}
                                         onClick={handleSubmit}
@@ -265,6 +269,7 @@ const AddApInvoicePage = ({
                                     />
                                     <Button
                                         onClick={handleUploadClick}
+                                        id='uploadButton'
                                         size={'base'}
                                         style={'outline'}
                                         icon={faUpload}
