@@ -31,6 +31,7 @@ import {
 import { apiPost } from '@/lib/utils/apiPost';
 import { BusinessPartners } from '@/lib/types/businessPartners';
 import { ApInvoice } from '@/lib/types/apInvoice';
+import BpPopup from '@/components/popups/BpPopup';
 
 const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}`;
 
@@ -51,15 +52,22 @@ let apInvoiceData: any = {
 interface Props {
     token: TokenRes;
     id: string;
-    businessPartners: BusinessPartners[];
+    tenatsBusinessPartners: BusinessPartners[];
+    allBusinessPartners: BusinessPartners[];
 }
 
-const AddApInvoicePage = ({ token, id, businessPartners }: Props) => {
+const AddApInvoicePage = ({
+    token,
+    id,
+    tenatsBusinessPartners,
+    allBusinessPartners,
+}: Props) => {
+    const inputRef = useRef<HTMLInputElement | null>(null);
     const [visible, setVisible] = useState(false);
     const [file, setFile] = useState<File>();
     const [fileDataURL, setFileDataURL] = useState(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const inputRef = useRef<HTMLInputElement | null>(null);
+    const [popUpVisible, setPopUpVisible] = useState<boolean>(false);
     const [invoiceData, setInvoiceData] = useState<any>(apInvoiceData);
     const [lines, setLines] = useState({});
     const [analyzedInvoiceLines, setAnalyzedInvoiceLines] = useState<any>(null);
@@ -139,7 +147,8 @@ const AddApInvoicePage = ({ token, id, businessPartners }: Props) => {
                     'POST',
                     documentMessages.upload,
                     token,
-                    invoiceLinesApiCall
+                    invoiceLinesApiCall,
+                    true
                 );
                 const analyzedInvoiceLine = await response.json();
                 setAnalyzedInvoiceLines(analyzedInvoiceLine);
@@ -213,22 +222,41 @@ const AddApInvoicePage = ({ token, id, businessPartners }: Props) => {
         };
     }, [file]);
 
+    // Remove BP that are already related to tenant
+    let totalBP = allBusinessPartners.filter(
+        (u) => tenatsBusinessPartners.findIndex((lu) => lu.id === u.id) === -1
+    );
+
     return (
         <div className='absolute inset-4 w-screen'>
             <div className='h-full'>
+                <BpPopup
+                    message='Adding a new Business Partner'
+                    isVisible={popUpVisible}
+                    onClose={() => setPopUpVisible(false)}
+                    token={token}
+                    id={id}
+                    allBusinessPartners={totalBP}
+                />
                 <Allotment defaultSizes={[65, 35]}>
                     <Allotment.Pane>
                         <div className='mr-4'>
-                            <div className='flex justify-end gap-4'>
-                                <div className='w-24'>
+                            <div className='flex flex-row justify-end gap-4'>
+                                <div className='w-10'>
                                     <Button
-                                        text='Analyse'
+                                        icon={faFloppyDisk}
+                                        onClick={handleSave}
+                                        disabled={handleDisabled()}
+                                    />
+                                </div>
+                                <div className='w-10'>
+                                    <Button
                                         icon={faGears}
                                         iconPosition={'leading'}
                                         onClick={handleSubmit}
                                     />
                                 </div>
-                                <div className='w-24'>
+                                <div className='w-10'>
                                     <input
                                         type='file'
                                         ref={inputRef}
@@ -237,7 +265,6 @@ const AddApInvoicePage = ({ token, id, businessPartners }: Props) => {
                                     />
                                     <Button
                                         onClick={handleUploadClick}
-                                        text='Upload'
                                         size={'base'}
                                         style={'outline'}
                                         icon={faUpload}
@@ -250,19 +277,38 @@ const AddApInvoicePage = ({ token, id, businessPartners }: Props) => {
                                     colCount={2}
                                     caption='Supplier invoice'
                                 >
-                                    <SimpleItem
-                                        dataField='form.businessPartner.vatNumber'
+                                    <Item
+                                        dataField='form.businessPartner.name'
                                         label={{ text: 'Provider' }}
                                         editorType='dxSelectBox'
                                         editorOptions={{
-                                            elementAttr: {
-                                                id: `propertyContactPerson`,
-                                            },
-                                            acceptCustomValue: true,
-                                            items: businessPartners,
+                                            value: invoiceData.form
+                                                .businessPartner.name,
+                                            items: tenatsBusinessPartners,
                                             displayExpr: 'name',
-                                            valueExpr: 'vatNumber',
+                                            valueExpr: 'name',
                                             searchEnabled: true,
+                                            cssClass: 'buttonPlus',
+                                            dropDownOptions: {
+                                                toolbarItems: [
+                                                    {
+                                                        toolbar: 'bottom',
+                                                        location: 'left',
+                                                        widget: 'dxButton',
+                                                        options: {
+                                                            icon: 'plus',
+                                                            width: 90,
+                                                            elementAttr: {
+                                                                style: 'min-width: 55px;!important',
+                                                            },
+                                                            onClick: () =>
+                                                                setPopUpVisible(
+                                                                    true
+                                                                ),
+                                                        },
+                                                    },
+                                                ],
+                                            },
                                         }}
                                     />
                                     <SimpleItem
@@ -385,19 +431,19 @@ const AddApInvoicePage = ({ token, id, businessPartners }: Props) => {
                                                             items: [
                                                                 {
                                                                     label: '4%',
-                                                                    value: 0,
+                                                                    value: 4,
                                                                 },
                                                                 {
                                                                     label: '5%',
-                                                                    value: 1,
+                                                                    value: 5,
                                                                 },
                                                                 {
                                                                     label: '10%',
-                                                                    value: 2,
+                                                                    value: 10,
                                                                 },
                                                                 {
                                                                     label: '21%',
-                                                                    value: 3,
+                                                                    value: 21,
                                                                 },
                                                             ],
                                                             displayExpr:
@@ -413,6 +459,7 @@ const AddApInvoicePage = ({ token, id, businessPartners }: Props) => {
                                                         horizontalAlignment='left'
                                                         buttonOptions={{
                                                             icon: 'trash',
+                                                            type: 'danger',
                                                             onClick: () => {
                                                                 // Set a new empty line
                                                                 invoiceData.form.invoiceLines.splice(
@@ -476,31 +523,14 @@ const AddApInvoicePage = ({ token, id, businessPartners }: Props) => {
                                         }}
                                     />
                                     <Item
-                                        dataField='form.base'
+                                        dataField='form.iva'
                                         label={{ text: 'IVA' }}
-                                        editorType='dxSelectBox'
                                         editorOptions={{
-                                            items: [
-                                                {
-                                                    label: '4%',
-                                                    value: 0,
-                                                },
-                                                {
-                                                    label: '5%',
-                                                    value: 1,
-                                                },
-                                                {
-                                                    label: '10%',
-                                                    value: 2,
-                                                },
-                                                {
-                                                    label: '21%',
-                                                    value: 3,
-                                                },
-                                            ],
-                                            displayExpr: 'label',
-                                            valueExpr: 'value',
-                                            searchEnabled: true,
+                                            format: {
+                                                type: 'currency',
+                                                currency: 'EUR',
+                                                precision: 2,
+                                            },
                                         }}
                                     />
                                     <Item
@@ -516,16 +546,6 @@ const AddApInvoicePage = ({ token, id, businessPartners }: Props) => {
                                     />
                                 </GroupItem>
                             </Form>
-                            <div className='mt-14 flex justify-center'>
-                                <div className='w-32'>
-                                    <Button
-                                        text='Save Invoice'
-                                        icon={faFloppyDisk}
-                                        onClick={handleSave}
-                                        disabled={handleDisabled()}
-                                    />
-                                </div>
-                            </div>
                         </div>
                     </Allotment.Pane>
                     <Allotment.Pane>

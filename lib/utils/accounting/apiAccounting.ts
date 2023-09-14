@@ -14,17 +14,27 @@ export const makeApiRequest = async (
     method: string,
     messages: Messages,
     token: TokenRes,
-    body?: object | FormData | null | string
+    body?: object | FormData | null | string,
+    isApplicationJson?: boolean
 ) => {
     const aux = body instanceof FormData ? body : JSON.stringify(body);
+
+    let headersInit: HeadersInit = {
+        Authorization: `${token.token_type} ${token.access_token}`,
+    };
+
+    if (isApplicationJson) {
+        headersInit = {
+            ...headersInit,
+            'Content-type': 'application/json; charset=UTF-8',
+        };
+    }
 
     const response = await toast.promise(
         fetch(endPoint, {
             body: aux,
-            cache: 'no-cache',
-            headers: {
-                Authorization: `${token.token_type} ${token.access_token}`,
-            },
+            cache: 'no-store',
+            headers: headersInit,
             method,
         }),
         { ...messages }

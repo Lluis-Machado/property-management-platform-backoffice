@@ -7,3 +7,6 @@
 	padding-left: 0px !important;
 	padding-right: 5px !important;
 }
+.buttonPlus {
+	min-width: 60px !important;
+}
