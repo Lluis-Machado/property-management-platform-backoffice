@@ -1,7 +1,14 @@
 'use client';
 
 //React imports
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import {
+    ChangeEvent,
+    LegacyRef,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 // Libraries imports
 import { Allotment } from 'allotment';
 import { toast } from 'react-toastify';
@@ -30,13 +37,14 @@ import {
 } from '@/lib/utils/accounting/apiAccounting';
 import { apiPost } from '@/lib/utils/apiPost';
 import { BusinessPartners } from '@/lib/types/businessPartners';
-import { ApInvoice } from '@/lib/types/apInvoice';
+import { ApInvoice, ApInvoiceAnalyzedData } from '@/lib/types/apInvoice';
 import BpPopup from '@/components/popups/BpPopup';
 import ToolbarTooltipsApInvoice from '@/components/tooltips/ToolbarTooltipsApInvoice';
+import SelectBox from 'devextreme-react/select-box';
 
 const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}`;
 
-let apInvoiceData: any = {
+let apInvoiceData: ApInvoiceAnalyzedData = {
     form: {
         businessPartner: {
             name: '',
@@ -45,8 +53,11 @@ let apInvoiceData: any = {
         refNumber: '',
         date: '',
         currency: 'EUR',
-        invoiceLines: [],
         totalAmount: 0,
+        totalBaseAmount: 0,
+        totalTax: 0,
+        totalTaxPercentage: 0,
+        invoiceLines: [],
     },
 };
 
@@ -64,15 +75,39 @@ const AddApInvoicePage = ({
     allBusinessPartners,
 }: Props) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
+    const selectboxRef = useRef<any>();
     const [visible, setVisible] = useState(false);
     const [file, setFile] = useState<File>();
     const [fileDataURL, setFileDataURL] = useState(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [popUpVisible, setPopUpVisible] = useState<boolean>(false);
     const [invoiceData, setInvoiceData] = useState<any>(apInvoiceData);
+    const [selectedProvider, setSelectedProvider] =
+        useState<BusinessPartners>();
     const [lines, setLines] = useState({});
     const [analyzedInvoiceLines, setAnalyzedInvoiceLines] = useState<any>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        // Check if we are on init state
+        if (JSON.stringify(invoiceData) === JSON.stringify(apInvoiceData))
+            return;
+        const invoiceBp = invoiceData.form.businessPartner;
+        // Check if BP was founded by AI
+        if (!invoiceBp.vatNumber) {
+            toast.warn('BP not found');
+            return;
+        }
+        if (
+            !tenatsBusinessPartners.filter(
+                (bp) => bp.vatNumber === invoiceBp.vatNumber
+            )[0]
+        ) {
+            toast.warn('BP not known, add it');
+            return;
+        }
+        setSelectedProvider(invoiceBp);
+    }, [invoiceData, tenatsBusinessPartners]);
 
     const handleUploadClick = () => {
         inputRef.current?.click();
@@ -99,7 +134,7 @@ const AddApInvoicePage = ({
         }
     };
 
-    const handleSubmit = useCallback(async () => {
+    const handleAnnalyzeInvoice = useCallback(async () => {
         const toastId = toast.loading('Annalyzing Invoice');
         let analyzedData;
         const fileInput = inputRef.current;
@@ -165,7 +200,7 @@ const AddApInvoicePage = ({
         }
     }, [token]);
 
-    const handleSave = useCallback(async () => {
+    const handleSaveApInvoice = useCallback(async () => {
         const toastId = toast.loading('Saving Invoice');
         setIsLoading(true);
         const id = 'b99f942c-a141-4555-9554-14a09c5f94a4';
@@ -190,6 +225,7 @@ const AddApInvoicePage = ({
             console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'AP Invoice saved correctly!');
             router.push(`private//accounting/${id}/expenses`);
+            // Reset invoice data
             setInvoiceData(apInvoiceData);
         } catch (error: unknown) {
             customError(error, toastId);
@@ -197,10 +233,6 @@ const AddApInvoicePage = ({
             setIsLoading(false);
         }
     }, [invoiceData, router, token]);
-
-    const handleDisabled = () => {
-        if (!invoiceData) return true;
-    };
 
     useEffect(() => {
         let fileReader: any,
@@ -227,6 +259,13 @@ const AddApInvoicePage = ({
     let totalBP = allBusinessPartners.filter(
         (u) => tenatsBusinessPartners.findIndex((lu) => lu.id === u.id) === -1
     );
+    const [value, setValue] = useState<BusinessPartners>();
+
+    useEffect(() => {
+        if (value === undefined) return;
+        const arrayBP = tenatsBusinessPartners.unshift(value);
+        selectboxRef.current!.instance.option('items', arrayBP);
+    }, [value, tenatsBusinessPartners]);
 
     return (
         <div className='absolute inset-4 w-screen'>
@@ -238,6 +277,7 @@ const AddApInvoicePage = ({
                     token={token}
                     id={id}
                     allBusinessPartners={totalBP}
+                    setValue={setValue}
                 />
                 <ToolbarTooltipsApInvoice />
                 <Allotment defaultSizes={[65, 35]}>
@@ -248,8 +288,8 @@ const AddApInvoicePage = ({
                                     <Button
                                         id='saveButton'
                                         icon={faFloppyDisk}
-                                        onClick={handleSave}
-                                        disabled={handleDisabled()}
+                                        onClick={handleSaveApInvoice}
+                                        disabled={!analyzedInvoiceLines}
                                     />
                                 </div>
                                 <div className='w-10'>
@@ -257,7 +297,8 @@ const AddApInvoicePage = ({
                                         id='annalyzeButton'
                                         icon={faGears}
                                         iconPosition={'leading'}
-                                        onClick={handleSubmit}
+                                        onClick={handleAnnalyzeInvoice}
+                                        disabled={!file}
                                     />
                                 </div>
                                 <div className='w-10'>
@@ -282,23 +323,23 @@ const AddApInvoicePage = ({
                                     colCount={2}
                                     caption='Supplier invoice'
                                 >
-                                    <Item
-                                        dataField='form.businessPartner.name'
-                                        label={{ text: 'Provider' }}
-                                        editorType='dxSelectBox'
-                                        editorOptions={{
-                                            value: invoiceData.form
-                                                .businessPartner.name,
-                                            items: tenatsBusinessPartners,
-                                            displayExpr: 'name',
-                                            valueExpr: 'name',
-                                            searchEnabled: true,
-                                            cssClass: 'buttonPlus',
-                                            dropDownOptions: {
+                                    <Item label={{ text: 'Provider' }}>
+                                        <SelectBox
+                                            items={tenatsBusinessPartners}
+                                            displayExpr='name'
+                                            ref={selectboxRef}
+                                            valueExpr='vatNumber'
+                                            searchEnabled={true}
+                                            value={
+                                                selectedProvider
+                                                    ? selectedProvider.vatNumber
+                                                    : undefined
+                                            }
+                                            dropDownOptions={{
                                                 toolbarItems: [
                                                     {
                                                         toolbar: 'bottom',
-                                                        location: 'left',
+                                                        //location: 'left',
                                                         widget: 'dxButton',
                                                         options: {
                                                             icon: 'plus',
@@ -313,9 +354,9 @@ const AddApInvoicePage = ({
                                                         },
                                                     },
                                                 ],
-                                            },
-                                        }}
-                                    />
+                                            }}
+                                        />
+                                    </Item>
                                     <SimpleItem
                                         dataField='form.refNumber'
                                         label={{ text: 'Invoice Number' }}
@@ -426,6 +467,21 @@ const AddApInvoicePage = ({
                                                         cssClass='itemStyle'
                                                     />
                                                     <Item
+                                                        key={`totalUnitPrice${index}`}
+                                                        dataField={`form.invoiceLines[${index}].totalUnitPrice`}
+                                                        label={{
+                                                            text: 'Total Unit Price',
+                                                        }}
+                                                        editorOptions={{
+                                                            format: {
+                                                                type: 'currency',
+                                                                currency: 'EUR',
+                                                                precision: 2,
+                                                            },
+                                                        }}
+                                                        cssClass='itemStyle'
+                                                    />
+                                                    {/* <Item
                                                         key={`tax${index}`}
                                                         dataField={`form.invoiceLines[${index}].tax`}
                                                         label={{
@@ -457,7 +513,7 @@ const AddApInvoicePage = ({
                                                             searchEnabled: true,
                                                         }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    /> */}
                                                     <Item
                                                         key={`button${index}`}
                                                         itemType='button'
@@ -517,8 +573,8 @@ const AddApInvoicePage = ({
                             >
                                 <GroupItem>
                                     <Item
-                                        dataField='form.base'
-                                        label={{ text: 'Base' }}
+                                        dataField='form.totalBaseAmount'
+                                        label={{ text: 'Base Amout' }}
                                         editorOptions={{
                                             format: {
                                                 type: 'currency',
@@ -528,7 +584,7 @@ const AddApInvoicePage = ({
                                         }}
                                     />
                                     <Item
-                                        dataField='form.iva'
+                                        dataField='form.totalTax'
                                         label={{ text: 'IVA' }}
                                         editorOptions={{
                                             format: {
@@ -536,6 +592,13 @@ const AddApInvoicePage = ({
                                                 currency: 'EUR',
                                                 precision: 2,
                                             },
+                                        }}
+                                    />
+                                    <Item
+                                        dataField='form.totalTaxPercentage'
+                                        label={{ text: 'IVA' }}
+                                        editorOptions={{
+                                            format: "#0.##'%'",
                                         }}
                                     />
                                     <Item

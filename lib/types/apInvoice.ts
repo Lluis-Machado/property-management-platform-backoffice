@@ -6,8 +6,14 @@ export interface ApInvoice {
     refNumber: string;
     date: string;
     currency: string;
+    totalAmount: number;
+    totalBaseAmount: number;
+    totalTax: number;
+    totalTaxPercentage: number;
     invoiceLines: InvoiceLines[];
-    totalAmount: Number;
+}
+export interface ApInvoiceAnalyzedData {
+    form: ApInvoice;
 }
 
 interface InvoiceLines {

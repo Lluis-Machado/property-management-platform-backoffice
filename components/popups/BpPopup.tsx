@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useImperativeHandle, useRef, useState } from 'react';
 
 // Libraries imports
 import { Popup, Position } from 'devextreme-react/popup';
@@ -23,6 +23,7 @@ interface PopupProps {
     token: TokenRes;
     id: string;
     allBusinessPartners: BusinessPartners[];
+    setValue: any;
 }
 let businessPartnerValues: any = {
     name: '',
@@ -36,6 +37,7 @@ const BpPopup = ({
     token,
     id,
     allBusinessPartners,
+    setValue,
 }: PopupProps) => {
     const selectBoxRef = useRef<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -44,6 +46,7 @@ const BpPopup = ({
     const saveBP = useCallback(async () => {
         const toastId = toast.loading('Saving Business Partner');
         const values = structuredClone(businessPartnerValues);
+        setValue(values);
         try {
             console.log('Valores a enviar: ', values);
             console.log('Valores a enviar en JSON: ', JSON.stringify(values));
@@ -64,7 +67,6 @@ const BpPopup = ({
     }, [token, id]);
 
     const onCustomNameItemCreating = (args: any) => {
-        console.log(args);
         if (!args.text) {
             args.customItem = null;
             return;
@@ -81,6 +83,7 @@ const BpPopup = ({
         const itemInDataSource = currentItems.find(
             (item: any) => item.text === newItem.name
         );
+
         if (itemInDataSource) {
             args.customItem = itemInDataSource;
         } else {
@@ -102,11 +105,13 @@ const BpPopup = ({
         const newItem = {
             vatNumber: text,
         };
+
         businessPartnerValues.vatNumber = newItem.vatNumber;
 
         const itemInDataSource = currentItems.find(
             (item: any) => item.text === newItem.vatNumber
         );
+
         if (itemInDataSource) {
             args.customItem = itemInDataSource;
         } else {
@@ -118,10 +123,11 @@ const BpPopup = ({
 
     const displayValue = (e: any) => {
         for (const businessParter of allBusinessPartners) {
-            if (e.name == businessParter.name)
+            if (e.name == businessParter.name) {
                 arrayCIF = [businessParter.vatNumber];
-            selectBoxRef.current!.instance.option('dataSource', arrayCIF);
-            selectBoxRef.current!.instance.option('value', arrayCIF[0]);
+                selectBoxRef.current!.instance.option('dataSource', arrayCIF);
+                selectBoxRef.current!.instance.option('value', arrayCIF[0]);
+            }
         }
     };
 

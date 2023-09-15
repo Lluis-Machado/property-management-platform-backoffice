@@ -8,7 +8,7 @@ const ToolbarTooltipsApInvoice = () => {
                 showEvent='mouseenter'
                 hideEvent='mouseleave'
             >
-                <div className='text-base text-primary-700'>Save</div>
+                <div className='text-base text-primary-700'>Save Invoice</div>
             </Tooltip>
             <Tooltip
                 target='#annalyzeButton'
@@ -24,7 +24,7 @@ const ToolbarTooltipsApInvoice = () => {
                 showEvent='mouseenter'
                 hideEvent='mouseleave'
             >
-                <div className='text-base text-primary-700'>Upload</div>
+                <div className='text-base text-primary-700'>Upload Invoice</div>
             </Tooltip>
         </>
     );
