@@ -159,6 +159,13 @@ const AddApInvoicePage = ({
             );
             analyzedData = await response.json();
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');
+
+            for (const invoiceLine of analyzedData.form.invoiceLines) {
+                const totalLinePrice =
+                    invoiceLine.unitPrice * invoiceLine.quantity;
+                invoiceLine['totalLinePrice'] = totalLinePrice;
+            }
+
             setInvoiceData(analyzedData);
             try {
                 const endPoint = `${BASE_END_POINT}/invoiceitemanalyzer/Predict`;
@@ -289,7 +296,7 @@ const AddApInvoicePage = ({
                                         id='saveButton'
                                         icon={faFloppyDisk}
                                         onClick={handleSaveApInvoice}
-                                        disabled={!analyzedInvoiceLines}
+                                        disabled={!file}
                                     />
                                 </div>
                                 <div className='w-10'>
@@ -468,9 +475,9 @@ const AddApInvoicePage = ({
                                                     />
                                                     <Item
                                                         key={`totalUnitPrice${index}`}
-                                                        dataField={`form.invoiceLines[${index}].totalUnitPrice`}
+                                                        dataField={`form.invoiceLines[${index}].totalLinePrice`}
                                                         label={{
-                                                            text: 'Total Unit Price',
+                                                            text: 'Total Line Price',
                                                         }}
                                                         editorOptions={{
                                                             format: {
