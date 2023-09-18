@@ -6,6 +6,7 @@ import { saveAs } from 'file-saver';
 import { toast } from 'react-toastify';
 import dynamic from 'next/dynamic';
 import TreeView from 'devextreme-react/tree-view';
+import { useAtom } from 'jotai';
 
 // Local imoports
 import { Archive, Document, Folder } from '@/lib/types/documentsAPI';
@@ -22,12 +23,14 @@ import {
 } from '@/lib/utils/documents/utilsDocuments';
 import { FormPopupType } from '../popups/FormPopup';
 import { PopupVisibility } from '@/lib/types/Popups';
+import { isLoadingFileManager } from '@/lib/atoms/isLoadingFileManager';
 import { TreeItem } from '@/lib/types/treeView';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import DataGrid from './dataGrid/DataGrid';
 import FailedDocumentPopup, {
     failedDocumentsType,
 } from '../popups/FailedDocumentsPopup';
+import { refreshFileManager } from '@/lib/atoms/refreshFileManager';
 
 // Dynamic imports
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
@@ -54,6 +57,8 @@ export const FileManager: FC<Props> = memo(function FileManager({
     onSelectionChanged,
     treeViewRef,
 }) {
+    const [_, setIsLoading] = useAtom(isLoadingFileManager);
+    const [refreshValue, setRefresh] = useAtom(refreshFileManager);
     const [documents, setDocuments] = useState<Document[]>(dataSource);
     const [selectedFiles, setSelectedFiles] = useState<Document[]>([]);
     const [formPopupStatus, setFormPopupStatus] = useState<{
@@ -162,7 +167,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
      */
     const handleFormPopupEvent = useCallback(
         (type: FormPopupType) => {
-            if (type === 'New directory')
+            if (type === 'New folder')
                 throw new Error("Can't create folders in documents");
             if (type === 'Rename' && selectedFiles.length !== 1)
                 throw new Error("Can't rename multiple documents at once");
@@ -188,6 +193,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
     const handleDelete = useCallback(
         async (archiveId: string) => {
             if (!folder) return;
+            setIsLoading(true);
 
             const fileIds = selectedFiles.map((file) => file.id);
 
@@ -210,8 +216,14 @@ export const FileManager: FC<Props> = memo(function FileManager({
                 'delete',
                 onSuccessfullDocuments
             );
+            setIsLoading(false);
         },
-        [handleSuccessfulAndFailedDocuments, folder, selectedFiles]
+        [
+            handleSuccessfulAndFailedDocuments,
+            folder,
+            selectedFiles,
+            setIsLoading,
+        ]
     );
 
     /**
@@ -221,6 +233,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
      */
     const handleRename = useCallback(
         async (archiveId: string, name: string) => {
+            setIsLoading(true);
             const ok = await renameDocument(
                 archiveId,
                 selectedFiles[0].id,
@@ -235,8 +248,9 @@ export const FileManager: FC<Props> = memo(function FileManager({
                     )
                 );
             }
+            setIsLoading(false);
         },
-        [selectedFiles]
+        [selectedFiles, setIsLoading]
     );
 
     /**
@@ -252,7 +266,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
                 : (folder as Folder).archiveId;
 
             const events = {
-                'New directory': () => {
+                'New folder': () => {
                     throw new Error('Invalid action for files');
                 },
                 Rename: () => value && handleRename(archiveId, value),
@@ -286,6 +300,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
     const handleTreeViewPopupSubmit = useCallback(
         async (destination: TreeItem<Archive | Folder>) => {
             if (!folder) return;
+            setIsLoading(true);
 
             const isCopyTo = treeViewPopupStatus.type === 'Copy to';
 
@@ -319,6 +334,8 @@ export const FileManager: FC<Props> = memo(function FileManager({
 
             const action = isCopyTo ? 'copied' : 'moved';
             const results = await handleCall();
+            // If copy, refresh FileManager
+            if (isCopyTo) setRefresh(new Date().getMilliseconds().toString());
             const type = isCopyTo ? 'copy' : 'move';
             const onSuccessfullDocuments = (
                 successfulDocuments: Document[]
@@ -339,9 +356,12 @@ export const FileManager: FC<Props> = memo(function FileManager({
                 type,
                 onSuccessfullDocuments
             );
+            setIsLoading(false);
         },
         [
             handleSuccessfulAndFailedDocuments,
+            setIsLoading,
+            setRefresh,
             folder,
             selectedFiles,
             treeViewPopupStatus.type,
@@ -356,6 +376,8 @@ export const FileManager: FC<Props> = memo(function FileManager({
     const handleDownload = useCallback(async () => {
         if (!selectedFiles || !folder) return;
 
+        setIsLoading(true);
+
         const archiveId = isArchive(folder)
             ? folder.id
             : (folder as Folder).archiveId;
@@ -368,6 +390,8 @@ export const FileManager: FC<Props> = memo(function FileManager({
                     return { name: file.name, success: true, blob };
                 } catch (error) {
                     return { name: file.name, success: false, blob: null };
+                } finally {
+                    setIsLoading(false);
                 }
             })
         );
@@ -395,7 +419,12 @@ export const FileManager: FC<Props> = memo(function FileManager({
             'download',
             onSuccessfullDocuments
         );
-    }, [handleSuccessfulAndFailedDocuments, folder, selectedFiles]);
+    }, [
+        handleSuccessfulAndFailedDocuments,
+        folder,
+        selectedFiles,
+        setIsLoading,
+    ]);
 
     return (
         <>

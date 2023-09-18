@@ -74,7 +74,7 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
                     setIsLoading(false);
                 }
             },
-            []
+            [setIsLoading]
         );
 
         const handleDocumentSelectionChanged = useCallback(
