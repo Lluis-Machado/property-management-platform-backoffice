@@ -1,14 +1,8 @@
 'use client';
 
 //React imports
-import {
-    ChangeEvent,
-    LegacyRef,
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+
 // Libraries imports
 import { Allotment } from 'allotment';
 import { toast } from 'react-toastify';
@@ -21,7 +15,7 @@ import Form, { GroupItem, Item, SimpleItem } from 'devextreme-react/form';
 import { useRouter } from 'next/navigation';
 
 // Local imports
-import '@/lib/styles/formItems.css';
+import '../../../../../lib/styles/formItems.css';
 import { Button } from 'pg-components';
 import PreviewWrapper from './PreviewWrapper';
 import '../../../../../node_modules/allotment/dist/style.css';
@@ -88,6 +82,7 @@ const AddApInvoicePage = ({
     const [analyzedInvoiceLines, setAnalyzedInvoiceLines] = useState<any>(null);
     const router = useRouter();
 
+    // Toast if BP is not known after annalyzing invoice
     useEffect(() => {
         // Check if we are on init state
         if (JSON.stringify(invoiceData) === JSON.stringify(apInvoiceData))
@@ -95,7 +90,7 @@ const AddApInvoicePage = ({
         const invoiceBp = invoiceData.form.businessPartner;
         // Check if BP was founded by AI
         if (!invoiceBp.vatNumber) {
-            toast.warn('BP not found');
+            toast.warn('Busniness Partner not found');
             return;
         }
         if (
@@ -103,7 +98,9 @@ const AddApInvoicePage = ({
                 (bp) => bp.vatNumber === invoiceBp.vatNumber
             )[0]
         ) {
-            toast.warn('BP not known, add it');
+            toast.warn(
+                'Busniness Partner not known, create a new Business Partner'
+            );
             return;
         }
         setSelectedProvider(invoiceBp);
@@ -164,6 +161,9 @@ const AddApInvoicePage = ({
                 const totalLinePrice =
                     invoiceLine.unitPrice * invoiceLine.quantity;
                 invoiceLine['totalLinePrice'] = totalLinePrice;
+            }
+            if (analyzedData.form.businessPartner.vatNumber == null) {
+                analyzedData.form.businessPartner.vatNumber = analyzedData.cif;
             }
 
             setInvoiceData(analyzedData);
@@ -262,12 +262,13 @@ const AddApInvoicePage = ({
         };
     }, [file]);
 
-    // Remove BP that are already related to tenant
+    // Remove BP that are already related to the tenant
     let totalBP = allBusinessPartners.filter(
         (u) => tenatsBusinessPartners.findIndex((lu) => lu.id === u.id) === -1
     );
     const [value, setValue] = useState<BusinessPartners>();
 
+    // Adding new BP to selectbox Provider
     useEffect(() => {
         if (value === undefined) return;
         const arrayBP = tenatsBusinessPartners.unshift(value);
@@ -286,6 +287,7 @@ const AddApInvoicePage = ({
                     allBusinessPartners={totalBP}
                     setValue={setValue}
                 />
+
                 <ToolbarTooltipsApInvoice />
                 <Allotment defaultSizes={[65, 35]}>
                     <Allotment.Pane>
@@ -346,7 +348,6 @@ const AddApInvoicePage = ({
                                                 toolbarItems: [
                                                     {
                                                         toolbar: 'bottom',
-                                                        //location: 'left',
                                                         widget: 'dxButton',
                                                         options: {
                                                             icon: 'plus',
