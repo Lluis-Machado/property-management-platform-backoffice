@@ -1,12 +1,6 @@
 'use client';
-
-// React imports
 import { memo, useMemo } from 'react';
-
-import {
-    faChartSimple,
-    faChevronRight,
-} from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';

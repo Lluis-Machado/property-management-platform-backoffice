@@ -1,4 +1,5 @@
 // Libraries imports
+// import 'devextreme/dist/css/dx.light.css';
 import '@/lib/assets/dx.generic.pg-theme.css';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import 'react-toastify/dist/ReactToastify.css';

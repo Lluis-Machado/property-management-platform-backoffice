@@ -32,13 +32,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
-import { apiPatch } from '@/lib/utils/apiPatch';
 import { TokenRes } from '@/lib/types/token';
-import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
+import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
-import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPost } from '@/lib/utils/apiPost';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
+import { customError } from '@/lib/utils/customError';
 
 interface Props {
     dataSource: OwnershipPropertyData[];
@@ -88,10 +87,9 @@ const PropertiesOwnersDatagrid = forwardRef(
                 }
             }
         };
-
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
-                const promises: Promise<any>[] = [];
+                let valuesArray: any[] = [];
 
                 // LOGIC SUM OF SHARES
                 const dataSource: any =
@@ -107,8 +105,6 @@ const PropertiesOwnersDatagrid = forwardRef(
                 if (sum !== 100) {
                     return;
                 }
-
-                const toastId = toast.loading('Updating ownership property');
                 for (const change of e.changes) {
                     if (change.type == 'update') {
                         const contactType: any = totalContactsList?.find(
@@ -118,26 +114,21 @@ const PropertiesOwnersDatagrid = forwardRef(
                             ...change.data,
                             ownerType: contactType.type,
                         };
-                        promises.push(
-                            apiPatch(
-                                `/ownership/ownership`,
-                                values,
-                                token,
-                                'Error while updating a ownership property'
-                            )
-                        );
-                        console.log(
-                            'TODO CORRECTO, valores de vuelta: ',
-                            values
-                        );
+                        const objectArray = {
+                            values: values,
+                            operation: 'patch',
+                        };
+                        valuesArray.push(objectArray);
                     } else if (change.type == 'remove') {
-                        promises.push(
-                            apiDelete(
-                                `/ownership/ownership/${change.key}`,
-                                token,
-                                'Error while deleting an ownership'
-                            )
-                        );
+                        const values = {
+                            id: change.key,
+                        };
+
+                        const objectArray = {
+                            values: values,
+                            operation: 'delete',
+                        };
+                        valuesArray.push(objectArray);
                     } else if (change.type == 'insert') {
                         const contactType: any = totalContactsList?.find(
                             (item) => item.id == change.data.ownerId
@@ -151,35 +142,30 @@ const PropertiesOwnersDatagrid = forwardRef(
                             share,
                             mainOwnership,
                         };
-                        promises.push(
-                            apiPost(
-                                `/ownership/ownership/`,
-                                values,
-                                token,
-                                'Error while adding contact to property'
-                            )
-                        );
+                        const objectArray = {
+                            values: values,
+                            operation: 'post',
+                        };
+                        valuesArray.push(objectArray);
                     }
-                }
-                Promise.allSettled(promises).then((results) => {
-                    let rejectedPromises = 0;
-                    results.forEach((result) => {
-                        if (result.status == 'rejected') {
-                            rejectedPromises++;
-                        }
-                    });
-                    if (rejectedPromises > 0) {
-                        updateErrorToast(
-                            toastId,
-                            'Error while updating property ownerships'
+                    const toastId = toast.loading(
+                        'Updating ownership property'
+                    );
+                    try {
+                        await apiPost(
+                            '/ownership/ownership/ownerships',
+                            valuesArray,
+                            token,
+                            'Error while updating ownerships'
                         );
-                    } else {
                         updateSuccessToast(
                             toastId,
-                            'Property ownerships updated correctly!'
+                            'Ownerships updated correctly!'
                         );
+                    } catch (error: unknown) {
+                        customError(error, toastId);
                     }
-                });
+                }
             },
             [token, propertyId, totalContactsList]
         );

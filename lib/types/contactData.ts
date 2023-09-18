@@ -5,7 +5,7 @@ import { Phone } from './phone';
 
 export interface ContactData {
     id?: string;
-    title: number | null;
+    title: number[];
     firstName: string;
     lastName: string;
     gender: number | null;
@@ -21,7 +21,7 @@ export interface ContactData {
 
 export interface ContactDataProperty {
     id?: string;
-    title: number | null;
+    title: number[];
     firstName: string;
     lastName: string;
     gender: number | null;
