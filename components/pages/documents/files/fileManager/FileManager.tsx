@@ -14,8 +14,10 @@ import {
     copyDocument,
     deleteDocument,
     downloadDocument,
+    joinDocuments,
     moveDocument,
     renameDocument,
+    splitDocument,
 } from '@/lib/utils/documents/apiDocuments';
 import {
     DocumentDownload,
@@ -58,7 +60,7 @@ export const FileManager: FC<Props> = memo(function FileManager({
     treeViewRef,
 }) {
     const [_, setIsLoading] = useAtom(isLoadingFileManager);
-    const [refreshValue, setRefresh] = useAtom(refreshFileManager);
+    const [__, setRefresh] = useAtom(refreshFileManager);
     const [documents, setDocuments] = useState<Document[]>(dataSource);
     const [selectedFiles, setSelectedFiles] = useState<Document[]>([]);
     const [formPopupStatus, setFormPopupStatus] = useState<{
@@ -426,6 +428,55 @@ export const FileManager: FC<Props> = memo(function FileManager({
         setIsLoading,
     ]);
 
+    const handleDocumentSplit = async () => {
+        try {
+            if (!selectedFiles || !folder) return;
+            if (selectedFiles.length !== 1)
+                throw new Error("Can't split multiple documents at once");
+
+            setIsLoading(true);
+
+            const archiveId = isArchive(folder)
+                ? folder.id
+                : (folder as Folder).archiveId;
+
+            await splitDocument(archiveId, selectedFiles[0].id);
+
+            setRefresh(new Date().getMilliseconds().toString());
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDocumentsJoin = async () => {
+        try {
+            if (!selectedFiles || !folder) return;
+            if (selectedFiles.length === 1)
+                throw new Error("Can't join only one document");
+
+            setIsLoading(true);
+
+            const archiveId = isArchive(folder)
+                ? folder.id
+                : (folder as Folder).archiveId;
+
+            let documentIds: string[] = [];
+            for (const doc of selectedFiles) {
+                documentIds.push(doc.id);
+            }
+
+            await joinDocuments(archiveId, documentIds);
+
+            setRefresh(new Date().getMilliseconds().toString());
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <>
             <DataGrid
@@ -436,6 +487,8 @@ export const FileManager: FC<Props> = memo(function FileManager({
                 onFileDownload={handleDownload}
                 onFileMove={() => handleCopyMoveToEvent('Move to')}
                 onFileRename={() => handleFormPopupEvent('Rename')}
+                onFileSplit={handleDocumentSplit}
+                onFileJoin={handleDocumentsJoin}
             />
             {(formPopupStatus.visibility.visible ||
                 formPopupStatus.visibility.hasBeenOpen) && (

@@ -30,6 +30,14 @@ interface Props {
      */
     onFileRename: () => void;
     /**
+     * A function to be called when the "Split" action is triggered.
+     */
+    onFileSplit: () => void;
+    /**
+     * A function to be called when the "Join" action is triggered.
+     */
+    onFileJoin: () => void;
+    /**
      * The amount of selected files
      */
     selectedFilesQuantity: number;
@@ -44,6 +52,8 @@ export const ContextMenu: FC<Props> = memo(function ContextMenu({
     onFileDownload,
     onFileMove,
     onFileRename,
+    onFileSplit,
+    onFileJoin,
     selectedFilesQuantity,
 }): React.ReactElement {
     /**
@@ -57,7 +67,9 @@ export const ContextMenu: FC<Props> = memo(function ContextMenu({
                 1: onFileRename,
                 2: onFileMove,
                 3: onFileCopy,
-                4: onFileDelete,
+                4: onFileSplit,
+                5: onFileJoin,
+                6: onFileDelete,
             };
             actions[itemIndex]();
         },
@@ -80,6 +92,18 @@ export const ContextMenu: FC<Props> = memo(function ContextMenu({
             />
             <Item closeMenuOnClick icon='movetofolder' text='Move to' />
             <Item closeMenuOnClick icon='copy' text='Copy to' />
+            <Item
+                closeMenuOnClick
+                icon='fields'
+                text='Split'
+                visible={selectedFilesQuantity === 1}
+            />
+            <Item
+                closeMenuOnClick
+                icon='collapse'
+                text='Join'
+                visible={selectedFilesQuantity > 1}
+            />
             <Item closeMenuOnClick beginGroup icon='trash' text='Delete' />
         </DxContextMenu>
     );

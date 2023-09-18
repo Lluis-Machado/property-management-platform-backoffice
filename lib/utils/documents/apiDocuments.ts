@@ -91,9 +91,19 @@ interface Document {
 
 const documentMessages: Record<string, Messages> = {
     rename: {
-        pending: 'Renaming document',
+        pending: 'Renaming document...',
         success: 'Document renamed',
         error: 'Error renaming document',
+    },
+    split: {
+        pending: 'Splitting document...',
+        success: 'Document splitted',
+        error: 'Error slitting document',
+    },
+    join: {
+        pending: 'Joining documents...',
+        success: 'Documents joined',
+        error: 'Error joining documents',
     },
 };
 
@@ -155,6 +165,30 @@ export const deleteDocument = async (archiveId: string, documentId: string) => {
         endPoint,
         'DELETE',
         documentMessages.delete
+    );
+    return response.ok;
+};
+
+export const splitDocument = async (archiveId: string, documentId: string) => {
+    const endPoint = `${BASE_END_POINT}/${archiveId}/documents/${documentId}/split`;
+    const response = await makeApiRequest(
+        endPoint,
+        'POST',
+        documentMessages.split
+    );
+    return response.ok;
+};
+
+export const joinDocuments = async (
+    archiveId: string,
+    documentIds: string[]
+) => {
+    const endPoint = `${BASE_END_POINT}/${archiveId}/documents/join`;
+    const response = await makeApiRequest(
+        endPoint,
+        'POST',
+        documentMessages.join,
+        documentIds
     );
     return response.ok;
 };
