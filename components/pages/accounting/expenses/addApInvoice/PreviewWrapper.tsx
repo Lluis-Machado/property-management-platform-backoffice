@@ -9,18 +9,17 @@ const PreviewWrapper = ({ file }: Props) => {
         <div>
             <iframe
                 src={file}
+                height='100%'
+                width='90%'
                 style={{
                     position: 'absolute',
                     top: 0,
                     left: '5px',
                     bottom: 0,
                     right: 0,
-                    width: '92%',
-                    height: '100%',
                 }}
             ></iframe>
         </div>
     );
 };
-
 export default PreviewWrapper;

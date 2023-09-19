@@ -13,6 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Form, { GroupItem, Item, SimpleItem } from 'devextreme-react/form';
 import { useRouter } from 'next/navigation';
+import { PDFDocument } from 'pdf-lib';
 
 // Local imports
 import '../../../../../lib/styles/formItems.css';
@@ -68,6 +69,7 @@ const AddApInvoicePage = ({
     tenatsBusinessPartners,
     allBusinessPartners,
 }: Props) => {
+    const [pdfDocument, setPdfDocument] = useState<any>();
     const inputRef = useRef<HTMLInputElement | null>(null);
     const selectboxRef = useRef<any>();
     const [visible, setVisible] = useState(false);
@@ -119,7 +121,7 @@ const AddApInvoicePage = ({
         const selectedDocuments = [...fileInput.files];
         const toastId = toast.loading('Creating document id');
         try {
-            const response = await uploadDocumentsToArchive(
+            await uploadDocumentsToArchive(
                 'c1b1bacc-7a32-41d2-9dc0-e67afc867d0f',
                 selectedDocuments
             );
@@ -154,6 +156,7 @@ const AddApInvoicePage = ({
                 token,
                 aux
             );
+
             analyzedData = await response.json();
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');
 
@@ -162,9 +165,18 @@ const AddApInvoicePage = ({
                     invoiceLine.unitPrice * invoiceLine.quantity;
                 invoiceLine['totalLinePrice'] = totalLinePrice;
             }
+
             if (analyzedData.form.businessPartner.vatNumber == null) {
                 analyzedData.form.businessPartner.vatNumber = analyzedData.cif;
             }
+
+            //console.log(analyzedData.analyzeResult.documents[0])
+            // let invoiceDate = [];
+            // for (const line of analyzedData.analyzeResult.documents[0].fields.InvoiceDate.boundingRegions[0].boundingPolygon) {
+            //     const x = line.x * 72;
+            //     const y = line.y * 72;
+            //     invoiceDate.push(x, y);
+            // }
 
             setInvoiceData(analyzedData);
             try {
@@ -213,9 +225,33 @@ const AddApInvoicePage = ({
         const id = 'b99f942c-a141-4555-9554-14a09c5f94a4';
         const idBP = '8b5006f9-72d1-4539-b6ea-0cc261d93055';
 
+        let invoiceLines: any[] = [];
+
+        for (const invoiceLine of invoiceData.form.invoiceLines) {
+            invoiceLines.push({
+                ...invoiceLine,
+                expenseCategoryId: 'e8dcfa3c-8c1b-424a-9fbb-3adfb0d06fb0',
+                depreciationRatePerYear: 0,
+                serviceDateFrom: '2023-09-19T09:14:41.861Z',
+                serviceDateTo: '2023-09-19T09:14:41.861Z',
+            });
+        }
+
         const valuesToSend: ApInvoice = {
-            ...invoiceData.form,
+            businessPartner: {
+                name: invoiceData.form.businessPartner.name,
+                vatNumber: invoiceData.form.businessPartner.vatNumber,
+            },
+            refNumber: invoiceData.form.refNumber,
+            date: invoiceData.form.date,
+            currency: 'EUR',
+            totalAmount: invoiceData.form.totalAmount,
+            totalBaseAmount: invoiceData.form.totalBaseAmount,
+            totalTax: invoiceData.form.totalTax,
+            totalTaxPercentage: invoiceData.form.totalTaxPercentage,
+            invoiceLines: invoiceLines,
         };
+
         try {
             console.log('Valores a enviar: ', valuesToSend);
             console.log(
@@ -231,7 +267,8 @@ const AddApInvoicePage = ({
             );
             console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'AP Invoice saved correctly!');
-            router.push(`private//accounting/${id}/expenses`);
+            // Pass the ID to reload the page
+            //router.push(`/private/accounting/${id}/expenses?createdId=${data.refNumber}`)
             // Reset invoice data
             setInvoiceData(apInvoiceData);
         } catch (error: unknown) {
@@ -248,6 +285,7 @@ const AddApInvoicePage = ({
             fileReader = new FileReader();
             fileReader.onload = (e: any) => {
                 const { result } = e.target;
+                console.log(result);
                 if (result && !isCancel) {
                     setFileDataURL(result);
                 }
@@ -261,6 +299,24 @@ const AddApInvoicePage = ({
             }
         };
     }, [file]);
+
+    const drawRectangleOnPDF = async (fileReader: any) => {
+        const pdf = await fileReader.readAsArrayBuffer(file);
+        const pdfDoc = await PDFDocument.load(pdf);
+        const pages = pdfDoc.getPages();
+        const firstPage = pages[0];
+
+        // Draw a rectangle
+        firstPage.drawRectangle({
+            x: 50,
+            y: 500,
+            width: 200,
+            height: 100,
+            // color: [0, 0, 0], // RGB Black
+        });
+        const modifiedPdfBytes = await pdfDocument.save();
+        return modifiedPdfBytes;
+    };
 
     // Remove BP that are already related to the tenant
     let totalBP = allBusinessPartners.filter(
@@ -291,8 +347,8 @@ const AddApInvoicePage = ({
                 <ToolbarTooltipsApInvoice />
                 <Allotment defaultSizes={[65, 35]}>
                     <Allotment.Pane>
-                        <div className='mr-4'>
-                            <div className='flex flex-row justify-end gap-4'>
+                        <div className='mr-4 h-full overflow-y-auto overflow-x-hidden'>
+                            <div className='mr-2 flex flex-row justify-end gap-4'>
                                 <div className='w-10'>
                                     <Button
                                         id='saveButton'
@@ -383,7 +439,11 @@ const AddApInvoicePage = ({
                                     />
                                 </GroupItem>
                             </Form>
-                            <Form formData={invoiceData} labelMode='static'>
+                            <Form
+                                formData={invoiceData}
+                                labelMode='static'
+                                className='mr-2'
+                            >
                                 <GroupItem caption={`Items/Lines`}>
                                     {invoiceData.form.invoiceLines.map(
                                         (invoice: any, index: number) => {
