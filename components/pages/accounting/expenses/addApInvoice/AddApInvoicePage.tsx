@@ -225,10 +225,10 @@ const AddApInvoicePage = ({
         const id = 'b99f942c-a141-4555-9554-14a09c5f94a4';
         const idBP = '8b5006f9-72d1-4539-b6ea-0cc261d93055';
 
-        let invoiceLines: any[] = [];
+        let invoiceLinesAPInvoice: any[] = [];
 
         for (const invoiceLine of invoiceData.form.invoiceLines) {
-            invoiceLines.push({
+            invoiceLinesAPInvoice.push({
                 ...invoiceLine,
                 expenseCategoryId: 'e8dcfa3c-8c1b-424a-9fbb-3adfb0d06fb0',
                 depreciationRatePerYear: 0,
@@ -249,7 +249,7 @@ const AddApInvoicePage = ({
             totalBaseAmount: invoiceData.form.totalBaseAmount,
             totalTax: invoiceData.form.totalTax,
             totalTaxPercentage: invoiceData.form.totalTaxPercentage,
-            invoiceLines: invoiceLines,
+            invoiceLines: invoiceLinesAPInvoice,
         };
 
         try {
@@ -395,11 +395,11 @@ const AddApInvoicePage = ({
                                             ref={selectboxRef}
                                             valueExpr='vatNumber'
                                             searchEnabled={true}
-                                            value={
-                                                selectedProvider
-                                                    ? selectedProvider.vatNumber
-                                                    : undefined
-                                            }
+                                            // value={
+                                            //     selectedProvider
+                                            //         ? selectedProvider.vatNumber
+                                            //         : undefined
+                                            // }
                                             dropDownOptions={{
                                                 toolbarItems: [
                                                     {
