@@ -11,19 +11,22 @@ import DataGrid, {
     Item,
     Pager,
 } from 'devextreme-react/data-grid';
+import LinkWithIcon from '@/components/buttons/LinkWithIcon';
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
     dataSource: any[];
 }
 
 const AccountingPage = ({ dataSource }: Props): React.ReactElement => {
-    const router = useRouter();
-
-    const handleDoubleClick = useCallback(
-        ({ data }: any) => {
-            router.push(`./accounting/${data.id}/incomes`);
-        },
-        [router]
+    const CellRender = useCallback(
+        ({ data }: { data: any }): React.ReactElement => (
+            <LinkWithIcon
+                href={`./accounting/${data.id}/incomes`}
+                icon={faArrowUpRightFromSquare}
+            />
+        ),
+        []
     );
 
     return (
@@ -32,7 +35,6 @@ const AccountingPage = ({ dataSource }: Props): React.ReactElement => {
             dataSource={dataSource}
             focusedRowEnabled
             keyExpr='id'
-            onRowDblClick={handleDoubleClick}
             columnHidingEnabled={false}
             rowAlternationEnabled
             allowColumnResizing
@@ -50,7 +52,12 @@ const AccountingPage = ({ dataSource }: Props): React.ReactElement => {
             <Toolbar>
                 <Item name='searchPanel' />
             </Toolbar>
-
+            <DxColumn
+                alignment='center'
+                caption='Details / Edit'
+                cellRender={CellRender}
+                width={100}
+            />
             <DxColumn
                 caption='Name'
                 dataField='name'
