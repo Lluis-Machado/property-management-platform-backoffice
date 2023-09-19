@@ -1,7 +1,7 @@
 'use client';
 
 // React imports
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 // Libraries imports
 import {
@@ -23,6 +23,7 @@ import {
     HeaderFilter,
     Toolbar,
     Item,
+    MasterDetail,
 } from 'devextreme-react/data-grid';
 import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
@@ -30,7 +31,6 @@ import AddRowButton from '@/components/buttons/AddRowButton';
 
 // Local imports
 import { Button } from 'pg-components';
-import { TokenRes } from '@/lib/types/token';
 
 const ContentTooltip = ({ value }: { value: string }): React.ReactElement => {
     switch (value) {
@@ -138,6 +138,40 @@ const DataGrid = ({
         ),
         [onInvoiceClick]
     );
+    // MASTERDETAIL INVOICELINES
+
+    const DetailSection = ({ data }: any) => {
+        return (
+            <DxDataGrid
+                dataSource={data.data.invoiceLines}
+                showBorders={true}
+                columnAutoWidth={true}
+            >
+                <Column dataField='expenseCategory.name' />
+                <Column dataField='description' />
+                <Column
+                    dataField='serviceDateFrom'
+                    dataType='date'
+                    //@ts-ignore
+                    format={dateFormat}
+                />
+                <Column
+                    dataField='serviceDateTo'
+                    dataType='date'
+                    //@ts-ignore
+                    format={dateFormat}
+                />
+                <Column dataField='tax' format={currencyFormat} />
+                <Column dataField='quantity' />
+                <Column dataField='unitPrice' format={currencyFormat} />
+                <Column
+                    dataField='totalPrice'
+                    caption='Total Line Price'
+                    format={currencyFormat}
+                />
+            </DxDataGrid>
+        );
+    };
 
     return (
         <DxDataGrid
@@ -203,8 +237,9 @@ const DataGrid = ({
             <Column
                 allowHeaderFiltering={false}
                 caption='Invoice Nr.'
-                dataField='id'
+                dataField='refNumber'
                 dataType='string'
+                width={100}
             />
             <Column
                 caption='Date'
@@ -220,6 +255,11 @@ const DataGrid = ({
                 dataType='string'
             />
             <Column
+                caption='CIF'
+                dataField='businessPartner.vatNumber'
+                dataType='string'
+            />
+            <Column
                 caption='Netto'
                 dataField='netAmount'
                 dataType='number'
@@ -232,43 +272,6 @@ const DataGrid = ({
                 dataType='number'
                 format={currencyFormat}
                 width={100}
-            />
-            <Column
-                caption='Service from date'
-                dataField='invoiceLines[0].serviceDateFrom'
-                dataType='date'
-                width={100}
-                //@ts-ignore
-                format={dateFormat}
-            />
-            <Column
-                caption='Service end date'
-                dataField='invoiceLines[0].serviceDateTo'
-                dataType='date'
-                //@ts-ignore
-                format={dateFormat}
-                width={100}
-            />
-            <Column
-                caption='Cost type'
-                cellRender={CostTypeCellRender}
-                dataField='costType'
-                dataType='string'
-                name='costType'
-                width={100}
-            />
-            <Column
-                caption='Category'
-                dataField='invoiceLines[0].expenseCategory.name'
-                dataType='string'
-                width={150}
-            />
-            <Column
-                allowGrouping={false}
-                allowHeaderFiltering={false}
-                caption='Description'
-                dataField='invoiceLines[0].description'
-                dataType='string'
             />
             <Column
                 alignment='center'
@@ -291,6 +294,7 @@ const DataGrid = ({
                 cellRender={InvoiceCellRender}
                 width={100}
             />
+            <MasterDetail enabled={true} component={DetailSection} />
         </DxDataGrid>
     );
 };
