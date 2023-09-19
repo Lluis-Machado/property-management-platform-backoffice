@@ -663,13 +663,6 @@ const AddApInvoicePage = ({
                                         }}
                                     />
                                     <Item
-                                        dataField='form.totalTaxPercentage'
-                                        label={{ text: 'IVA' }}
-                                        editorOptions={{
-                                            format: "#0.##'%'",
-                                        }}
-                                    />
-                                    <Item
                                         dataField='form.totalAmount'
                                         label={{ text: 'Total Amout' }}
                                         editorOptions={{
