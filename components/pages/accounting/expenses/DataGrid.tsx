@@ -31,6 +31,15 @@ import AddRowButton from '@/components/buttons/AddRowButton';
 
 // Local imports
 import { Button } from 'pg-components';
+import { BusinessPartners } from '@/lib/types/businessPartners';
+import SelectBox from 'devextreme-react/select-box';
+
+interface Props {
+    dataSource: any[];
+    onInvoiceClick: (title: string, url: string) => void;
+    params: any;
+    id: string;
+}
 
 const ContentTooltip = ({ value }: { value: string }): React.ReactElement => {
     switch (value) {
@@ -107,13 +116,6 @@ const ReverseChargeCellRender = ({ value }: any): React.ReactElement => (
     />
 );
 
-interface Props {
-    dataSource: any[];
-    onInvoiceClick: (title: string, url: string) => void;
-    params: any;
-    id: string;
-}
-
 const DataGrid = ({
     dataSource,
     onInvoiceClick,
@@ -138,8 +140,8 @@ const DataGrid = ({
         ),
         [onInvoiceClick]
     );
-    // MASTERDETAIL INVOICELINES
 
+    // MASTERDETAIL INVOICELINES
     const DetailSection = ({ data }: any) => {
         return (
             <DxDataGrid
@@ -252,11 +254,6 @@ const DataGrid = ({
             <Column
                 caption='Business Partner'
                 dataField='businessPartner.name'
-                dataType='string'
-            />
-            <Column
-                caption='CIF'
-                dataField='businessPartner.vatNumber'
                 dataType='string'
             />
             <Column
