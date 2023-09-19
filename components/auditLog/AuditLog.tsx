@@ -41,7 +41,7 @@ const AuditLog = ({ token }: Props) => {
             })
             .catch((e) => console.error(e))
             .finally();
-    }, [userId]);
+    }, [userId, token]);
 
     return (
         <div className='h-full w-[50vw] bg-white'>

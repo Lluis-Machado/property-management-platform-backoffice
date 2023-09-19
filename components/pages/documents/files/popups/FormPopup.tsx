@@ -10,7 +10,7 @@ import Popup from 'devextreme-react/popup';
 /**
  * Represents the type of form actions for the FormPopup component.
  */
-export type FormPopupType = 'New directory' | 'Rename' | 'Delete';
+export type FormPopupType = 'New folder' | 'Rename' | 'Delete';
 
 interface Props {
     /**
@@ -31,7 +31,7 @@ interface Props {
      */
     onSubmit: (value?: string) => void;
     /**
-     * The type of form action to be displayed. Can be one of 'New directory', 'Rename', or 'Delete'.
+     * The type of form action to be displayed. Can be one of 'New folder', 'Rename', or 'Delete'.
      */
     type: FormPopupType;
     /**
@@ -54,7 +54,7 @@ const FormPopup: FC<Props> = memo(function FormPopup({
     const PopupRef = useRef<Popup>(null);
 
     /**
-     * Renders the form for the 'New directory' and 'Rename' action.
+     * Renders the form for the 'New folder' and 'Rename' action.
      *
      * @param submitText - The text to be displayed on the submit button.
      */
@@ -94,7 +94,7 @@ const FormPopup: FC<Props> = memo(function FormPopup({
         [elementName, onSubmit]
     );
     /**
-     * Renders the form for the 'New directory' action.
+     * Renders the form for the 'New folder' action.
      */
     const NewDirectoryRender = useCallback(
         (): React.ReactElement => <FolderNameForm submitText='Create' />,
@@ -143,7 +143,7 @@ const FormPopup: FC<Props> = memo(function FormPopup({
     const ContentRender = useCallback((): React.ReactElement => {
         const components = {
             Delete: <DeleteRender />,
-            'New directory': <NewDirectoryRender />,
+            'New folder': <NewDirectoryRender />,
             Rename: <RenameRender />,
         };
 

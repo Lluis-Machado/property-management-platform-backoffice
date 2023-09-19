@@ -1,5 +1,5 @@
 // React imports
-import { FC, memo, useCallback, useRef, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useRef, useState } from 'react';
 
 // Libraries imports
 import {
@@ -10,22 +10,15 @@ import {
     Toolbar,
 } from 'devextreme-react/data-grid';
 import { ContextMenuPreparingEvent } from 'devextreme/ui/data_grid';
-import {
-    faArrowRight,
-    faCopy,
-    faDownload,
-    faFile,
-    faImage,
-    faPenToSquare,
-    faQuestion,
-    faTrash,
-} from '@fortawesome/free-solid-svg-icons';
+import { faFile, faImage, faQuestion } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Local imports
 import { Document } from '@/lib/types/documentsAPI';
 import { formatDocumentSize } from '@/lib/utils/documents/utilsDocuments';
 import ContextMenu from './ContextMenu';
+import { isLoadingFileManager } from '@/lib/atoms/isLoadingFileManager';
+import { useAtom } from 'jotai';
 
 /**
  * Type for the possible types of toolbar items.
@@ -35,6 +28,8 @@ type ToolBarItemType =
     | 'Move to'
     | 'Copy to'
     | 'Rename'
+    | 'Split'
+    | 'Join'
     | 'Delete'
     | 'Separator';
 
@@ -99,6 +94,10 @@ interface Props {
     onFileMove: () => void;
     /** Callback function for handling the "Rename" action. */
     onFileRename: () => void;
+    /** Callback function for handling the "Split" action. */
+    onFileSplit: () => void;
+    /** Callback function for handling the "Join" action. */
+    onFileJoin: () => void;
     /** Callback function for handling the selection change. */
     onSelectionChanged: (documents: Document[]) => void;
 }
@@ -113,9 +112,20 @@ const DataGrid: FC<Props> = memo(function DataGrid({
     onFileDownload,
     onFileMove,
     onFileRename,
+    onFileSplit,
+    onFileJoin,
     onSelectionChanged,
 }): React.ReactElement {
     const DataGridRef = useRef<DxDataGrid>(null);
+    const [isLoading, _] = useAtom(isLoadingFileManager);
+
+    useEffect(() => {
+        if (isLoading) {
+            DataGridRef.current?.instance.beginCustomLoading('');
+        } else {
+            DataGridRef.current?.instance.endCustomLoading();
+        }
+    }, [isLoading]);
 
     const [selectedFilesQuantity, setSelectedFilesQuantity] =
         useState<number>(0);
@@ -130,6 +140,8 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                 Rename: onFileRename,
                 'Move to': onFileMove,
                 'Copy to': onFileCopy,
+                Split: onFileSplit,
+                Join: onFileJoin,
                 Delete: onFileDelete,
                 Separator: () => {},
             };
@@ -146,11 +158,13 @@ const DataGrid: FC<Props> = memo(function DataGrid({
     const ToolBarItemRender = useCallback(
         (type: ToolBarItemType): React.ReactElement => {
             const icon = {
-                Download: faDownload,
-                'Move to': faArrowRight,
-                'Copy to': faCopy,
-                Rename: faPenToSquare,
-                Delete: faTrash,
+                Download: 'download',
+                'Move to': 'movetofolder',
+                'Copy to': 'copy',
+                Split: 'fields',
+                Join: 'collapse',
+                Rename: 'rename',
+                Delete: 'trash',
             };
 
             return type === 'Separator' ? (
@@ -158,12 +172,12 @@ const DataGrid: FC<Props> = memo(function DataGrid({
             ) : (
                 <div
                     className='
-                        flex select-none flex-row items-center gap-2 p-2 text-center text-base 
-                        transition-colors duration-300 hover:cursor-pointer hover:rounded hover:bg-primary-300
+                        flex select-none flex-row items-center gap-1 whitespace-nowrap p-2 text-center text-base
+                        transition-colors duration-200 hover:cursor-pointer hover:rounded hover:bg-primary-100
                     '
                     onClick={() => handleOnClick(type)}
                 >
-                    <FontAwesomeIcon icon={icon[type]} />
+                    <i className={`dx-icon-${icon[type]} text-lg`}></i>
                     {type}
                 </div>
             );
@@ -247,6 +261,16 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                     />
                     <Item
                         location='before'
+                        visible={selectedFilesQuantity === 1}
+                        render={(_) => ToolBarItemRender('Split')}
+                    />
+                    <Item
+                        location='before'
+                        visible={selectedFilesQuantity > 1}
+                        render={(_) => ToolBarItemRender('Join')}
+                    />
+                    <Item
+                        location='before'
                         visible={selectedFilesQuantity > 0}
                         render={(_) => ToolBarItemRender('Separator')}
                     />
@@ -304,6 +328,8 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                 onFileDownload={onFileDownload}
                 onFileMove={onFileMove}
                 onFileRename={onFileRename}
+                onFileSplit={onFileSplit}
+                onFileJoin={onFileJoin}
                 selectedFilesQuantity={selectedFilesQuantity}
             />
         </>
