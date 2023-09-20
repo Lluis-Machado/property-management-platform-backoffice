@@ -6,10 +6,6 @@
 
 <p align="center">Backoffice Project for WuF platform</p>
 
-## Documentation
-
-// TODO
-
 ## Installation
 
 Only have to execute this command:
