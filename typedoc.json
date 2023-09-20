@@ -2,6 +2,7 @@
     "out": "./docs",
     "entryPoints": ["./**"],
     "exclude": [
+        "./app/**",
         "./node_modules/**",
         "./.next/**",
         "./docs/**",
