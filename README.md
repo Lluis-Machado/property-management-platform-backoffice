@@ -19,6 +19,7 @@ git clone https://github.com/EuropeanAccounting/property-management-platform-bac
 yarn docs
 ```
 Deployed manually in: [Netlify](https://app.netlify.com/sites/wuf-backoffice-docs/deploys)
+Deploy URL: [DOCS](https://wuf-backoffice-docs.netlify.app/)
 
 ## Technologies used & their documentation
 
