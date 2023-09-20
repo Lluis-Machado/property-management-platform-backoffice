@@ -13,7 +13,7 @@ Only have to execute this command:
 git clone https://github.com/EuropeanAccounting/property-management-platform-backoffice.git && cd .\property-management-platform-backoffice && yarn && yarn dev
 ```
 
-# Docs generation
+### Docs generation
 
 ```
 yarn docs
