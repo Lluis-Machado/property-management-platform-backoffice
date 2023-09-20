@@ -4,7 +4,6 @@
 import { useState } from 'react';
 
 // Local imports
-import { Locale } from '@/i18n-config';
 import { PopupVisibility } from '@/lib/types/Popups';
 import PopupPreview from '@/components/popups/PopupPreview';
 import DataGrid from './DataGrid';
