@@ -30,7 +30,7 @@ import AddRowButton from '@/components/buttons/AddRowButton';
 // Local imports
 import { ApInvoice } from '@/lib/types/apInvoice';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
-import Link from 'next/link';
+import { RowExpandingEvent } from 'devextreme/ui/data_grid';
 
 interface Props {
     dataSource: ApInvoice[];
@@ -168,12 +168,12 @@ const DataGrid = ({
         ({ data }: { data: any }): React.ReactElement => (
             <>
                 <LinkWithIcon
-                    href={`/private/accounting/${data.id}/expenses/addApInvoice`}
+                    href={`/private/accounting/${id}/expenses/editApInvoice`}
                     icon={faArrowUpRightFromSquare}
                 />
             </>
         ),
-        []
+        [id]
     );
 
     // MASTERDETAIL INVOICELINES
@@ -226,6 +226,11 @@ const DataGrid = ({
         );
     };
 
+    // Just opening one masterdetail at a time
+    const onRowExpanding = (e: RowExpandingEvent) => {
+        e.component.collapseAll(-1);
+    };
+
     return (
         <>
             <DxDataGrid
@@ -242,6 +247,7 @@ const DataGrid = ({
                 columnMinWidth={100}
                 showBorders
                 ref={dataGridRef}
+                onRowExpanding={onRowExpanding}
             >
                 <HeaderFilter visible />
                 <Export enabled={true} />
@@ -250,13 +256,16 @@ const DataGrid = ({
                     searchVisibleColumnsOnly={false}
                     width={400}
                 />
+                <Paging defaultPageSize={10} />
                 <Pager
                     visible={true}
-                    allowedPageSizes={[5, 10]}
+                    allowedPageSizes={[10]}
+                    showPageSizeSelector
                     displayMode={'compact'}
                     showInfo
                     showNavigationButtons
                 />
+
                 <Toolbar>
                     <Item>
                         <AddRowButton
