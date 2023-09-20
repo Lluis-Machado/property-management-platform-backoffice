@@ -160,6 +160,7 @@ const AddApInvoicePage = ({
             analyzedData = await response.json();
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');
 
+            //Calculate total price
             for (const invoiceLine of analyzedData.form.invoiceLines) {
                 const totalLinePrice =
                     invoiceLine.unitPrice * invoiceLine.quantity;
@@ -169,14 +170,6 @@ const AddApInvoicePage = ({
             if (analyzedData.form.businessPartner.vatNumber == null) {
                 analyzedData.form.businessPartner.vatNumber = analyzedData.cif;
             }
-
-            //console.log(analyzedData.analyzeResult.documents[0])
-            // let invoiceDate = [];
-            // for (const line of analyzedData.analyzeResult.documents[0].fields.InvoiceDate.boundingRegions[0].boundingPolygon) {
-            //     const x = line.x * 72;
-            //     const y = line.y * 72;
-            //     invoiceDate.push(x, y);
-            // }
 
             setInvoiceData(analyzedData);
             try {
@@ -299,24 +292,6 @@ const AddApInvoicePage = ({
             }
         };
     }, [file]);
-
-    const drawRectangleOnPDF = async (fileReader: any) => {
-        const pdf = await fileReader.readAsArrayBuffer(file);
-        const pdfDoc = await PDFDocument.load(pdf);
-        const pages = pdfDoc.getPages();
-        const firstPage = pages[0];
-
-        // Draw a rectangle
-        firstPage.drawRectangle({
-            x: 50,
-            y: 500,
-            width: 200,
-            height: 100,
-            // color: [0, 0, 0], // RGB Black
-        });
-        const modifiedPdfBytes = await pdfDocument.save();
-        return modifiedPdfBytes;
-    };
 
     // Remove BP that are already related to the tenant
     let totalBP = allBusinessPartners.filter(

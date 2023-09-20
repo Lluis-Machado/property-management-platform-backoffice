@@ -1,11 +1,14 @@
 'use client';
 
 // React imports
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 
 // Libraries imports
-import { useRouter } from 'next/navigation';
-import { faCheck, faXmark, faPencil } from '@fortawesome/free-solid-svg-icons';
+import {
+    faArrowUpRightFromSquare,
+    faCheck,
+    faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Tooltip } from 'devextreme-react/tooltip';
 import {
@@ -15,7 +18,6 @@ import {
     SearchPanel,
     Pager,
     Export,
-    Editing,
     HeaderFilter,
     Toolbar,
     Item,
@@ -26,9 +28,9 @@ import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
 import AddRowButton from '@/components/buttons/AddRowButton';
 
 // Local imports
-import { Button } from 'pg-components';
-import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import { ApInvoice } from '@/lib/types/apInvoice';
+import LinkWithIcon from '@/components/buttons/LinkWithIcon';
+import Link from 'next/link';
 
 interface Props {
     dataSource: ApInvoice[];
@@ -147,24 +149,8 @@ const DataGrid = ({
     params,
     id,
 }: Props): React.ReactElement => {
-    const router = useRouter();
     const dataGridRef = useRef<DxDataGrid>(null);
-    const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
-    // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<ApInvoice[]>(
-        structuredClone(dataSource)
-    );
-
-    // TOGGLE EDITING MODE
-    const editingMode = () => {
-        const values = structuredClone(dataSource);
-        if (JSON.stringify(values) !== JSON.stringify(initialValues)) {
-            setUnsavedVisible(true);
-        } else {
-            setIsEditing((prev) => !prev);
-        }
-    };
+    console.log(dataSource);
 
     // RENDER INVOICE CELL TO SEE INVOICE
     const InvoiceCellRender = useCallback(
@@ -175,6 +161,19 @@ const DataGrid = ({
             />
         ),
         [onInvoiceClick]
+    );
+
+    // RENDER INVOICE EDITING
+    const CellRender = useCallback(
+        ({ data }: { data: any }): React.ReactElement => (
+            <>
+                <LinkWithIcon
+                    href={`/private/accounting/${data.id}/expenses/addApInvoice`}
+                    icon={faArrowUpRightFromSquare}
+                />
+            </>
+        ),
+        []
     );
 
     // MASTERDETAIL INVOICELINES
@@ -212,11 +211,6 @@ const DataGrid = ({
                     //@ts-ignore
                     format={dateFormat}
                 />
-                <Column
-                    dataField='tax'
-                    format={currencyFormat}
-                    allowHeaderFiltering={false}
-                />
                 <Column dataField='quantity' allowHeaderFiltering={false} />
                 <Column dataField='unitPrice' format={currencyFormat}>
                     <HeaderFilter groupInterval={100} />
@@ -234,12 +228,6 @@ const DataGrid = ({
 
     return (
         <>
-            <ConfirmationPopup
-                message='Are you sure you want to exit without saving the changes?'
-                isVisible={unsavedVisible}
-                onClose={() => setUnsavedVisible(false)}
-                onConfirm={() => router.refresh()}
-            />
             <DxDataGrid
                 dataSource={dataSource}
                 keyExpr='id'
@@ -262,42 +250,17 @@ const DataGrid = ({
                     searchVisibleColumnsOnly={false}
                     width={400}
                 />
-                <Paging defaultPageSize={20} />
                 <Pager
                     visible={true}
-                    allowedPageSizes={'auto'}
+                    allowedPageSizes={[5, 10]}
                     displayMode={'compact'}
-                    showPageSizeSelector
                     showInfo
                     showNavigationButtons
                 />
-
-                {isEditing && (
-                    <Editing
-                        mode='batch'
-                        allowUpdating
-                        allowDeleting
-                        useIcons
-                    />
-                )}
                 <Toolbar>
                     <Item>
                         <AddRowButton
-                            href={`/private/accounting/${id}/addApInvoice`}
-                        />
-                    </Item>
-                    <Item
-                        name='revertButton'
-                        disabled={!isEditing}
-                        visible={true}
-                    />
-                    <Item>
-                        <Button
-                            id='editButton'
-                            elevated
-                            onClick={editingMode}
-                            type='button'
-                            icon={isEditing ? faXmark : faPencil}
+                            href={`/private/accounting/${id}/expenses/addApInvoice`}
                         />
                     </Item>
                     <Item name='searchPanel' />
@@ -360,6 +323,12 @@ const DataGrid = ({
                     allowExporting={false}
                     caption='Invoice'
                     cellRender={InvoiceCellRender}
+                    width={100}
+                />
+                <Column
+                    alignment='center'
+                    caption='Edit'
+                    cellRender={CellRender}
                     width={100}
                 />
                 <MasterDetail enabled={true} component={DetailSection} />
