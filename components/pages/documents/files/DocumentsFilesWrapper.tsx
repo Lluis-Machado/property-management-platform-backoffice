@@ -5,6 +5,7 @@ import { FC, memo, useCallback, useRef, useState } from 'react';
 
 // Libraries imports
 import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
+import { useAtom } from 'jotai';
 
 // Local imports
 import { ApiCallError } from '@/lib/utils/errors';
@@ -14,6 +15,7 @@ import { FileManager } from './fileManager/FileManager';
 import { isArchive } from '@/lib/utils/documents/utilsDocuments';
 import SplitPane from '@/components/splitPane/SplitPane';
 import TreeView from './treeView/TreeView';
+import { isLoadingFileManager } from '@/lib/atoms/isLoadingFileManager';
 
 interface Props {
     archives: any[];
@@ -22,6 +24,7 @@ interface Props {
 export const DocumentsFilesWrapper: FC<Props> = memo(
     function DocumentsFilesWrapper({ archives }): React.ReactElement {
         const TreeViewRef = useRef<DxTreeView>(null);
+        const [_, setIsLoading] = useAtom(isLoadingFileManager);
 
         const [selectedFolder, setSelectedFolder] = useState<
             Archive | Folder | undefined
@@ -36,29 +39,42 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
 
         const handleFolderSelected = useCallback(
             async (folder: Archive | Folder) => {
-                setSelectedFolder(folder);
-                const isFolderArchive = isArchive(folder);
-                const archiveId = isFolderArchive
-                    ? folder.id
-                    : (folder as Folder).archiveId;
-                const folderId = isFolderArchive ? null : (folder as Folder).id;
+                try {
+                    setIsLoading(true);
+                    setSelectedFolder(folder);
+                    const isFolderArchive = isArchive(folder);
+                    const archiveId = isFolderArchive
+                        ? folder.id
+                        : (folder as Folder).archiveId;
+                    const folderId = isFolderArchive
+                        ? null
+                        : (folder as Folder).id;
 
-                let endpoint = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${archiveId}/documents`;
-                let errorMessage = `Error while getting archive {${archiveId}} documents`;
+                    let endpoint = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${archiveId}/documents`;
+                    let errorMessage = `Error while getting archive {${archiveId}} documents`;
 
-                if (folderId) {
-                    endpoint = `${endpoint}?${new URLSearchParams({
-                        folderId,
-                    })}`;
-                    errorMessage = `Error while getting archive {${archiveId}}, folder {${folderId}} documents`;
+                    if (folderId) {
+                        endpoint = `${endpoint}?${new URLSearchParams({
+                            folderId,
+                        })}`;
+                        errorMessage = `Error while getting archive {${archiveId}}, folder {${folderId}} documents`;
+                    }
+
+                    const resp = await fetch(endpoint, {
+                        headers: { 'Content-Type': 'application/json' },
+                        cache: 'no-store',
+                    });
+                    if (!resp.ok) throw new ApiCallError(errorMessage);
+                    const aux = await resp.json();
+                    setDocuments(aux);
+                } catch (error) {
+                    // TODO: Añadir notificación al user
+                    console.error(error);
+                } finally {
+                    setIsLoading(false);
                 }
-
-                const resp = await fetch(endpoint, { cache: 'no-cache' });
-                if (!resp.ok) throw new ApiCallError(errorMessage);
-                const aux = await resp.json();
-                setDocuments(aux);
             },
-            []
+            [setIsLoading]
         );
 
         const handleDocumentSelectionChanged = useCallback(

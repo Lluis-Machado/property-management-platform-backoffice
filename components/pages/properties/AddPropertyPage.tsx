@@ -251,7 +251,7 @@ const AddPropertyPage = ({
             console.log('Valores a enviar: ', values);
             console.log('Valores a enviar JSON: ', JSON.stringify(values));
             const data = await apiPost(
-                '/core/core',
+                '/core/core/properties',
                 dataToSend,
                 token,
                 'Error while creating a property'

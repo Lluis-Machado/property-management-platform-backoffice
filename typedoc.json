@@ -1,0 +1,17 @@
+{
+    "out": "./docs",
+    "entryPoints": ["./**"],
+    "exclude": [
+        "./app/**",
+        "./node_modules/**",
+        "./.next/**",
+        "./docs/**",
+        "./public/**"
+    ],
+    "entryPointStrategy": "expand",
+    "theme": "default",
+    "name": "Eigentümerportal Backoffice Documentation",
+    "readme": "README.md",
+    "excludeExternals": true,
+    "excludePrivate": false
+}
