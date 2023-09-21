@@ -603,51 +603,55 @@ const AddApInvoicePage = ({
                                     }}
                                 />
                             </Form>
-                            <Form
-                                formData={invoiceData}
-                                labelLocation='left'
-                                style={{
-                                    width: '10vw',
-                                    float: 'right',
-                                    marginRight: '2em',
-                                }}
-                            >
-                                <GroupItem>
-                                    <Item
-                                        dataField='form.totalBaseAmount'
-                                        label={{ text: 'Base Amout' }}
-                                        editorOptions={{
-                                            format: {
-                                                type: 'currency',
-                                                currency: 'EUR',
-                                                precision: 2,
-                                            },
-                                        }}
-                                    />
-                                    <Item
-                                        dataField='form.totalTax'
-                                        label={{ text: 'IVA' }}
-                                        editorOptions={{
-                                            format: {
-                                                type: 'currency',
-                                                currency: 'EUR',
-                                                precision: 2,
-                                            },
-                                        }}
-                                    />
-                                    <Item
-                                        dataField='form.totalAmount'
-                                        label={{ text: 'Total Amout' }}
-                                        editorOptions={{
-                                            format: {
-                                                type: 'currency',
-                                                currency: 'EUR',
-                                                precision: 2,
-                                            },
-                                        }}
-                                    />
-                                </GroupItem>
-                            </Form>
+                            <div className='float-right w-1/6'>
+                                <Form
+                                    formData={invoiceData}
+                                    labelLocation='left'
+                                    elementAttr={{
+                                        style: {
+                                            width: '10vw',
+                                            float: 'right',
+                                            marginRight: '2em',
+                                        },
+                                    }}
+                                >
+                                    <GroupItem>
+                                        <Item
+                                            dataField='form.totalBaseAmount'
+                                            label={{ text: 'Base Amout' }}
+                                            editorOptions={{
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
+                                            }}
+                                        />
+                                        <Item
+                                            dataField='form.totalTax'
+                                            label={{ text: 'IVA' }}
+                                            editorOptions={{
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
+                                            }}
+                                        />
+                                        <Item
+                                            dataField='form.totalAmount'
+                                            label={{ text: 'Total Amout' }}
+                                            editorOptions={{
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
+                                            }}
+                                        />
+                                    </GroupItem>
+                                </Form>
+                            </div>
                         </div>
                     </Allotment.Pane>
                     <Allotment.Pane>
