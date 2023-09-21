@@ -23,14 +23,12 @@ interface Props {
     token: TokenRes;
     id: string;
     tenatsBusinessPartners: BusinessPartners[];
-    allBusinessPartners: BusinessPartners[];
 }
 
 export const EditApInvoicePage = ({
     token,
     id,
     tenatsBusinessPartners,
-    allBusinessPartners,
 }: Props) => {
     const selectboxRef = useRef<any>();
     const [file, setFile] = useState<File>();
@@ -96,12 +94,6 @@ export const EditApInvoicePage = ({
             setIsLoading(false);
         }
     }, [invoiceData, token]);
-
-    // Remove BP that are already related to the tenant
-    let totalBP = allBusinessPartners.filter(
-        (u) => tenatsBusinessPartners.findIndex((lu) => lu.id === u.id) === -1
-    );
-    const [value, setValue] = useState<BusinessPartners>();
 
     return (
         <div className='absolute inset-4 w-screen'>

@@ -5,8 +5,8 @@ import { useCallback, useRef } from 'react';
 
 // Libraries imports
 import {
-    faArrowUpRightFromSquare,
     faCheck,
+    faPenToSquare,
     faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,13 +24,13 @@ import {
     MasterDetail,
 } from 'devextreme-react/data-grid';
 import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
-import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
-import AddRowButton from '@/components/buttons/AddRowButton';
+import { RowExpandingEvent } from 'devextreme/ui/data_grid';
 
 // Local imports
 import { ApInvoice } from '@/lib/types/apInvoice';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
-import { RowExpandingEvent } from 'devextreme/ui/data_grid';
+import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
+import AddRowButton from '@/components/buttons/AddRowButton';
 
 interface Props {
     dataSource: ApInvoice[];
@@ -168,8 +168,8 @@ const DataGrid = ({
         ({ data }: { data: any }): React.ReactElement => (
             <>
                 <LinkWithIcon
-                    href={`/private/accounting/${id}/expenses/editApInvoice`}
-                    icon={faArrowUpRightFromSquare}
+                    href={`/private/accounting/${id}/expenses/${data.id}editApInvoice`}
+                    icon={faPenToSquare}
                 />
             </>
         ),
