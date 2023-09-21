@@ -8,6 +8,7 @@ import { ValueChangedEvent } from 'devextreme/ui/text_box';
 
 // Local imports
 import { PropertyData } from '@/lib/types/propertyInfo';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 
 interface Props {
     propertyData: PropertyData;
@@ -552,6 +553,7 @@ export const PurchaseAddProperty = ({ propertyData }: Props) => {
                                 elementAttr: {
                                     id: `purchaseDate`,
                                 },
+                                displayFormat: dateFormat,
                                 onValueChanged: (e: ValueChangedEvent) =>
                                     changeSelectbox(e),
                             }}

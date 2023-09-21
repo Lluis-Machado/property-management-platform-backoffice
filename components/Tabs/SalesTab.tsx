@@ -7,6 +7,7 @@ import { FieldDataChangedEvent } from 'devextreme/ui/form';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 // Local imports
 import { PropertyData } from '@/lib/types/propertyInfo';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 
 interface Props {
     propertyData: PropertyData;
@@ -59,6 +60,7 @@ const Sale = ({ propertyData, isEditing, isLoading }: Props) => {
                         elementAttr: {
                             id: `saleDate`,
                         },
+                        displayFormat: dateFormat,
                         onValueChanged: (e: ValueChangedEvent) =>
                             changeSelectbox(e),
                     }}
