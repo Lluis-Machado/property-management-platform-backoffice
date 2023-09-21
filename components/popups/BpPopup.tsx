@@ -25,10 +25,6 @@ interface PopupProps {
     allBusinessPartners: BusinessPartners[];
     setValue: any;
 }
-let businessPartnerValues: any = {
-    name: '',
-    vatNumber: '',
-};
 
 const BpPopup = ({
     message,
@@ -40,13 +36,24 @@ const BpPopup = ({
     setValue,
 }: PopupProps) => {
     const selectBoxRef = useRef<any>(null);
+    let businessPartnerName: string = '';
+    let businessPartnerVatNumber: string = '';
+
+    let businessPartnerValues: any = {
+        businessPartnerName: businessPartnerName,
+        businessPartnerVatNumber: businessPartnerVatNumber,
+    };
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     let arrayCIF: any[] = [];
 
     const saveBP = useCallback(async () => {
         const toastId = toast.loading('Saving Business Partner');
-        const values = structuredClone(businessPartnerValues);
-        setValue(values);
+        const values = {
+            name: businessPartnerName,
+            vatNumber: businessPartnerVatNumber,
+        };
+
         try {
             console.log('Valores a enviar: ', values);
             console.log('Valores a enviar en JSON: ', JSON.stringify(values));
@@ -64,7 +71,7 @@ const BpPopup = ({
         } finally {
             setIsLoading(false);
         }
-    }, [token, id]);
+    }, [token, id, businessPartnerName, businessPartnerVatNumber]);
 
     const onCustomNameItemCreating = (args: any) => {
         if (!args.text) {
@@ -78,7 +85,7 @@ const BpPopup = ({
         const newItem = {
             name: text,
         };
-        businessPartnerValues.name = newItem.name;
+        businessPartnerName = newItem.name;
 
         const itemInDataSource = currentItems.find(
             (item: any) => item.text === newItem.name
@@ -106,7 +113,7 @@ const BpPopup = ({
             vatNumber: text,
         };
 
-        businessPartnerValues.vatNumber = newItem.vatNumber;
+        businessPartnerVatNumber = newItem.vatNumber;
 
         const itemInDataSource = currentItems.find(
             (item: any) => item.text === newItem.vatNumber

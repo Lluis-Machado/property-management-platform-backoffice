@@ -224,7 +224,6 @@ const DataGrid = ({
         ),
         []
     );
-    DeleteCellRender;
 
     // MASTERDETAIL INVOICELINES
     const DetailSection = ({ data }: any) => {
@@ -353,7 +352,7 @@ const DataGrid = ({
                 />
                 <Column
                     caption='Business Partner'
-                    dataField='businessPartner.name'
+                    dataField='businessPartnerName'
                     dataType='string'
                 />
                 <Column

@@ -40,10 +40,9 @@ const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}`;
 
 let apInvoiceData: ApInvoiceAnalyzedData = {
     form: {
-        businessPartner: {
-            name: '',
-            vatNumber: '',
-        },
+        businessPartnerId: '',
+        businessPartnerName: '',
+        businessPartnerVatNumber: '',
         refNumber: '',
         date: '',
         currency: 'EUR',
@@ -84,18 +83,23 @@ const AddApInvoicePage = ({
 
     // Toast if BP is not known after annalyzing invoice
     useEffect(() => {
+        console.log(tenatsBusinessPartners);
         // Check if we are on init state
         if (JSON.stringify(invoiceData) === JSON.stringify(apInvoiceData))
             return;
-        const invoiceBp = invoiceData.form.businessPartner;
         // Check if BP was founded by AI
-        if (!invoiceBp.vatNumber) {
-            toast.warn('Busniness Partner not found');
+        if (!invoiceData.form.businessPartner.vatNumber && !invoiceData.cif) {
+            toast.warn(
+                'Busniness Partner / CIF not found, create a new Business Partner'
+            );
             return;
         }
         if (
             !tenatsBusinessPartners.filter(
-                (bp) => bp.vatNumber === invoiceBp.vatNumber
+                (bp) =>
+                    bp.vatNumber ===
+                        invoiceData.form.businessPartner.vatNumber ||
+                    invoiceData.cif
             )[0]
         ) {
             toast.warn(
@@ -103,7 +107,7 @@ const AddApInvoicePage = ({
             );
             return;
         }
-        setSelectedProvider(invoiceBp);
+        setSelectedProvider(invoiceData.form.businessPartner);
     }, [invoiceData, tenatsBusinessPartners]);
 
     const handleUploadClick = () => {
@@ -132,7 +136,7 @@ const AddApInvoicePage = ({
     };
 
     const handleAnnalyzeInvoice = useCallback(async () => {
-        const toastId = toast.loading('Annalyzing Invoice');
+        const toastId = toast.loading('Analyzing Invoice');
         let analyzedData;
         const fileInput = inputRef.current;
         if (!fileInput?.files) return [];
@@ -229,10 +233,9 @@ const AddApInvoicePage = ({
         }
 
         const valuesToSend: ApInvoice = {
-            businessPartner: {
-                name: invoiceData.form.businessPartner.name,
-                vatNumber: invoiceData.form.businessPartner.vatNumber,
-            },
+            businessPartnerId: invoiceData.form.businessPartnerId,
+            businessPartnerName: invoiceData.form.businessPartnerName,
+            businessPartnerVatNumber: invoiceData.form.businessPartnerVatNumber,
             refNumber: invoiceData.form.refNumber,
             date: invoiceData.form.date,
             currency: 'EUR',
