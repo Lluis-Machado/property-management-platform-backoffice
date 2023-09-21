@@ -8,3 +8,4 @@ const createErrorFactory = function (name: string) {
 };
 
 export const ApiCallError = createErrorFactory('ApiCallError');
+export const AplicationError = createErrorFactory('AplicationError');
