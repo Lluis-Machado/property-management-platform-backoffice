@@ -1,12 +1,13 @@
 'use client';
 
 // React imports
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 // Libraries imports
 import {
     faCheck,
     faPenToSquare,
+    faTrash,
     faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -31,12 +32,20 @@ import { ApInvoice } from '@/lib/types/apInvoice';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
 import AddRowButton from '@/components/buttons/AddRowButton';
+import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
+import { apiDelete } from '@/lib/utils/apiDelete';
+import { toast } from 'react-toastify';
+import { updateSuccessToast } from '@/lib/utils/customToasts';
+import { customError } from '@/lib/utils/customError';
+import { TokenRes } from '@/lib/types/token';
+import { Button } from 'pg-components';
 
 interface Props {
     dataSource: ApInvoice[];
     onInvoiceClick: (title: string, url: string) => void;
     params: any;
     id: string;
+    token: TokenRes;
 }
 
 // Tooltip
@@ -148,9 +157,28 @@ const DataGrid = ({
     onInvoiceClick,
     params,
     id,
+    token,
 }: Props): React.ReactElement => {
     const dataGridRef = useRef<DxDataGrid>(null);
-    console.log(dataSource);
+    const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
+
+    // CHANGE ANY
+    const handleDelete = useCallback(async () => {
+        const toastId = toast.loading('Deleting company...');
+        try {
+            await apiDelete(
+                `/accounting/tenants/${id}/apinvoices/`,
+                token,
+                'Error while deleting this company'
+            );
+
+            updateSuccessToast(toastId, 'Invoice deleted correctly!');
+            // Pass the ID to reload the page
+            //router.push(`/private/companies?deletedId=${companyData.id}`);
+        } catch (error: unknown) {
+            customError(error, toastId);
+        }
+    }, [token, id]);
 
     // RENDER INVOICE CELL TO SEE INVOICE
     const InvoiceCellRender = useCallback(
@@ -176,6 +204,23 @@ const DataGrid = ({
         [id]
     );
 
+    // RENDER INVOICE EDITING
+    const DeleteCellRender = useCallback(
+        ({ data }: { data: any }): React.ReactElement => (
+            <>
+                <Button
+                    elevated
+                    icon={faTrash}
+                    onClick={() => setDeleteVisible(true)}
+                    type='button'
+                    style='danger'
+                />
+            </>
+        ),
+        []
+    );
+    DeleteCellRender;
+
     // MASTERDETAIL INVOICELINES
     const DetailSection = ({ data }: any) => {
         return (
@@ -196,7 +241,11 @@ const DataGrid = ({
                     cellRender={CostTypeCellRender}
                     dataType='string'
                 />
-                <Column dataField='description' allowHeaderFiltering={false} />
+                <Column
+                    dataField='description'
+                    allowHeaderFiltering={false}
+                    width={650}
+                />
                 <Column
                     dataField='serviceDateFrom'
                     dataType='date'
@@ -233,6 +282,13 @@ const DataGrid = ({
 
     return (
         <>
+            {/* Popups */}
+            <ConfirmationPopup
+                message='Are you sure you want to delete this AP Invoice?'
+                isVisible={deleteVisible}
+                onClose={() => setDeleteVisible(false)}
+                onConfirm={handleDelete}
+            />
             <DxDataGrid
                 dataSource={dataSource}
                 keyExpr='id'
@@ -338,6 +394,12 @@ const DataGrid = ({
                     alignment='center'
                     caption='Edit'
                     cellRender={CellRender}
+                    width={100}
+                />
+                <Column
+                    alignment='center'
+                    caption='Delete'
+                    cellRender={DeleteCellRender}
                     width={100}
                 />
                 <MasterDetail enabled={true} component={DetailSection} />
