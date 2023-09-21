@@ -213,7 +213,7 @@ const DataGrid = ({
             >
                 <FontAwesomeIcon
                     icon={faTrash}
-                    className='text-white transition-transform hover:scale-125'
+                    className='row-focused-state text-primary-500 transition-transform hover:scale-125'
                 />
             </button>
         ),
