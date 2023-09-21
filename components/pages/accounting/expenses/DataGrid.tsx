@@ -38,7 +38,6 @@ import { toast } from 'react-toastify';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
 import { TokenRes } from '@/lib/types/token';
-import { Button } from 'pg-components';
 
 interface Props {
     dataSource: ApInvoice[];
@@ -161,15 +160,21 @@ const DataGrid = ({
 }: Props): React.ReactElement => {
     const dataGridRef = useRef<DxDataGrid>(null);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
+    const [invoiceId, setInvoiceId] = useState<string>('');
 
+    const handleDeleteClick = (data: any) => {
+        setDeleteVisible((prev) => !prev);
+        setInvoiceId(data.id);
+    };
     // CHANGE ANY
     const handleDelete = useCallback(async () => {
-        const toastId = toast.loading('Deleting company...');
+        const toastId = toast.loading('Deleting invoice...');
+        console.log(invoiceId);
         try {
             await apiDelete(
-                `/accounting/tenants/${id}/apinvoices/`,
+                `/accounting/tenants/${id}/apinvoices/${invoiceId}`,
                 token,
-                'Error while deleting this company'
+                'Error while deleting this invoice'
             );
 
             updateSuccessToast(toastId, 'Invoice deleted correctly!');
@@ -178,7 +183,7 @@ const DataGrid = ({
         } catch (error: unknown) {
             customError(error, toastId);
         }
-    }, [token, id]);
+    }, [token, id, invoiceId]);
 
     // RENDER INVOICE CELL TO SEE INVOICE
     const InvoiceCellRender = useCallback(
@@ -209,7 +214,7 @@ const DataGrid = ({
         ({ data }: { data: any }): React.ReactElement => (
             <button
                 className='cursor-pointer transition-all hover:border-primary-500 hover:shadow-md'
-                onClick={() => setDeleteVisible((prev) => !prev)}
+                onClick={() => handleDeleteClick(data)}
             >
                 <FontAwesomeIcon
                     icon={faTrash}
