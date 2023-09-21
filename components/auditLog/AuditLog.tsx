@@ -7,10 +7,32 @@ import { selectedUserId } from '@/lib/atoms/selectedUserId';
 import { ApiCallError } from '@/lib/utils/errors';
 import DataGrid, { Column } from 'devextreme-react/data-grid';
 import './loader.css';
+import { AccordionBasic } from '../accordion/AccordionBasic';
 
 interface Props {
     token: TokenRes;
 }
+
+const customCell = (data: any, dataField: string) => {
+    if (Array.isArray(data[dataField])) {
+        const accordionData = data[dataField].map((obj: any, idx: number) => ({
+            title: `${data.fieldName} ${idx + 1}`,
+            content: (
+                <ul>
+                    {Object.keys(obj).map((key: string, subIndex: number) => (
+                        <li key={subIndex}>
+                            <strong>{key}:</strong> {JSON.stringify(obj[key])}
+                        </li>
+                    ))}
+                </ul>
+            ),
+        }));
+
+        return <AccordionBasic items={accordionData} />;
+    } else {
+        return data[dataField];
+    }
+};
 
 const AuditLog = ({ token }: Props) => {
     const [userId, _] = useAtom(selectedUserId);
@@ -38,10 +60,7 @@ const AuditLog = ({ token }: Props) => {
                     );
                 return resp.json();
             })
-            .then((resp) => {
-                setAuditLog(resp);
-                console.log('Y SALIO BIEN RICO', resp);
-            })
+            .then((data) => setAuditLog(data.reverse()))
             .catch((e) => console.error(e))
             .finally(() => setIsLoading(false));
     }, [userId, token]);
@@ -55,13 +74,13 @@ const AuditLog = ({ token }: Props) => {
                 <div className='flex h-full items-center justify-center'>
                     <span className='loader'></span>
                 </div>
-            ) : (
+            ) : auditLog.length > 0 ? (
                 <ScrollView showScrollbar='onScroll' height='88vh'>
                     <ul
                         role='feed'
                         className='relative flex flex-col gap-12 py-12 pl-6 before:absolute before:left-6 before:top-0 before:h-full before:-translate-x-1/2 before:border before:border-dashed before:border-slate-200 after:absolute after:bottom-6 after:left-6 after:top-6 after:-translate-x-1/2 after:border after:border-slate-200 lg:pl-0 lg:before:left-[8.5rem] lg:after:left-[8.5rem]'
                     >
-                        {auditLog.reverse().map((item: any, index) => {
+                        {auditLog.map((item: any, index) => {
                             const itemCopy = structuredClone(item);
                             delete itemCopy.LastUpdateAt;
                             delete itemCopy.LastUpdateByUser;
@@ -72,7 +91,6 @@ const AuditLog = ({ token }: Props) => {
                                     ...itemCopy[fieldName],
                                 })
                             );
-                            console.log('cleanArray: ', cleanArray);
                             const dateTime = DateTime.fromISO(
                                 item.LastUpdateAt.item2
                             );
@@ -107,14 +125,18 @@ const AuditLog = ({ token }: Props) => {
                                                 alignment='left'
                                             />
                                             <Column
-                                                dataField='item1'
                                                 caption='Before edit'
                                                 alignment='left'
+                                                cellRender={({ data }) =>
+                                                    customCell(data, 'item1')
+                                                }
                                             />
                                             <Column
-                                                dataField='item2'
                                                 caption='After edit'
                                                 alignment='left'
+                                                cellRender={({ data }) =>
+                                                    customCell(data, 'item2')
+                                                }
                                             />
                                         </DataGrid>
                                     </div>
@@ -123,6 +145,12 @@ const AuditLog = ({ token }: Props) => {
                         })}
                     </ul>
                 </ScrollView>
+            ) : (
+                <div className='flex h-full items-center justify-center'>
+                    <span className='text-2xl text-slate-300'>
+                        NO CHANGES FOUND
+                    </span>
+                </div>
             )}
         </div>
     );
