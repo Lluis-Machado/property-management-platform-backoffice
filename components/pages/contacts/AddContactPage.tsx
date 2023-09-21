@@ -57,17 +57,11 @@ let contactData: ContactData = {
 
 interface Props {
     countriesData: CountryData[];
-    contactsData: ContactData[];
     token: TokenRes;
     lang: Locale;
 }
 
-const AddContactPage = ({
-    countriesData,
-    contactsData,
-    token,
-    lang,
-}: Props) => {
+const AddContactPage = ({ countriesData, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<ContactData>(
@@ -240,7 +234,6 @@ const AddContactPage = ({
                         <Tab title={`Bank`}>
                             <BankTab
                                 dataSource={contactData}
-                                contactsData={contactsData}
                                 isEditing={true}
                                 isLoading={isLoading}
                             />

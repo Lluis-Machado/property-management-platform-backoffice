@@ -9,9 +9,12 @@ import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
 import { ApiCallError } from '@/lib/utils/errors';
 import { AccordionBasic } from '../accordion/AccordionBasic';
 import './loader.css';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
+import { Locale } from '@/i18n-config';
 
 interface Props {
     token: TokenRes;
+    lang: Locale;
 }
 
 const customCell = (data: any, dataField: string) => {
@@ -19,7 +22,7 @@ const customCell = (data: any, dataField: string) => {
         const accordionData = data[dataField].map((obj: any, idx: number) => ({
             title: `${data.fieldName} ${idx + 1}`,
             content: (
-                <ul>
+                <ul className='mt-2'>
                     {Object.keys(obj).map((key: string, subIndex: number) => (
                         <li key={subIndex}>
                             <strong>{key}:</strong> {JSON.stringify(obj[key])}
@@ -35,7 +38,7 @@ const customCell = (data: any, dataField: string) => {
     }
 };
 
-const AuditLog = ({ token }: Props) => {
+const AuditLog = ({ token, lang }: Props) => {
     const [objId, _] = useAtom(selectedObjId);
     const [objName, __] = useAtom(selectedObjName);
     const [auditLog, setAuditLog] = useState([]);
@@ -104,7 +107,9 @@ const AuditLog = ({ token }: Props) => {
                                 >
                                     <div>
                                         <h4 className='text-lg font-medium leading-7 text-slate-500 lg:block lg:w-28 lg:text-right'>
-                                            {dateTime.toLocaleString()}
+                                            {dateTime.toLocaleString(
+                                                dateFormat
+                                            )}
                                         </h4>
                                         <h4 className='text-sm font-medium leading-7 text-slate-500 lg:block lg:w-28 lg:text-right'>
                                             {dateTime.toFormat('HH:mm:ss')}

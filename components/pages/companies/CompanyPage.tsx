@@ -290,17 +290,17 @@ const CompanyPage = ({
                         <RequiredRule />
                     </Item>
                     <Item dataField='nif' label={{ text: 'NIF' }} />
-                    <Item dataField='email' label={{ text: 'Email' }}>
-                        <EmailRule message='Email is invalid' />
-                    </Item>
-                    <Item
-                        dataField='germanTaxOffice'
-                        label={{ text: 'German Tax Office' }}
-                    />
                     <Item
                         dataField='uStIDNumber'
                         label={{ text: 'USt. ID Number' }}
                     />
+                    <Item
+                        dataField='germanTaxOffice'
+                        label={{ text: 'German Tax Office' }}
+                    />
+                    <Item dataField='email' label={{ text: 'Email' }}>
+                        <EmailRule message='Email is invalid' />
+                    </Item>
                     <Item
                         dataField='foundingDate'
                         label={{ text: 'Founding Date' }}
@@ -376,7 +376,6 @@ const CompanyPage = ({
                         <Tab title={`Bank`}>
                             <BankTab
                                 dataSource={companyData}
-                                contactsData={contactsData}
                                 isEditing={isEditing}
                                 isLoading={isLoading}
                             />
