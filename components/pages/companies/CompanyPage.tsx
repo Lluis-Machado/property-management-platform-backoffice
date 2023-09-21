@@ -1,12 +1,13 @@
 'use client';
 // React imports
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from 'pg-components';
 import {
     faArrowUpRightFromSquare,
+    faClockRotateLeft,
     faFileLines,
     faPencil,
     faReceipt,
@@ -47,7 +48,9 @@ import { AddressInfoTab, BankTab, ContactsTab } from '@/components/Tabs';
 import { OwnershipData } from '@/lib/types/ownershipData';
 import RelatedPropertiesDG from '../../datagrid/RelatedPropertiesDG';
 import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
-import crmZoho from '@/lib/icons/crmZoho.svg';
+import { useAtom } from 'jotai';
+import { logOpened } from '@/lib/atoms/logOpened';
+import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
 
 interface Props {
     companyData: CompanyData;
@@ -68,6 +71,9 @@ const CompanyPage = ({
     token,
     lang,
 }: Props) => {
+    const [_, setIsLogOpened] = useAtom(logOpened);
+    const [__, setCompanyId] = useAtom(selectedObjId);
+    const [___, setObjName] = useAtom(selectedObjName);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
@@ -76,6 +82,10 @@ const CompanyPage = ({
     const [initialValues, setInitialValues] = useState<CompanyData>(
         structuredClone(companyData)
     );
+
+    useEffect(() => {
+        setObjName('company');
+    }, []);
 
     const formRef = useRef<Form>(null);
 
@@ -217,6 +227,16 @@ const CompanyPage = ({
                 </div>
                 {/* Button toolbar */}
                 <div className='flex flex-row gap-4 self-center'>
+                    <Button
+                        id='auditButton'
+                        elevated
+                        onClick={() => {
+                            setCompanyId(companyData.id!);
+                            setIsLogOpened(true);
+                        }}
+                        type='button'
+                        icon={faClockRotateLeft}
+                    />
                     <Button
                         id='crmButton'
                         elevated
