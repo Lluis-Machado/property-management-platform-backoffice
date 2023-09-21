@@ -6,10 +6,6 @@
 
 <p align="center">Backoffice Project for WuF platform</p>
 
-## Documentation
-
-// TODO
-
 ## Installation
 
 Only have to execute this command:
@@ -17,13 +13,21 @@ Only have to execute this command:
 git clone https://github.com/EuropeanAccounting/property-management-platform-backoffice.git && cd .\property-management-platform-backoffice && yarn && yarn dev
 ```
 
+### Docs generation
+
+```
+yarn docs
+```
+Deployed manually in: [Netlify](https://app.netlify.com/sites/wuf-backoffice-docs/deploys) <br/>
+Deploy URL: [DOCS](https://wuf-backoffice-docs.netlify.app/)
+
 ## Technologies used & their documentation
 
  - [Next 13](https://nextjs.org/)
  - [Typescript](https://www.typescriptlang.org/)
  - [Nivo](https://nivo.rocks/) (For charts)
- - [DevExtreme 22](https://js.devexpress.com/Demos/WidgetsGallery/) (For grids)
+ - [DevExtreme 23](https://js.devexpress.com/Demos/WidgetsGallery/) (For grids)
  - [Iron Session](https://github.com/vvo/iron-session) (For cookie session)
  - [TailwindCSS](https://tailwindcss.com/) (For styles)
- - [Zustand](https://zustand-demo.pmnd.rs/) (For states)
+ - [Jotai](https://jotai.org/) (For states)
  - [Framer Motion](https://www.framer.com/motion/) (For animations)

@@ -4,6 +4,7 @@ import {
     RefObject,
     memo,
     useCallback,
+    useEffect,
     useMemo,
     useRef,
     useState,
@@ -38,6 +39,8 @@ import { PopupVisibility } from '@/lib/types/Popups';
 import { TreeItem } from '@/lib/types/treeView';
 import { TreeViewPopupType } from '../popups/TreeViewPopup';
 import ContextMenu from './ContextMenu';
+import { useAtom } from 'jotai';
+import { refreshFileManager } from '@/lib/atoms/refreshFileManager';
 
 // Dynamic imports
 const FailedDocumentsPopup = dynamic(
@@ -73,6 +76,8 @@ const TreeView: FC<Props> = memo(function TreeView({
     const UploadFileFormRef = useRef<HTMLFormElement>(null);
     const UploadFileInputRef = useRef<HTMLInputElement>(null);
 
+    const [fileManagerNeedRefresh, _] = useAtom(refreshFileManager);
+
     const [selectedTreeItem, setSelectedTreeItem] = useState<
         TreeItem<Archive | Folder> | undefined
     >(undefined);
@@ -102,6 +107,10 @@ const TreeView: FC<Props> = memo(function TreeView({
             visibility: { hasBeenOpen: false, visible: false },
         });
 
+    useEffect(() => {
+        if (selectedTreeItem) onFolderSelected(selectedTreeItem.data);
+    }, [fileManagerNeedRefresh]);
+
     /**
      * Handles the click event on a tree view item.
      * Updates the selected tree item and invokes the `onFolderSelected` callback with the selected item's data.
@@ -121,13 +130,13 @@ const TreeView: FC<Props> = memo(function TreeView({
      * Handles an event to show a form popup with a specific type.
      * Sets the appropriate folder name and popup type in the state to display the form popup.
      *
-     * @param type - The type of the form popup, such as 'New directory', 'Rename' or 'Delete.
+     * @param type - The type of the form popup, such as 'New folder', 'Rename' or 'Delete.
      */
     const handleFormPopupEvent = useCallback(
         (type: FormPopupType) => {
             const folderName =
-                type === 'New directory'
-                    ? 'Untitled directory'
+                type === 'New folder'
+                    ? 'New folder'
                     : selectedTreeItem!.data.name;
             setFormPopupStatus((p) => ({
                 folderName,
@@ -311,10 +320,10 @@ const TreeView: FC<Props> = memo(function TreeView({
      * Creates a new Folder either at the root level of an Archive or as a sub-folder inside the selected archive folder.
      * Updates the database with the new folder information and updates the local state with the response data.
      *
-     * @param archiveId - The ID of the archive to which the new directory will be added.
+     * @param archiveId - The ID of the archive to which the new folder will be added.
      * @param data - The data representing the selected archive or folder.
      * @param isSelectedItemAnArchive - A boolean indicating whether the selected item is an Archive (true) or a Folder (false).
-     * @param value - The name of the new directory to be created.
+     * @param value - The name of the new folder to be created.
      */
     const handleNewDirectory = useCallback(
         async (
@@ -400,7 +409,7 @@ const TreeView: FC<Props> = memo(function TreeView({
     );
 
     /**
-     * Handles form submission of FormPopup for different actions like creating a new directory,
+     * Handles form submission of FormPopup for different actions like creating a new folder,
      * renaming an archive or folder, and deleting an archive or folder.
      *
      * @param value - The value submitted in the form popup, if applicable.
@@ -414,7 +423,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                 : (data as Folder).archiveId;
 
             const events = {
-                'New directory': () =>
+                'New folder': () =>
                     handleNewDirectory(
                         archiveId,
                         data,
@@ -634,13 +643,21 @@ const TreeView: FC<Props> = memo(function TreeView({
 
     /**
      * Handles the `onChange` event of the document input element. Uploads selected documents to the server,
-     * displays notifications for successful and failed uploads, and resets the document input element.
+     * displays notifications for successful and failed uploads, resets the document input element,
+     * and refresh the FileManager.
      */
     const handleFileInputOnChange = useCallback(async () => {
         const response = await uploadDocuments();
         handleUploadDocumentResponse(response);
+        // Refresh FileManager
+        if (selectedTreeItem) onFolderSelected(selectedTreeItem.data);
         UploadFileFormRef.current!.reset();
-    }, [handleUploadDocumentResponse, uploadDocuments]);
+    }, [
+        handleUploadDocumentResponse,
+        uploadDocuments,
+        selectedTreeItem,
+        onFolderSelected,
+    ]);
 
     //#endregion
 
@@ -763,7 +780,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                 }
                 onDirectoryRename={() => handleFormPopupEvent('Rename')}
                 onDirectoryUpload={() => UploadFileInputRef.current!.click()}
-                onNewDirectory={() => handleFormPopupEvent('New directory')}
+                onNewDirectory={() => handleFormPopupEvent('New folder')}
             />
             {(formPopupStatus.visibility.visible ||
                 formPopupStatus.visibility.hasBeenOpen) && (
@@ -834,6 +851,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                     multiple
                     ref={UploadFileInputRef}
                     onChange={handleFileInputOnChange}
+                    accept='.pdf, .png, .jpg, .jpeg, .heif, .xls, .xlsx, .doc, .docx, .odt, .ppt, .pptx, .eml'
                     max={0}
                 />
             </form>

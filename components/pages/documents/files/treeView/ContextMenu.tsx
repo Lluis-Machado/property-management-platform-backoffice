@@ -33,7 +33,7 @@ interface Props {
      */
     onDirectoryUpload: () => void;
     /**
-     * A function to be called when the "New directory" action is triggered.
+     * A function to be called when the "New folder" action is triggered.
      */
     onNewDirectory: () => void;
 }
@@ -79,7 +79,7 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
                 actions[itemIndex as keyof typeof actions]()
             }
         >
-            <Item closeMenuOnClick icon='newfolder' text='New directory' />
+            <Item closeMenuOnClick icon='newfolder' text='New folder' />
             <Item closeMenuOnClick icon='upload' text='Upload files' />
             <Item closeMenuOnClick icon='rename' text='Rename' />
             <Item
