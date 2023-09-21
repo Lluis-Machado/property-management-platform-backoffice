@@ -2,12 +2,13 @@ import { memo, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { DateTime } from 'luxon';
 import ScrollView from 'devextreme-react/scroll-view';
-import { TokenRes } from '@/lib/types/token';
-import { selectedUserId } from '@/lib/atoms/selectedUserId';
-import { ApiCallError } from '@/lib/utils/errors';
 import DataGrid, { Column } from 'devextreme-react/data-grid';
-import './loader.css';
+
+import { TokenRes } from '@/lib/types/token';
+import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
+import { ApiCallError } from '@/lib/utils/errors';
 import { AccordionBasic } from '../accordion/AccordionBasic';
+import './loader.css';
 
 interface Props {
     token: TokenRes;
@@ -35,16 +36,17 @@ const customCell = (data: any, dataField: string) => {
 };
 
 const AuditLog = ({ token }: Props) => {
-    const [userId, _] = useAtom(selectedUserId);
+    const [objId, _] = useAtom(selectedObjId);
+    const [objName, __] = useAtom(selectedObjName);
     const [auditLog, setAuditLog] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (!userId) return;
-        console.log(userId);
+        if (!objId) return;
+        console.log(objId);
         setIsLoading(true);
         fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/audits/audits/${userId}/contact`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/audits/audits/${objId}/${objName}`,
             {
                 method: 'GET',
                 headers: {
@@ -63,7 +65,7 @@ const AuditLog = ({ token }: Props) => {
             .then((data) => setAuditLog(data.reverse()))
             .catch((e) => console.error(e))
             .finally(() => setIsLoading(false));
-    }, [userId, token]);
+    }, [objId, token]);
 
     return (
         <div className='flex h-full w-[50vw] flex-col bg-white'>

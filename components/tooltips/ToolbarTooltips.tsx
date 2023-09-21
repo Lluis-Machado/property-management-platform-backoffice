@@ -8,6 +8,13 @@ const ToolbarTooltips = ({ isEditing }: Props) => {
     return (
         <>
             <Tooltip
+                target='#auditButton'
+                showEvent='mouseenter'
+                hideEvent='mouseleave'
+            >
+                <div className='text-base text-primary-700'>Audit Log</div>
+            </Tooltip>
+            <Tooltip
                 target='#crmButton'
                 showEvent='mouseenter'
                 hideEvent='mouseleave'

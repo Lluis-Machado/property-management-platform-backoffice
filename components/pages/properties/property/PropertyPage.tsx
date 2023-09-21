@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import { Button } from 'pg-components';
 import {
@@ -11,6 +11,7 @@ import {
     faPencil,
     faSave,
     faArrowUpRightFromSquare,
+    faClockRotateLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -50,6 +51,9 @@ import Sale from '@/components/Tabs/SalesTab';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 import SharesPopup from '@/components/popups/SharesPopup';
+import { useAtom } from 'jotai';
+import { logOpened } from '@/lib/atoms/logOpened';
+import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
 
 interface Props {
     propertyData: PropertyData;
@@ -78,6 +82,9 @@ const PropertyPage = ({
     const dataGridRef = useRef();
     const formRef = useRef<Form>(null);
     const statesRef = useRef<Item>(null);
+    const [_, setIsLogOpened] = useAtom(logOpened);
+    const [__, setPropertyId] = useAtom(selectedObjId);
+    const [___, setObjName] = useAtom(selectedObjName);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
@@ -91,6 +98,11 @@ const PropertyPage = ({
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
+
+    useEffect(() => {
+        setObjName('property');
+    }, []);
+
     // function name property
     const callbackFunction = (name: string) => {
         propertyData.name = name;
@@ -297,6 +309,16 @@ const PropertyPage = ({
                 </div>
                 {/* Button toolbar */}
                 <div className='flex flex-row gap-4 self-center'>
+                    <Button
+                        id='auditButton'
+                        elevated
+                        onClick={() => {
+                            setPropertyId(propertyData.id!);
+                            setIsLogOpened(true);
+                        }}
+                        type='button'
+                        icon={faClockRotateLeft}
+                    />
                     <Button
                         id='crmButton'
                         elevated

@@ -1,5 +1,5 @@
 'use client';
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -58,7 +58,8 @@ import {
     PhonesTab,
 } from '@/components/Tabs';
 import { logOpened } from '@/lib/atoms/logOpened';
-import { selectedUserId } from '@/lib/atoms/selectedUserId';
+import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
+import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 
 interface Props {
     contactData: ContactData;
@@ -81,7 +82,8 @@ const ContactPage = ({
     lang,
 }: Props) => {
     const [_, setIsLogOpened] = useAtom(logOpened);
-    const [__, setUserId] = useAtom(selectedUserId);
+    const [__, setUserId] = useAtom(selectedObjId);
+    const [___, setObjName] = useAtom(selectedObjName);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
@@ -90,6 +92,10 @@ const ContactPage = ({
     const [initialValues, setInitialValues] = useState<ContactData>(
         structuredClone(contactData)
     );
+
+    useEffect(() => {
+        setObjName('contact');
+    }, []);
 
     const formRef = useRef<Form>(null);
 
@@ -194,6 +200,8 @@ const ContactPage = ({
                 onClose={() => setUnsavedVisible(false)}
                 onConfirm={() => router.refresh()}
             />
+            {/* Toolbar tooltips */}
+            <ToolbarTooltips isEditing={isEditing} />
             <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
                 <div className='ml-5 flex items-center gap-5'>
@@ -224,6 +232,7 @@ const ContactPage = ({
                 {/* Button toolbar */}
                 <div className='flex flex-row gap-4 self-center'>
                     <Button
+                        id='auditButton'
                         elevated
                         onClick={() => {
                             setUserId(contactData.id!);
@@ -233,6 +242,7 @@ const ContactPage = ({
                         icon={faClockRotateLeft}
                     />
                     <Button
+                        id='crmButton'
                         elevated
                         onClick={() =>
                             window.open(
@@ -244,6 +254,7 @@ const ContactPage = ({
                         icon={faArrowUpRightFromSquare}
                     />
                     <Button
+                        id='saveButton'
                         elevated
                         onClick={handleSubmit}
                         type='button'
@@ -252,12 +263,14 @@ const ContactPage = ({
                         isLoading={isLoading}
                     />
                     <Button
+                        id='editButton'
                         elevated
                         onClick={() => handleEditingButton()}
                         type='button'
                         icon={isEditing ? faXmark : faPencil}
                     />
                     <Button
+                        id='deleteButton'
                         elevated
                         onClick={() => setDeleteVisible(true)}
                         type='button'
