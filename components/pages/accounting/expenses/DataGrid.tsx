@@ -207,15 +207,15 @@ const DataGrid = ({
     // RENDER INVOICE EDITING
     const DeleteCellRender = useCallback(
         ({ data }: { data: any }): React.ReactElement => (
-            <>
-                <Button
-                    elevated
+            <button
+                className='cursor-pointer transition-all hover:border-primary-500 hover:shadow-md'
+                onClick={() => setDeleteVisible((prev) => !prev)}
+            >
+                <FontAwesomeIcon
                     icon={faTrash}
-                    onClick={() => setDeleteVisible(true)}
-                    type='button'
-                    style='danger'
+                    className='text-white transition-transform hover:scale-125'
                 />
-            </>
+            </button>
         ),
         []
     );
