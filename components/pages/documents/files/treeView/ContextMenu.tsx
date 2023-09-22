@@ -81,7 +81,12 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
         >
             <Item closeMenuOnClick icon='newfolder' text='New folder' />
             <Item closeMenuOnClick icon='upload' text='Upload files' />
-            <Item closeMenuOnClick icon='rename' text='Rename' />
+            <Item
+                closeMenuOnClick
+                icon='rename'
+                text='Rename'
+                visible={!isArchive}
+            />
             <Item
                 closeMenuOnClick
                 icon='movetofolder'
@@ -94,7 +99,12 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
                 text='Copy to'
                 visible={!isArchive}
             />
-            <Item closeMenuOnClick icon='trash' text='Delete' />
+            <Item
+                closeMenuOnClick
+                icon='trash'
+                text='Delete'
+                visible={!isArchive}
+            />
         </DxContextMenu>
     );
 });

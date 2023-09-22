@@ -33,6 +33,7 @@ import FailedDocumentPopup, {
     failedDocumentsType,
 } from '../popups/FailedDocumentsPopup';
 import { refreshFileManager } from '@/lib/atoms/refreshFileManager';
+import { AplicationError } from '@/lib/utils/errors';
 
 // Dynamic imports
 const FormPopup = dynamic(() => import('../popups/FormPopup'));
@@ -432,7 +433,9 @@ export const FileManager: FC<Props> = memo(function FileManager({
         try {
             if (!selectedFiles || !folder) return;
             if (selectedFiles.length !== 1)
-                throw new Error("Can't split multiple documents at once");
+                throw new AplicationError(
+                    "Can't split multiple documents at once"
+                );
 
             setIsLoading(true);
 
@@ -443,8 +446,9 @@ export const FileManager: FC<Props> = memo(function FileManager({
             await splitDocument(archiveId, selectedFiles[0].id);
 
             setRefresh(new Date().getMilliseconds().toString());
-        } catch (error) {
-            console.error(error);
+        } catch (err) {
+            console.error(err);
+            err instanceof AplicationError && toast.error(err.message);
         } finally {
             setIsLoading(false);
         }
@@ -454,7 +458,13 @@ export const FileManager: FC<Props> = memo(function FileManager({
         try {
             if (!selectedFiles || !folder) return;
             if (selectedFiles.length === 1)
-                throw new Error("Can't join only one document");
+                throw new AplicationError("Can't join only one document");
+            for (const doc of selectedFiles) {
+                if (doc.extension !== '.pdf')
+                    throw new AplicationError(
+                        'Only PDF documents can be joined'
+                    );
+            }
 
             setIsLoading(true);
 
@@ -470,8 +480,9 @@ export const FileManager: FC<Props> = memo(function FileManager({
             await joinDocuments(archiveId, documentIds);
 
             setRefresh(new Date().getMilliseconds().toString());
-        } catch (error) {
-            console.error(error);
+        } catch (err) {
+            console.error(err);
+            err instanceof AplicationError && toast.error(err.message);
         } finally {
             setIsLoading(false);
         }

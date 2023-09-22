@@ -64,7 +64,7 @@ const BpPopup = ({
         } finally {
             setIsLoading(false);
         }
-    }, [token, id]);
+    }, [setValue, token, id]);
 
     const onCustomNameItemCreating = (args: any) => {
         if (!args.text) {

@@ -1,5 +1,8 @@
 // Libraries imports
 import { toast } from 'react-toastify';
+import { updateSuccessToast } from '../customToasts';
+import { customError } from '../customError';
+import { ApiCallError } from '../errors';
 
 const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents`;
 
@@ -14,11 +17,17 @@ const makeApiRequest = async (
     method: string,
     messages: Messages,
     body?: object | FormData | null
-) => {
+): Promise<Response> => {
     const aux = body instanceof FormData ? body : JSON.stringify(body);
 
-    const response = await toast.promise(
-        fetch(endPoint, {
+    let toastId;
+
+    if (messages) {
+        toastId = toast.loading(messages.pending);
+    }
+
+    try {
+        const resp = await fetch(endPoint, {
             body: aux,
             cache: 'no-store',
             headers:
@@ -26,10 +35,24 @@ const makeApiRequest = async (
                     ? undefined
                     : { 'Content-Type': 'application/json' },
             method,
-        }),
-        { ...messages }
-    );
-    return response;
+        });
+
+        if (!resp.ok) {
+            const responseMsg = await resp.text();
+            throw new ApiCallError(responseMsg || messages.error);
+        }
+
+        if (toastId && messages) {
+            updateSuccessToast(toastId, messages.success);
+        }
+
+        return resp;
+    } catch (error) {
+        if (toastId && messages) {
+            customError(error, toastId);
+        }
+        throw error;
+    }
 };
 
 //#region ARCHIVES

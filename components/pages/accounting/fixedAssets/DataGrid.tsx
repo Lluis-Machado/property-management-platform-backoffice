@@ -22,7 +22,6 @@ import { Locale } from '@/i18n-config';
 // Local imports
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
 import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
-import YearSelector from '@/components/datagrid/YearSelector';
 
 interface Props {
     dataSource: any[];
@@ -69,13 +68,6 @@ const DataGrid = ({
             />
         ),
         [onInvoiceClick]
-    );
-
-    const YearSelect = useCallback(
-        (): React.ReactElement => (
-            <YearSelector years={years} onSelectionChanged={onYearChange} />
-        ),
-        [onYearChange, years]
     );
 
     return (

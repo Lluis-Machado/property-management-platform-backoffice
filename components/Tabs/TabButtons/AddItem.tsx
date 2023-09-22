@@ -60,7 +60,9 @@ const AddItem = ({ data, isEditing, arrayType, callbackFunction }: Props) => {
                     bankName: '',
                     iban: undefined,
                     bic: undefined,
-                    contactPerson: undefined,
+                    contactEmail: '',
+                    contactName: '',
+                    contactPhone: '',
                 });
             case 'contacts':
                 if ('contacts' in data) {
