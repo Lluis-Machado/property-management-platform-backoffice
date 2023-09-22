@@ -71,7 +71,7 @@ const BpPopup = ({
         } finally {
             setIsLoading(false);
         }
-    }, [token, id, businessPartnerName, businessPartnerVatNumber]);
+    }, [token, id]);
 
     const onCustomNameItemCreating = (args: any) => {
         if (!args.text) {

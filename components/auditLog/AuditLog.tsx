@@ -7,7 +7,8 @@ import DataGrid, { Column } from 'devextreme-react/data-grid';
 import { TokenRes } from '@/lib/types/token';
 import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
 import { ApiCallError } from '@/lib/utils/errors';
-import { AccordionBasic } from '../accordion/AccordionBasic';
+import { AccordionBasic } from '@/components/accordion/AccordionBasic';
+import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import './loader.css';
 
 interface Props {
@@ -19,7 +20,7 @@ const customCell = (data: any, dataField: string) => {
         const accordionData = data[dataField].map((obj: any, idx: number) => ({
             title: `${data.fieldName} ${idx + 1}`,
             content: (
-                <ul>
+                <ul className='mt-2'>
                     {Object.keys(obj).map((key: string, subIndex: number) => (
                         <li key={subIndex}>
                             <strong>{key}:</strong> {JSON.stringify(obj[key])}
@@ -65,7 +66,7 @@ const AuditLog = ({ token }: Props) => {
             .then((data) => setAuditLog(data.reverse()))
             .catch((e) => console.error(e))
             .finally(() => setIsLoading(false));
-    }, [objId, token]);
+    }, [objName, objId, token]);
 
     return (
         <div className='flex h-full w-[50vw] flex-col bg-white'>
@@ -104,7 +105,9 @@ const AuditLog = ({ token }: Props) => {
                                 >
                                     <div>
                                         <h4 className='text-lg font-medium leading-7 text-slate-500 lg:block lg:w-28 lg:text-right'>
-                                            {dateTime.toLocaleString()}
+                                            {dateTime.toLocaleString(
+                                                dateFormat
+                                            )}
                                         </h4>
                                         <h4 className='text-sm font-medium leading-7 text-slate-500 lg:block lg:w-28 lg:text-right'>
                                             {dateTime.toFormat('HH:mm:ss')}

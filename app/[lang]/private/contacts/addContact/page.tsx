@@ -39,7 +39,6 @@ const AddContact = async ({ params: { lang } }: Props) => {
             <Breadcrumb />
             <AddContactPage
                 countriesData={countries}
-                contactsData={contactsData}
                 lang={lang}
                 token={user.token}
             />

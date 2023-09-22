@@ -101,7 +101,7 @@ const PropertyPage = ({
 
     useEffect(() => {
         setObjName('property');
-    }, []);
+    }, [setObjName]);
 
     // function name property
     const callbackFunction = (name: string) => {

@@ -213,7 +213,6 @@ const AddCompanyPage = ({
                         <Tab title={`Bank`}>
                             <BankTab
                                 dataSource={companyData}
-                                contactsData={contactsData}
                                 isEditing={true}
                                 isLoading={isLoading}
                             />
