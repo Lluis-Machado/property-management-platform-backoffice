@@ -37,6 +37,15 @@ const AddProperty = async ({ params: { lang } }: Props) => {
             ),
         ]);
 
+    // Sort properties alphabetical
+    let propertiesSorted = properties.slice(0);
+    propertiesSorted.sort(function (a, b) {
+        var x = a.name.toLowerCase();
+        var y = b.name.toLowerCase();
+        return x < y ? -1 : x > y ? 1 : 0;
+    });
+
+    // Add contact type to contacts
     let contacts: SelectData[] = [];
     for (const contact of contactData) {
         contacts.push({
@@ -46,6 +55,15 @@ const AddProperty = async ({ params: { lang } }: Props) => {
         });
     }
 
+    // Sort contacts alphabetical
+    let contactsSorted = contacts.slice(0);
+    contactsSorted.sort(function (a, b) {
+        var x = a.label.toLowerCase();
+        var y = b.label.toLowerCase();
+        return x < y ? -1 : x > y ? 1 : 0;
+    });
+
+    // Add contact type to companies
     let companies: SelectData[] = [];
     for (const company of companyData) {
         companies.push({
@@ -56,16 +74,24 @@ const AddProperty = async ({ params: { lang } }: Props) => {
     }
     const totalContactsList = [...contacts, ...companies];
 
+    // Sort all contacts alphabetical
+    let totalContactsListsorted = totalContactsList.slice(0);
+    totalContactsListsorted.sort(function (a, b) {
+        var x = a.label.toLowerCase();
+        var y = b.label.toLowerCase();
+        return x < y ? -1 : x > y ? 1 : 0;
+    });
+
     return (
         <>
             <Breadcrumb />
             <AddPropertyPage
-                properties={properties}
-                contacts={contacts}
+                properties={propertiesSorted}
+                contacts={contactsSorted}
                 countries={countriesData}
                 token={user.token}
                 lang={lang}
-                totalContactsList={totalContactsList}
+                totalContactsList={totalContactsListsorted}
             />
         </>
     );

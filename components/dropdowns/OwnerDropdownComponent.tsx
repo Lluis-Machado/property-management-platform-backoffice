@@ -12,6 +12,7 @@ import DataGrid, {
 import DropDownBox from 'devextreme-react/drop-down-box';
 
 const OwnerDropdownComponent = (props: any) => {
+    const datagridRef = useRef<DataGrid>(null);
     const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([
         props.data.value,
     ]);
@@ -32,26 +33,7 @@ const OwnerDropdownComponent = (props: any) => {
     const handleOptionChange = (e: any) => {
         if (e.name === 'opened') setIsDropDownOpened(e.value);
     };
-    // const EditorPreparing = (e: EditorPreparingEvent<any, string>) => {
-    //     console.log(e)
-    //     if (e.parentType === 'dataRow' && e.dataField === 'firstName') {
-    //         e.editorOptions.dataSource = new DataSource({
-    //             store: {
-    //                 type: 'array',
-    //                 data: props.data.column.lookup.dataSource,
-    //                 key: 'id',
-    //             },
-    //             filter: function (item: any) {
-    //                 console.log(item)
-    //                 if (item.id == props.data.column.lookup.dataSource) {
-    //                     return false;
-    //                 }
-    //                 return true;
-    //             }
-    //         });
 
-    //     }
-    // };
     const contentRender = () => (
         <DataGrid
             dataSource={props.data.column.lookup.dataSource}
@@ -63,11 +45,14 @@ const OwnerDropdownComponent = (props: any) => {
             focusedRowEnabled
             hoverStateEnabled
             onSelectionChanged={handleSelectionChange}
-            //onEditorPreparing={EditorPreparing}
+            ref={datagridRef}
         >
             <SearchPanel visible />
-            <Column dataField='firstName' caption='Full name' />
-            <Column dataField='nif' caption='Nif' />
+            <Column
+                dataField='firstName'
+                caption='Full name'
+                defaultSortOrder='asc'
+            />
             <Column dataField='email' caption='Email' />
             <Scrolling mode='virtual' />
             <Selection mode='single' />
