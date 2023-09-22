@@ -52,6 +52,7 @@ const PropertiesOwnersDatagrid = forwardRef(
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
         const propertyId: number = dataSource[0].propertyId;
+        const initialValues = structuredClone(dataSource);
 
         // API CALLS
         useImperativeHandle(ref, () => ({
@@ -60,6 +61,7 @@ const PropertiesOwnersDatagrid = forwardRef(
             getDataSource,
         }));
 
+        // METHODS DATAGRID
         const saveEditData = () => datagridRef.current!.instance.saveEditData();
         const hasEditData = () => datagridRef.current!.instance.hasEditData();
         const getDataSource = () =>
@@ -87,14 +89,17 @@ const PropertiesOwnersDatagrid = forwardRef(
                 }
             }
         };
+
+        // FUNCTION TO SAVE THE CHANGES OWNERSHIPS
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
-                let valuesArray: any[] = [];
+                let dataOwnerships: any[] = [];
 
                 // LOGIC SUM OF SHARES
                 const dataSource: any =
                     datagridRef.current?.instance.getDataSource();
                 const data = dataSource._store._array;
+
                 let sum: number = 0;
                 let array: number[] = [];
                 for (const item of data) {
@@ -105,6 +110,24 @@ const PropertiesOwnersDatagrid = forwardRef(
                 if (sum !== 100) {
                     return;
                 }
+
+                // SAVE OWNERSHIP WITHOUT CHANGES
+                for (const initialValue of initialValues) {
+                    for (let i = 0; i < data.length; i++) {
+                        if (
+                            initialValue.share === data[i].share &&
+                            initialValue.deleted === data[i].deleted &&
+                            initialValue.mainOwnership === data[i].mainOwnership
+                        ) {
+                            dataOwnerships.push({
+                                values: initialValue,
+                                operation: 'patch',
+                            });
+                        }
+                    }
+                }
+
+                // LOOP OVER CHANGES IN DATAGRID BY TYPE OF CHANGE
                 for (const change of e.changes) {
                     if (change.type == 'update') {
                         const contactType: any = totalContactsList?.find(
@@ -118,7 +141,7 @@ const PropertiesOwnersDatagrid = forwardRef(
                             values: values,
                             operation: 'patch',
                         };
-                        valuesArray.push(objectArray);
+                        dataOwnerships.push(objectArray);
                     } else if (change.type == 'remove') {
                         const values = {
                             id: change.key,
@@ -128,7 +151,7 @@ const PropertiesOwnersDatagrid = forwardRef(
                             values: values,
                             operation: 'delete',
                         };
-                        valuesArray.push(objectArray);
+                        dataOwnerships.push(objectArray);
                     } else if (change.type == 'insert') {
                         const contactType: any = totalContactsList?.find(
                             (item) => item.id == change.data.ownerId
@@ -146,29 +169,32 @@ const PropertiesOwnersDatagrid = forwardRef(
                             values: values,
                             operation: 'post',
                         };
-                        valuesArray.push(objectArray);
-                    }
-                    const toastId = toast.loading(
-                        'Updating ownership property'
-                    );
-                    try {
-                        await apiPost(
-                            '/ownership/ownership/ownerships',
-                            valuesArray,
-                            token,
-                            'Error while updating ownerships'
-                        );
-                        updateSuccessToast(
-                            toastId,
-                            'Ownerships updated correctly!'
-                        );
-                    } catch (error: unknown) {
-                        customError(error, toastId);
+                        dataOwnerships.push(objectArray);
                     }
                 }
+
+                const toastId = toast.loading('Updating ownership property');
+
+                // API CALL
+                try {
+                    await apiPost(
+                        '/ownership/ownership/ownerships',
+                        dataOwnerships,
+                        token,
+                        'Error while updating ownerships'
+                    );
+                    updateSuccessToast(
+                        toastId,
+                        'Ownerships updated correctly!'
+                    );
+                } catch (error: unknown) {
+                    customError(error, toastId);
+                }
             },
-            [token, propertyId, totalContactsList]
+            [token, propertyId, totalContactsList, initialValues]
         );
+
+        // LINK TO GO TO CONTACT/ COMPANY PAGE
         const CellRender = useCallback(
             ({ data }: { data: any }) => (
                 <LinkWithIcon
@@ -182,12 +208,15 @@ const PropertiesOwnersDatagrid = forwardRef(
             ),
             []
         );
+
+        //CELL RENDER FOR MAIN OWNER COLUMN
         const MainOwnerCellRender = ({ value }: any): React.ReactElement => (
             <FontAwesomeIcon
                 icon={value === true ? faCheck : faXmark}
                 className='row-focused-state text-primary-500'
             />
         );
+
         return (
             <div className='flex'>
                 <div className='basis-2/3'>

@@ -140,6 +140,7 @@ const PropertyPage = ({
         await dataGridRef.current.saveEditData();
         // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
+
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             if (response == false) {
                 setIsEditing(true);
@@ -150,6 +151,7 @@ const PropertyPage = ({
                     // @ts-ignore
                     await dataGridRef.current.getDataSource();
                 const data = dataSource._store._array;
+                //CHECK SUM OF SHARES
                 let sum: number = 0;
                 let array: number[] = [];
                 for (const item of data) {
@@ -188,6 +190,23 @@ const PropertyPage = ({
             );
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
+
+            // API CALL TO CHANGE THE PROPERTY TITLE
+            if (values.name !== initialValues.name) {
+                try {
+                    const data = await apiPatch(
+                        `/properties/properties/${propertyData.id}/name/${values.name}`,
+                        values.name,
+                        token,
+                        'Error while updating the property name'
+                    );
+                    console.log('TODO CORRECTO, valores de vuelta: ', data);
+                } catch (error: unknown) {
+                    customError(error, toastId);
+                } finally {
+                    setIsLoading(false);
+                }
+            }
             updateSuccessToast(toastId, 'Property updated correctly!');
             setInitialValues(data);
             setIsEditing(false);

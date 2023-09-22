@@ -4,3 +4,12 @@
     border: none !important;
     opacity: 1 !important;
 }
+
+.titlePropertyEditingMode {
+    font-size: 35px;
+    font-weight: 800;
+    opacity: 1 !important;
+    border: none !important;
+    border-radius: none !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+}
