@@ -73,7 +73,15 @@ export const ContextMenu: FC<Props> = memo(function ContextMenu({
             };
             actions[itemIndex]();
         },
-        [onFileCopy, onFileDelete, onFileDownload, onFileMove, onFileRename]
+        [
+            onFileCopy,
+            onFileDelete,
+            onFileDownload,
+            onFileMove,
+            onFileRename,
+            onFileJoin,
+            onFileSplit,
+        ]
     );
 
     return (

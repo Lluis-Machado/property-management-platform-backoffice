@@ -2,5 +2,7 @@ export interface BankInformation {
     bankName: string;
     iban?: string;
     bic?: string;
-    contactPerson?: string;
+    contactName?: string;
+    contactPhone?: string;
+    contactEmail?: string;
 }

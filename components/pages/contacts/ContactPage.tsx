@@ -66,7 +66,6 @@ interface Props {
     countriesData: CountryData[];
     initialStates: StateData[];
     ownershipData: OwnershipData[];
-    contactsData: ContactData[];
     token: TokenRes;
     lang: Locale;
 }
@@ -76,7 +75,6 @@ const ContactPage = ({
     contactData,
     countriesData,
     ownershipData,
-    contactsData,
     initialStates,
     token,
     lang,
@@ -95,7 +93,7 @@ const ContactPage = ({
 
     useEffect(() => {
         setObjName('contact');
-    }, []);
+    }, [setObjName]);
 
     const formRef = useRef<Form>(null);
 
@@ -400,7 +398,6 @@ const ContactPage = ({
                         <Tab title={`Bank`}>
                             <BankTab
                                 dataSource={contactData}
-                                contactsData={contactsData}
                                 isEditing={isEditing}
                                 isLoading={isLoading}
                             />

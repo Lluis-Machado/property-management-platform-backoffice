@@ -26,7 +26,7 @@ function AccordionItem({ title, content }: AccordionItemProps) {
                     />
                 </svg>
             </summary>
-            <p className='mt-4 text-slate-500'>{content}</p>
+            <span className='mt-4 text-slate-500'>{content}</span>
         </details>
     );
 }

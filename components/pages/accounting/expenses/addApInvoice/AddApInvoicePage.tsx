@@ -267,7 +267,7 @@ const AddApInvoicePage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [invoiceData, router, token]);
+    }, [invoiceData, token]);
 
     useEffect(() => {
         let fileReader: any,

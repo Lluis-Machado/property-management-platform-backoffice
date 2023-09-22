@@ -68,7 +68,6 @@ const ContactForm = async ({ params: { lang, id } }: Props) => {
             <ContactPage
                 contactData={contactData}
                 ownershipData={ownershipData}
-                contactsData={contactsData}
                 countriesData={countriesData}
                 initialStates={statesData}
                 token={user.token}

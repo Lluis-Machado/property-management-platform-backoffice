@@ -148,7 +148,15 @@ const DataGrid: FC<Props> = memo(function DataGrid({
 
             on[action]();
         },
-        [onFileCopy, onFileDelete, onFileDownload, onFileMove, onFileRename]
+        [
+            onFileCopy,
+            onFileDelete,
+            onFileDownload,
+            onFileMove,
+            onFileRename,
+            onFileJoin,
+            onFileSplit,
+        ]
     );
 
     /**
@@ -290,6 +298,7 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                     caption='Name'
                     cellRender={NameCellRender}
                     dataField='name'
+                    sortOrder='asc'
                 />
                 <Column
                     caption='Size'
@@ -298,11 +307,11 @@ const DataGrid: FC<Props> = memo(function DataGrid({
                     dataType='number'
                 />
                 <Column
-                    caption='Created at'
+                    caption='Uploaded at'
                     dataField='createdAt'
                     dataType='datetime'
                 />
-                <Column caption='Created by' dataField='createdByUser' />
+                <Column caption='Uploaded by' dataField='createdByUser' />
                 <Column
                     caption='Updated at'
                     dataField='lastUpdateAt'

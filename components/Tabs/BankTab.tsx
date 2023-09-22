@@ -3,63 +3,35 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import Form, { Item, GroupItem } from 'devextreme-react/form';
-import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
 // Local imports
 import { ContactData } from '@/lib/types/contactData';
 import { CompanyData } from '@/lib/types/companyData';
 import AddItem from './TabButtons/AddItem';
 import DeleteItem from './TabButtons/DeleteItem';
-import ContactInfoPopover from '../popover/ContactInfoPopover';
 
 interface Props {
     dataSource: ContactData | CompanyData;
-    contactsData: ContactData[];
     isEditing: boolean;
     isLoading: boolean;
 }
-const BankTab = ({ dataSource, contactsData, isEditing, isLoading }: Props) => {
+const BankTab = ({ dataSource, isEditing, isLoading }: Props) => {
     const [addressOptions, setAddressOptions] = useState({});
-    const [isPopoverVisible, setIsPopoverVisible] = useState(false);
-    const [popoverTarget, setPopoverTarget] = useState('');
-    const [selectedContactInfo, setSelectedContactInfo] =
-        useState<ContactData>();
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
-    const [elementsList, setElementsList] = useState<ValueChangedEvent[]>([]);
     const formRef = useRef<Form>(null);
 
     useEffect(() => {
-        for (const element of elementsList) {
-            document
-                .getElementById(element.element.attributes[1].nodeValue!)
-                ?.classList.add('stylingForm');
-        }
         for (const event of eventsList) {
             document
                 .getElementsByName(event.dataField!)[0]
                 ?.classList.add('styling');
         }
-    }, [eventsList, elementsList, addressOptions]);
+    }, [eventsList, addressOptions]);
 
     const changeCssFormElement = (e: FieldDataChangedEvent) => {
         if (e.dataField !== 'formData') {
             setEventsList((prev) => [...prev, e]);
         }
-    };
-
-    const changeSelectbox = (e: ValueChangedEvent) => {
-        setElementsList((prev) => [...prev, e]);
-    };
-
-    const handlePopover = (idx: number) => {
-        setPopoverTarget(`infoButtonBankContact-${idx}`);
-        setIsPopoverVisible(true);
-        setSelectedContactInfo(
-            contactsData.filter(
-                (obj) =>
-                    obj.id === dataSource.bankInformation[idx].contactPerson
-            )[0]
-        );
     };
 
     const callbackFunction = useCallback(
@@ -71,12 +43,6 @@ const BankTab = ({ dataSource, contactsData, isEditing, isLoading }: Props) => {
     );
     return (
         <>
-            <ContactInfoPopover
-                popoverTarget={popoverTarget}
-                isPopoverVisible={isPopoverVisible}
-                selectedContactInfo={selectedContactInfo!}
-                onHidden={() => setIsPopoverVisible(false)}
-            />
             <Form
                 formData={dataSource}
                 ref={formRef}
@@ -86,9 +52,9 @@ const BankTab = ({ dataSource, contactsData, isEditing, isLoading }: Props) => {
                 onFieldDataChanged={changeCssFormElement}
             >
                 <GroupItem colCount={1}>
-                    {dataSource.bankInformation.map((bank, index) => {
+                    {dataSource.bankInformation.map((_, index) => {
                         return (
-                            <GroupItem key={`GroupItem4-${index}`} colCount={5}>
+                            <GroupItem key={`GroupItem4-${index}`} colCount={7}>
                                 <Item
                                     key={`bankName${index}`}
                                     dataField={`bankInformation[${index}].bankName`}
@@ -111,51 +77,31 @@ const BankTab = ({ dataSource, contactsData, isEditing, isLoading }: Props) => {
                                     }}
                                 />
                                 <Item
-                                    key={`contactPerson${index}`}
-                                    dataField={`bankInformation[${index}].contactPerson`}
+                                    key={`contactName${index}`}
+                                    dataField={`bankInformation[${index}].contactName`}
                                     label={{
-                                        text: 'Contact Person',
+                                        text: 'Contact Name',
                                     }}
-                                    editorType='dxSelectBox'
-                                    editorOptions={{
-                                        elementAttr: {
-                                            id: `contactPerson${index}`,
-                                        },
-                                        items: contactsData,
-                                        displayExpr: (item: ContactData) => {
-                                            if (!item) return;
-                                            if (item.firstName)
-                                                return `${item.firstName} ${item.lastName}`;
-                                            else return `${item.lastName}`;
-                                        },
-                                        valueExpr: 'id',
-                                        searchEnabled: true,
-                                        onValueChanged: (e: any) => {
-                                            changeSelectbox(e);
-                                        },
+                                />
+                                <Item
+                                    key={`contactPhone${index}`}
+                                    dataField={`bankInformation[${index}].contactPhone`}
+                                    label={{
+                                        text: 'Contact Phone',
+                                    }}
+                                />
+                                <Item
+                                    key={`contactEmail${index}`}
+                                    dataField={`bankInformation[${index}].contactEmail`}
+                                    label={{
+                                        text: 'Contact Email',
                                     }}
                                 />
 
                                 <GroupItem
-                                    colCount={2}
+                                    colCount={1}
                                     cssClass='flex flex-start'
                                 >
-                                    <Item
-                                        key={`infoButtonBankContact-${index}`}
-                                        itemType='button'
-                                        horizontalAlignment='left'
-                                        verticalAlignment='bottom'
-                                        buttonOptions={{
-                                            elementAttr: {
-                                                id: `infoButtonBankContact-${index}`,
-                                            },
-                                            icon: 'info',
-                                            text: undefined,
-                                            disabled: false,
-                                            type: 'default',
-                                            onClick: () => handlePopover(index),
-                                        }}
-                                    />
                                     <Item>
                                         <DeleteItem
                                             data={dataSource}
