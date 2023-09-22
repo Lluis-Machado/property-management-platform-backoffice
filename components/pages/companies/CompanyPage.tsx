@@ -85,7 +85,7 @@ const CompanyPage = ({
 
     useEffect(() => {
         setObjName('company');
-    }, []);
+    }, [setObjName]);
 
     const formRef = useRef<Form>(null);
 

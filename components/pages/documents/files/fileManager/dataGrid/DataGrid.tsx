@@ -148,7 +148,15 @@ const DataGrid: FC<Props> = memo(function DataGrid({
 
             on[action]();
         },
-        [onFileCopy, onFileDelete, onFileDownload, onFileMove, onFileRename]
+        [
+            onFileCopy,
+            onFileDelete,
+            onFileDownload,
+            onFileMove,
+            onFileRename,
+            onFileJoin,
+            onFileSplit,
+        ]
     );
 
     /**

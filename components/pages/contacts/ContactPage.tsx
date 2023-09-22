@@ -93,7 +93,7 @@ const ContactPage = ({
 
     useEffect(() => {
         setObjName('contact');
-    }, []);
+    }, [setObjName]);
 
     const formRef = useRef<Form>(null);
 

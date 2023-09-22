@@ -94,7 +94,12 @@ const ContextMenu: FC<Props> = memo(function ContextMenu({
                 text='Copy to'
                 visible={!isArchive}
             />
-            <Item closeMenuOnClick icon='trash' text='Delete' />
+            <Item
+                closeMenuOnClick
+                icon='trash'
+                text='Delete'
+                visible={!isArchive}
+            />
         </DxContextMenu>
     );
 });

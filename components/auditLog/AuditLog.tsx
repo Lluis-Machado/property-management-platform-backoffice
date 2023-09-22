@@ -7,14 +7,12 @@ import DataGrid, { Column } from 'devextreme-react/data-grid';
 import { TokenRes } from '@/lib/types/token';
 import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
 import { ApiCallError } from '@/lib/utils/errors';
-import { AccordionBasic } from '../accordion/AccordionBasic';
-import './loader.css';
+import { AccordionBasic } from '@/components/accordion/AccordionBasic';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
-import { Locale } from '@/i18n-config';
+import './loader.css';
 
 interface Props {
     token: TokenRes;
-    lang: Locale;
 }
 
 const customCell = (data: any, dataField: string) => {
@@ -38,7 +36,7 @@ const customCell = (data: any, dataField: string) => {
     }
 };
 
-const AuditLog = ({ token, lang }: Props) => {
+const AuditLog = ({ token }: Props) => {
     const [objId, _] = useAtom(selectedObjId);
     const [objName, __] = useAtom(selectedObjName);
     const [auditLog, setAuditLog] = useState([]);
@@ -68,7 +66,7 @@ const AuditLog = ({ token, lang }: Props) => {
             .then((data) => setAuditLog(data.reverse()))
             .catch((e) => console.error(e))
             .finally(() => setIsLoading(false));
-    }, [objId, token]);
+    }, [objName, objId, token]);
 
     return (
         <div className='flex h-full w-[50vw] flex-col bg-white'>
