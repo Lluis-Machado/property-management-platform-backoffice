@@ -39,6 +39,10 @@ import {
     IdDocumentsTab,
     PhonesTab,
 } from '@/components/Tabs';
+import { IdDocumentsTabMethods } from '@/components/Tabs/IdDocumentsTab';
+import { AddressInfoTabMethods } from '@/components/Tabs/AddressInfoTab';
+import { PhonesTabMethods } from '@/components/Tabs/PhonesTab';
+import { BankTabMethods } from '@/components/Tabs/BankTab';
 
 let contactData: ContactData = {
     title: [],
@@ -64,17 +68,29 @@ interface Props {
 const AddContactPage = ({ countriesData, token, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<ContactData>(
+    const [initialValues, _] = useState<ContactData>(
         structuredClone(contactData)
     );
 
     const formRef = useRef<Form>(null);
+    const idDocsTabRef = useRef<IdDocumentsTabMethods>(null);
+    const addressTabRef = useRef<AddressInfoTabMethods>(null);
+    const phonesTabRef = useRef<PhonesTabMethods>(null);
+    const bankTabRef = useRef<BankTabMethods>(null);
 
     const router = useRouter();
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
-        if (!res.isValid) return;
+
+        if (
+            !res.isValid ||
+            !idDocsTabRef.current?.isValid() ||
+            !addressTabRef.current?.isValid() ||
+            !phonesTabRef.current?.isValid() ||
+            !bankTabRef.current?.isValid()
+        )
+            return;
 
         const values = structuredClone(contactData);
 
@@ -124,7 +140,7 @@ const AddContactPage = ({ countriesData, token, lang }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [initialValues, token, router]);
+    }, [initialValues, token, router, idDocsTabRef]);
 
     return (
         <div>
@@ -133,7 +149,6 @@ const AddContactPage = ({ countriesData, token, lang }: Props) => {
                 formData={contactData}
                 labelMode={'floating'}
                 readOnly={isLoading}
-                showValidationSummary
             >
                 {/* Main Information */}
                 <GroupItem colCount={5}>
@@ -208,6 +223,7 @@ const AddContactPage = ({ countriesData, token, lang }: Props) => {
                         />
                         <Tab title={`Identification Documents`}>
                             <IdDocumentsTab
+                                ref={idDocsTabRef}
                                 contactData={contactData}
                                 isEditing={true}
                                 isLoading={isLoading}
@@ -215,6 +231,7 @@ const AddContactPage = ({ countriesData, token, lang }: Props) => {
                         </Tab>
                         <Tab title={`Address Information`}>
                             <AddressInfoTab
+                                ref={addressTabRef}
                                 dataSource={contactData}
                                 initialStates={[]}
                                 countriesData={countriesData}
@@ -226,6 +243,7 @@ const AddContactPage = ({ countriesData, token, lang }: Props) => {
                         </Tab>
                         <Tab title={`Phones`}>
                             <PhonesTab
+                                ref={phonesTabRef}
                                 contactData={contactData}
                                 isEditing={true}
                                 isLoading={isLoading}
@@ -233,6 +251,7 @@ const AddContactPage = ({ countriesData, token, lang }: Props) => {
                         </Tab>
                         <Tab title={`Bank`}>
                             <BankTab
+                                ref={bankTabRef}
                                 dataSource={contactData}
                                 isEditing={true}
                                 isLoading={isLoading}
