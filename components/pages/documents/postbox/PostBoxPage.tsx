@@ -10,6 +10,7 @@ import {
     HeaderFilter,
     Item,
     Pager,
+    Paging,
     SearchPanel,
     Toolbar,
 } from 'devextreme-react/data-grid';
@@ -89,6 +90,7 @@ const PostBoxPage = ({ dataSource }: Props) => {
         >
             <HeaderFilter visible />
             <SearchPanel searchVisibleColumnsOnly={false} visible width={350} />
+            <Paging pageSize={18} />
             <Pager
                 allowedPageSizes='auto'
                 showInfo
