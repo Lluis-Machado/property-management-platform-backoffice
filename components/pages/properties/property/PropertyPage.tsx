@@ -91,14 +91,13 @@ const PropertyPage = ({
     const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
     const [sharesVisible, setSharesVisible] = useState<boolean>(false);
     const data = initialStates;
-    const [cadastreRef, setCadastreRef] = useState<string>(
-        propertyData.cadastreRef
-    );
+    const [cadastreRef, ____] = useState<string>(propertyData.cadastreRef);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
 
+    // Used for audit log calls
     useEffect(() => {
         setObjName('property');
     }, [setObjName]);
@@ -262,7 +261,10 @@ const PropertyPage = ({
 
     const handleEditingButton = () => {
         const values = structuredClone(propertyData);
-        if (JSON.stringify(values) !== JSON.stringify(initialValues)) {
+        if (
+            isEditing &&
+            JSON.stringify(values) !== JSON.stringify(initialValues)
+        ) {
             setUnsavedVisible(true);
         } else {
             setIsEditing((prev) => !prev);

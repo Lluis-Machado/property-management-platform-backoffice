@@ -60,6 +60,10 @@ import {
 import { logOpened } from '@/lib/atoms/logOpened';
 import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
 import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
+import { IdDocumentsTabMethods } from '@/components/Tabs/IdDocumentsTab';
+import { AddressInfoTabMethods } from '@/components/Tabs/AddressInfoTab';
+import { PhonesTabMethods } from '@/components/Tabs/PhonesTab';
+import { BankTabMethods } from '@/components/Tabs/BankTab';
 
 interface Props {
     contactData: ContactData;
@@ -91,17 +95,29 @@ const ContactPage = ({
         structuredClone(contactData)
     );
 
+    // Used for audit log calls
     useEffect(() => {
         setObjName('contact');
     }, [setObjName]);
 
     const formRef = useRef<Form>(null);
+    const idDocsTabRef = useRef<IdDocumentsTabMethods>(null);
+    const addressTabRef = useRef<AddressInfoTabMethods>(null);
+    const phonesTabRef = useRef<PhonesTabMethods>(null);
+    const bankTabRef = useRef<BankTabMethods>(null);
 
     const router = useRouter();
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
-        if (!res.isValid) return;
+        if (
+            !res.isValid ||
+            !idDocsTabRef.current?.isValid() ||
+            !addressTabRef.current?.isValid() ||
+            !phonesTabRef.current?.isValid() ||
+            !bankTabRef.current?.isValid()
+        )
+            return;
 
         const values = structuredClone(contactData);
 
@@ -177,7 +193,10 @@ const ContactPage = ({
 
     const handleEditingButton = () => {
         const values = structuredClone(contactData);
-        if (JSON.stringify(values) !== JSON.stringify(initialValues)) {
+        if (
+            isEditing &&
+            JSON.stringify(values) !== JSON.stringify(initialValues)
+        ) {
             setUnsavedVisible(true);
         } else {
             setIsEditing((prev) => !prev);
@@ -372,6 +391,7 @@ const ContactPage = ({
                         </Tab>
                         <Tab title={`Identification Documents`}>
                             <IdDocumentsTab
+                                ref={idDocsTabRef}
                                 contactData={contactData}
                                 isEditing={isEditing}
                                 isLoading={isLoading}
@@ -379,6 +399,7 @@ const ContactPage = ({
                         </Tab>
                         <Tab title={`Address Information`}>
                             <AddressInfoTab
+                                ref={addressTabRef}
                                 dataSource={contactData}
                                 initialStates={initialStates}
                                 countriesData={countriesData}
@@ -390,6 +411,7 @@ const ContactPage = ({
                         </Tab>
                         <Tab title={`Phones`}>
                             <PhonesTab
+                                ref={phonesTabRef}
                                 contactData={contactData}
                                 isEditing={isEditing}
                                 isLoading={isLoading}
@@ -397,6 +419,7 @@ const ContactPage = ({
                         </Tab>
                         <Tab title={`Bank`}>
                             <BankTab
+                                ref={bankTabRef}
                                 dataSource={contactData}
                                 isEditing={isEditing}
                                 isLoading={isLoading}

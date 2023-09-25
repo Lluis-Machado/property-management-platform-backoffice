@@ -82,7 +82,6 @@ const AddContactPage = ({ countriesData, token, lang }: Props) => {
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
-
         if (
             !res.isValid ||
             !idDocsTabRef.current?.isValid() ||

@@ -83,6 +83,7 @@ const CompanyPage = ({
         structuredClone(companyData)
     );
 
+    // Used for audit log calls
     useEffect(() => {
         setObjName('company');
     }, [setObjName]);
@@ -174,7 +175,10 @@ const CompanyPage = ({
 
     const handleEditingButton = () => {
         const values = structuredClone(companyData);
-        if (JSON.stringify(values) !== JSON.stringify(initialValues)) {
+        if (
+            isEditing &&
+            JSON.stringify(values) !== JSON.stringify(initialValues)
+        ) {
             setUnsavedVisible(true);
         } else {
             setIsEditing((prev) => !prev);
