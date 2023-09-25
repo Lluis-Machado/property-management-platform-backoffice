@@ -13,6 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Form, { GroupItem, Item, SimpleItem } from 'devextreme-react/form';
 import { useRouter } from 'next/navigation';
+import DateBox from 'devextreme-react/date-box';
 
 // Local imports
 import '../../../../../lib/styles/formItems.css';
@@ -35,6 +36,8 @@ import { ApInvoice, ApInvoiceAnalyzedData } from '@/lib/types/apInvoice';
 import BpPopup from '@/components/popups/BpPopup';
 import ToolbarTooltipsApInvoice from '@/components/tooltips/ToolbarTooltipsApInvoice';
 import SelectBox from 'devextreme-react/select-box';
+import { FieldDataChangedEvent } from 'devextreme/ui/form';
+import { Format } from 'devextreme-react/data-grid';
 
 const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}`;
 
@@ -69,6 +72,9 @@ const AddApInvoicePage = ({
 }: Props) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const selectboxRef = useRef<any>();
+    const formRef = useRef<any>();
+    const dateboxRefFrom = useRef<any>();
+    const dateboxRefTo = useRef<any>();
     const [visible, setVisible] = useState(false);
     const [file, setFile] = useState<File>();
     const [fileDataURL, setFileDataURL] = useState(null);
@@ -83,7 +89,6 @@ const AddApInvoicePage = ({
 
     // Toast if BP is not known after annalyzing invoice
     useEffect(() => {
-        console.log(tenatsBusinessPartners);
         // Check if we are on init state
         if (JSON.stringify(invoiceData) === JSON.stringify(apInvoiceData))
             return;
@@ -279,7 +284,6 @@ const AddApInvoicePage = ({
             fileReader = new FileReader();
             fileReader.onload = (e: any) => {
                 const { result } = e.target;
-                console.log(result);
                 if (result && !isCancel) {
                     setFileDataURL(result);
                 }
@@ -307,6 +311,20 @@ const AddApInvoicePage = ({
         selectboxRef.current!.instance.option('items', arrayBP);
     }, [value, tenatsBusinessPartners]);
 
+    const validateDateTo = (e: any) => {
+        dateboxRefFrom.current!.instance.option('max', new Date(e.value));
+    };
+
+    const validateDateFrom = (e: any) => {
+        dateboxRefTo.current!.instance.option('min', new Date(e.value));
+    };
+
+    const dateFormat: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    };
+
     return (
         <div className='absolute inset-4 w-screen'>
             <div className='h-full'>
@@ -319,7 +337,6 @@ const AddApInvoicePage = ({
                     allBusinessPartners={totalBP}
                     setValue={setValue}
                 />
-
                 <ToolbarTooltipsApInvoice />
                 <Allotment defaultSizes={[65, 35]}>
                     <Allotment.Pane>
@@ -359,7 +376,11 @@ const AddApInvoicePage = ({
                                     />
                                 </div>
                             </div>
-                            <Form formData={invoiceData} labelLocation='left'>
+                            <Form
+                                formData={invoiceData}
+                                labelLocation='left'
+                                ref={formRef}
+                            >
                                 <GroupItem
                                     colCount={2}
                                     caption='Supplier invoice'
@@ -463,19 +484,44 @@ const AddApInvoicePage = ({
                                                                 dateFormat,
                                                         }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <DateBox
+                                                            label={'From'}
+                                                            onValueChanged={
+                                                                validateDateFrom
+                                                            }
+                                                            ref={dateboxRefFrom}
+                                                            useMaskBehavior={
+                                                                true
+                                                            }
+                                                            elementAttr={{
+                                                                format: {
+                                                                    dateFormat,
+                                                                },
+                                                            }}
+                                                        />
+                                                    </Item>
                                                     <Item
                                                         key={`serviceDateTo${index}`}
                                                         dataField={`form.invoiceLines[${index}].serviceDateTo`}
                                                         label={{ text: 'To' }}
                                                         colSpan={2}
                                                         editorType='dxDateBox'
-                                                        editorOptions={{
-                                                            displayFormat:
-                                                                dateFormat,
-                                                        }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <DateBox
+                                                            label={'To'}
+                                                            ref={dateboxRefTo}
+                                                            onValueChanged={
+                                                                validateDateTo
+                                                            }
+                                                            elementAttr={{
+                                                                displayFormat: {
+                                                                    dateFormat,
+                                                                },
+                                                            }}
+                                                        />
+                                                    </Item>
                                                     <Item
                                                         key={`depreciationRatePerYear${index}`}
                                                         dataField={`form.invoiceLines[${index}].depreciationRatePerYear`}
@@ -525,39 +571,6 @@ const AddApInvoicePage = ({
                                                         }}
                                                         cssClass='itemStyle'
                                                     />
-                                                    {/* <Item
-                                                        key={`tax${index}`}
-                                                        dataField={`form.invoiceLines[${index}].tax`}
-                                                        label={{
-                                                            text: 'IVA',
-                                                        }}
-                                                        editorType='dxSelectBox'
-                                                        editorOptions={{
-                                                            items: [
-                                                                {
-                                                                    label: '4%',
-                                                                    value: 4,
-                                                                },
-                                                                {
-                                                                    label: '5%',
-                                                                    value: 5,
-                                                                },
-                                                                {
-                                                                    label: '10%',
-                                                                    value: 10,
-                                                                },
-                                                                {
-                                                                    label: '21%',
-                                                                    value: 21,
-                                                                },
-                                                            ],
-                                                            displayExpr:
-                                                                'label',
-                                                            valueExpr: 'value',
-                                                            searchEnabled: true,
-                                                        }}
-                                                        cssClass='itemStyle'
-                                                    /> */}
                                                     <Item
                                                         key={`button${index}`}
                                                         itemType='button'

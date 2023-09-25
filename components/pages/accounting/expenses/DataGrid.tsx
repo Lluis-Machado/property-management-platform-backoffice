@@ -100,6 +100,7 @@ const ContentTooltip = ({ value }: { value: string }): React.ReactElement => {
             return <></>;
     }
 };
+
 // Colors Tooltip
 const getBadgeColor = (value: string): string => {
     const colors: any = {
@@ -113,6 +114,7 @@ const getBadgeColor = (value: string): string => {
     };
     return colors[value];
 };
+
 // Render Category Code with Tooltip & Tooltip Colors
 const CostTypeCellRender = ({
     value,
@@ -143,6 +145,7 @@ const CostTypeCellRender = ({
         </Tooltip>
     </div>
 );
+
 // Reverse charge convirting value in icon
 const ReverseChargeCellRender = ({ value }: any): React.ReactElement => (
     <FontAwesomeIcon
@@ -166,6 +169,7 @@ const DataGrid = ({
         setDeleteVisible((prev) => !prev);
         setInvoiceId(data.id);
     };
+
     // CHANGE ANY
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting invoice...');
@@ -201,7 +205,7 @@ const DataGrid = ({
         ({ data }: { data: any }): React.ReactElement => (
             <>
                 <LinkWithIcon
-                    href={`/private/accounting/${id}/expenses/${data.id}editApInvoice`}
+                    href={`/private/accounting/${id}/expenses/${data.id}/editApInvoice`}
                     icon={faPenToSquare}
                 />
             </>
@@ -232,6 +236,11 @@ const DataGrid = ({
                 dataSource={data.data.invoiceLines}
                 showBorders={true}
                 columnAutoWidth={true}
+                focusedRowEnabled={true}
+                focusedRowKey={0}
+                autoNavigateToFocusedRow={true}
+                focusedRowIndex={0}
+                focusedColumnIndex={0}
             >
                 <HeaderFilter visible />
                 <Column

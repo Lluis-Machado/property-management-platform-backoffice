@@ -9,65 +9,68 @@ import Form, { GroupItem, Item, SimpleItem } from 'devextreme-react/form';
 import SelectBox from 'devextreme-react/select-box';
 import { toast } from 'react-toastify';
 // Local imports
+import '../../../../../lib/styles/formItems.css';
+import '../../../../../node_modules/allotment/dist/style.css';
+import '../../../../splitPane/style/splitPane.module.css';
 import { BusinessPartners } from '@/lib/types/businessPartners';
 import { ApInvoice } from '@/lib/types/apInvoice';
 import { TokenRes } from '@/lib/types/token';
-import { apiPost } from '@/lib/utils/apiPost';
 import { customError } from '@/lib/utils/customError';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { Button } from 'pg-components';
 import PreviewWrapper from '../addApInvoice/PreviewWrapper';
+import { apiPatch } from '@/lib/utils/apiPatch';
 
 interface Props {
     token: TokenRes;
     id: string;
+    invoiceId: string;
+    apInvoiceData: ApInvoice;
     tenatsBusinessPartners: BusinessPartners[];
 }
 
 export const EditApInvoicePage = ({
     token,
     id,
+    invoiceId,
+    apInvoiceData,
     tenatsBusinessPartners,
 }: Props) => {
     const selectboxRef = useRef<any>();
-    const [file, setFile] = useState<File>();
     const [fileDataURL, setFileDataURL] = useState(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [invoiceData, setInvoiceData] = useState<any>();
     const [lines, setLines] = useState({});
     const [popUpVisible, setPopUpVisible] = useState<boolean>(false);
 
-    const handleSaveApInvoice = useCallback(async () => {
-        const toastId = toast.loading('Saving Invoice');
+    const handleUpdateApInvoice = useCallback(async () => {
+        const toastId = toast.loading('Updating Invoice');
         setIsLoading(true);
-        const id = 'b99f942c-a141-4555-9554-14a09c5f94a4';
-        const idBP = '8b5006f9-72d1-4539-b6ea-0cc261d93055';
 
         let invoiceLinesAPInvoice: any[] = [];
 
         for (const invoiceLine of invoiceData.form.invoiceLines) {
             invoiceLinesAPInvoice.push({
                 ...invoiceLine,
-                expenseCategoryId: 'e8dcfa3c-8c1b-424a-9fbb-3adfb0d06fb0',
-                depreciationRatePerYear: 0,
-                serviceDateFrom: '2023-09-19T09:14:41.861Z',
-                serviceDateTo: '2023-09-19T09:14:41.861Z',
             });
         }
 
         const valuesToSend: ApInvoice = {
             businessPartner: {
-                name: invoiceData.form.businessPartner.name,
-                vatNumber: invoiceData.form.businessPartner.vatNumber,
+                name: apInvoiceData.businessPartnerName,
+                vatNumber: apInvoiceData.vatNumber,
             },
-            refNumber: invoiceData.form.refNumber,
-            date: invoiceData.form.date,
+            businessPartnerId: apInvoiceData.businessPartnerId,
+            businessPartnerName: apInvoiceData.businessPartnerName,
+            //vatNumber: apInvoice.vatNumber,
+            refNumber: apInvoiceData.refNumber,
+            date: apInvoiceData.date,
             currency: 'EUR',
-            totalAmount: invoiceData.form.totalAmount,
-            totalBaseAmount: invoiceData.form.totalBaseAmount,
-            totalTax: invoiceData.form.totalTax,
-            totalTaxPercentage: invoiceData.form.totalTaxPercentage,
+            totalAmount: apInvoiceData.totalAmount,
+            totalBaseAmount: apInvoiceData.totalBaseAmount,
+            totalTax: apInvoiceData.totalTax,
+            totalTaxPercentage: apInvoiceData.totalTaxPercentage,
             invoiceLines: invoiceLinesAPInvoice,
         };
 
@@ -78,14 +81,14 @@ export const EditApInvoicePage = ({
                 JSON.stringify(valuesToSend)
             );
             // SAVE INVOICE
-            const data = await apiPost(
-                `/accounting/tenants/${id}/businesspartners/${idBP}/apinvoices`,
+            const data = await apiPatch(
+                `/accounting/tenants/${id}/apinvoices/${invoiceId}`,
                 valuesToSend,
                 token,
-                'Error saving AP Invoice'
+                'Error updating AP Invoice'
             );
             console.log('TODO CORRECTO, valores de vuelta: ', data);
-            updateSuccessToast(toastId, 'AP Invoice saved correctly!');
+            updateSuccessToast(toastId, 'AP Invoice updated correctly!');
             // Pass the ID to reload the page
             //router.push(`/private/accounting/${id}/expenses?createdId=${data.refNumber}`)
         } catch (error: unknown) {
@@ -95,6 +98,8 @@ export const EditApInvoicePage = ({
         }
     }, [invoiceData, token]);
 
+    console.log(apInvoiceData);
+    console.log(tenatsBusinessPartners);
     return (
         <div className='absolute inset-4 w-screen'>
             <div className='h-full'>
@@ -106,28 +111,25 @@ export const EditApInvoicePage = ({
                                     <Button
                                         id='saveButton'
                                         icon={faFloppyDisk}
-                                        onClick={handleSaveApInvoice}
-                                        disabled={!file}
+                                        onClick={handleUpdateApInvoice}
                                     />
                                 </div>
                             </div>
-                            <Form formData={invoiceData} labelLocation='left'>
+                            <Form formData={apInvoiceData} labelLocation='left'>
                                 <GroupItem
                                     colCount={2}
                                     caption='Supplier invoice'
                                 >
-                                    <Item label={{ text: 'Provider' }}>
+                                    <Item
+                                        label={{ text: 'Provider' }}
+                                        dataField='vatNumber'
+                                    >
                                         <SelectBox
                                             items={tenatsBusinessPartners}
                                             displayExpr='name'
                                             ref={selectboxRef}
                                             valueExpr='vatNumber'
                                             searchEnabled={true}
-                                            // value={
-                                            //     selectedProvider
-                                            //         ? selectedProvider.vatNumber
-                                            //         : undefined
-                                            // }
                                             dropDownOptions={{
                                                 toolbarItems: [
                                                     {
@@ -150,15 +152,15 @@ export const EditApInvoicePage = ({
                                         />
                                     </Item>
                                     <SimpleItem
-                                        dataField='form.refNumber'
+                                        dataField='refNumber'
                                         label={{ text: 'Invoice Number' }}
                                     />
                                     <SimpleItem
-                                        dataField='form.businessPartner.vatNumber'
+                                        dataField='vatNumber'
                                         label={{ text: 'CIF' }}
                                     />
                                     <SimpleItem
-                                        dataField='form.date'
+                                        dataField='date'
                                         label={{ text: 'Date of invoice' }}
                                         editorType='dxDateBox'
                                         editorOptions={{
@@ -168,12 +170,12 @@ export const EditApInvoicePage = ({
                                 </GroupItem>
                             </Form>
                             <Form
-                                formData={invoiceData}
+                                formData={apInvoiceData}
                                 labelMode='static'
                                 className='mr-2'
                             >
                                 <GroupItem caption={`Items/Lines`}>
-                                    {invoiceData.form.invoiceLines.map(
+                                    {apInvoiceData.invoiceLines.map(
                                         (invoice: any, index: number) => {
                                             return (
                                                 <GroupItem
@@ -182,7 +184,7 @@ export const EditApInvoicePage = ({
                                                 >
                                                     <Item
                                                         key={`description${index}`}
-                                                        dataField={`form.invoiceLines[${index}].description`}
+                                                        dataField={`invoiceLines[${index}].description`}
                                                         label={{
                                                             text: 'Description',
                                                         }}
@@ -206,7 +208,7 @@ export const EditApInvoicePage = ({
                                                     />
                                                     <Item
                                                         key={`serviceDateFrom${index}`}
-                                                        dataField={`form.invoiceLines[${index}].serviceDateFrom`}
+                                                        dataField={`invoiceLines[${index}].serviceDateFrom`}
                                                         label={{ text: 'From' }}
                                                         colSpan={2}
                                                         editorType='dxDateBox'
@@ -218,7 +220,7 @@ export const EditApInvoicePage = ({
                                                     />
                                                     <Item
                                                         key={`serviceDateTo${index}`}
-                                                        dataField={`form.invoiceLines[${index}].serviceDateTo`}
+                                                        dataField={`invoiceLines[${index}].serviceDateTo`}
                                                         label={{ text: 'To' }}
                                                         colSpan={2}
                                                         editorType='dxDateBox'
@@ -230,7 +232,7 @@ export const EditApInvoicePage = ({
                                                     />
                                                     <Item
                                                         key={`depreciationRatePerYear${index}`}
-                                                        dataField={`form.invoiceLines[${index}].depreciationRatePerYear`}
+                                                        dataField={`invoiceLines[${index}].depreciationRatePerYear`}
                                                         label={{
                                                             text: 'Deprication',
                                                         }}
@@ -241,7 +243,7 @@ export const EditApInvoicePage = ({
                                                     />
                                                     <Item
                                                         key={`quantity${index}`}
-                                                        dataField={`form.invoiceLines[${index}].quantity`}
+                                                        dataField={`invoiceLines[${index}].quantity`}
                                                         label={{
                                                             text: 'Amout',
                                                         }}
@@ -249,7 +251,7 @@ export const EditApInvoicePage = ({
                                                     />
                                                     <Item
                                                         key={`unitPrice${index}`}
-                                                        dataField={`form.invoiceLines[${index}].unitPrice`}
+                                                        dataField={`invoiceLines[${index}].unitPrice`}
                                                         label={{
                                                             text: 'Unit Price',
                                                         }}
@@ -264,7 +266,7 @@ export const EditApInvoicePage = ({
                                                     />
                                                     <Item
                                                         key={`totalUnitPrice${index}`}
-                                                        dataField={`form.invoiceLines[${index}].totalLinePrice`}
+                                                        dataField={`invoiceLines[${index}].totalLinePrice`}
                                                         label={{
                                                             text: 'Total Line Price',
                                                         }}
@@ -286,7 +288,7 @@ export const EditApInvoicePage = ({
                                                             type: 'danger',
                                                             onClick: () => {
                                                                 // Set a new empty line
-                                                                invoiceData.form.invoiceLines.splice(
+                                                                apInvoiceData.invoiceLines.splice(
                                                                     index,
                                                                     1
                                                                 );
@@ -309,11 +311,11 @@ export const EditApInvoicePage = ({
                                         text: 'Add line',
                                         onClick: () => {
                                             // Set a new empty line
-                                            invoiceData.form.invoiceLines.push({
+                                            apInvoiceData.invoiceLines.push({
                                                 description: '',
                                                 tax: null,
-                                                quantity: null,
-                                                unitPrice: null,
+                                                quantity: 0,
+                                                unitPrice: 0,
                                                 expenseCategoryId: '',
                                                 depreciationRatePerYear: null,
                                                 serviceDateFrom: '',
@@ -325,51 +327,53 @@ export const EditApInvoicePage = ({
                                     }}
                                 />
                             </Form>
-                            <Form
-                                formData={invoiceData}
-                                labelLocation='left'
-                                style={{
-                                    width: '10vw',
-                                    float: 'right',
-                                    marginRight: '2em',
-                                }}
-                            >
-                                <GroupItem>
-                                    <Item
-                                        dataField='form.totalBaseAmount'
-                                        label={{ text: 'Base Amout' }}
-                                        editorOptions={{
-                                            format: {
-                                                type: 'currency',
-                                                currency: 'EUR',
-                                                precision: 2,
-                                            },
-                                        }}
-                                    />
-                                    <Item
-                                        dataField='form.totalTax'
-                                        label={{ text: 'IVA' }}
-                                        editorOptions={{
-                                            format: {
-                                                type: 'currency',
-                                                currency: 'EUR',
-                                                precision: 2,
-                                            },
-                                        }}
-                                    />
-                                    <Item
-                                        dataField='form.totalAmount'
-                                        label={{ text: 'Total Amout' }}
-                                        editorOptions={{
-                                            format: {
-                                                type: 'currency',
-                                                currency: 'EUR',
-                                                precision: 2,
-                                            },
-                                        }}
-                                    />
-                                </GroupItem>
-                            </Form>
+                            <div className='float-right w-1/6'>
+                                <Form
+                                    formData={apInvoiceData}
+                                    labelLocation='left'
+                                    style={{
+                                        width: '10vw',
+                                        float: 'right',
+                                        marginRight: '2em',
+                                    }}
+                                >
+                                    <GroupItem>
+                                        <Item
+                                            dataField='totalBaseAmount'
+                                            label={{ text: 'Base Amout' }}
+                                            editorOptions={{
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
+                                            }}
+                                        />
+                                        <Item
+                                            dataField='totalTax'
+                                            label={{ text: 'IVA' }}
+                                            editorOptions={{
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
+                                            }}
+                                        />
+                                        <Item
+                                            dataField='totalAmount'
+                                            label={{ text: 'Total Amout' }}
+                                            editorOptions={{
+                                                format: {
+                                                    type: 'currency',
+                                                    currency: 'EUR',
+                                                    precision: 2,
+                                                },
+                                            }}
+                                        />
+                                    </GroupItem>
+                                </Form>
+                            </div>
                         </div>
                     </Allotment.Pane>
                     <Allotment.Pane>
