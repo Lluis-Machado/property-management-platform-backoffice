@@ -235,6 +235,7 @@ const DataGrid = ({
             <DxDataGrid
                 dataSource={data.data.invoiceLines}
                 showBorders={true}
+                keyExpr={'id'}
                 columnAutoWidth={true}
                 focusedRowEnabled={true}
                 focusedRowKey={0}
