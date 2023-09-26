@@ -53,7 +53,7 @@ let propertyData: PropertyData = {
         value: 0,
     },
     comments: '',
-    contactPersonId: '',
+    contactPersonId: null,
     federalState: '',
     garbageCollection: 0,
     garbageCollectionDate: null,
@@ -72,8 +72,8 @@ let propertyData: PropertyData = {
         currency: '',
         value: 0,
     },
-    mainOwnerId: '',
-    mainOwnerType: '',
+    mainOwnerId: null,
+    mainOwnerType: null,
     mainPropertyId: null,
     municipality: '',
     name: '',
@@ -223,11 +223,19 @@ const AddPropertyPage = ({
     );
 
     const handleSubmit = useCallback(async () => {
+        let contactType;
+        const res = formRef.current!.instance.validate();
+        if (!res.isValid) {
+            toast.warning('Validation error detected, check all fields');
+            return;
+        }
         const values = structuredClone(propertyData);
 
-        const contactType: any = totalContactsList?.find(
-            (item) => item.id == values.mainOwnerId
-        );
+        if (values.mainOwnerId) {
+            contactType = totalContactsList?.find(
+                (item) => item.id == values.mainOwnerId
+            );
+        }
 
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             toast.warning('Change at least one field');
@@ -397,7 +405,9 @@ const AddPropertyPage = ({
                                     valueExpr: 'id',
                                     searchEnabled: true,
                                 }}
-                            />
+                            >
+                                <RequiredRule />
+                            </Item>
                             <Item
                                 dataField='contactPersonId'
                                 label={{ text: 'Contact Person' }}
@@ -626,19 +636,17 @@ const AddPropertyPage = ({
                     </TabbedItem>
                 </GroupItem>
             </Form>
-            <div className='h-[2rem]'>
-                <div className='flex justify-end'>
-                    <div className='mt-2 flex flex-row justify-between gap-2'>
-                        <Button
-                            elevated
-                            type='button'
-                            icon={faSave}
-                            text='Save Property'
-                            disabled={isLoading}
-                            isLoading={isLoading}
-                            onClick={handleSubmit}
-                        />
-                    </div>
+            <div className='flex items-center justify-center'>
+                <div className='mr-28 mt-2 h-[2rem]  w-32'>
+                    <Button
+                        elevated
+                        type='button'
+                        icon={faSave}
+                        text='Save Property'
+                        disabled={isLoading}
+                        isLoading={isLoading}
+                        onClick={handleSubmit}
+                    />
                 </div>
             </div>
         </div>

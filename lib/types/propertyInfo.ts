@@ -9,7 +9,7 @@ export interface PropertyData {
     cadastreUrl: string;
     cadastreValue: Price;
     comments?: string;
-    contactPersonId: string;
+    contactPersonId: string | null;
     federalState: string;
     garbageCollection: number;
     garbageCollectionDate: string | null;
@@ -19,8 +19,8 @@ export interface PropertyData {
     ibiCollectionDate: string | null;
     id: string;
     loanPrice: Price;
-    mainOwnerId: string;
-    mainOwnerType: string;
+    mainOwnerId: string | null;
+    mainOwnerType: string | null;
     mainPropertyId: string | null;
     municipality: string;
     name: string;
