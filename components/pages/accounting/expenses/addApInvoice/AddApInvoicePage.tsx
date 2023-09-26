@@ -1,7 +1,14 @@
 'use client';
 
 //React imports
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import {
+    ChangeEvent,
+    LegacyRef,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 
 // Libraries imports
 import { Allotment } from 'allotment';
@@ -14,6 +21,8 @@ import {
 import Form, { GroupItem, Item, SimpleItem } from 'devextreme-react/form';
 import { useRouter } from 'next/navigation';
 import DateBox from 'devextreme-react/date-box';
+import { ValueChangedEvent } from 'devextreme/ui/date_box';
+import SelectBox from 'devextreme-react/select-box';
 
 // Local imports
 import '../../../../../lib/styles/formItems.css';
@@ -35,9 +44,6 @@ import { BusinessPartners } from '@/lib/types/businessPartners';
 import { ApInvoice, ApInvoiceAnalyzedData } from '@/lib/types/apInvoice';
 import BpPopup from '@/components/popups/BpPopup';
 import ToolbarTooltipsApInvoice from '@/components/tooltips/ToolbarTooltipsApInvoice';
-import SelectBox from 'devextreme-react/select-box';
-import { FieldDataChangedEvent } from 'devextreme/ui/form';
-import { Format } from 'devextreme-react/data-grid';
 
 const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}`;
 
@@ -71,10 +77,10 @@ const AddApInvoicePage = ({
     allBusinessPartners,
 }: Props) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
-    const selectboxRef = useRef<any>();
-    const formRef = useRef<any>();
-    const dateboxRefFrom = useRef<any>();
-    const dateboxRefTo = useRef<any>();
+    const selectboxRef = useRef<SelectBox>(null);
+    const formRef = useRef<Form>(null);
+    const dateboxRefFrom = useRef<any>(null);
+    const dateboxRefTo = useRef<any>(null);
     const [visible, setVisible] = useState(false);
     const [file, setFile] = useState<File>();
     const [fileDataURL, setFileDataURL] = useState(null);
@@ -307,22 +313,19 @@ const AddApInvoicePage = ({
     // Adding new BP to selectbox Provider
     useEffect(() => {
         if (value === undefined) return;
-        const arrayBP = tenatsBusinessPartners.unshift(value);
+        const arrayBP: any = tenatsBusinessPartners.unshift(value);
         selectboxRef.current!.instance.option('items', arrayBP);
     }, [value, tenatsBusinessPartners]);
 
-    const validateDateTo = (e: any) => {
+    // Format date and set max/min dates
+    const validateDateTo = (e: ValueChangedEvent) => {
         dateboxRefFrom.current!.instance.option('max', new Date(e.value));
+        dateboxRefTo.current!.instance.option('displayFormat', dateFormat);
     };
 
-    const validateDateFrom = (e: any) => {
+    const validateDateFrom = (e: ValueChangedEvent) => {
         dateboxRefTo.current!.instance.option('min', new Date(e.value));
-    };
-
-    const dateFormat: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
+        dateboxRefFrom.current!.instance.option('displayFormat', dateFormat);
     };
 
     return (
@@ -478,11 +481,6 @@ const AddApInvoicePage = ({
                                                         dataField={`form.invoiceLines[${index}].serviceDateFrom`}
                                                         label={{ text: 'From' }}
                                                         colSpan={2}
-                                                        editorType='dxDateBox'
-                                                        editorOptions={{
-                                                            displayFormat:
-                                                                dateFormat,
-                                                        }}
                                                         cssClass='itemStyle'
                                                     >
                                                         <DateBox
@@ -491,14 +489,6 @@ const AddApInvoicePage = ({
                                                                 validateDateFrom
                                                             }
                                                             ref={dateboxRefFrom}
-                                                            useMaskBehavior={
-                                                                true
-                                                            }
-                                                            elementAttr={{
-                                                                format: {
-                                                                    dateFormat,
-                                                                },
-                                                            }}
                                                         />
                                                     </Item>
                                                     <Item
@@ -506,7 +496,6 @@ const AddApInvoicePage = ({
                                                         dataField={`form.invoiceLines[${index}].serviceDateTo`}
                                                         label={{ text: 'To' }}
                                                         colSpan={2}
-                                                        editorType='dxDateBox'
                                                         cssClass='itemStyle'
                                                     >
                                                         <DateBox

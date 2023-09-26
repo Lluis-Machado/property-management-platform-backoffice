@@ -8,6 +8,9 @@ import { Allotment } from 'allotment';
 import Form, { GroupItem, Item, SimpleItem } from 'devextreme-react/form';
 import SelectBox from 'devextreme-react/select-box';
 import { toast } from 'react-toastify';
+import DateBox from 'devextreme-react/date-box';
+import { ValueChangedEvent } from 'devextreme/ui/date_box';
+
 // Local imports
 import '../../../../../lib/styles/formItems.css';
 import '../../../../../node_modules/allotment/dist/style.css';
@@ -38,6 +41,8 @@ export const EditApInvoicePage = ({
     tenatsBusinessPartners,
 }: Props) => {
     const selectboxRef = useRef<any>();
+    const dateboxRefFrom = useRef<any>();
+    const dateboxRefTo = useRef<any>();
     const [fileDataURL, setFileDataURL] = useState(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [invoiceData, setInvoiceData] = useState<any>();
@@ -98,8 +103,17 @@ export const EditApInvoicePage = ({
         }
     }, [invoiceData, token]);
 
-    console.log(apInvoiceData);
-    console.log(tenatsBusinessPartners);
+    // Format date and set max/min dates
+    const validateDateTo = (e: ValueChangedEvent) => {
+        dateboxRefFrom.current!.instance.option('max', new Date(e.value));
+        dateboxRefTo.current!.instance.option('displayFormat', dateFormat);
+    };
+
+    const validateDateFrom = (e: ValueChangedEvent) => {
+        dateboxRefTo.current!.instance.option('min', new Date(e.value));
+        dateboxRefFrom.current!.instance.option('displayFormat', dateFormat);
+    };
+
     return (
         <div className='absolute inset-4 w-screen'>
             <div className='h-full'>
@@ -207,29 +221,40 @@ export const EditApInvoicePage = ({
                                                         cssClass='itemStyle'
                                                     />
                                                     <Item
-                                                        key={`serviceDateFrom${index}`}
+                                                        key={`serviceDateFrom${index}from`}
                                                         dataField={`invoiceLines[${index}].serviceDateFrom`}
                                                         label={{ text: 'From' }}
                                                         colSpan={2}
-                                                        editorType='dxDateBox'
-                                                        editorOptions={{
-                                                            displayFormat:
-                                                                dateFormat,
-                                                        }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <DateBox
+                                                            label={'From'}
+                                                            onValueChanged={
+                                                                validateDateFrom
+                                                            }
+                                                            ref={dateboxRefFrom}
+                                                        />
+                                                    </Item>
                                                     <Item
-                                                        key={`serviceDateTo${index}`}
+                                                        key={`serviceDateTo${index}edit`}
                                                         dataField={`invoiceLines[${index}].serviceDateTo`}
                                                         label={{ text: 'To' }}
                                                         colSpan={2}
-                                                        editorType='dxDateBox'
-                                                        editorOptions={{
-                                                            displayFormat:
-                                                                dateFormat,
-                                                        }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <DateBox
+                                                            label={'To'}
+                                                            ref={dateboxRefTo}
+                                                            onValueChanged={
+                                                                validateDateTo
+                                                            }
+                                                            elementAttr={{
+                                                                displayFormat: {
+                                                                    dateFormat,
+                                                                },
+                                                            }}
+                                                        />
+                                                    </Item>
                                                     <Item
                                                         key={`depreciationRatePerYear${index}`}
                                                         dataField={`invoiceLines[${index}].depreciationRatePerYear`}
