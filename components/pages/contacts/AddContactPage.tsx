@@ -88,8 +88,10 @@ const AddContactPage = ({ countriesData, token, lang }: Props) => {
             !addressTabRef.current?.isValid() ||
             !phonesTabRef.current?.isValid() ||
             !bankTabRef.current?.isValid()
-        )
+        ) {
+            toast.warning('Validation error detected, check all fields');
             return;
+        }
 
         const values = structuredClone(contactData);
 

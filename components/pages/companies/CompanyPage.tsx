@@ -51,6 +51,9 @@ import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 import { useAtom } from 'jotai';
 import { logOpened } from '@/lib/atoms/logOpened';
 import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
+import { AddressInfoTabMethods } from '@/components/Tabs/AddressInfoTab';
+import { BankTabMethods } from '@/components/Tabs/BankTab';
+import { ContactsTabMethods } from '@/components/Tabs/ContactsTab';
 
 interface Props {
     companyData: CompanyData;
@@ -89,12 +92,23 @@ const CompanyPage = ({
     }, [setObjName]);
 
     const formRef = useRef<Form>(null);
+    const addressTabRef = useRef<AddressInfoTabMethods>(null);
+    const contactsTabRef = useRef<ContactsTabMethods>(null);
+    const bankTabRef = useRef<BankTabMethods>(null);
 
     const router = useRouter();
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
-        if (!res.isValid) return;
+        if (
+            !res.isValid ||
+            !addressTabRef.current?.isValid() ||
+            !contactsTabRef.current?.isValid() ||
+            !bankTabRef.current?.isValid()
+        ) {
+            toast.warning('Validation error detected, check all fields');
+            return;
+        }
 
         const values = structuredClone(companyData);
 
@@ -285,7 +299,6 @@ const CompanyPage = ({
                 formData={companyData}
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
-                showValidationSummary
                 onFieldDataChanged={changeCssFormElement}
             >
                 {/* Main Information */}
@@ -360,6 +373,7 @@ const CompanyPage = ({
                         </Tab>
                         <Tab title={`Address Information`}>
                             <AddressInfoTab
+                                ref={addressTabRef}
                                 dataSource={companyData}
                                 initialStates={initialStates}
                                 countriesData={countriesData}
@@ -371,6 +385,7 @@ const CompanyPage = ({
                         </Tab>
                         <Tab title={`Contacts`}>
                             <ContactsTab
+                                ref={contactsTabRef}
                                 dataSource={companyData}
                                 contactsData={contactsData}
                                 isEditing={isEditing}
@@ -379,6 +394,7 @@ const CompanyPage = ({
                         </Tab>
                         <Tab title={`Bank`}>
                             <BankTab
+                                ref={bankTabRef}
                                 dataSource={companyData}
                                 isEditing={isEditing}
                                 isLoading={isLoading}

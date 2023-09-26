@@ -70,7 +70,6 @@ const BankTab = forwardRef<BankTabMethods, Props>((props, ref) => {
                 ref={formRef}
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
-                showValidationSummary
                 onFieldDataChanged={changeCssFormElement}
             >
                 <GroupItem colCount={1}>

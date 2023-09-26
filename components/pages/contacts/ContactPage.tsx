@@ -116,8 +116,10 @@ const ContactPage = ({
             !addressTabRef.current?.isValid() ||
             !phonesTabRef.current?.isValid() ||
             !bankTabRef.current?.isValid()
-        )
+        ) {
+            toast.warning('Validation error detected, check all fields');
             return;
+        }
 
         const values = structuredClone(contactData);
 
@@ -302,7 +304,6 @@ const ContactPage = ({
                 formData={contactData}
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
-                showValidationSummary
                 onFieldDataChanged={changeCssFormElement}
             >
                 {/* Main Information */}

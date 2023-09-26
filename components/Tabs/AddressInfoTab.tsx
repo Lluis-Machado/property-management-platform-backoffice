@@ -123,7 +123,6 @@ const AddressInfoTab = forwardRef<AddressInfoTabMethods, Props>(
                 ref={formRef}
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
-                showValidationSummary
                 onFieldDataChanged={changeCssFormElement}
             >
                 <GroupItem colCount={1}>
