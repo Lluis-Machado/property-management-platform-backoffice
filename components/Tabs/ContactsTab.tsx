@@ -1,11 +1,18 @@
 'use client';
 // React imports
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import {
+    forwardRef,
+    memo,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from 'react';
 // Libraries imports
-import Form, { Item, GroupItem } from 'devextreme-react/form';
+import Form, { Item, GroupItem, RequiredRule } from 'devextreme-react/form';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
-import { Popover, Position } from 'devextreme-react/popover';
 // Local imports
 import { ContactData } from '@/lib/types/contactData';
 import { CompanyData } from '@/lib/types/companyData';
@@ -13,8 +20,11 @@ import AddItem from './TabButtons/AddItem';
 import DeleteItem from './TabButtons/DeleteItem';
 import { displayContactFullName } from '@/lib/utils/displayContactFullName';
 import { companyContactsTypeItems } from '@/lib/utils/selectBoxItems';
-import { Button } from 'pg-components';
 import ContactInfoPopover from '../popover/ContactInfoPopover';
+
+export interface ContactsTabMethods {
+    isValid: () => boolean | undefined;
+}
 
 interface Props {
     dataSource: CompanyData;
@@ -23,12 +33,8 @@ interface Props {
     isLoading: boolean;
 }
 
-const ContactsTab = ({
-    dataSource,
-    contactsData,
-    isEditing,
-    isLoading,
-}: Props) => {
+const ContactsTab = forwardRef<ContactsTabMethods, Props>((props, ref) => {
+    const { dataSource, contactsData, isEditing, isLoading } = props;
     const [addressOptions, setAddressOptions] = useState({});
     const [isPopoverVisible, setIsPopoverVisible] = useState(false);
     const [popoverTarget, setPopoverTarget] = useState('');
@@ -37,6 +43,10 @@ const ContactsTab = ({
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
     const [elementsList, setElementsList] = useState<ValueChangedEvent[]>([]);
     const formRef = useRef<Form>(null);
+
+    useImperativeHandle(ref, () => ({
+        isValid,
+    }));
 
     useEffect(() => {
         for (const element of elementsList) {
@@ -50,6 +60,11 @@ const ContactsTab = ({
                 ?.classList.add('styling');
         }
     }, [eventsList, elementsList, addressOptions]);
+
+    const isValid = () => {
+        if (dataSource.contacts.length === 0) return true;
+        return formRef.current!.instance.validate().isValid;
+    };
 
     const changeCssFormElement = (e: FieldDataChangedEvent) => {
         if (e.dataField !== 'formData') {
@@ -91,11 +106,10 @@ const ContactsTab = ({
                 ref={formRef}
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
-                showValidationSummary
                 onFieldDataChanged={changeCssFormElement}
             >
                 <GroupItem colCount={1}>
-                    {dataSource.contacts.map((phone, index) => {
+                    {dataSource.contacts.map((_, index) => {
                         return (
                             <GroupItem
                                 key={`GroupItemContacts-${index}`}
@@ -135,7 +149,9 @@ const ContactsTab = ({
                                             e: ValueChangedEvent
                                         ) => changeSelectbox(e),
                                     }}
-                                />
+                                >
+                                    <RequiredRule />
+                                </Item>
                                 <Item
                                     key={`contactsShortComment${index}`}
                                     dataField={`contacts[${index}].shortComment`}
@@ -192,6 +208,6 @@ const ContactsTab = ({
             </Form>
         </>
     );
-};
+});
 
 export default memo(ContactsTab);

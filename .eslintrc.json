@@ -1,4 +1,7 @@
 {
+  "rules": {
+    "react/display-name": "off"
+  },
   "extends": [
     "next",
     "prettier"

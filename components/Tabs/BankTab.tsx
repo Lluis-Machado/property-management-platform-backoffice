@@ -1,8 +1,16 @@
 'use client';
 // React imports
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import {
+    forwardRef,
+    memo,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from 'react';
 // Libraries imports
-import Form, { Item, GroupItem } from 'devextreme-react/form';
+import Form, { Item, GroupItem, RequiredRule } from 'devextreme-react/form';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
 // Local imports
 import { ContactData } from '@/lib/types/contactData';
@@ -10,15 +18,24 @@ import { CompanyData } from '@/lib/types/companyData';
 import AddItem from './TabButtons/AddItem';
 import DeleteItem from './TabButtons/DeleteItem';
 
+export interface BankTabMethods {
+    isValid: () => boolean | undefined;
+}
+
 interface Props {
     dataSource: ContactData | CompanyData;
     isEditing: boolean;
     isLoading: boolean;
 }
-const BankTab = ({ dataSource, isEditing, isLoading }: Props) => {
+const BankTab = forwardRef<BankTabMethods, Props>((props, ref) => {
+    const { dataSource, isEditing, isLoading } = props;
     const [addressOptions, setAddressOptions] = useState({});
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
     const formRef = useRef<Form>(null);
+
+    useImperativeHandle(ref, () => ({
+        isValid,
+    }));
 
     useEffect(() => {
         for (const event of eventsList) {
@@ -27,6 +44,11 @@ const BankTab = ({ dataSource, isEditing, isLoading }: Props) => {
                 ?.classList.add('styling');
         }
     }, [eventsList, addressOptions]);
+
+    const isValid = () => {
+        if (dataSource.bankInformation.length === 0) return true;
+        return formRef.current!.instance.validate().isValid;
+    };
 
     const changeCssFormElement = (e: FieldDataChangedEvent) => {
         if (e.dataField !== 'formData') {
@@ -48,7 +70,6 @@ const BankTab = ({ dataSource, isEditing, isLoading }: Props) => {
                 ref={formRef}
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
-                showValidationSummary
                 onFieldDataChanged={changeCssFormElement}
             >
                 <GroupItem colCount={1}>
@@ -68,7 +89,9 @@ const BankTab = ({ dataSource, isEditing, isLoading }: Props) => {
                                     label={{
                                         text: 'IBAN',
                                     }}
-                                />
+                                >
+                                    <RequiredRule />
+                                </Item>
                                 <Item
                                     key={`bic${index}`}
                                     dataField={`bankInformation[${index}].bic`}
@@ -128,6 +151,6 @@ const BankTab = ({ dataSource, isEditing, isLoading }: Props) => {
             </Form>
         </>
     );
-};
+});
 
 export default memo(BankTab);
