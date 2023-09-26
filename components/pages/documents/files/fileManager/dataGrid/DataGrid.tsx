@@ -10,7 +10,12 @@ import {
     Toolbar,
 } from 'devextreme-react/data-grid';
 import { ContextMenuPreparingEvent } from 'devextreme/ui/data_grid';
-import { faFile, faImage, faQuestion } from '@fortawesome/free-solid-svg-icons';
+import {
+    faEnvelope,
+    faFile,
+    faImage,
+    faQuestion,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Local imports
@@ -53,6 +58,8 @@ const ExtensionCellRender = ({
             case '.pdf':
             case '.txt':
                 return faFile;
+            case '.eml':
+                return faEnvelope;
             default:
                 return faQuestion;
         }
