@@ -88,10 +88,14 @@ const PhonesTab = forwardRef<PhonesTabMethods, Props>((props, ref) => {
 
     const getMaskValueChange = (e: ValueChangedEvent, index: number) => {
         const result = countriesMaskItems.filter((obj) => obj.id === e.value);
-        formRef
-            .current!.instance.getEditor(`phones[${index}].phoneNumber`)!
-            .option('mask', result[index].mask);
+        const value = result[index]?.mask;
+        if (value) {
+            formRef
+                .current!.instance.getEditor(`phones[${index}].phoneNumber`)!
+                .option('mask', value);
+        }
     };
+
     return (
         <Form
             formData={contactData}
@@ -152,7 +156,7 @@ const PhonesTab = forwardRef<PhonesTabMethods, Props>((props, ref) => {
                                     items: countriesMaskItems,
                                     valueExpr: 'id',
                                     displayExpr: 'name',
-                                    defaultValue: countriesMaskItems[0],
+                                    // defaultValue: countriesMaskItems[0],
                                     onValueChanged: (e: ValueChangedEvent) => {
                                         getMaskValueChange(e, index);
                                         changeSelectbox(e);

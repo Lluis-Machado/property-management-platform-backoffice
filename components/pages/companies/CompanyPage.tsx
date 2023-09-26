@@ -174,9 +174,12 @@ const CompanyPage = ({
 
     const getMaskValueChange = (e: ValueChangedEvent) => {
         const result = countriesMaskItems.filter((obj) => obj.id === e.value);
-        formRef
-            .current!.instance.getEditor('phoneNumber')!
-            .option('mask', result[0].mask);
+        const value = result[0]?.mask;
+        if (value) {
+            formRef
+                .current!.instance.getEditor('phoneNumber')!
+                .option('mask', value);
+        }
     };
 
     // CHANGES FIELDS
