@@ -7,8 +7,12 @@ import { memo, useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Form, {
+    EmailRule,
     GroupItem,
     Item,
+    NumericRule,
+    RequiredRule,
+    StringLengthRule,
     Tab,
     TabPanelOptions,
     TabbedItem,
@@ -288,7 +292,13 @@ const AddPropertyPage = ({
             >
                 <GroupItem colCount={3}>
                     <GroupItem>
-                        <Item dataField='name' label={{ text: 'Name' }} />
+                        <Item dataField='name' label={{ text: 'Name' }}>
+                            <RequiredRule />
+                            <StringLengthRule
+                                min={3}
+                                message='The property name has to have at least 3 letters'
+                            />
+                        </Item>
                         <Item
                             dataField='type'
                             label={{ text: 'Type' }}
@@ -338,7 +348,9 @@ const AddPropertyPage = ({
                             <Item
                                 dataField='propertyAddress.postalCode'
                                 label={{ text: 'Postal code' }}
-                            />
+                            >
+                                <NumericRule />
+                            </Item>
                             <Item
                                 dataField='propertyAddress.city'
                                 label={{ text: 'City' }}
@@ -357,7 +369,9 @@ const AddPropertyPage = ({
                                     onValueChanged: (e: any) =>
                                         handleCountryChange(e.value),
                                 }}
-                            />
+                            >
+                                <RequiredRule />
+                            </Item>
                             <Item
                                 dataField='propertyAddress.state'
                                 label={{ text: 'State' }}
@@ -395,21 +409,12 @@ const AddPropertyPage = ({
                                     searchEnabled: true,
                                 }}
                             />
-                            {/* <Item
-                                dataField='billingContactId'
-                                label={{ text: 'Billing Contact' }}
-                                editorType='dxSelectBox'
-                                editorOptions={{
-                                    items: contacts,
-                                    displayExpr: 'label',
-                                    valueExpr: 'id',
-                                    searchEnabled: true,
-                                }}
-                            />  */}
                             <Item
                                 dataField='propertyScanMail'
                                 label={{ text: 'Property Scan Mail' }}
-                            />
+                            >
+                                <EmailRule />
+                            </Item>
                             <Item
                                 dataField='mainPropertyId'
                                 label={{ text: 'Main Property' }}
@@ -599,11 +604,12 @@ const AddPropertyPage = ({
                                 <Item
                                     dataField='bedNumber'
                                     label={{ text: 'Bed Number' }}
-                                />
-                                <Item
-                                    dataField='year'
-                                    label={{ text: 'Year' }}
-                                />
+                                >
+                                    <NumericRule />
+                                </Item>
+                                <Item dataField='year' label={{ text: 'Year' }}>
+                                    <NumericRule />
+                                </Item>
                             </GroupItem>
                         </Tab>
                         <Tab title='Comments'>
