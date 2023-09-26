@@ -111,6 +111,17 @@ const PropertiesOwnersDatagrid = forwardRef(
                     return;
                 }
 
+                // not able to put owner 2 times in datagrid
+                const values = data.map((object: any) => object.ownerId);
+                if (
+                    values.some(
+                        (object: any, index: any) =>
+                            values.indexOf(object) !== index
+                    )
+                ) {
+                    return;
+                }
+
                 // SAVE OWNERSHIP WITHOUT CHANGES
                 for (const initialValue of initialValues) {
                     for (let i = 0; i < data.length; i++) {

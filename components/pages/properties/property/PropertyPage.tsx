@@ -54,7 +54,7 @@ import SharesPopup from '@/components/popups/SharesPopup';
 import { useAtom } from 'jotai';
 import { logOpened } from '@/lib/atoms/logOpened';
 import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
-
+import OwnerDuplicatePopup from '@/components/popups/OwnerDuplicatePopup';
 interface Props {
     propertyData: PropertyData;
     propertiesData: PropertyData[];
@@ -90,6 +90,8 @@ const PropertyPage = ({
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
     const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
     const [sharesVisible, setSharesVisible] = useState<boolean>(false);
+    const [doubleOwnerVisible, setDoubleOwnerVisible] =
+        useState<boolean>(false);
     const data = initialStates;
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
@@ -163,7 +165,20 @@ const PropertyPage = ({
                     setIsEditing(true);
                     return;
                 } else {
-                    setIsEditing(false);
+                    // not able to put owner 2 times in datagrid
+                    const values = data.map((object: any) => object.ownerId);
+                    if (
+                        values.some(
+                            (object: any, index: any) =>
+                                values.indexOf(object) !== index
+                        )
+                    ) {
+                        setDoubleOwnerVisible(true);
+                        setIsEditing(true);
+                        return;
+                    } else {
+                        setIsEditing(false);
+                    }
                 }
             }
         }
@@ -295,6 +310,11 @@ const PropertyPage = ({
                 message='The sum of shares is less or more then 100%'
                 isVisible={sharesVisible}
                 onClose={() => setSharesVisible(false)}
+            />
+            <OwnerDuplicatePopup
+                message='You cant add the same owner twice in the Owners Tab'
+                isVisible={doubleOwnerVisible}
+                onClose={() => setDoubleOwnerVisible(false)}
             />
             {/* Toolbar tooltips */}
             <ToolbarTooltips isEditing={isEditing} />
