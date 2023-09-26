@@ -22,7 +22,6 @@ import DataGrid, {
     TotalItem,
 } from 'devextreme-react/data-grid';
 import { SavedEvent } from 'devextreme/ui/data_grid';
-import { toast } from 'react-toastify';
 import {
     faArrowUpRightFromSquare,
     faCheck,
@@ -169,8 +168,12 @@ const PropertiesOwnersDatagrid = forwardRef(
                         const contactType: any = totalContactsList?.find(
                             (item) => item.id == change.data.ownerId
                         );
-                        const { ownerId, share, mainOwnership } = change.data;
+
                         const ownerType: string = contactType.type;
+                        if (!change.data.mainOwnership) {
+                            change.data.mainOwnership = false;
+                        }
+                        const { ownerId, share, mainOwnership } = change.data;
                         const values = {
                             propertyId,
                             ownerId,
@@ -178,6 +181,7 @@ const PropertiesOwnersDatagrid = forwardRef(
                             share,
                             mainOwnership,
                         };
+
                         const objectArray = {
                             values: values,
                             operation: 'post',
@@ -185,6 +189,17 @@ const PropertiesOwnersDatagrid = forwardRef(
                         dataOwnerships.push(objectArray);
                     }
                 }
+                // Check if there are more than one main ownership
+                let duplicatesMainOwnerShips: any[] = [];
+                dataOwnerships.forEach((item) => {
+                    if (item.values.mainOwnership === true) {
+                        duplicatesMainOwnerShips.push(item);
+                    }
+                });
+                if (duplicatesMainOwnerShips.length != 1) {
+                    return;
+                }
+                console.log(dataOwnerships);
                 // API CALL
                 try {
                     await apiPost(
@@ -299,7 +314,22 @@ const PropertiesOwnersDatagrid = forwardRef(
                             caption='Main owner'
                             cellRender={MainOwnerCellRender}
                             width={100}
-                        />
+                        >
+                            <Lookup
+                                dataSource={[
+                                    {
+                                        value: true,
+                                        label: '\u2713',
+                                    },
+                                    {
+                                        value: false,
+                                        label: '\u2715',
+                                    },
+                                ]}
+                                valueExpr='value'
+                                displayExpr='label'
+                            />
+                        </Column>
                         <Summary>
                             <TotalItem
                                 column='share'

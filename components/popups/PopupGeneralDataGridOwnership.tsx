@@ -11,7 +11,11 @@ interface PopupProps {
     onClose: () => void;
 }
 
-const OwnerDuplicatePopup = ({ message, isVisible, onClose }: PopupProps) => {
+const PopupGeneralDataGridOwnership = ({
+    message,
+    isVisible,
+    onClose,
+}: PopupProps) => {
     const contentRender = useCallback(
         () => (
             <div className='flex items-center justify-center'>
@@ -26,7 +30,7 @@ const OwnerDuplicatePopup = ({ message, isVisible, onClose }: PopupProps) => {
     const titleComponent = useCallback(
         () => (
             <div className='flex items-center justify-center text-2xl font-bold text-secondary-500'>
-                {message || 'You cant add the same owner twice?'}
+                {message}
             </div>
         ),
         [message]
@@ -47,4 +51,4 @@ const OwnerDuplicatePopup = ({ message, isVisible, onClose }: PopupProps) => {
     );
 };
 
-export default OwnerDuplicatePopup;
+export default PopupGeneralDataGridOwnership;

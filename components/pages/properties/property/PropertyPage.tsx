@@ -29,6 +29,9 @@ import 'devextreme-react/tag-box';
 import 'devextreme-react/text-area';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
+import { useAtom } from 'jotai';
+import { logOpened } from '@/lib/atoms/logOpened';
+
 // Local imports
 import '@/lib/styles/highlightFields.css';
 import { PropertyData } from '@/lib/types/propertyInfo';
@@ -53,11 +56,8 @@ import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
 import Sale from '@/components/Tabs/SalesTab';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
-import SharesPopup from '@/components/popups/SharesPopup';
-import { useAtom } from 'jotai';
-import { logOpened } from '@/lib/atoms/logOpened';
 import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
-import OwnerDuplicatePopup from '@/components/popups/OwnerDuplicatePopup';
+import PopupGeneralDataGridOwnership from '@/components/popups/PopupGeneralDataGridOwnership';
 interface Props {
     propertyData: PropertyData;
     propertiesData: PropertyData[];
@@ -95,6 +95,8 @@ const PropertyPage = ({
     const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
     const [sharesVisible, setSharesVisible] = useState<boolean>(false);
     const [doubleOwnerVisible, setDoubleOwnerVisible] =
+        useState<boolean>(false);
+    const [doubleMainOwnerVisible, setDoubleMainOwnerVisible] =
         useState<boolean>(false);
     const data = initialStates;
     const [cadastreRef, setCadastreRef] = useState<string>(
@@ -142,8 +144,8 @@ const PropertyPage = ({
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
 
-        //@ts-ignore
         const isDataOtherInfoValid =
+            //@ts-ignore
             await otherInfoTabRef.current.validateData();
 
         if (!res.isValid || isDataOtherInfoValid.status == 'invalid') {
@@ -169,6 +171,7 @@ const PropertyPage = ({
                     // @ts-ignore
                     await dataGridRef.current.getDataSource();
                 const data = dataSource._store._array;
+
                 //CHECK SUM OF SHARES
                 let sum: number = 0;
                 let array: number[] = [];
@@ -182,7 +185,9 @@ const PropertyPage = ({
                     return;
                 } else {
                     // not able to put owner 2 times in datagrid
-                    const values = data.map((object: any) => object.ownerId);
+                    const values = data.map(
+                        (object: OwnershipPropertyData) => object.ownerId
+                    );
                     if (
                         values.some(
                             (object: any, index: any) =>
@@ -193,7 +198,21 @@ const PropertyPage = ({
                         setIsEditing(true);
                         return;
                     } else {
-                        setIsEditing(false);
+                        // Check if there are more than one main ownership
+                        let duplicatesMainOwnerShips: OwnershipPropertyData[] =
+                            [];
+                        data.forEach((item: OwnershipPropertyData) => {
+                            if (item.mainOwnership === true) {
+                                duplicatesMainOwnerShips.push(item);
+                            }
+                        });
+                        if (duplicatesMainOwnerShips.length != 1) {
+                            setDoubleMainOwnerVisible(true);
+                            setIsEditing(true);
+                            return;
+                        } else {
+                            setIsEditing(false);
+                        }
                     }
                 }
             }
@@ -322,15 +341,20 @@ const PropertyPage = ({
                 onClose={() => setUnsavedVisible(false)}
                 onConfirm={() => router.refresh()}
             />
-            <SharesPopup
+            <PopupGeneralDataGridOwnership
                 message='The sum of shares is less or more then 100%'
                 isVisible={sharesVisible}
                 onClose={() => setSharesVisible(false)}
             />
-            <OwnerDuplicatePopup
+            <PopupGeneralDataGridOwnership
                 message='You cant add the same owner twice in the Owners Tab'
                 isVisible={doubleOwnerVisible}
                 onClose={() => setDoubleOwnerVisible(false)}
+            />
+            <PopupGeneralDataGridOwnership
+                message='You have more then one main owner!'
+                isVisible={doubleMainOwnerVisible}
+                onClose={() => setDoubleMainOwnerVisible(false)}
             />
             {/* Toolbar tooltips */}
             <ToolbarTooltips isEditing={isEditing} />
