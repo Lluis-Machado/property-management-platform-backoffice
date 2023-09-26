@@ -94,12 +94,15 @@ const PropertiesOwnersDatagrid = forwardRef(
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
                 let dataOwnerships: any[] = [];
-
-                // LOGIC SUM OF SHARES
                 const dataSource: any =
                     datagridRef.current?.instance.getDataSource();
                 const data = dataSource._store._array;
 
+                if (JSON.stringify(data) === JSON.stringify(initialValues)) {
+                    return;
+                }
+
+                // LOGIC SUM OF SHARES
                 let sum: number = 0;
                 let array: number[] = [];
                 for (const item of data) {
@@ -183,9 +186,6 @@ const PropertiesOwnersDatagrid = forwardRef(
                         dataOwnerships.push(objectArray);
                     }
                 }
-
-                const toastId = toast.loading('Updating ownership property');
-
                 // API CALL
                 try {
                     await apiPost(
@@ -194,12 +194,8 @@ const PropertiesOwnersDatagrid = forwardRef(
                         token,
                         'Error while updating ownerships'
                     );
-                    updateSuccessToast(
-                        toastId,
-                        'Ownerships updated correctly!'
-                    );
                 } catch (error: unknown) {
-                    customError(error, toastId);
+                    customError(error, 'ownership call');
                 }
             },
             [token, propertyId, totalContactsList, initialValues]

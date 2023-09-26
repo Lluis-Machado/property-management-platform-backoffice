@@ -48,7 +48,7 @@ export interface PropertyData {
     saleDate: string | null;
     salePrice: Price;
     totalPrice: Price;
-    type: string;
+    type: number | null;
     typeOfUse: number[];
     year: number | null;
 }

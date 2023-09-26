@@ -151,7 +151,7 @@ let propertyData: PropertyData = {
         currency: '',
         value: 0,
     },
-    type: '',
+    type: null,
     typeOfUse: [],
     year: null,
 };

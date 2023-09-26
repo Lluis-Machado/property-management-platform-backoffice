@@ -140,6 +140,7 @@ const PropertyPage = ({
         const response = await dataGridRef.current.hasEditData();
         // @ts-ignore
         await dataGridRef.current.saveEditData();
+
         // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
 
