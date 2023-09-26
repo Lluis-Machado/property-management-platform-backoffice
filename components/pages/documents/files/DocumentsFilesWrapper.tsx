@@ -1,7 +1,7 @@
 'use client';
 
 // React imports
-import { FC, memo, useCallback, useRef, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useRef, useState } from 'react';
 
 // Libraries imports
 import { TreeView as DxTreeView } from 'devextreme-react/tree-view';
@@ -19,10 +19,14 @@ import { isLoadingFileManager } from '@/lib/atoms/isLoadingFileManager';
 
 interface Props {
     archives: any[];
+    searchParams: any;
 }
 
 export const DocumentsFilesWrapper: FC<Props> = memo(
-    function DocumentsFilesWrapper({ archives }): React.ReactElement {
+    function DocumentsFilesWrapper({
+        archives,
+        searchParams,
+    }): React.ReactElement {
         const TreeViewRef = useRef<DxTreeView>(null);
         const [_, setIsLoading] = useAtom(isLoadingFileManager);
 
@@ -76,6 +80,22 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
             },
             [setIsLoading]
         );
+
+        // useEffect for automatic archive select
+        useEffect(() => {
+            if (searchParams?.archiveId) {
+                const archObj: Archive = {
+                    id: searchParams?.archiveId,
+                    createdAt: '',
+                    createdByUser: '',
+                    deleted: false,
+                    lastUpdateAt: '',
+                    lastUpdateByUser: '',
+                    name: '',
+                };
+                handleFolderSelected(archObj);
+            }
+        }, [searchParams]);
 
         const handleDocumentSelectionChanged = useCallback(
             async (documents: Document[]) => {

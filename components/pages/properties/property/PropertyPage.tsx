@@ -313,7 +313,7 @@ const PropertyPage = ({
                 {/* Cards with actions */}
                 <div className='flex basis-2/4 flex-row items-center gap-4'>
                     <SimpleLinkCard
-                        href={`/private/documents?propertyId=${propertyData.id}`}
+                        href={`/private/documents/files?archiveId=${propertyData.archiveId}`}
                         text='Documents'
                         faIcon={faFileLines}
                     />
