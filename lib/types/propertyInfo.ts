@@ -1,6 +1,6 @@
 import { Address } from './address';
 export interface PropertyData {
-    archiveId: string;
+    archiveId?: string;
     autonomousRegion: string;
     bedNumber: number | null;
     billingContactId: string | null;
