@@ -7,6 +7,7 @@ import {
     useImperativeHandle,
     useRef,
     LegacyRef,
+    useState,
 } from 'react';
 // Libraries imports
 import DataGrid, {
@@ -92,10 +93,10 @@ const PropertiesOwnersDatagrid = forwardRef(
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
                 let dataOwnerships: any[] = [];
+                debugger;
                 const dataSource: any =
                     datagridRef.current?.instance.getDataSource();
                 const data = dataSource._store._array;
-
                 if (JSON.stringify(data) === JSON.stringify(initialValues)) {
                     return;
                 }
@@ -135,6 +136,7 @@ const PropertiesOwnersDatagrid = forwardRef(
                                 values: initialValue,
                                 operation: 'patch',
                             });
+                            console.log(dataOwnerships);
                         }
                     }
                 }
@@ -189,17 +191,24 @@ const PropertiesOwnersDatagrid = forwardRef(
                         dataOwnerships.push(objectArray);
                     }
                 }
-                // Check if there are more than one main ownership
+                // Check if there are no owners or more than one main ownership
                 let duplicatesMainOwnerShips: any[] = [];
                 dataOwnerships.forEach((item) => {
                     if (item.values.mainOwnership === true) {
                         duplicatesMainOwnerShips.push(item);
                     }
                 });
+
+                console.log(duplicatesMainOwnerShips);
                 if (duplicatesMainOwnerShips.length != 1) {
+                    dataOwnerships.splice(0, dataOwnerships.length);
+                    duplicatesMainOwnerShips.splice(
+                        0,
+                        duplicatesMainOwnerShips.length
+                    );
                     return;
                 }
-                console.log(dataOwnerships);
+
                 // API CALL
                 try {
                     await apiPost(

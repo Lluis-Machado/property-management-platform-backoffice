@@ -342,7 +342,7 @@ const PropertyPage = ({
                 onConfirm={() => router.refresh()}
             />
             <PopupGeneralDataGridOwnership
-                message='The sum of shares is less or more then 100%'
+                message='The sum of shares is less or more then 100% in the Owners Tab'
                 isVisible={sharesVisible}
                 onClose={() => setSharesVisible(false)}
             />
@@ -352,7 +352,7 @@ const PropertyPage = ({
                 onClose={() => setDoubleOwnerVisible(false)}
             />
             <PopupGeneralDataGridOwnership
-                message='You have more then one main owner!'
+                message='You have no main owner / or more then one main owner in the Owners Tab!'
                 isVisible={doubleMainOwnerVisible}
                 onClose={() => setDoubleMainOwnerVisible(false)}
             />
