@@ -238,7 +238,7 @@ const ContactPage = ({
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
                     <SimpleLinkCard
-                        href={`/private/documents?contactId=${contactData.id}`}
+                        href={`/private/documents/files?archiveId=${contactData.archiveId}`}
                         text='Documents'
                         faIcon={faFileLines}
                     />

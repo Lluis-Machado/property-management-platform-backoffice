@@ -3,39 +3,40 @@ import { BankInformation } from './bankInformation';
 import { CompanyContacts } from './companyContacts';
 
 export interface CompanyData {
+    addresses: Address[];
+    archiveId?: string;
+    bankInformation: BankInformation[];
+    comments: string;
+    companyPurpose: string;
+    contacts: CompanyContacts[];
+    countryMaskId: number;
+    email: string;
+    foundingDate: string | null;
+    germanTaxOffice: string;
     id?: string;
     name: string;
     nif: string | null;
-    email: string;
-    germanTaxOffice: string;
-    countryMaskId: number;
     phoneNumber: string;
-    comments: string;
-    companyPurpose: string;
     taxNumber: string;
     uStIDNumber: string;
-    foundingDate: string | null;
-    addresses: Address[];
-    contacts: CompanyContacts[];
-    bankInformation: BankInformation[];
 }
 
 export interface CompanyDataProperty {
-    id?: string;
-    firstName?: string;
-    name: string;
-    nif: string | null;
-    email: string;
-    germanTaxOffice: string;
-    countryMaskId: number;
-    phoneNumber: string;
+    addresses: Address[];
+    bankInformation: BankInformation[];
     comments: string;
     companyPurpose: string;
-    taxNumber: string;
-    uStIDNumber: string;
-    foundingDate: string | null;
-    addresses: Address[];
     contacts: CompanyContacts[];
-    bankInformation: BankInformation[];
+    countryMaskId: number;
+    email: string;
+    firstName?: string;
+    foundingDate: string | null;
+    germanTaxOffice: string;
+    id?: string;
+    name: string;
+    nif: string | null;
+    phoneNumber: string;
+    taxNumber: string;
     type: string;
+    uStIDNumber: string;
 }

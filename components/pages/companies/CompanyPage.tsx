@@ -236,7 +236,7 @@ const CompanyPage = ({
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
                     <SimpleLinkCard
-                        href={`/private/documents?companyId=${companyData.id}`}
+                        href={`/private/documents/files?archiveId=${companyData.archiveId}`}
                         text='Documents'
                         faIcon={faFileLines}
                     />
