@@ -16,8 +16,11 @@ import {
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Form, {
+    EmailRule,
     GroupItem,
     Item,
+    NumericRule,
+    RequiredRule,
     Tab,
     TabPanelOptions,
     TabbedItem,
@@ -26,6 +29,9 @@ import 'devextreme-react/tag-box';
 import 'devextreme-react/text-area';
 import { ValueChangedEvent } from 'devextreme/ui/text_box';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
+import { useAtom } from 'jotai';
+import { logOpened } from '@/lib/atoms/logOpened';
+
 // Local imports
 import '@/lib/styles/highlightFields.css';
 import { PropertyData } from '@/lib/types/propertyInfo';
@@ -50,11 +56,8 @@ import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
 import Sale from '@/components/Tabs/SalesTab';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
-import SharesPopup from '@/components/popups/SharesPopup';
-import { useAtom } from 'jotai';
-import { logOpened } from '@/lib/atoms/logOpened';
 import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
-
+import PopupGeneralDataGridOwnership from '@/components/popups/PopupGeneralDataGridOwnership';
 interface Props {
     propertyData: PropertyData;
     propertiesData: PropertyData[];
@@ -82,6 +85,7 @@ const PropertyPage = ({
     const dataGridRef = useRef();
     const formRef = useRef<Form>(null);
     const statesRef = useRef<Item>(null);
+    const otherInfoTabRef = useRef<Form>(null);
     const [_, setIsLogOpened] = useAtom(logOpened);
     const [__, setPropertyId] = useAtom(selectedObjId);
     const [___, setObjName] = useAtom(selectedObjName);
@@ -90,6 +94,10 @@ const PropertyPage = ({
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
     const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
     const [sharesVisible, setSharesVisible] = useState<boolean>(false);
+    const [doubleOwnerVisible, setDoubleOwnerVisible] =
+        useState<boolean>(false);
+    const [doubleMainOwnerVisible, setDoubleMainOwnerVisible] =
+        useState<boolean>(false);
     const data = initialStates;
     const [cadastreRef, ____] = useState<string>(propertyData.cadastreRef);
     // Importante para que no se copie por referencia
@@ -133,10 +141,22 @@ const PropertyPage = ({
     );
 
     const handleSubmit = useCallback(async () => {
+        const res = formRef.current!.instance.validate();
+
+        const isDataOtherInfoValid =
+            //@ts-ignore
+            await otherInfoTabRef.current.validateData();
+
+        if (!res.isValid || isDataOtherInfoValid.status == 'invalid') {
+            toast.warning('Validation error detected, check all fields');
+            return;
+        }
+
         // @ts-ignore
         const response = await dataGridRef.current.hasEditData();
         // @ts-ignore
         await dataGridRef.current.saveEditData();
+
         // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
 
@@ -150,6 +170,7 @@ const PropertyPage = ({
                     // @ts-ignore
                     await dataGridRef.current.getDataSource();
                 const data = dataSource._store._array;
+
                 //CHECK SUM OF SHARES
                 let sum: number = 0;
                 let array: number[] = [];
@@ -162,7 +183,36 @@ const PropertyPage = ({
                     setIsEditing(true);
                     return;
                 } else {
-                    setIsEditing(false);
+                    // not able to put owner 2 times in datagrid
+                    const values = data.map(
+                        (object: OwnershipPropertyData) => object.ownerId
+                    );
+                    if (
+                        values.some(
+                            (object: any, index: any) =>
+                                values.indexOf(object) !== index
+                        )
+                    ) {
+                        setDoubleOwnerVisible(true);
+                        setIsEditing(true);
+                        return;
+                    } else {
+                        // Check if there are more than one main ownership
+                        let duplicatesMainOwnerShips: OwnershipPropertyData[] =
+                            [];
+                        data.forEach((item: OwnershipPropertyData) => {
+                            if (item.mainOwnership === true) {
+                                duplicatesMainOwnerShips.push(item);
+                            }
+                        });
+                        if (duplicatesMainOwnerShips.length != 1) {
+                            setDoubleMainOwnerVisible(true);
+                            setIsEditing(true);
+                            return;
+                        } else {
+                            setIsEditing(false);
+                        }
+                    }
                 }
             }
         }
@@ -293,10 +343,20 @@ const PropertyPage = ({
                 onClose={() => setUnsavedVisible(false)}
                 onConfirm={() => router.refresh()}
             />
-            <SharesPopup
-                message='The sum of shares is less or more then 100%'
+            <PopupGeneralDataGridOwnership
+                message='The sum of shares is less or more then 100% in the Owners Tab'
                 isVisible={sharesVisible}
                 onClose={() => setSharesVisible(false)}
+            />
+            <PopupGeneralDataGridOwnership
+                message='You cant add the same owner twice in the Owners Tab'
+                isVisible={doubleOwnerVisible}
+                onClose={() => setDoubleOwnerVisible(false)}
+            />
+            <PopupGeneralDataGridOwnership
+                message='You have no main owner / or more then one main owner in the Owners Tab!'
+                isVisible={doubleMainOwnerVisible}
+                onClose={() => setDoubleMainOwnerVisible(false)}
             />
             {/* Toolbar tooltips */}
             <ToolbarTooltips isEditing={isEditing} />
@@ -444,7 +504,9 @@ const PropertyPage = ({
                                 <Item
                                     dataField='propertyAddress.postalCode'
                                     label={{ text: 'Postal code' }}
-                                />
+                                >
+                                    <NumericRule />
+                                </Item>
                                 <Item
                                     dataField='propertyAddress.city'
                                     label={{ text: 'City' }}
@@ -470,7 +532,9 @@ const PropertyPage = ({
                                             changeSelectbox(e);
                                         },
                                     }}
-                                />
+                                >
+                                    <RequiredRule />
+                                </Item>
                                 <Item
                                     dataField='propertyAddress.state'
                                     label={{ text: 'State' }}
@@ -528,45 +592,12 @@ const PropertyPage = ({
                                 ],
                             }}
                         />
-                        {/* <Item
-                            dataField='billingContactId'
-                            label={{ text: 'Billing Contact' }}
-                            editorType='dxSelectBox'
-                            editorOptions={{
-                                elementAttr: {
-                                    id: `propertyBillingContact`,
-                                },
-                                items: contacts,
-                                displayExpr: 'firstName',
-                                valueExpr: 'id',
-                                searchEnabled: true,
-                                onValueChanged: (e: ValueChangedEvent) =>
-                                    changeSelectbox(e),
-                                buttons: [
-                                    {
-                                        name: 'goto',
-                                        location: 'after',
-                                        options: {
-                                            icon: '<svg xmlns="http://www.w3.org/2000/svg" id="arrowButtonIcon" height="0.8em" viewBox="0 0 512 512"><style>#arrowButtonIcon{fill:#ffffff}</style><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>',
-                                            type: 'default',
-                                            onClick: () => {
-                                                router.push(
-                                                    `/private/contacts/${propertyData.billingContactId}/contactInfo`
-                                                );
-                                            },
-                                            disabled:
-                                                propertyData.billingContactId
-                                                    ? false
-                                                    : true,
-                                        },
-                                    },
-                                ],
-                            }}
-                        /> */}
                         <Item
                             dataField='propertyScanMail'
                             label={{ text: 'Property Scan Mail' }}
-                        />
+                        >
+                            <EmailRule />
+                        </Item>
                         <Item
                             dataField='mainPropertyId'
                             label={{ text: 'Main Property' }}
@@ -646,6 +677,7 @@ const PropertyPage = ({
                                 propertyData={propertyData}
                                 isLoading={isLoading}
                                 isEditing={isEditing}
+                                ref={otherInfoTabRef}
                             />
                         </Tab>
                         <Tab title='Comments'>

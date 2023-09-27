@@ -7,6 +7,7 @@ import {
     useImperativeHandle,
     useRef,
     LegacyRef,
+    useState,
 } from 'react';
 // Libraries imports
 import DataGrid, {
@@ -22,7 +23,6 @@ import DataGrid, {
     TotalItem,
 } from 'devextreme-react/data-grid';
 import { SavedEvent } from 'devextreme/ui/data_grid';
-import { toast } from 'react-toastify';
 import {
     faArrowUpRightFromSquare,
     faCheck,
@@ -33,7 +33,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
 import { TokenRes } from '@/lib/types/token';
-import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { apiPost } from '@/lib/utils/apiPost';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
@@ -94,12 +93,15 @@ const PropertiesOwnersDatagrid = forwardRef(
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
                 let dataOwnerships: any[] = [];
-
-                // LOGIC SUM OF SHARES
+                debugger;
                 const dataSource: any =
                     datagridRef.current?.instance.getDataSource();
                 const data = dataSource._store._array;
+                if (JSON.stringify(data) === JSON.stringify(initialValues)) {
+                    return;
+                }
 
+                // LOGIC SUM OF SHARES
                 let sum: number = 0;
                 let array: number[] = [];
                 for (const item of data) {
@@ -108,6 +110,17 @@ const PropertiesOwnersDatagrid = forwardRef(
                 }
 
                 if (sum !== 100) {
+                    return;
+                }
+
+                // not able to put owner 2 times in datagrid
+                const values = data.map((object: any) => object.ownerId);
+                if (
+                    values.some(
+                        (object: any, index: any) =>
+                            values.indexOf(object) !== index
+                    )
+                ) {
                     return;
                 }
 
@@ -123,6 +136,7 @@ const PropertiesOwnersDatagrid = forwardRef(
                                 values: initialValue,
                                 operation: 'patch',
                             });
+                            console.log(dataOwnerships);
                         }
                     }
                 }
@@ -156,8 +170,12 @@ const PropertiesOwnersDatagrid = forwardRef(
                         const contactType: any = totalContactsList?.find(
                             (item) => item.id == change.data.ownerId
                         );
-                        const { ownerId, share, mainOwnership } = change.data;
+
                         const ownerType: string = contactType.type;
+                        if (!change.data.mainOwnership) {
+                            change.data.mainOwnership = false;
+                        }
+                        const { ownerId, share, mainOwnership } = change.data;
                         const values = {
                             propertyId,
                             ownerId,
@@ -165,6 +183,7 @@ const PropertiesOwnersDatagrid = forwardRef(
                             share,
                             mainOwnership,
                         };
+
                         const objectArray = {
                             values: values,
                             operation: 'post',
@@ -172,8 +191,23 @@ const PropertiesOwnersDatagrid = forwardRef(
                         dataOwnerships.push(objectArray);
                     }
                 }
+                // Check if there are no owners or more than one main ownership
+                let duplicatesMainOwnerShips: any[] = [];
+                dataOwnerships.forEach((item) => {
+                    if (item.values.mainOwnership === true) {
+                        duplicatesMainOwnerShips.push(item);
+                    }
+                });
 
-                const toastId = toast.loading('Updating ownership property');
+                console.log(duplicatesMainOwnerShips);
+                if (duplicatesMainOwnerShips.length != 1) {
+                    dataOwnerships.splice(0, dataOwnerships.length);
+                    duplicatesMainOwnerShips.splice(
+                        0,
+                        duplicatesMainOwnerShips.length
+                    );
+                    return;
+                }
 
                 // API CALL
                 try {
@@ -183,12 +217,8 @@ const PropertiesOwnersDatagrid = forwardRef(
                         token,
                         'Error while updating ownerships'
                     );
-                    updateSuccessToast(
-                        toastId,
-                        'Ownerships updated correctly!'
-                    );
                 } catch (error: unknown) {
-                    customError(error, toastId);
+                    customError(error, 'ownership call');
                 }
             },
             [token, propertyId, totalContactsList, initialValues]
@@ -293,7 +323,22 @@ const PropertiesOwnersDatagrid = forwardRef(
                             caption='Main owner'
                             cellRender={MainOwnerCellRender}
                             width={100}
-                        />
+                        >
+                            <Lookup
+                                dataSource={[
+                                    {
+                                        value: true,
+                                        label: '\u2713',
+                                    },
+                                    {
+                                        value: false,
+                                        label: '\u2715',
+                                    },
+                                ]}
+                                valueExpr='value'
+                                displayExpr='label'
+                            />
+                        </Column>
                         <Summary>
                             <TotalItem
                                 column='share'

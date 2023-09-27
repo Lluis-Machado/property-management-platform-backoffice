@@ -11,7 +11,11 @@ interface PopupProps {
     onClose: () => void;
 }
 
-const SharesPopup = ({ message, isVisible, onClose }: PopupProps) => {
+const PopupGeneralDataGridOwnership = ({
+    message,
+    isVisible,
+    onClose,
+}: PopupProps) => {
     const contentRender = useCallback(
         () => (
             <div className='flex items-center justify-center'>
@@ -26,7 +30,7 @@ const SharesPopup = ({ message, isVisible, onClose }: PopupProps) => {
     const titleComponent = useCallback(
         () => (
             <div className='flex items-center justify-center text-2xl font-bold text-secondary-500'>
-                {message || 'Are you sure you want to save the changes?'}
+                {message}
             </div>
         ),
         [message]
@@ -47,4 +51,4 @@ const SharesPopup = ({ message, isVisible, onClose }: PopupProps) => {
     );
 };
 
-export default SharesPopup;
+export default PopupGeneralDataGridOwnership;

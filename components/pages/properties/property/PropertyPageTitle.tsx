@@ -9,6 +9,11 @@ import { PropertyData } from '@/lib/types/propertyInfo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencil } from '@fortawesome/free-solid-svg-icons';
 import '../../../../lib/styles/propertyName.css';
+import {
+    Validator,
+    RequiredRule,
+    StringLengthRule,
+} from 'devextreme-react/validator';
 
 interface Props {
     propertyData: PropertyData;
@@ -72,6 +77,13 @@ const PropertyPageTitle = ({
                         </div>
                     </Tooltip>
                 )}
+                <Validator>
+                    <RequiredRule />
+                    <StringLengthRule
+                        min={3}
+                        message='The property name has to have at least 3 letters'
+                    />
+                </Validator>
             </TextBox>
             <div className='mb-2 flex items-end justify-center'>
                 {isEditing && (
