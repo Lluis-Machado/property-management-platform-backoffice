@@ -23,7 +23,7 @@ function MainLayout({ children, lang, user }: Props) {
                 <Sidebar />
             </aside>
             {/* Header and page */}
-            <section className='absolute inset-0 left-12 flex flex-col'>
+            <section className='absolute inset-0 left-12 flex flex-col overflow-hidden'>
                 <header className='z-50 h-header w-full shadow-header'>
                     <Header lang={lang} user={user} />
                 </header>

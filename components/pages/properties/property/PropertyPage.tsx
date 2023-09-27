@@ -99,14 +99,13 @@ const PropertyPage = ({
     const [doubleMainOwnerVisible, setDoubleMainOwnerVisible] =
         useState<boolean>(false);
     const data = initialStates;
-    const [cadastreRef, setCadastreRef] = useState<string>(
-        propertyData.cadastreRef
-    );
+    const [cadastreRef, ____] = useState<string>(propertyData.cadastreRef);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
 
+    // Used for audit log calls
     useEffect(() => {
         setObjName('property');
     }, [setObjName]);
@@ -312,7 +311,10 @@ const PropertyPage = ({
 
     const handleEditingButton = () => {
         const values = structuredClone(propertyData);
-        if (JSON.stringify(values) !== JSON.stringify(initialValues)) {
+        if (
+            isEditing &&
+            JSON.stringify(values) !== JSON.stringify(initialValues)
+        ) {
             setUnsavedVisible(true);
         } else {
             setIsEditing((prev) => !prev);
@@ -371,7 +373,7 @@ const PropertyPage = ({
                 {/* Cards with actions */}
                 <div className='flex basis-2/4 flex-row items-center gap-4'>
                     <SimpleLinkCard
-                        href={`/private/documents?propertyId=${propertyData.id}`}
+                        href={`/private/documents/files?archiveId=${propertyData.archiveId}`}
                         text='Documents'
                         faIcon={faFileLines}
                     />

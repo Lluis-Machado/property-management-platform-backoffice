@@ -34,7 +34,10 @@ export function ContentWrapper({ children, lang, token }: Props) {
             height={'100%'}
             shading
         >
-            <section className='relative h-full overflow-x-hidden' id='content'>
+            <section
+                className='h-content-wrapper overflow-y-auto overflow-x-hidden'
+                id='content'
+            >
                 <div className='m-4'>{children}</div>
             </section>
         </Drawer>

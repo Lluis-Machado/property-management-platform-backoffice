@@ -51,6 +51,9 @@ import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 import { useAtom } from 'jotai';
 import { logOpened } from '@/lib/atoms/logOpened';
 import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
+import { AddressInfoTabMethods } from '@/components/Tabs/AddressInfoTab';
+import { BankTabMethods } from '@/components/Tabs/BankTab';
+import { ContactsTabMethods } from '@/components/Tabs/ContactsTab';
 
 interface Props {
     companyData: CompanyData;
@@ -83,17 +86,29 @@ const CompanyPage = ({
         structuredClone(companyData)
     );
 
+    // Used for audit log calls
     useEffect(() => {
         setObjName('company');
     }, [setObjName]);
 
     const formRef = useRef<Form>(null);
+    const addressTabRef = useRef<AddressInfoTabMethods>(null);
+    const contactsTabRef = useRef<ContactsTabMethods>(null);
+    const bankTabRef = useRef<BankTabMethods>(null);
 
     const router = useRouter();
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
-        if (!res.isValid) return;
+        if (
+            !res.isValid ||
+            !addressTabRef.current?.isValid() ||
+            !contactsTabRef.current?.isValid() ||
+            !bankTabRef.current?.isValid()
+        ) {
+            toast.warning('Validation error detected, check all fields');
+            return;
+        }
 
         const values = structuredClone(companyData);
 
@@ -159,9 +174,12 @@ const CompanyPage = ({
 
     const getMaskValueChange = (e: ValueChangedEvent) => {
         const result = countriesMaskItems.filter((obj) => obj.id === e.value);
-        formRef
-            .current!.instance.getEditor('phoneNumber')!
-            .option('mask', result[0].mask);
+        const value = result[0]?.mask;
+        if (value) {
+            formRef
+                .current!.instance.getEditor('phoneNumber')!
+                .option('mask', value);
+        }
     };
 
     // CHANGES FIELDS
@@ -174,7 +192,10 @@ const CompanyPage = ({
 
     const handleEditingButton = () => {
         const values = structuredClone(companyData);
-        if (JSON.stringify(values) !== JSON.stringify(initialValues)) {
+        if (
+            isEditing &&
+            JSON.stringify(values) !== JSON.stringify(initialValues)
+        ) {
             setUnsavedVisible(true);
         } else {
             setIsEditing((prev) => !prev);
@@ -215,7 +236,7 @@ const CompanyPage = ({
                 {/* Cards with actions */}
                 <div className='flex flex-row items-center gap-4'>
                     <SimpleLinkCard
-                        href={`/private/documents?companyId=${companyData.id}`}
+                        href={`/private/documents/files?archiveId=${companyData.archiveId}`}
                         text='Documents'
                         faIcon={faFileLines}
                     />
@@ -281,7 +302,6 @@ const CompanyPage = ({
                 formData={companyData}
                 labelMode={'floating'}
                 readOnly={isLoading || !isEditing}
-                showValidationSummary
                 onFieldDataChanged={changeCssFormElement}
             >
                 {/* Main Information */}
@@ -356,6 +376,7 @@ const CompanyPage = ({
                         </Tab>
                         <Tab title={`Address Information`}>
                             <AddressInfoTab
+                                ref={addressTabRef}
                                 dataSource={companyData}
                                 initialStates={initialStates}
                                 countriesData={countriesData}
@@ -367,6 +388,7 @@ const CompanyPage = ({
                         </Tab>
                         <Tab title={`Contacts`}>
                             <ContactsTab
+                                ref={contactsTabRef}
                                 dataSource={companyData}
                                 contactsData={contactsData}
                                 isEditing={isEditing}
@@ -375,6 +397,7 @@ const CompanyPage = ({
                         </Tab>
                         <Tab title={`Bank`}>
                             <BankTab
+                                ref={bankTabRef}
                                 dataSource={companyData}
                                 isEditing={isEditing}
                                 isLoading={isLoading}

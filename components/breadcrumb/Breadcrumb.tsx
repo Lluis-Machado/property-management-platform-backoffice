@@ -47,7 +47,7 @@ const Route = ({
     );
 };
 
-export const Breadcrumb = (): React.ReactElement => {
+const Breadcrumb = (): React.ReactElement => {
     const pathName = usePathname();
 
     const getBreadCrumbs = useMemo((): Route[] => {
@@ -80,20 +80,21 @@ export const Breadcrumb = (): React.ReactElement => {
     }, [pathName]);
 
     return (
-        <>
-            <nav aria-label='Breadcrumb' className='my-5 w-min text-base'>
-                <ol className='flex list-none items-stretch gap-2'>
-                    {getBreadCrumbs.map((item, idx, routes) => (
-                        <Route
-                            routes={routes}
-                            idx={idx}
-                            item={item}
-                            key={item.name}
-                        />
-                    ))}
-                </ol>
-            </nav>
-        </>
+        <nav
+            aria-label='Breadcrumb'
+            className='relative z-10 my-5 w-min text-base'
+        >
+            <ol className='flex list-none items-stretch gap-2'>
+                {getBreadCrumbs.map((item, idx, routes) => (
+                    <Route
+                        routes={routes}
+                        idx={idx}
+                        item={item}
+                        key={item.name}
+                    />
+                ))}
+            </ol>
+        </nav>
     );
 };
 

@@ -4,34 +4,35 @@ import { Identification } from './identification';
 import { Phone } from './phone';
 
 export interface ContactData {
-    id?: string;
-    title: number[];
-    firstName: string;
-    lastName: string;
-    gender: number | null;
-    birthPlace: string;
-    birthDay: string | null;
-    maritalStatus: number | null;
-    identifications: Identification[];
     addresses: Address[];
-    phones: Phone[];
-    email: string;
+    archiveId?: string;
     bankInformation: BankInformation[];
+    birthDay: string | null;
+    birthPlace: string;
+    email: string;
+    firstName: string;
+    gender: number | null;
+    id?: string;
+    identifications: Identification[];
+    lastName: string;
+    maritalStatus: number | null;
+    phones: Phone[];
+    title: number[];
 }
 
 export interface ContactDataProperty {
-    id?: string;
-    title: number[];
-    firstName: string;
-    lastName: string;
-    gender: number | null;
-    birthPlace: string;
-    birthDay: string | null;
-    maritalStatus: number | null;
-    identifications: Identification[];
     addresses: Address[];
-    phones: Phone[];
-    email: string;
     bankInformation: BankInformation[];
+    birthDay: string | null;
+    birthPlace: string;
+    email: string;
+    firstName: string;
+    gender: number | null;
+    id?: string;
+    identifications: Identification[];
+    lastName: string;
+    maritalStatus: number | null;
+    phones: Phone[];
+    title: number[];
     type: string;
 }

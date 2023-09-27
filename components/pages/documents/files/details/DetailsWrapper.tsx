@@ -1,6 +1,5 @@
 // Libraries imports
 import {
-    faChevronRight,
     faDatabase,
     faMagnifyingGlass,
     faSliders,
