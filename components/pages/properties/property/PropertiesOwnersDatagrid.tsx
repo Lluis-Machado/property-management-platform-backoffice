@@ -74,12 +74,6 @@ const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
         const getDataSource = () =>
             datagridRef.current!.instance.getDataSource();
 
-        //Filter Owners
-        let idArray: any[] = [];
-        for (const ownership of dataSource) {
-            idArray.push(ownership.ownerId);
-        }
-
         // Css styles for sum of shares
         const summaryShares = (e: any) => {
             if (e.rowType == 'totalFooter') {

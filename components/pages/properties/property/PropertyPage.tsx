@@ -167,47 +167,57 @@ const PropertyPage = ({
             return;
         } else if (ownershipsDGhasChanged) {
             await dataGridRef.current!.saveEditData();
-            const dataSourceOWDG: any = dataGridRef.current!.getDataSource();
-            const dataOwnersDG = await dataSourceOWDG._store._array;
+            const dataOwnersDG = dataGridRef
+                .current!.getDataSource()
+                .items() as OwnershipPropertyData[];
 
-            //Check if sum o shares is 100%
+            // Check if shares are not equal to 100. Complexity O(n)
             let sumofShares: number = 0;
-            for (const owner of dataOwnersDG) {
-                sumofShares = owner.share + sumofShares;
+            for (const item of dataOwnersDG) {
+                sumofShares += item.share;
+                if (sumofShares > 100) {
+                    break;
+                }
             }
 
             if (sumofShares !== 100) {
                 setSharesVisible(true);
                 return;
-            } else {
-                const values = dataOwnersDG.map(
-                    (object: OwnershipPropertyData) => object.ownerId
-                );
-                // Checking if there are an owner 2 times in datagrid
-                if (
-                    values.some(
-                        (object: OwnershipPropertyData, index: number) =>
-                            values.indexOf(object) !== index
-                    )
-                ) {
-                    setDoubleOwnerVisible(true);
-                    return;
+            }
+
+            // Check if there are repeated owners. Complexity O(n)
+            const ownerIdSet = new Set();
+            const duplicateOwners = new Set();
+
+            for (const item of dataOwnersDG) {
+                const ownerId = item.ownerId;
+
+                if (ownerIdSet.has(ownerId)) {
+                    duplicateOwners.add(ownerId);
                 } else {
-                    // Check if there are more than one main ownership
-                    let duplicatesMainOwnerShips: OwnershipPropertyData[] = [];
-                    dataOwnersDG.forEach((item: OwnershipPropertyData) => {
-                        if (item.mainOwnership === true) {
-                            duplicatesMainOwnerShips.push(item);
-                        }
-                    });
-                    if (duplicatesMainOwnerShips.length !== 1) {
-                        setDoubleMainOwnerVisible(true);
-                        return;
-                    }
-                    // If all OK, send data
-                    console.log('SE HA GUARDADO');
+                    ownerIdSet.add(ownerId);
                 }
             }
+
+            const duplicateOwnersArray = Array.from(duplicateOwners);
+            if (duplicateOwnersArray.length > 0) {
+                setDoubleOwnerVisible(true);
+                return;
+            }
+
+            // Check if there are more than one main ownership
+            let duplicatesMainOwnerShips: OwnershipPropertyData[] = [];
+            dataOwnersDG.forEach((item: OwnershipPropertyData) => {
+                if (item.mainOwnership === true) {
+                    duplicatesMainOwnerShips.push(item);
+                }
+            });
+            if (duplicatesMainOwnerShips.length !== 1) {
+                setDoubleMainOwnerVisible(true);
+                return;
+            }
+            // If all OK, send data
+            console.log('SE HA GUARDADO');
         }
 
         setIsLoading(true);
