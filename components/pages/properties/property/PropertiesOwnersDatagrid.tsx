@@ -59,10 +59,7 @@ const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
         const propertyId: number = dataSource[0].propertyId;
-        const [initialValues, _] = useState(() => {
-            console.log('Property DG: ME INICIALIZO');
-            return structuredClone(dataSource);
-        });
+        const [initialValues, _] = useState(structuredClone(dataSource));
 
         // API CALLS
         useImperativeHandle(ref, () => ({
@@ -138,7 +135,7 @@ const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
                 const duplicateOwnersArray = Array.from(duplicateOwners);
                 if (duplicateOwnersArray.length > 0) return;
 
-                // SAVE OWNERSHIP WITHOUT CHANGES
+                // Get only the ownerships that didn't change
                 let dataOwnerships: any[] = [];
                 for (const initialValue of initialValues) {
                     const match = data.find(
@@ -155,7 +152,7 @@ const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
                     }
                 }
 
-                // LOOP OVER CHANGES IN DATAGRID BY TYPE OF CHANGE
+                // Add the ownerships that did change
                 for (const change of e.changes) {
                     if (change.type == 'update') {
                         const contactType: any = totalContactsList?.find(
