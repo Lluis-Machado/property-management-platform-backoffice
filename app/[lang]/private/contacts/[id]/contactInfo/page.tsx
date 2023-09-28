@@ -4,7 +4,7 @@ import ContactPage from '@/components/pages/contacts/ContactPage';
 import { Locale } from '@/i18n-config';
 import { ContactData } from '@/lib/types/contactData';
 import { CountryData, StateData } from '@/lib/types/countriesData';
-import { OwnershipData } from '@/lib/types/ownershipData';
+import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
@@ -25,7 +25,7 @@ const ContactForm = async ({ params: { lang, id } }: Props) => {
                 `/countries/countries?languageCode=${lang}`,
                 'Error while getting countries'
             ),
-            getApiData<OwnershipData[]>(
+            getApiData<OwnershipPropertyData[]>(
                 `/ownership/ownership/${id}/contact`,
                 'Error while getting ownership info'
             ),

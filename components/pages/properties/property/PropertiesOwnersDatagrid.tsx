@@ -8,6 +8,7 @@ import {
     useRef,
     LegacyRef,
     useState,
+    memo,
 } from 'react';
 // Libraries imports
 import DataGrid, {
@@ -51,7 +52,10 @@ const PropertiesOwnersDatagrid = forwardRef(
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
         const propertyId: number = dataSource[0].propertyId;
-        const initialValues = structuredClone(dataSource);
+        const [initialValues, _] = useState(() => {
+            console.log('Property DG: ME INICIALIZO');
+            return structuredClone(dataSource);
+        });
 
         // API CALLS
         useImperativeHandle(ref, () => ({
@@ -92,52 +96,55 @@ const PropertiesOwnersDatagrid = forwardRef(
         // FUNCTION TO SAVE THE CHANGES OWNERSHIPS
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
-                let dataOwnerships: any[] = [];
-                debugger;
-                const dataSource: any =
-                    datagridRef.current?.instance.getDataSource();
-                const data = dataSource._store._array;
-                if (JSON.stringify(data) === JSON.stringify(initialValues)) {
+                const data: OwnershipPropertyData[] =
+                    datagridRef.current?.instance
+                        .getDataSource()
+                        .items() as OwnershipPropertyData[];
+                if (JSON.stringify(data) === JSON.stringify(initialValues))
                     return;
-                }
 
-                // LOGIC SUM OF SHARES
+                // Check if shares are not equal to 100. Complexity O(n)
                 let sum: number = 0;
-                let array: number[] = [];
                 for (const item of data) {
-                    array.push(item.share);
-                    sum = array.reduce((sum: number, p: number) => sum + p);
+                    sum += item.share;
+                    if (sum > 100) {
+                        break;
+                    }
                 }
 
-                if (sum !== 100) {
-                    return;
+                if (sum !== 100) return;
+
+                // Check if there are repeated owners. Complexity O(n)
+                const ownerIdSet = new Set();
+                const duplicateOwners = new Set();
+
+                for (const item of data) {
+                    const ownerId = item.ownerId;
+
+                    if (ownerIdSet.has(ownerId)) {
+                        duplicateOwners.add(ownerId);
+                    } else {
+                        ownerIdSet.add(ownerId);
+                    }
                 }
 
-                // not able to put owner 2 times in datagrid
-                const values = data.map((object: any) => object.ownerId);
-                if (
-                    values.some(
-                        (object: any, index: any) =>
-                            values.indexOf(object) !== index
-                    )
-                ) {
-                    return;
-                }
+                const duplicateOwnersArray = Array.from(duplicateOwners);
+                if (duplicateOwnersArray.length > 0) return;
 
                 // SAVE OWNERSHIP WITHOUT CHANGES
+                let dataOwnerships: any[] = [];
                 for (const initialValue of initialValues) {
-                    for (let i = 0; i < data.length; i++) {
-                        if (
-                            initialValue.share === data[i].share &&
-                            initialValue.deleted === data[i].deleted &&
-                            initialValue.mainOwnership === data[i].mainOwnership
-                        ) {
-                            dataOwnerships.push({
-                                values: initialValue,
-                                operation: 'patch',
-                            });
-                            console.log(dataOwnerships);
-                        }
+                    const match = data.find(
+                        (item) =>
+                            JSON.stringify(item) ===
+                            JSON.stringify(initialValue)
+                    );
+
+                    if (match) {
+                        dataOwnerships.push({
+                            values: initialValue,
+                            operation: 'patch',
+                        });
                     }
                 }
 
@@ -353,5 +360,5 @@ const PropertiesOwnersDatagrid = forwardRef(
         );
     }
 );
-PropertiesOwnersDatagrid.displayName = 'PropertiesOwnersDatagrid';
-export default PropertiesOwnersDatagrid;
+
+export default memo(PropertiesOwnersDatagrid);

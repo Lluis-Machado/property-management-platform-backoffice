@@ -4,19 +4,18 @@
 import { useCallback } from 'react';
 
 // Libraries imports
-import { useRouter } from 'next/navigation';
 import DataGrid, {
     Column,
     Paging,
     SearchPanel,
     Pager,
 } from 'devextreme-react/data-grid';
-import { OwnershipData } from '@/lib/types/ownershipData';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 
 interface Props {
-    ownershipData: OwnershipData[];
+    ownershipData: OwnershipPropertyData[];
 }
 
 const RelatedPropertiesDG = ({ ownershipData }: Props) => {

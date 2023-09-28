@@ -5,7 +5,7 @@ import { Locale } from '@/i18n-config';
 import { CompanyData } from '@/lib/types/companyData';
 import { ContactData } from '@/lib/types/contactData';
 import { CountryData, StateData } from '@/lib/types/countriesData';
-import { OwnershipData } from '@/lib/types/ownershipData';
+import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 import { getUser } from '@/lib/utils/getUser';
@@ -26,7 +26,7 @@ const Company = async ({ params: { lang, id } }: Props) => {
                 `/countries/countries?languageCode=${lang}`,
                 'Error while getting countries'
             ),
-            getApiData<OwnershipData[]>(
+            getApiData<OwnershipPropertyData[]>(
                 `/ownership/ownership/${id}/company`,
                 'Error while getting ownership info'
             ),

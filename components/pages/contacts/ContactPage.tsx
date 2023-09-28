@@ -45,7 +45,6 @@ import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import RelatedPropertiesDG from '../../datagrid/RelatedPropertiesDG';
-import { OwnershipData } from '@/lib/types/ownershipData';
 import {
     genderItems,
     maritalStatusItems,
@@ -64,12 +63,13 @@ import { IdDocumentsTabMethods } from '@/components/Tabs/IdDocumentsTab';
 import { AddressInfoTabMethods } from '@/components/Tabs/AddressInfoTab';
 import { PhonesTabMethods } from '@/components/Tabs/PhonesTab';
 import { BankTabMethods } from '@/components/Tabs/BankTab';
+import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 
 interface Props {
     contactData: ContactData;
     countriesData: CountryData[];
     initialStates: StateData[];
-    ownershipData: OwnershipData[];
+    ownershipData: OwnershipPropertyData[];
     token: TokenRes;
     lang: Locale;
 }
