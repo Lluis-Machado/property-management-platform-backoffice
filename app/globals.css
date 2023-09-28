@@ -53,6 +53,8 @@
 .dx-texteditor-input {
 	color: var(--Slate_500) !important;
     line-height: 1.5rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 /* For the icon not to conflict with DX styles */

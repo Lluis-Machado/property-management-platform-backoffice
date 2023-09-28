@@ -45,7 +45,6 @@ import { CompanyData } from '@/lib/types/companyData';
 import { countriesMaskItems } from '@/lib/utils/selectBoxItems';
 import { ContactData } from '@/lib/types/contactData';
 import { AddressInfoTab, BankTab, ContactsTab } from '@/components/Tabs';
-import { OwnershipData } from '@/lib/types/ownershipData';
 import RelatedPropertiesDG from '../../datagrid/RelatedPropertiesDG';
 import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 import { useAtom } from 'jotai';
@@ -54,12 +53,13 @@ import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
 import { AddressInfoTabMethods } from '@/components/Tabs/AddressInfoTab';
 import { BankTabMethods } from '@/components/Tabs/BankTab';
 import { ContactsTabMethods } from '@/components/Tabs/ContactsTab';
+import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 
 interface Props {
     companyData: CompanyData;
     countriesData: CountryData[];
     contactsData: ContactData[];
-    ownershipData: OwnershipData[];
+    ownershipData: OwnershipPropertyData[];
     initialStates: StateData[];
     token: TokenRes;
     lang: Locale;

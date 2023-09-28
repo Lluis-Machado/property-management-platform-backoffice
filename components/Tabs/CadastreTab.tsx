@@ -1,6 +1,6 @@
 'use client';
 // React imports
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import Form, { GroupItem, Item } from 'devextreme-react/form';
 import { FieldDataChangedEvent } from 'devextreme/ui/form';
@@ -19,7 +19,10 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
     );
-    const [addressOptions, setAddressOptions] = useState({});
+    const [addressOptions, setAddressOptions] = useState(() => {
+        console.log('Cadaste: ME INICIALIZO');
+        return {};
+    });
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
     const [elementsList, setElementsList] = useState<ValueChangedEvent[]>([]);
     const formRef = useRef<Form>(null);
@@ -230,4 +233,4 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
     );
 };
 
-export default Cadastre;
+export default memo(Cadastre);
