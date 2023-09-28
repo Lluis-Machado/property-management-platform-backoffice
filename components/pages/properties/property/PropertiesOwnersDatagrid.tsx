@@ -38,6 +38,13 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { apiPost } from '@/lib/utils/apiPost';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
 import { customError } from '@/lib/utils/customError';
+import DataSource from 'devextreme/data/data_source';
+
+export interface PODatagridProps {
+    saveEditData: () => Promise<void>;
+    hasEditData: () => boolean;
+    getDataSource: () => DataSource<OwnershipPropertyData, any>;
+}
 
 interface Props {
     dataSource: OwnershipPropertyData[];
@@ -46,9 +53,9 @@ interface Props {
     isEditing: boolean;
     ref: MutableRefObject<null>;
 }
-
-const PropertiesOwnersDatagrid = forwardRef(
-    ({ dataSource, totalContactsList, token, isEditing }: Props, ref) => {
+const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
+    (props, ref) => {
+        const { dataSource, totalContactsList, isEditing, token } = props;
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
         const propertyId: number = dataSource[0].propertyId;
@@ -76,7 +83,7 @@ const PropertiesOwnersDatagrid = forwardRef(
             idArray.push(ownership.ownerId);
         }
 
-        // CSS FOR SUMMARY SHARES
+        // Css styles for sum of shares
         const summaryShares = (e: any) => {
             if (e.rowType == 'totalFooter') {
                 if (e.summaryItems[0]?.column == 'share') {
@@ -93,7 +100,7 @@ const PropertiesOwnersDatagrid = forwardRef(
             }
         };
 
-        // FUNCTION TO SAVE THE CHANGES OWNERSHIPS
+        // Function tyo save changes ownershipsdatagrid
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
                 const data: OwnershipPropertyData[] =
@@ -197,23 +204,6 @@ const PropertiesOwnersDatagrid = forwardRef(
                         };
                         dataOwnerships.push(objectArray);
                     }
-                }
-                // Check if there are no owners or more than one main ownership
-                let duplicatesMainOwnerShips: any[] = [];
-                dataOwnerships.forEach((item) => {
-                    if (item.values.mainOwnership === true) {
-                        duplicatesMainOwnerShips.push(item);
-                    }
-                });
-
-                console.log(duplicatesMainOwnerShips);
-                if (duplicatesMainOwnerShips.length != 1) {
-                    dataOwnerships.splice(0, dataOwnerships.length);
-                    duplicatesMainOwnerShips.splice(
-                        0,
-                        duplicatesMainOwnerShips.length
-                    );
-                    return;
                 }
 
                 // API CALL
