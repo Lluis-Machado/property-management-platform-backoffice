@@ -35,7 +35,9 @@ import { logOpened } from '@/lib/atoms/logOpened';
 // Local imports
 import '@/lib/styles/highlightFields.css';
 import { PropertyData } from '@/lib/types/propertyInfo';
-import PropertiesOwnersDatagrid from './PropertiesOwnersDatagrid';
+import PropertiesOwnersDatagrid, {
+    PODatagridProps,
+} from './PropertiesOwnersDatagrid';
 import PropertySidePropertiesDatagrid from './PropertySidePropertiesDatagrid';
 import ConfirmDeletePopup from '@/components/popups/ConfirmationPopup';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
@@ -82,7 +84,7 @@ const PropertyPage = ({
     lang,
 }: Props): React.ReactElement => {
     const router = useRouter();
-    const dataGridRef = useRef();
+    const dataGridRef = useRef<PODatagridProps>(null);
     const formRef = useRef<Form>(null);
     const statesRef = useRef<Item>(null);
     const otherInfoTabRef = useRef<Form>(null);
@@ -140,7 +142,7 @@ const PropertyPage = ({
         [lang, token, propertyData.propertyAddress]
     );
 
-    const handleSubmit = useCallback(async () => {
+    const handleSubmit = async () => {
         const res = formRef.current!.instance.validate();
 
         const isDataOtherInfoValid =
@@ -152,73 +154,66 @@ const PropertyPage = ({
             return;
         }
 
-        // @ts-ignore
-        const response = await dataGridRef.current.hasEditData();
-        // @ts-ignore
-        await dataGridRef.current.saveEditData();
+        const ownershipsDGhasChanged = dataGridRef.current!.hasEditData();
 
         // CHANGES PROPERTY FORM
         const values = structuredClone(propertyData);
 
-        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            if (response == false) {
-                setIsEditing(true);
-                toast.warning('Change at least one field');
+        if (
+            JSON.stringify(values) === JSON.stringify(initialValues) &&
+            ownershipsDGhasChanged === false
+        ) {
+            toast.warning('Change at least one field');
+            return;
+        } else if (ownershipsDGhasChanged) {
+            await dataGridRef.current!.saveEditData();
+            const dataSourceOWDG: any = dataGridRef.current!.getDataSource();
+            const dataOwnersDG = await dataSourceOWDG._store._array;
+
+            //Check if sum o shares is 100%
+            let sumofShares: number = 0;
+            for (const owner of dataOwnersDG) {
+                sumofShares = owner.share + sumofShares;
+            }
+
+            if (sumofShares !== 100) {
+                setSharesVisible(true);
                 return;
             } else {
-                const dataSource: any =
-                    // @ts-ignore
-                    await dataGridRef.current.getDataSource();
-                const data = dataSource._store._array;
-
-                //CHECK SUM OF SHARES
-                let sum: number = 0;
-                let array: number[] = [];
-                for (const item of data) {
-                    array.push(item.share);
-                    sum = array.reduce((sum: number, p: number) => sum + p);
-                }
-                if (sum !== 100) {
-                    setSharesVisible(true);
-                    setIsEditing(true);
+                const values = dataOwnersDG.map(
+                    (object: OwnershipPropertyData) => object.ownerId
+                );
+                // Checking if there are an owner 2 times in datagrid
+                if (
+                    values.some(
+                        (object: OwnershipPropertyData, index: number) =>
+                            values.indexOf(object) !== index
+                    )
+                ) {
+                    setDoubleOwnerVisible(true);
                     return;
                 } else {
-                    // not able to put owner 2 times in datagrid
-                    const values = data.map(
-                        (object: OwnershipPropertyData) => object.ownerId
-                    );
-                    if (
-                        values.some(
-                            (object: any, index: any) =>
-                                values.indexOf(object) !== index
-                        )
-                    ) {
-                        setDoubleOwnerVisible(true);
-                        setIsEditing(true);
-                        return;
-                    } else {
-                        // Check if there are more than one main ownership
-                        let duplicatesMainOwnerShips: OwnershipPropertyData[] =
-                            [];
-                        data.forEach((item: OwnershipPropertyData) => {
-                            if (item.mainOwnership === true) {
-                                duplicatesMainOwnerShips.push(item);
-                            }
-                        });
-                        if (duplicatesMainOwnerShips.length != 1) {
-                            setDoubleMainOwnerVisible(true);
-                            setIsEditing(true);
-                            return;
-                        } else {
-                            setIsEditing(false);
+                    // Check if there are more than one main ownership
+                    let duplicatesMainOwnerShips: OwnershipPropertyData[] = [];
+                    dataOwnersDG.forEach((item: OwnershipPropertyData) => {
+                        if (item.mainOwnership === true) {
+                            duplicatesMainOwnerShips.push(item);
                         }
+                    });
+                    if (duplicatesMainOwnerShips.length !== 1) {
+                        setDoubleMainOwnerVisible(true);
+                        return;
                     }
+                    // If all OK, send data
+                    console.log('SE HA GUARDADO');
                 }
             }
         }
+
         setIsLoading(true);
         const toastId = toast.loading('Updating property...');
 
+        // Sending data logic
         try {
             const dataToSend: PropertyData = {
                 ...values,
@@ -231,7 +226,7 @@ const PropertyPage = ({
             console.log('Valores a enviar: ', dataToSend);
             console.log('Valores a enviar JSON: ', JSON.stringify(dataToSend));
 
-            const data = await apiPatch(
+            let data = await apiPatch(
                 `/properties/properties/${propertyData.id}`,
                 dataToSend,
                 token,
@@ -239,32 +234,15 @@ const PropertyPage = ({
             );
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
-
-            // API CALL TO CHANGE THE PROPERTY TITLE
-            if (values.name !== initialValues.name) {
-                try {
-                    const data = await apiPatch(
-                        `/properties/properties/${propertyData.id}/name/${values.name}`,
-                        values.name,
-                        token,
-                        'Error while updating the property name'
-                    );
-                    console.log('TODO CORRECTO, valores de vuelta: ', data);
-                } catch (error: unknown) {
-                    customError(error, toastId);
-                } finally {
-                    setIsLoading(false);
-                }
-            }
             updateSuccessToast(toastId, 'Property updated correctly!');
-            setInitialValues(data);
-            setIsEditing(false);
+            // setInitialValues(data);
+            // setIsEditing(false);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
             setIsLoading(false);
         }
-    }, [propertyData, initialValues, token, cadastreRef]);
+    };
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting property...');
@@ -362,7 +340,7 @@ const PropertyPage = ({
             <ToolbarTooltips isEditing={isEditing} />
             <div className='my-6 flex w-full justify-between'>
                 {/* Contact avatar and name */}
-                <div className='ml-5 basis-1/4'>
+                <div className='grow basis-1/4'>
                     <PropertyPageTitle
                         isLoading={isLoading}
                         isEditing={isEditing}
@@ -639,11 +617,11 @@ const PropertyPage = ({
                         <TabPanelOptions deferRendering={false} />
                         <Tab title='Owners'>
                             <PropertiesOwnersDatagrid
+                                ref={dataGridRef}
                                 dataSource={ownershipData}
                                 totalContactsList={totalContactsList}
                                 token={token}
                                 isEditing={isEditing}
-                                ref={dataGridRef}
                             />
                         </Tab>
                         <Tab title='Side Properties'>

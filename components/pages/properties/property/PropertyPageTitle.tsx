@@ -57,6 +57,7 @@ const PropertyPageTitle = ({
                         ? 'titleProperty'
                         : 'titlePropertyEditingMode',
                 }}
+                className='grow overflow-hidden text-ellipsis'
             >
                 {isEditingTitle && (
                     <Tooltip
@@ -85,7 +86,7 @@ const PropertyPageTitle = ({
                     />
                 </Validator>
             </TextBox>
-            <div className='mb-2 flex items-end justify-center'>
+            <div className='mb-2 mr-10 flex items-end justify-center'>
                 {isEditing && (
                     <div>
                         <FontAwesomeIcon

@@ -8,6 +8,7 @@ import {
     useRef,
     LegacyRef,
     useState,
+    memo,
 } from 'react';
 // Libraries imports
 import DataGrid, {
@@ -37,6 +38,13 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { apiPost } from '@/lib/utils/apiPost';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
 import { customError } from '@/lib/utils/customError';
+import DataSource from 'devextreme/data/data_source';
+
+export interface PODatagridProps {
+    saveEditData: () => Promise<void>;
+    hasEditData: () => boolean;
+    getDataSource: () => DataSource<OwnershipPropertyData, any>;
+}
 
 interface Props {
     dataSource: OwnershipPropertyData[];
@@ -45,14 +53,17 @@ interface Props {
     isEditing: boolean;
     ref: MutableRefObject<null>;
 }
-
-const PropertiesOwnersDatagrid = forwardRef(
-    ({ dataSource, totalContactsList, token, isEditing }: Props, ref) => {
+const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
+    (props, ref) => {
+        const { dataSource, totalContactsList, isEditing, token } = props;
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
         const propertyId: number = dataSource[0].propertyId;
-        const initialValues = structuredClone(dataSource);
-
+        const [initialValues, setInitialValues] = useState(() => {
+            console.log('me inicializo');
+            return structuredClone(dataSource);
+        });
+        //console.log(initialValues)
         // API CALLS
         useImperativeHandle(ref, () => ({
             saveEditData,
@@ -72,7 +83,7 @@ const PropertiesOwnersDatagrid = forwardRef(
             idArray.push(ownership.ownerId);
         }
 
-        // CSS FOR SUMMARY SHARES
+        // Css styles for sum of shares
         const summaryShares = (e: any) => {
             if (e.rowType == 'totalFooter') {
                 if (e.summaryItems[0]?.column == 'share') {
@@ -89,54 +100,49 @@ const PropertiesOwnersDatagrid = forwardRef(
             }
         };
 
-        // FUNCTION TO SAVE THE CHANGES OWNERSHIPS
+        // Function tyo save changes ownershipsdatagrid
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
                 let dataOwnerships: any[] = [];
-                debugger;
                 const dataSource: any =
                     datagridRef.current?.instance.getDataSource();
-                const data = dataSource._store._array;
-                if (JSON.stringify(data) === JSON.stringify(initialValues)) {
+                const dataOwnersDG = dataSource._store._array;
+
+                //Check if sum o shares is 100%
+                let sumofShares: number = 0;
+                for (const owner of dataOwnersDG) {
+                    sumofShares = owner.share + sumofShares;
+                }
+
+                if (sumofShares !== 100) {
                     return;
                 }
 
-                // LOGIC SUM OF SHARES
-                let sum: number = 0;
-                let array: number[] = [];
-                for (const item of data) {
-                    array.push(item.share);
-                    sum = array.reduce((sum: number, p: number) => sum + p);
-                }
-
-                if (sum !== 100) {
-                    return;
-                }
-
-                // not able to put owner 2 times in datagrid
-                const values = data.map((object: any) => object.ownerId);
+                // Checking if there are an owner 2 times in datagrid
+                const values = dataOwnersDG.map(
+                    (object: OwnershipPropertyData) => object.ownerId
+                );
                 if (
                     values.some(
-                        (object: any, index: any) =>
+                        (object: OwnershipPropertyData, index: number) =>
                             values.indexOf(object) !== index
                     )
                 ) {
                     return;
                 }
-
                 // SAVE OWNERSHIP WITHOUT CHANGES
                 for (const initialValue of initialValues) {
-                    for (let i = 0; i < data.length; i++) {
+                    for (let i = 0; i < dataOwnersDG.length; i++) {
                         if (
-                            initialValue.share === data[i].share &&
-                            initialValue.deleted === data[i].deleted &&
-                            initialValue.mainOwnership === data[i].mainOwnership
+                            initialValue.share === dataOwnersDG[i].share &&
+                            initialValue.deleted === dataOwnersDG[i].deleted &&
+                            initialValue.mainOwnership ===
+                                dataOwnersDG[i].mainOwnership
                         ) {
                             dataOwnerships.push({
                                 values: initialValue,
                                 operation: 'patch',
                             });
-                            console.log(dataOwnerships);
                         }
                     }
                 }
@@ -190,23 +196,6 @@ const PropertiesOwnersDatagrid = forwardRef(
                         };
                         dataOwnerships.push(objectArray);
                     }
-                }
-                // Check if there are no owners or more than one main ownership
-                let duplicatesMainOwnerShips: any[] = [];
-                dataOwnerships.forEach((item) => {
-                    if (item.values.mainOwnership === true) {
-                        duplicatesMainOwnerShips.push(item);
-                    }
-                });
-
-                console.log(duplicatesMainOwnerShips);
-                if (duplicatesMainOwnerShips.length != 1) {
-                    dataOwnerships.splice(0, dataOwnerships.length);
-                    duplicatesMainOwnerShips.splice(
-                        0,
-                        duplicatesMainOwnerShips.length
-                    );
-                    return;
                 }
 
                 // API CALL
@@ -353,5 +342,5 @@ const PropertiesOwnersDatagrid = forwardRef(
         );
     }
 );
-PropertiesOwnersDatagrid.displayName = 'PropertiesOwnersDatagrid';
-export default PropertiesOwnersDatagrid;
+
+export default memo(PropertiesOwnersDatagrid);
