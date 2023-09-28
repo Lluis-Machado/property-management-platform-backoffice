@@ -1,14 +1,7 @@
 'use client';
 
 //React imports
-import {
-    ChangeEvent,
-    LegacyRef,
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 // Libraries imports
 import { Allotment } from 'allotment';
@@ -18,11 +11,18 @@ import {
     faGears,
     faUpload,
 } from '@fortawesome/free-solid-svg-icons';
-import Form, { GroupItem, Item, SimpleItem } from 'devextreme-react/form';
+import Form, {
+    GroupItem,
+    Item,
+    NumericRule,
+    RequiredRule,
+    SimpleItem,
+} from 'devextreme-react/form';
 import { useRouter } from 'next/navigation';
 import DateBox from 'devextreme-react/date-box';
 import { ValueChangedEvent } from 'devextreme/ui/date_box';
 import SelectBox from 'devextreme-react/select-box';
+import { Tooltip } from 'devextreme-react/tooltip';
 
 // Local imports
 import '../../../../../lib/styles/formItems.css';
@@ -62,7 +62,6 @@ let apInvoiceData: ApInvoiceAnalyzedData = {
         invoiceLines: [],
     },
 };
-
 interface Props {
     token: TokenRes;
     id: string;
@@ -328,6 +327,100 @@ const AddApInvoicePage = ({
         dateboxRefFrom.current!.instance.option('displayFormat', dateFormat);
     };
 
+    // SELECTBOX CODE
+    // Tooltip
+    const ContentTooltip = ({ data }: { data: string }): React.ReactElement => {
+        switch (data) {
+            case 'BAT':
+                return (
+                    <>
+                        <strong>BAT</strong> - Beschränkt abzugsfähige Kosten
+                        pro vermieteten Tag
+                    </>
+                );
+            case 'BAV':
+                return (
+                    <>
+                        <strong>BAV</strong> - Beschränkt abzugsfähige Kosten
+                        für das gesamte Jahr
+                    </>
+                );
+            case 'UAT':
+                return (
+                    <>
+                        <strong>UAT</strong> - Unbeschränkt abzugsfähige Kosten
+                        pro vermieteten Tag
+                    </>
+                );
+            case 'UAV':
+                return (
+                    <>
+                        <strong>UAV</strong> - Unbeschränkt abzugsfähige Kosten
+                        für das gesamte Jahr
+                    </>
+                );
+            case 'NA':
+                return (
+                    <>
+                        <strong>NA</strong> - Nicht abzugsfähige Kosten
+                    </>
+                );
+            case 'Aktiv':
+                return (
+                    <>
+                        <strong>Aktiv</strong> - Aktivierungspflichtige Kosten
+                    </>
+                );
+            case 'Asset':
+                return (
+                    <>
+                        <strong>Asset</strong> - Fixed Asset
+                    </>
+                );
+            default:
+                return <></>;
+        }
+    };
+
+    // Colors Tooltip
+    const getBadgeColor = (data: string): string => {
+        const colors: any = {
+            BAT: 'bg-red-300',
+            BAV: 'bg-orange-300',
+            UAT: 'bg-green-300',
+            UAV: 'bg-lime-300',
+            NA: 'bg-cyan-300',
+            Aktiv: 'bg-purple-300',
+            Asset: 'bg-blue-300',
+        };
+        return colors[data];
+    };
+
+    // Render Category Code with Tooltip & Tooltip Colors
+    const CostTypeCellRender = (data: any) => {
+        return (
+            <div className='bg- flex flex-row items-center gap-2 text-center'>
+                <span id={data.label}>
+                    <div
+                        className={`rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(
+                            data.label
+                        )}`}
+                    >
+                        {data.label}
+                    </div>
+                </span>
+                <Tooltip
+                    target={'#' + data.label}
+                    showEvent='mouseenter'
+                    hideEvent='mouseleave'
+                    position='right'
+                >
+                    <ContentTooltip data={data.label} />
+                </Tooltip>
+            </div>
+        );
+    };
+
     return (
         <div className='absolute inset-4 w-screen'>
             <div className='h-full'>
@@ -420,15 +513,20 @@ const AddApInvoicePage = ({
                                                 ],
                                             }}
                                         />
+                                        <RequiredRule />
                                     </Item>
                                     <SimpleItem
                                         dataField='form.refNumber'
                                         label={{ text: 'Invoice Number' }}
-                                    />
+                                    >
+                                        <RequiredRule />
+                                    </SimpleItem>
                                     <SimpleItem
                                         dataField='form.businessPartner.vatNumber'
                                         label={{ text: 'CIF' }}
-                                    />
+                                    >
+                                        <RequiredRule />
+                                    </SimpleItem>
                                     <SimpleItem
                                         dataField='form.date'
                                         label={{ text: 'Date of invoice' }}
@@ -436,7 +534,9 @@ const AddApInvoicePage = ({
                                         editorOptions={{
                                             displayFormat: dateFormat,
                                         }}
-                                    />
+                                    >
+                                        <RequiredRule />
+                                    </SimpleItem>
                                 </GroupItem>
                             </Form>
                             <Form
@@ -450,8 +550,61 @@ const AddApInvoicePage = ({
                                             return (
                                                 <GroupItem
                                                     key={`GroupItem${index}`}
-                                                    colCount={15}
+                                                    colCount={16}
                                                 >
+                                                    <Item
+                                                        key={`code${index}`}
+                                                        dataField={`form.invoiceLines[${index}].quantity`}
+                                                        label={{
+                                                            text: 'Code',
+                                                        }}
+                                                        cssClass='itemStyle'
+                                                    >
+                                                        <SelectBox
+                                                            items={[
+                                                                {
+                                                                    label: 'UAT',
+                                                                    value: 0,
+                                                                },
+                                                                {
+                                                                    label: 'UAV',
+                                                                    value: 1,
+                                                                },
+                                                                {
+                                                                    label: 'BAT',
+                                                                    value: 2,
+                                                                },
+                                                                {
+                                                                    label: 'BAV',
+                                                                    value: 3,
+                                                                },
+                                                                {
+                                                                    label: 'Asset',
+                                                                    value: 4,
+                                                                },
+                                                                {
+                                                                    label: 'NA',
+                                                                    value: 5,
+                                                                },
+                                                            ]}
+                                                            label='Cost'
+                                                            labelMode='static'
+                                                            itemRender={
+                                                                CostTypeCellRender
+                                                            }
+                                                            displayExpr='label'
+                                                            valueExpr='value'
+                                                        />
+                                                    </Item>
+                                                    <Item
+                                                        key={`categorie${index}`}
+                                                        dataField={`analyzedInvoiceLines[${index}].predictedCategoryId`}
+                                                        label={{
+                                                            text: 'Code',
+                                                        }}
+                                                        colSpan={2}
+                                                        cssClass='itemStyle'
+                                                    />
                                                     <Item
                                                         key={`description${index}`}
                                                         dataField={`form.invoiceLines[${index}].description`}
@@ -460,22 +613,9 @@ const AddApInvoicePage = ({
                                                         }}
                                                         colSpan={3}
                                                         cssClass='itemStyle'
-                                                    />
-                                                    <Item
-                                                        key={`code${index}`}
-                                                        dataField={`analyzedInvoiceLines[${index}].predictedCategoryId`}
-                                                        label={{ text: 'Code' }}
-                                                        cssClass='itemStyle'
-                                                    />
-                                                    <Item
-                                                        key={`category${index}`}
-                                                        dataField={`analyzedInvoiceLines[${index}].predictedCategoryId`}
-                                                        label={{
-                                                            text: 'Category',
-                                                        }}
-                                                        colSpan={2}
-                                                        cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <NumericRule />
+                                                    </Item>
                                                     <Item
                                                         key={`serviceDateFrom${index}`}
                                                         dataField={`form.invoiceLines[${index}].serviceDateFrom`}
@@ -527,6 +667,14 @@ const AddApInvoicePage = ({
                                                         dataField={`form.invoiceLines[${index}].quantity`}
                                                         label={{
                                                             text: 'Amout',
+                                                        }}
+                                                        cssClass='itemStyle'
+                                                    />
+                                                    <Item
+                                                        key={`tax${index}`}
+                                                        dataField={`form.invoiceLines[${index}].tax`}
+                                                        label={{
+                                                            text: 'IVA',
                                                         }}
                                                         cssClass='itemStyle'
                                                     />
