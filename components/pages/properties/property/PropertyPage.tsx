@@ -245,8 +245,8 @@ const PropertyPage = ({
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'Property updated correctly!');
-            // setInitialValues(data);
-            // setIsEditing(false);
+            setInitialValues(data);
+            setIsEditing(false);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
