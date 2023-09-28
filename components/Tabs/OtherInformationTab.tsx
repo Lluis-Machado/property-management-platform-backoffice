@@ -15,6 +15,10 @@ import { ValueChangedEvent } from 'devextreme/ui/text_box';
 // Local imports
 import { PropertyData } from '@/lib/types/propertyInfo';
 
+export interface OtherInformationProps {
+    isValid: () => boolean | undefined;
+}
+
 interface Props {
     propertyData: PropertyData;
     isEditing: boolean;
@@ -22,9 +26,9 @@ interface Props {
     ref: MutableRefObject<null>;
 }
 
-const OtherInformation = forwardRef(
-    ({ propertyData, isEditing, isLoading }: Props, ref) => {
-        const [addressOptions, setAddressOptions] = useState({});
+const OtherInformation = forwardRef<OtherInformationProps, Props>(
+    ({ propertyData, isEditing, isLoading }, ref) => {
+        const [addressOptions, _] = useState({});
         const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>(
             []
         );
@@ -34,10 +38,10 @@ const OtherInformation = forwardRef(
         const formRef = useRef<Form>(null);
 
         useImperativeHandle(ref, () => ({
-            validateData,
+            isValid,
         }));
 
-        const validateData = () => formRef.current!.instance.validate();
+        const isValid = () => formRef.current!.instance.validate().isValid;
 
         useEffect(() => {
             for (const element of elementsList) {

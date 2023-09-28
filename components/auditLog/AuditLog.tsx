@@ -46,16 +46,7 @@ const AuditLog = ({ token }: Props) => {
         if (!objId) return;
         console.log(objId);
         setIsLoading(true);
-        fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/audits/audits/${objId}/${objName}`,
-            {
-                method: 'GET',
-                headers: {
-                    Authorization: `${token.token_type} ${token.access_token}`,
-                },
-                cache: 'no-store',
-            }
-        )
+        fetch(`/api/audits?objId=${objId}&objName=${objName}`)
             .then((resp) => {
                 if (!resp.ok)
                     throw new ApiCallError(

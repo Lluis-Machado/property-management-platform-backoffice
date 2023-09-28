@@ -54,12 +54,14 @@ import { formatDate } from '@/lib/utils/formatDateFromJS';
 import PropertyPageTitle from './PropertyPageTitle';
 import { Purchase } from '@/components/Tabs/PurchaseTab';
 import Cadastre from '@/components/Tabs/CadastreTab';
-import OtherInformatiom from '@/components/Tabs/OtherInformationTab';
+import OtherInformatiom, {
+    OtherInformationProps,
+} from '@/components/Tabs/OtherInformationTab';
 import Sale from '@/components/Tabs/SalesTab';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
-import PopupGeneralDataGridOwnership from '@/components/popups/PopupGeneralDataGridOwnership';
+import useCountryChange from '@/lib/hooks/useCountryChange';
 interface Props {
     propertyData: PropertyData;
     propertiesData: PropertyData[];
@@ -83,29 +85,29 @@ const PropertyPage = ({
     token,
     lang,
 }: Props): React.ReactElement => {
-    const router = useRouter();
-    const dataGridRef = useRef<PODatagridProps>(null);
-    const formRef = useRef<Form>(null);
-    const statesRef = useRef<Item>(null);
-    const otherInfoTabRef = useRef<Form>(null);
+    //////////// Atoms ////////////
     const [_, setIsLogOpened] = useAtom(logOpened);
     const [__, setPropertyId] = useAtom(selectedObjId);
     const [___, setObjName] = useAtom(selectedObjName);
+
+    //////////// States ////////////
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
     const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
-    const [sharesVisible, setSharesVisible] = useState<boolean>(false);
-    const [doubleOwnerVisible, setDoubleOwnerVisible] =
-        useState<boolean>(false);
-    const [doubleMainOwnerVisible, setDoubleMainOwnerVisible] =
-        useState<boolean>(false);
-    const data = initialStates;
     const [cadastreRef, ____] = useState<string>(propertyData.cadastreRef);
-    // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<PropertyData>(
         structuredClone(propertyData)
     );
+
+    //////////// Refs ////////////
+    const dataGridRef = useRef<PODatagridProps>(null);
+    const formRef = useRef<Form>(null);
+    const statesRef = useRef<Item>(null);
+    const otherInfoTabRef = useRef<OtherInformationProps>(null);
+
+    //////////// Custom Hooks ////////////
+    const router = useRouter();
 
     // Used for audit log calls
     useEffect(() => {
@@ -119,23 +121,16 @@ const PropertyPage = ({
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
+            fetch(`/api/countries?countryId=${countryId}&lang=${lang}`)
                 .then((resp) => resp.json())
                 .then((data: StateData[]) =>
                     formRef
                         .current!.instance.getEditor('propertyAddress.state')!
                         .option('items', data)
                 )
-                .catch((e) => console.error('Error while getting the states'));
+                .catch((e) =>
+                    console.error('Error while getting the states', e)
+                );
             // Ensure state is removed
             propertyData.propertyAddress.state = null;
         },
@@ -145,11 +140,7 @@ const PropertyPage = ({
     const handleSubmit = async () => {
         const res = formRef.current!.instance.validate();
 
-        const isDataOtherInfoValid =
-            //@ts-ignore
-            await otherInfoTabRef.current.validateData();
-
-        if (!res.isValid || isDataOtherInfoValid.status == 'invalid') {
+        if (!res.isValid || !otherInfoTabRef.current?.isValid()) {
             toast.warning('Validation error detected, check all fields');
             return;
         }
@@ -181,7 +172,9 @@ const PropertyPage = ({
             }
 
             if (sumofShares !== 100) {
-                setSharesVisible(true);
+                toast.warning(
+                    'The sum of shares is less or more then 100% in the Owners Tab'
+                );
                 return;
             }
 
@@ -201,7 +194,9 @@ const PropertyPage = ({
 
             const duplicateOwnersArray = Array.from(duplicateOwners);
             if (duplicateOwnersArray.length > 0) {
-                setDoubleOwnerVisible(true);
+                toast.warning(
+                    'You cant add the same owner twice in the Owners Tab'
+                );
                 return;
             }
 
@@ -213,7 +208,9 @@ const PropertyPage = ({
                 }
             });
             if (duplicatesMainOwnerShips.length !== 1) {
-                setDoubleMainOwnerVisible(true);
+                toast.warning(
+                    'You have no main owner / or more then one main owner in the Owners Tab!'
+                );
                 return;
             }
             // If all OK, send data
@@ -330,21 +327,6 @@ const PropertyPage = ({
                 isVisible={unsavedVisible}
                 onClose={() => setUnsavedVisible(false)}
                 onConfirm={() => router.refresh()}
-            />
-            <PopupGeneralDataGridOwnership
-                message='The sum of shares is less or more then 100% in the Owners Tab'
-                isVisible={sharesVisible}
-                onClose={() => setSharesVisible(false)}
-            />
-            <PopupGeneralDataGridOwnership
-                message='You cant add the same owner twice in the Owners Tab'
-                isVisible={doubleOwnerVisible}
-                onClose={() => setDoubleOwnerVisible(false)}
-            />
-            <PopupGeneralDataGridOwnership
-                message='You have no main owner / or more then one main owner in the Owners Tab!'
-                isVisible={doubleMainOwnerVisible}
-                onClose={() => setDoubleMainOwnerVisible(false)}
             />
             {/* Toolbar tooltips */}
             <ToolbarTooltips isEditing={isEditing} />
@@ -533,7 +515,7 @@ const PropertyPage = ({
                                         elementAttr: {
                                             id: `propertyState`,
                                         },
-                                        items: data,
+                                        items: initialStates,
                                         displayExpr: 'name',
                                         valueExpr: 'id',
                                         searchEnabled: true,
