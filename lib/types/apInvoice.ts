@@ -1,7 +1,7 @@
 export interface ApInvoice {
     businessPartnerId: string;
-    businessPartnerName: string;
-    businessPartnerVatNumber: string;
+    // businessPartnerName: string;
+    // businessPartnerVatNumber: string;
     refNumber: string;
     date: string;
     currency: string;

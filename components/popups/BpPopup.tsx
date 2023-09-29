@@ -10,7 +10,6 @@ import Form, { Item } from 'devextreme-react/form';
 
 // Local imports
 import { Button } from 'pg-components';
-import { TokenRes } from '@/lib/types/token';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
 import { BusinessPartners } from '@/lib/types/businessPartners';
@@ -19,7 +18,6 @@ interface PopupProps {
     message: string;
     isVisible: boolean;
     onClose: () => void;
-    token: TokenRes;
     id: string;
     allBusinessPartners: BusinessPartners[];
     setValue: any;
@@ -29,7 +27,6 @@ const BpPopup = ({
     message,
     isVisible,
     onClose,
-    token,
     id,
     allBusinessPartners,
     setValue,
@@ -74,7 +71,7 @@ const BpPopup = ({
         } finally {
             setIsLoading(false);
         }
-    }, [token, id, businessPartnerName, businessPartnerVatNumber]);
+    }, [id, businessPartnerName, businessPartnerVatNumber]);
 
     const onCustomNameItemCreating = (args: any) => {
         if (!args.text) {

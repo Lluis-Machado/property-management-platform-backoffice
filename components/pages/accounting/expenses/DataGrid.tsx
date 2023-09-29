@@ -26,7 +26,7 @@ import {
 } from 'devextreme-react/data-grid';
 import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
 import { RowExpandingEvent } from 'devextreme/ui/data_grid';
-
+import { useRouter } from 'next/navigation';
 // Local imports
 import { ApInvoice } from '@/lib/types/apInvoice';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
@@ -37,13 +37,13 @@ import { toast } from 'react-toastify';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
 import { TokenRes } from '@/lib/types/token';
+import { apiDeleteAccounting } from '@/lib/utils/apiDeleteAccounting';
 
 interface Props {
     dataSource: ApInvoice[];
     onInvoiceClick: (title: string, url: string) => void;
     params: any;
     id: string;
-    token: TokenRes;
 }
 
 // Tooltip
@@ -158,11 +158,11 @@ const DataGrid = ({
     onInvoiceClick,
     params,
     id,
-    token,
 }: Props): React.ReactElement => {
     const dataGridRef = useRef<DxDataGrid>(null);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
     const [invoiceId, setInvoiceId] = useState<string>('');
+    const router = useRouter();
 
     const handleDeleteClick = (data: any) => {
         setDeleteVisible((prev) => !prev);
@@ -172,22 +172,21 @@ const DataGrid = ({
     // CHANGE ANY
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting invoice...');
-        console.log(invoiceId);
         try {
-            throw new Error('API call not implemented');
-            // await apiDelete(
-            //     `/accounting/tenants/${id}/apinvoices/${invoiceId}`,
-            //     token,
-            //     'Error while deleting this invoice'
-            // );
+            await apiDeleteAccounting(
+                '/api/accounting/apInvoices',
+                id!,
+                invoiceId!
+            );
 
             updateSuccessToast(toastId, 'Invoice deleted correctly!');
+
             // Pass the ID to reload the page
-            //router.push(`/private/companies?deletedId=${companyData.id}`);
+            router.push(`?deletedInvoice=${invoiceId}`);
         } catch (error: unknown) {
             customError(error, toastId);
         }
-    }, [token, id, invoiceId]);
+    }, [id, invoiceId, router]);
 
     // RENDER INVOICE CELL TO SEE INVOICE
     const InvoiceCellRender = useCallback(

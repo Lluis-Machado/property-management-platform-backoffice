@@ -12,7 +12,6 @@ import {
     faUpload,
 } from '@fortawesome/free-solid-svg-icons';
 import Form, {
-    EmptyItem,
     GroupItem,
     Item,
     NumericRule,
@@ -33,7 +32,6 @@ import '@/node_modules/allotment/dist/style.css';
 import '../../../../splitPane/style/splitPane.module.css';
 import { customError } from '@/lib/utils/customError';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
-import { TokenRes } from '@/lib/types/token';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { uploadDocumentsToArchive } from '@/lib/utils/documents/apiDocuments';
 import {
@@ -44,17 +42,16 @@ import { BusinessPartners } from '@/lib/types/businessPartners';
 import { ApInvoice, ApInvoiceAnalyzedData } from '@/lib/types/apInvoice';
 import BpPopup from '@/components/popups/BpPopup';
 import ToolbarTooltipsApInvoice from '@/components/tooltips/ToolbarTooltipsApInvoice';
-import { CollectionWidgetItem } from 'devextreme/ui/collection/ui.collection_widget.base';
-import DataGrid from '../DataGrid';
 import TextBox from 'devextreme-react/text-box';
+import { apiPostAccounting } from '@/lib/utils/apiPostAccounting';
 
 const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}`;
 
 let apInvoiceData: ApInvoiceAnalyzedData = {
     form: {
         businessPartnerId: '',
-        businessPartnerName: '',
-        businessPartnerVatNumber: '',
+        // businessPartnerName: '',
+        // businessPartnerVatNumber: '',
         refNumber: '',
         date: '',
         currency: 'EUR',
@@ -66,14 +63,12 @@ let apInvoiceData: ApInvoiceAnalyzedData = {
     },
 };
 interface Props {
-    token: TokenRes;
     id: string;
     tenatsBusinessPartners: BusinessPartners[];
     allBusinessPartners: BusinessPartners[];
 }
 
 const AddApInvoicePage = ({
-    token,
     id,
     tenatsBusinessPartners,
     allBusinessPartners,
@@ -229,7 +224,7 @@ const AddApInvoicePage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [token]);
+    }, []);
 
     const handleSaveApInvoice = useCallback(async () => {
         const toastId = toast.loading('Saving Invoice');
@@ -250,9 +245,9 @@ const AddApInvoicePage = ({
         }
 
         const valuesToSend: ApInvoice = {
-            businessPartnerId: invoiceData.form.businessPartnerId,
-            businessPartnerName: invoiceData.form.businessPartnerName,
-            businessPartnerVatNumber: invoiceData.form.businessPartnerVatNumber,
+            businessPartnerId: idBP,
+            // businessPartnerName: invoiceData.form.businessPartnerName,
+            // businessPartnerVatNumber: invoiceData.form.businessPartnerVatNumber,
             refNumber: invoiceData.form.refNumber,
             date: invoiceData.form.date,
             currency: 'EUR',
@@ -269,16 +264,17 @@ const AddApInvoicePage = ({
                 'Valores a enviar en JSON: ',
                 JSON.stringify(valuesToSend)
             );
-            throw new Error('API call not implemented');
-            // SAVE INVOICE
-            // const data = await apiPost(
-            //     `/accounting/tenants/${id}/businesspartners/${idBP}/apinvoices`,
-            //     valuesToSend,
-            //     token,
-            //     'Error saving AP Invoice'
-            // );
-            // console.log('TODO CORRECTO, valores de vuelta: ', data);
+
+            const data = await apiPostAccounting(
+                '/api/accounting/apInvoices',
+                id!,
+                valuesToSend
+            );
+
+            console.log('TODO CORRECTO, valores de vuelta: ', data);
+
             updateSuccessToast(toastId, 'AP Invoice saved correctly!');
+
             // Pass the ref number + date to reload the page
             router.push(
                 `/private/accounting/${id}/expenses?createdInvoice=${
@@ -292,7 +288,7 @@ const AddApInvoicePage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [invoiceData, token, router]);
+    }, [invoiceData, router]);
 
     useEffect(() => {
         let fileReader: any,
@@ -470,7 +466,6 @@ const AddApInvoicePage = ({
                     message='Adding a new Business Partner'
                     isVisible={popUpVisible}
                     onClose={() => setPopUpVisible(false)}
-                    token={token}
                     id={id}
                     allBusinessPartners={totalBP}
                     setValue={setValue}

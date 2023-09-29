@@ -1,24 +1,17 @@
 // Local imports
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import { BusinessPartners } from '@/lib/types/businessPartners';
-import { TokenRes } from '@/lib/types/token';
 import { getApiData } from '@/lib/utils/getApiData';
-import { getUser } from '@/lib/utils/getUser';
 import { EditApInvoicePage } from '@/components/pages/accounting/expenses/editApInvoice/EditApInvoicePage';
 import { ApInvoice } from '@/lib/types/apInvoice';
 
 interface Props {
     params: { id: string; invoiceId: string };
-    token: TokenRes;
 }
 
-const EditApInvoice: any = async ({
-    params: { id, invoiceId },
-    token,
-}: Props) => {
+const EditApInvoice: any = async ({ params: { id, invoiceId } }: Props) => {
     console.log(invoiceId);
-    const [user, apInvoiceData, tenatsBusinessPartners] = await Promise.all([
-        getUser(),
+    const [apInvoiceData, tenatsBusinessPartners] = await Promise.all([
         getApiData<ApInvoice>(
             `/accounting/tenants/${id}/apinvoices/${invoiceId}`,
             'Error while getting Ap invpice info'
@@ -35,7 +28,6 @@ const EditApInvoice: any = async ({
             <EditApInvoicePage
                 id={id}
                 invoiceId={invoiceId}
-                token={user.token}
                 apInvoiceData={apInvoiceData}
                 tenatsBusinessPartners={tenatsBusinessPartners}
             />

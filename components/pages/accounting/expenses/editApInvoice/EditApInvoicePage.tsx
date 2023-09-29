@@ -17,16 +17,13 @@ import '../../../../../node_modules/allotment/dist/style.css';
 import '../../../../splitPane/style/splitPane.module.css';
 import { BusinessPartners } from '@/lib/types/businessPartners';
 import { ApInvoice } from '@/lib/types/apInvoice';
-import { TokenRes } from '@/lib/types/token';
 import { customError } from '@/lib/utils/customError';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { Button } from 'pg-components';
 import PreviewWrapper from '../addApInvoice/PreviewWrapper';
-import { apiPatch } from '@/lib/utils/apiPatch';
 
 interface Props {
-    token: TokenRes;
     id: string;
     invoiceId: string;
     apInvoiceData: ApInvoice;
@@ -34,7 +31,6 @@ interface Props {
 }
 
 export const EditApInvoicePage = ({
-    token,
     id,
     invoiceId,
     apInvoiceData,
@@ -102,7 +98,7 @@ export const EditApInvoicePage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [invoiceData, token]);
+    }, [invoiceData]);
 
     // Format date and set max/min dates
     const validateDateTo = (e: ValueChangedEvent) => {
