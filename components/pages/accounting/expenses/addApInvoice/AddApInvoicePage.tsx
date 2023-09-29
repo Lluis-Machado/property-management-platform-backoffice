@@ -228,14 +228,14 @@ const AddApInvoicePage = ({
         const toastId = toast.loading('Saving Invoice');
         setIsLoading(true);
         const id = 'b99f942c-a141-4555-9554-14a09c5f94a4';
-        const idBP = '8b5006f9-72d1-4539-b6ea-0cc261d93055';
+        const idBP = 'a44a9fca-02b5-45d8-a0a4-d300753eec37';
 
         let invoiceLinesAPInvoice: any[] = [];
 
         for (const invoiceLine of invoiceData.form.invoiceLines) {
             invoiceLinesAPInvoice.push({
                 ...invoiceLine,
-                expenseCategoryId: 'e8dcfa3c-8c1b-424a-9fbb-3adfb0d06fb0',
+                expenseCategoryId: '1996e66c-80b2-4c5f-8411-b84efd29393f',
                 depreciationRatePerYear: 0,
                 serviceDateFrom: '2023-09-19T09:14:41.861Z',
                 serviceDateTo: '2023-09-19T09:14:41.861Z',
@@ -271,8 +271,12 @@ const AddApInvoicePage = ({
             );
             console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'AP Invoice saved correctly!');
-            // Pass the ID to reload the page
-            //router.push(`/private/accounting/${id}/expenses?createdId=${data.refNumber}`)
+            // Pass the ref number + date to reload the page
+            router.push(
+                `/private/accounting/${id}/expenses?createdInvoice=${
+                    data.refNumber + data.date
+                }`
+            );
             // Reset invoice data
             setInvoiceData(apInvoiceData);
         } catch (error: unknown) {
@@ -280,7 +284,7 @@ const AddApInvoicePage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [invoiceData, token]);
+    }, [invoiceData, token, router]);
 
     useEffect(() => {
         let fileReader: any,
@@ -400,7 +404,7 @@ const AddApInvoicePage = ({
     const CostTypeCellRender = (data: any) => {
         return (
             <div className='bg- flex flex-row items-center gap-2 text-center'>
-                <span id={data.label}>
+                <span id={data.label + data.index}>
                     <div
                         className={`rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(
                             data.label
@@ -410,7 +414,7 @@ const AddApInvoicePage = ({
                     </div>
                 </span>
                 <Tooltip
-                    target={'#' + data.label}
+                    target={'#' + data.label + data.index}
                     showEvent='mouseenter'
                     hideEvent='mouseleave'
                     position='right'
@@ -565,26 +569,32 @@ const AddApInvoicePage = ({
                                                                 {
                                                                     label: 'UAT',
                                                                     value: 0,
+                                                                    index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'UAV',
                                                                     value: 1,
+                                                                    index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'BAT',
                                                                     value: 2,
+                                                                    index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'BAV',
                                                                     value: 3,
+                                                                    index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'Asset',
                                                                     value: 4,
+                                                                    index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'NA',
                                                                     value: 5,
+                                                                    index: `${index}`,
                                                                 },
                                                             ]}
                                                             label='Cost'
@@ -625,10 +635,10 @@ const AddApInvoicePage = ({
                                                     >
                                                         <DateBox
                                                             label={'From'}
+                                                            ref={dateboxRefFrom}
                                                             onValueChanged={
                                                                 validateDateFrom
                                                             }
-                                                            ref={dateboxRefFrom}
                                                         />
                                                     </Item>
                                                     <Item
@@ -644,11 +654,6 @@ const AddApInvoicePage = ({
                                                             onValueChanged={
                                                                 validateDateTo
                                                             }
-                                                            elementAttr={{
-                                                                displayFormat: {
-                                                                    dateFormat,
-                                                                },
-                                                            }}
                                                         />
                                                     </Item>
                                                     <Item
@@ -675,6 +680,9 @@ const AddApInvoicePage = ({
                                                         dataField={`form.invoiceLines[${index}].tax`}
                                                         label={{
                                                             text: 'IVA',
+                                                        }}
+                                                        editorOptions={{
+                                                            format: "#0.##'%'",
                                                         }}
                                                         cssClass='itemStyle'
                                                     />
