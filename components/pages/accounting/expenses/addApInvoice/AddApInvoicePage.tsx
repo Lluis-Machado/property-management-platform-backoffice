@@ -23,6 +23,7 @@ import DateBox from 'devextreme-react/date-box';
 import { ValueChangedEvent } from 'devextreme/ui/date_box';
 import SelectBox from 'devextreme-react/select-box';
 import { Tooltip } from 'devextreme-react/tooltip';
+import TextBox from 'devextreme-react/text-box';
 
 // Local imports
 import '@/lib/styles/formItems.css';
@@ -42,8 +43,8 @@ import { BusinessPartners } from '@/lib/types/businessPartners';
 import { ApInvoice, ApInvoiceAnalyzedData } from '@/lib/types/apInvoice';
 import BpPopup from '@/components/popups/BpPopup';
 import ToolbarTooltipsApInvoice from '@/components/tooltips/ToolbarTooltipsApInvoice';
-import TextBox from 'devextreme-react/text-box';
 import { apiPostAccounting } from '@/lib/utils/apiPostAccounting';
+import { TokenRes } from '@/lib/types/token';
 
 const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}`;
 
@@ -66,12 +67,14 @@ interface Props {
     id: string;
     tenatsBusinessPartners: BusinessPartners[];
     allBusinessPartners: BusinessPartners[];
+    token: TokenRes;
 }
 
 const AddApInvoicePage = ({
     id,
     tenatsBusinessPartners,
     allBusinessPartners,
+    token,
 }: Props) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const selectboxRef = useRef<SelectBox>(null);
