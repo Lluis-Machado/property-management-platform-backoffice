@@ -12,7 +12,6 @@ import { toast } from 'react-toastify';
 import { BusinessPartners } from '@/lib/types/businessPartners';
 import { ApInvoice } from '@/lib/types/apInvoice';
 import { TokenRes } from '@/lib/types/token';
-import { apiPost } from '@/lib/utils/apiPost';
 import { customError } from '@/lib/utils/customError';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
@@ -77,14 +76,15 @@ export const EditApInvoicePage = ({
                 'Valores a enviar en JSON: ',
                 JSON.stringify(valuesToSend)
             );
+            throw new Error('API call not implemented');
             // SAVE INVOICE
-            const data = await apiPost(
-                `/accounting/tenants/${id}/businesspartners/${idBP}/apinvoices`,
-                valuesToSend,
-                token,
-                'Error saving AP Invoice'
-            );
-            console.log('TODO CORRECTO, valores de vuelta: ', data);
+            // const data = await apiPost(
+            //     `/accounting/tenants/${id}/businesspartners/${idBP}/apinvoices`,
+            //     valuesToSend,
+            //     token,
+            //     'Error saving AP Invoice'
+            // );
+            // console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'AP Invoice saved correctly!');
             // Pass the ID to reload the page
             //router.push(`/private/accounting/${id}/expenses?createdId=${data.refNumber}`)

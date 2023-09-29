@@ -25,7 +25,7 @@ import { Locale } from '@/i18n-config';
 import { TokenRes } from '@/lib/types/token';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
-import { apiPost2 } from '@/lib/utils/apiPost';
+import { apiPost } from '@/lib/utils/apiPost';
 import { CountryData } from '@/lib/types/countriesData';
 import {
     genderItems,
@@ -122,7 +122,7 @@ const AddContactPage = ({ countriesData, token, lang }: Props) => {
             console.log('Valores a enviar: ', valuesToSend);
             console.log(JSON.stringify(valuesToSend));
 
-            const data = await apiPost2('/api/contacts', valuesToSend);
+            const data = await apiPost('/api/contacts', valuesToSend);
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 

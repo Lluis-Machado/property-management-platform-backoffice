@@ -35,7 +35,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
 import { TokenRes } from '@/lib/types/token';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
-import { apiPost } from '@/lib/utils/apiPost';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
 import { customError } from '@/lib/utils/customError';
 import DataSource from 'devextreme/data/data_source';
@@ -196,18 +195,19 @@ const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
                         dataOwnerships.push(objectArray);
                     }
                 }
+                throw new Error('API call not implemented');
 
                 // API CALL
-                try {
-                    await apiPost(
-                        '/ownership/ownership/ownerships',
-                        dataOwnerships,
-                        token,
-                        'Error while updating ownerships'
-                    );
-                } catch (error: unknown) {
-                    customError(error, 'ownership call');
-                }
+                // try {
+                //     await apiPost(
+                //         '/ownership/ownership/ownerships',
+                //         dataOwnerships,
+                //         token,
+                //         'Error while updating ownerships'
+                //     );
+                // } catch (error: unknown) {
+                //     customError(error, 'ownership call');
+                // }
             },
             [token, propertyId, totalContactsList, initialValues]
         );

@@ -45,8 +45,8 @@ import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { customError } from '@/lib/utils/customError';
-import { apiDelete2 } from '@/lib/utils/apiDelete';
-import { apiPatch2 } from '@/lib/utils/apiPatch';
+import { apiDelete } from '@/lib/utils/apiDelete';
+import { apiPatch } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { ContactData } from '@/lib/types/contactData';
@@ -233,7 +233,7 @@ const PropertyPage = ({
             console.log('Valores a enviar: ', dataToSend);
             console.log('Valores a enviar JSON: ', JSON.stringify(dataToSend));
 
-            const data = await apiPatch2(
+            const data = await apiPatch(
                 '/api/properties',
                 propertyData.id!,
                 dataToSend
@@ -253,7 +253,7 @@ const PropertyPage = ({
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting property...');
         try {
-            await apiDelete2('/api/properties', propertyData.id!);
+            await apiDelete('/api/properties', propertyData.id!);
 
             updateSuccessToast(toastId, 'Property deleted correctly!');
             // Pass the ID to reload the page

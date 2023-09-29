@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useImperativeHandle, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 // Libraries imports
 import { Popup, Position } from 'devextreme-react/popup';
@@ -10,7 +10,6 @@ import Form, { Item } from 'devextreme-react/form';
 
 // Local imports
 import { Button } from 'pg-components';
-import { apiPost } from '@/lib/utils/apiPost';
 import { TokenRes } from '@/lib/types/token';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
@@ -50,14 +49,16 @@ const BpPopup = ({
         try {
             console.log('Valores a enviar: ', values);
             console.log('Valores a enviar en JSON: ', JSON.stringify(values));
+            throw new Error('API call not implemented');
+
             // SAVE INVOICE
-            const data = await apiPost(
-                `/accounting/tenants/${id}/businesspartners`,
-                values,
-                token,
-                'Error saving Business Partner'
-            );
-            console.log('TODO CORRECTO, valores de vuelta: ', data);
+            // const data = await apiPost(
+            //     `/accounting/tenants/${id}/businesspartners`,
+            //     values,
+            //     token,
+            //     'Error saving Business Partner'
+            // );
+            // console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'Business Partner saved correctly!');
         } catch (error: unknown) {
             customError(error, toastId);

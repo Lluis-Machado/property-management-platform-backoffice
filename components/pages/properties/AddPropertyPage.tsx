@@ -30,7 +30,7 @@ import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { SelectData } from '@/lib/types/selectData';
 import { customError } from '@/lib/utils/customError';
-import { apiPost2 } from '@/lib/utils/apiPost';
+import { apiPost } from '@/lib/utils/apiPost';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { Button } from 'pg-components';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
@@ -255,7 +255,7 @@ const AddPropertyPage = ({
             };
             console.log('Valores a enviar: ', values);
             console.log('Valores a enviar JSON: ', JSON.stringify(values));
-            const data = await apiPost2('/api/properties', dataToSend);
+            const data = await apiPost('/api/properties', dataToSend);
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 

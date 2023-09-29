@@ -9,20 +9,13 @@ import DataGrid, {
     Editing,
     Lookup,
     Pager,
-    RequiredRule,
-    PatternRule,
     HeaderFilter,
-    Search,
-    SearchPanel,
 } from 'devextreme-react/data-grid';
 import { SavedEvent } from 'devextreme/ui/data_grid';
 
 // Local imports
 import { PeriodsData } from '@/lib/types/periodsData';
 import { TokenRes } from '@/lib/types/token';
-import { apiPatch } from '@/lib/utils/apiPatch';
-import { apiDelete } from '@/lib/utils/apiDelete';
-import { apiPost } from '@/lib/utils/apiPost';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
 import { idToasts } from '@/lib/types/toastid';
 interface Props {
@@ -62,33 +55,35 @@ const PeriodsPage = ({ data, token, id }: Props) => {
                         id,
                         status,
                     };
-                    promises.push(
-                        apiPatch(
-                            `/accounting/tenants/${tenantId}/periods/${id}?Status=${status}`,
-                            values,
-                            token,
-                            'Error while updating a period'
-                        )
-                    );
-                    idToasts.push({
-                        toastId: toastId,
-                        msg: 'Period updated correctly!',
-                        errormsg: 'Error while updating a period',
-                    });
+                    throw new Error('API call not implemented');
+                    // promises.push(
+                    //     apiPatch(
+                    //         `/accounting/tenants/${tenantId}/periods/${id}?Status=${status}`,
+                    //         values,
+                    //         token,
+                    //         'Error while updating a period'
+                    //     )
+                    // );
+                    // idToasts.push({
+                    //     toastId: toastId,
+                    //     msg: 'Period updated correctly!',
+                    //     errormsg: 'Error while updating a period',
+                    // });
                 } else if (change.type == 'remove') {
                     const toastId = toast.loading('Deleting a period');
-                    promises.push(
-                        apiDelete(
-                            `/accounting/tenants/${id}/periods/${change.key}`,
-                            token,
-                            'Error while deleting an period'
-                        )
-                    );
-                    idToasts.push({
-                        toastId: toastId,
-                        msg: 'Period deleted correctly!',
-                        errormsg: 'Error while deleting an period',
-                    });
+                    throw new Error('API call not implemented');
+                    // promises.push(
+                    //     apiDelete(
+                    //         `/accounting/tenants/${id}/periods/${change.key}`,
+                    //         token,
+                    //         'Error while deleting an period'
+                    //     )
+                    // );
+                    // idToasts.push({
+                    //     toastId: toastId,
+                    //     msg: 'Period deleted correctly!',
+                    //     errormsg: 'Error while deleting an period',
+                    // });
                 } else if (change.type == 'insert') {
                     const toastId = toast.loading('Adding period');
                     const values = {
@@ -96,19 +91,20 @@ const PeriodsPage = ({ data, token, id }: Props) => {
                         month: change.data.month,
                         status: 0,
                     };
-                    promises.push(
-                        apiPost(
-                            `/accounting/tenants/${id}/periods`,
-                            values,
-                            token,
-                            'Error while adding period'
-                        )
-                    );
-                    idToasts.push({
-                        toastId: toastId,
-                        msg: 'Period added correctly!',
-                        errormsg: 'Error while adding period',
-                    });
+                    throw new Error('API call not implemented');
+                    // promises.push(
+                    //     apiPost(
+                    //         `/accounting/tenants/${id}/periods`,
+                    //         values,
+                    //         token,
+                    //         'Error while adding period'
+                    //     )
+                    // );
+                    // idToasts.push({
+                    //     toastId: toastId,
+                    //     msg: 'Period added correctly!',
+                    //     errormsg: 'Error while adding period',
+                    // });
                 }
             }
             Promise.allSettled(promises).then((results) =>
