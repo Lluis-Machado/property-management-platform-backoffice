@@ -12,6 +12,7 @@ import {
     faUpload,
 } from '@fortawesome/free-solid-svg-icons';
 import Form, {
+    EmptyItem,
     GroupItem,
     Item,
     NumericRule,
@@ -86,8 +87,12 @@ const AddApInvoicePage = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [popUpVisible, setPopUpVisible] = useState<boolean>(false);
     const [invoiceData, setInvoiceData] = useState<any>(apInvoiceData);
-    const [selectedProvider, setSelectedProvider] =
-        useState<BusinessPartners>();
+    const [selectedProvider, setSelectedProvider] = useState<BusinessPartners>({
+        id: null,
+        tenantId: '',
+        name: '',
+        vatNumber: '',
+    });
     const [lines, setLines] = useState({});
     const [analyzedInvoiceLines, setAnalyzedInvoiceLines] = useState<any>(null);
     const router = useRouter();
@@ -440,7 +445,7 @@ const AddApInvoicePage = ({
                 <ToolbarTooltipsApInvoice />
                 <Allotment defaultSizes={[65, 35]}>
                     <Allotment.Pane>
-                        <div className='mr-4 h-full overflow-y-auto overflow-x-hidden'>
+                        <div className='h-full overflow-y-auto overflow-x-hidden'>
                             <div className='mr-2 flex flex-row justify-end gap-4'>
                                 <div className='w-10'>
                                     <Button
@@ -492,11 +497,7 @@ const AddApInvoicePage = ({
                                             ref={selectboxRef}
                                             valueExpr='vatNumber'
                                             searchEnabled={true}
-                                            // value={
-                                            //     selectedProvider
-                                            //         ? selectedProvider.vatNumber
-                                            //         : undefined
-                                            // }
+                                            value={selectedProvider!.vatNumber}
                                             dropDownOptions={{
                                                 toolbarItems: [
                                                     {
@@ -554,7 +555,8 @@ const AddApInvoicePage = ({
                                             return (
                                                 <GroupItem
                                                     key={`GroupItem${index}`}
-                                                    colCount={16}
+                                                    colCount={8}
+                                                    cssClass='pb-2 border-dotted border-b-2 border-primary-500'
                                                 >
                                                     <Item
                                                         key={`code${index}`}
@@ -621,7 +623,7 @@ const AddApInvoicePage = ({
                                                         label={{
                                                             text: 'Description',
                                                         }}
-                                                        colSpan={3}
+                                                        colSpan={5}
                                                         cssClass='itemStyle'
                                                     >
                                                         <NumericRule />
@@ -630,7 +632,6 @@ const AddApInvoicePage = ({
                                                         key={`serviceDateFrom${index}`}
                                                         dataField={`form.invoiceLines[${index}].serviceDateFrom`}
                                                         label={{ text: 'From' }}
-                                                        colSpan={2}
                                                         cssClass='itemStyle'
                                                     >
                                                         <DateBox
@@ -645,7 +646,6 @@ const AddApInvoicePage = ({
                                                         key={`serviceDateTo${index}`}
                                                         dataField={`form.invoiceLines[${index}].serviceDateTo`}
                                                         label={{ text: 'To' }}
-                                                        colSpan={2}
                                                         cssClass='itemStyle'
                                                     >
                                                         <DateBox
@@ -674,7 +674,9 @@ const AddApInvoicePage = ({
                                                             text: 'Amout',
                                                         }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <RequiredRule />
+                                                    </Item>
                                                     <Item
                                                         key={`tax${index}`}
                                                         dataField={`form.invoiceLines[${index}].tax`}
@@ -685,7 +687,9 @@ const AddApInvoicePage = ({
                                                             format: "#0.##'%'",
                                                         }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <RequiredRule />
+                                                    </Item>
                                                     <Item
                                                         key={`unitPrice${index}`}
                                                         dataField={`form.invoiceLines[${index}].unitPrice`}
@@ -700,7 +704,9 @@ const AddApInvoicePage = ({
                                                             },
                                                         }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <RequiredRule />
+                                                    </Item>
                                                     <Item
                                                         key={`totalUnitPrice${index}`}
                                                         dataField={`form.invoiceLines[${index}].totalLinePrice`}
@@ -768,13 +774,7 @@ const AddApInvoicePage = ({
                                 <Form
                                     formData={invoiceData}
                                     labelLocation='left'
-                                    elementAttr={{
-                                        style: {
-                                            width: '10vw',
-                                            float: 'right',
-                                            marginRight: '2em',
-                                        },
-                                    }}
+                                    className='mr-2'
                                 >
                                     <GroupItem>
                                         <Item
