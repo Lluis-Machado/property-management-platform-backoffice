@@ -38,8 +38,8 @@ import { Locale } from '@/i18n-config';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
-import { apiDelete } from '@/lib/utils/apiDelete';
-import { apiPatch } from '@/lib/utils/apiPatch';
+import { apiDelete2 } from '@/lib/utils/apiDelete';
+import { apiPatch2 } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { CompanyData } from '@/lib/types/companyData';
 import { countriesMaskItems } from '@/lib/utils/selectBoxItems';
@@ -131,11 +131,10 @@ const CompanyPage = ({
             console.log('Valores a enviar: ', valuesToSend);
             console.log(JSON.stringify(valuesToSend));
 
-            const data = await apiPatch(
-                `/companies/companies/${companyData.id}`,
-                valuesToSend,
-                token,
-                'Error while updating this company'
+            const data = await apiPatch2(
+                '/api/companies',
+                companyData.id!,
+                valuesToSend
             );
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
@@ -153,11 +152,7 @@ const CompanyPage = ({
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting company...');
         try {
-            await apiDelete(
-                `/companies/companies/${companyData.id}`,
-                token,
-                'Error while deleting this company'
-            );
+            await apiDelete2('/api/companies', companyData.id!);
 
             updateSuccessToast(toastId, 'Company deleted correctly!');
             // Pass the ID to reload the page

@@ -25,3 +25,20 @@ export const apiPatch = async <T>(
     }
     return resp.json();
 };
+
+export const apiPatch2 = async <T>(
+    path: string,
+    id: string,
+    values: T
+): Promise<T> => {
+    const resp = await fetch(`${path}?id=${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(values),
+    });
+
+    if (!resp.ok) {
+        const responseMsg = await resp.text();
+        throw new ApiCallError(responseMsg);
+    }
+    return resp.json();
+};

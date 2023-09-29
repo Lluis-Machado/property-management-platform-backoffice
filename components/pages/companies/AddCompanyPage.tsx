@@ -23,7 +23,7 @@ import { Locale } from '@/i18n-config';
 import { TokenRes } from '@/lib/types/token';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
-import { apiPost } from '@/lib/utils/apiPost';
+import { apiPost2 } from '@/lib/utils/apiPost';
 import { CountryData } from '@/lib/types/countriesData';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { ContactData } from '@/lib/types/contactData';
@@ -65,10 +65,10 @@ const AddCompanyPage = ({
 }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<CompanyData>(
+    const [initialValues, _] = useState<CompanyData>(
         structuredClone(companyData)
     );
-    const [addressOptions, setAddressOptions] = useState({});
+    const [__, setAddressOptions] = useState({});
 
     const formRef = useRef<Form>(null);
     const addressTabRef = useRef<AddressInfoTabMethods>(null);
@@ -114,12 +114,7 @@ const AddCompanyPage = ({
                 JSON.stringify(valuesToSend)
             );
 
-            const data = await apiPost(
-                '/companies/companies',
-                valuesToSend,
-                token,
-                'Error while creating a company'
-            );
+            const data = await apiPost2('/api/companies', valuesToSend);
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 
