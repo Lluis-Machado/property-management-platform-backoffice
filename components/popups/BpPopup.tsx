@@ -1,5 +1,5 @@
 // React imports
-import { useCallback, useImperativeHandle, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 // Libraries imports
 import { Popup, Position } from 'devextreme-react/popup';
@@ -35,13 +35,14 @@ const BpPopup = ({
     allBusinessPartners,
     setValue,
 }: PopupProps) => {
-    const selectBoxRef = useRef<any>(null);
-    let businessPartnerName: string = '';
-    let businessPartnerVatNumber: string = '';
+    const selectBoxRef = useRef<SelectBox>(null);
+    const [businessPartnerName, setBusinessPartnerName] = useState<string>('');
+    const [businessPartnerVatNumber, setBusinessPartnerVatNumber] =
+        useState<string>('');
 
     let businessPartnerValues: any = {
-        businessPartnerName: businessPartnerName,
-        businessPartnerVatNumber: businessPartnerVatNumber,
+        name: businessPartnerName,
+        vatNumber: businessPartnerVatNumber,
     };
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -53,6 +54,7 @@ const BpPopup = ({
             name: businessPartnerName,
             vatNumber: businessPartnerVatNumber,
         };
+        setValue(values);
 
         try {
             console.log('Valores a enviar: ', values);
@@ -71,7 +73,7 @@ const BpPopup = ({
         } finally {
             setIsLoading(false);
         }
-    }, [token, id]);
+    }, [token, id, businessPartnerName, businessPartnerVatNumber]);
 
     const onCustomNameItemCreating = (args: any) => {
         if (!args.text) {
@@ -85,7 +87,7 @@ const BpPopup = ({
         const newItem = {
             name: text,
         };
-        businessPartnerName = newItem.name;
+        setBusinessPartnerName(newItem.name);
 
         const itemInDataSource = currentItems.find(
             (item: any) => item.text === newItem.name
@@ -113,7 +115,7 @@ const BpPopup = ({
             vatNumber: text,
         };
 
-        businessPartnerVatNumber = newItem.vatNumber;
+        setBusinessPartnerVatNumber(newItem.vatNumber);
 
         const itemInDataSource = currentItems.find(
             (item: any) => item.text === newItem.vatNumber
@@ -130,8 +132,9 @@ const BpPopup = ({
 
     const displayValue = (e: any) => {
         for (const businessParter of allBusinessPartners) {
-            if (e.name == businessParter.name) {
-                arrayCIF = [businessParter.vatNumber];
+            console.log(businessParter);
+            if (e === businessParter.name) {
+                arrayCIF = [businessPartnerVatNumber];
                 selectBoxRef.current!.instance.option('dataSource', arrayCIF);
                 selectBoxRef.current!.instance.option('value', arrayCIF[0]);
             }
@@ -186,7 +189,7 @@ const BpPopup = ({
                 </div>
             </>
         ),
-        [onClose, saveBP, allBusinessPartners]
+        [onClose, saveBP, allBusinessPartners, arrayCIF, businessPartnerValues]
     );
 
     const titleComponent = useCallback(
