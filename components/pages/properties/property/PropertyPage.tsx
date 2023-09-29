@@ -45,8 +45,8 @@ import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
 import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { customError } from '@/lib/utils/customError';
-import { apiDelete } from '@/lib/utils/apiDelete';
-import { apiPatch } from '@/lib/utils/apiPatch';
+import { apiDelete2 } from '@/lib/utils/apiDelete';
+import { apiPatch2 } from '@/lib/utils/apiPatch';
 import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { ContactData } from '@/lib/types/contactData';
@@ -61,7 +61,7 @@ import Sale from '@/components/Tabs/SalesTab';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
-import useCountryChange from '@/lib/hooks/useCountryChange';
+
 interface Props {
     propertyData: PropertyData;
     propertiesData: PropertyData[];
@@ -233,11 +233,10 @@ const PropertyPage = ({
             console.log('Valores a enviar: ', dataToSend);
             console.log('Valores a enviar JSON: ', JSON.stringify(dataToSend));
 
-            let data = await apiPatch(
-                `/properties/properties/${propertyData.id}`,
-                dataToSend,
-                token,
-                'Error while updating a property'
+            const data = await apiPatch2(
+                '/api/properties',
+                propertyData.id!,
+                dataToSend
             );
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
@@ -254,11 +253,7 @@ const PropertyPage = ({
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting property...');
         try {
-            await apiDelete(
-                `/properties/properties/${propertyData.id}`,
-                token,
-                'Error while deleting a property'
-            );
+            await apiDelete2('/api/properties', propertyData.id!);
 
             updateSuccessToast(toastId, 'Property deleted correctly!');
             // Pass the ID to reload the page

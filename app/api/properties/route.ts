@@ -8,7 +8,7 @@ export async function POST(request: Request) {
         const contact: PropertyData = await request.json();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/core/core/properties`,
             {
                 method: 'POST',
                 body: JSON.stringify(contact),
