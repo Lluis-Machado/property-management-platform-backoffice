@@ -1,6 +1,14 @@
 'use client';
 // React imports
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import {
+    forwardRef,
+    memo,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from 'react';
 // Libraries imports
 import Form, { Item, GroupItem, RequiredRule } from 'devextreme-react/form';
 import {
@@ -16,17 +24,26 @@ import { CompanyData } from '@/lib/types/companyData';
 import AddItem from './TabButtons/AddItem';
 import DeleteItem from './TabButtons/DeleteItem';
 
+export interface PhonesTabMethods {
+    isValid: () => boolean | undefined;
+}
+
 interface Props {
     contactData: ContactData;
     isEditing: boolean;
     isLoading: boolean;
 }
 
-const PhonesTab = ({ contactData, isEditing, isLoading }: Props) => {
+const PhonesTab = forwardRef<PhonesTabMethods, Props>((props, ref) => {
+    const { contactData, isEditing, isLoading } = props;
     const [addressOptions, setAddressOptions] = useState({});
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
     const [elementsList, setElementsList] = useState<ValueChangedEvent[]>([]);
     const formRef = useRef<Form>(null);
+
+    useImperativeHandle(ref, () => ({
+        isValid,
+    }));
 
     useEffect(() => {
         for (const element of elementsList) {
@@ -40,6 +57,11 @@ const PhonesTab = ({ contactData, isEditing, isLoading }: Props) => {
                 ?.classList.add('styling');
         }
     }, [eventsList, elementsList, addressOptions]);
+
+    const isValid = () => {
+        if (contactData.phones.length === 0) return true;
+        return formRef.current!.instance.validate().isValid;
+    };
 
     const changeCssFormElement = (e: FieldDataChangedEvent) => {
         if (e.dataField !== 'formData') {
@@ -66,17 +88,20 @@ const PhonesTab = ({ contactData, isEditing, isLoading }: Props) => {
 
     const getMaskValueChange = (e: ValueChangedEvent, index: number) => {
         const result = countriesMaskItems.filter((obj) => obj.id === e.value);
-        formRef
-            .current!.instance.getEditor(`phones[${index}].phoneNumber`)!
-            .option('mask', result[index].mask);
+        const value = result[index]?.mask;
+        if (value) {
+            formRef
+                .current!.instance.getEditor(`phones[${index}].phoneNumber`)!
+                .option('mask', value);
+        }
     };
+
     return (
         <Form
             formData={contactData}
             ref={formRef}
             labelMode={'floating'}
             readOnly={isLoading || !isEditing}
-            showValidationSummary
             onFieldDataChanged={changeCssFormElement}
         >
             <GroupItem colCount={1}>
@@ -98,7 +123,9 @@ const PhonesTab = ({ contactData, isEditing, isLoading }: Props) => {
                                     onValueChanged: (e: ValueChangedEvent) =>
                                         changeSelectbox(e),
                                 }}
-                            />
+                            >
+                                <RequiredRule />
+                            </Item>
                             <Item
                                 key={`type${index}`}
                                 dataField={`phones[${index}].type`}
@@ -114,7 +141,9 @@ const PhonesTab = ({ contactData, isEditing, isLoading }: Props) => {
                                     onValueChanged: (e: ValueChangedEvent) =>
                                         changeSelectbox(e),
                                 }}
-                            />
+                            >
+                                <RequiredRule />
+                            </Item>
                             <Item
                                 key={`countryMaskId${index}`}
                                 dataField={`phones[${index}].countryMaskId`}
@@ -127,7 +156,7 @@ const PhonesTab = ({ contactData, isEditing, isLoading }: Props) => {
                                     items: countriesMaskItems,
                                     valueExpr: 'id',
                                     displayExpr: 'name',
-                                    defaultValue: countriesMaskItems[0],
+                                    // defaultValue: countriesMaskItems[0],
                                     onValueChanged: (e: ValueChangedEvent) => {
                                         getMaskValueChange(e, index);
                                         changeSelectbox(e);
@@ -149,7 +178,9 @@ const PhonesTab = ({ contactData, isEditing, isLoading }: Props) => {
                                     onValueChanged: (e: ValueChangedEvent) =>
                                         changeSelectbox(e),
                                 }}
-                            />
+                            >
+                                <RequiredRule />
+                            </Item>
                             <Item
                                 key={`phoneShortComment${index}`}
                                 dataField={`phones[${index}].shortComment`}
@@ -184,6 +215,6 @@ const PhonesTab = ({ contactData, isEditing, isLoading }: Props) => {
             </Item>
         </Form>
     );
-};
+});
 
 export default memo(PhonesTab);

@@ -33,7 +33,6 @@ import LinkWithIcon from '@/components/buttons/LinkWithIcon';
 import { currencyFormat, dateFormat } from '@/lib/utils/datagrid/customFormats';
 import AddRowButton from '@/components/buttons/AddRowButton';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
-import { apiDelete } from '@/lib/utils/apiDelete';
 import { toast } from 'react-toastify';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
@@ -175,11 +174,12 @@ const DataGrid = ({
         const toastId = toast.loading('Deleting invoice...');
         console.log(invoiceId);
         try {
-            await apiDelete(
-                `/accounting/tenants/${id}/apinvoices/${invoiceId}`,
-                token,
-                'Error while deleting this invoice'
-            );
+            throw new Error('API call not implemented');
+            // await apiDelete(
+            //     `/accounting/tenants/${id}/apinvoices/${invoiceId}`,
+            //     token,
+            //     'Error while deleting this invoice'
+            // );
 
             updateSuccessToast(toastId, 'Invoice deleted correctly!');
             // Pass the ID to reload the page

@@ -7,6 +7,8 @@ import {
     useImperativeHandle,
     useRef,
     LegacyRef,
+    useState,
+    memo,
 } from 'react';
 // Libraries imports
 import DataGrid, {
@@ -22,7 +24,6 @@ import DataGrid, {
     TotalItem,
 } from 'devextreme-react/data-grid';
 import { SavedEvent } from 'devextreme/ui/data_grid';
-import { toast } from 'react-toastify';
 import {
     faArrowUpRightFromSquare,
     faCheck,
@@ -33,11 +34,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
 import { TokenRes } from '@/lib/types/token';
-import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
-import { apiPost } from '@/lib/utils/apiPost';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
 import { customError } from '@/lib/utils/customError';
+import DataSource from 'devextreme/data/data_source';
+
+export interface PODatagridProps {
+    saveEditData: () => Promise<void>;
+    hasEditData: () => boolean;
+    getDataSource: () => DataSource<OwnershipPropertyData, any>;
+}
 
 interface Props {
     dataSource: OwnershipPropertyData[];
@@ -46,12 +52,13 @@ interface Props {
     isEditing: boolean;
     ref: MutableRefObject<null>;
 }
-
-const PropertiesOwnersDatagrid = forwardRef(
-    ({ dataSource, totalContactsList, token, isEditing }: Props, ref) => {
+const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
+    (props, ref) => {
+        const { dataSource, totalContactsList, isEditing, token } = props;
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
         const propertyId: number = dataSource[0].propertyId;
+        const [initialValues, _] = useState(structuredClone(dataSource));
 
         // API CALLS
         useImperativeHandle(ref, () => ({
@@ -60,18 +67,13 @@ const PropertiesOwnersDatagrid = forwardRef(
             getDataSource,
         }));
 
+        // METHODS DATAGRID
         const saveEditData = () => datagridRef.current!.instance.saveEditData();
         const hasEditData = () => datagridRef.current!.instance.hasEditData();
         const getDataSource = () =>
             datagridRef.current!.instance.getDataSource();
 
-        //Filter Owners
-        let idArray: any[] = [];
-        for (const ownership of dataSource) {
-            idArray.push(ownership.ownerId);
-        }
-
-        // CSS FOR SUMMARY SHARES
+        // Css styles for sum of shares
         const summaryShares = (e: any) => {
             if (e.rowType == 'totalFooter') {
                 if (e.summaryItems[0]?.column == 'share') {
@@ -87,24 +89,63 @@ const PropertiesOwnersDatagrid = forwardRef(
                 }
             }
         };
+
+        // Function tyo save changes ownershipsdatagrid
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
-                let valuesArray: any[] = [];
-
-                // LOGIC SUM OF SHARES
-                const dataSource: any =
-                    datagridRef.current?.instance.getDataSource();
-                const data = dataSource._store._array;
-                let sum: number = 0;
-                let array: number[] = [];
-                for (const item of data) {
-                    array.push(item.share);
-                    sum = array.reduce((sum: number, p: number) => sum + p);
-                }
-
-                if (sum !== 100) {
+                const data: OwnershipPropertyData[] =
+                    datagridRef.current?.instance
+                        .getDataSource()
+                        .items() as OwnershipPropertyData[];
+                if (JSON.stringify(data) === JSON.stringify(initialValues))
                     return;
+
+                // Check if shares are not equal to 100. Complexity O(n)
+                let sum: number = 0;
+                for (const item of data) {
+                    sum += item.share;
+                    if (sum > 100) {
+                        break;
+                    }
                 }
+
+                if (sum !== 100) return;
+
+                // Check if there are repeated owners. Complexity O(n)
+                const ownerIdSet = new Set();
+                const duplicateOwners = new Set();
+
+                for (const item of data) {
+                    const ownerId = item.ownerId;
+
+                    if (ownerIdSet.has(ownerId)) {
+                        duplicateOwners.add(ownerId);
+                    } else {
+                        ownerIdSet.add(ownerId);
+                    }
+                }
+
+                const duplicateOwnersArray = Array.from(duplicateOwners);
+                if (duplicateOwnersArray.length > 0) return;
+
+                // Get only the ownerships that didn't change
+                let dataOwnerships: any[] = [];
+                for (const initialValue of initialValues) {
+                    const match = data.find(
+                        (item) =>
+                            JSON.stringify(item) ===
+                            JSON.stringify(initialValue)
+                    );
+
+                    if (match) {
+                        dataOwnerships.push({
+                            values: initialValue,
+                            operation: 'patch',
+                        });
+                    }
+                }
+
+                // Add the ownerships that did change
                 for (const change of e.changes) {
                     if (change.type == 'update') {
                         const contactType: any = totalContactsList?.find(
@@ -118,7 +159,7 @@ const PropertiesOwnersDatagrid = forwardRef(
                             values: values,
                             operation: 'patch',
                         };
-                        valuesArray.push(objectArray);
+                        dataOwnerships.push(objectArray);
                     } else if (change.type == 'remove') {
                         const values = {
                             id: change.key,
@@ -128,13 +169,17 @@ const PropertiesOwnersDatagrid = forwardRef(
                             values: values,
                             operation: 'delete',
                         };
-                        valuesArray.push(objectArray);
+                        dataOwnerships.push(objectArray);
                     } else if (change.type == 'insert') {
                         const contactType: any = totalContactsList?.find(
                             (item) => item.id == change.data.ownerId
                         );
-                        const { ownerId, share, mainOwnership } = change.data;
+
                         const ownerType: string = contactType.type;
+                        if (!change.data.mainOwnership) {
+                            change.data.mainOwnership = false;
+                        }
+                        const { ownerId, share, mainOwnership } = change.data;
                         const values = {
                             propertyId,
                             ownerId,
@@ -142,33 +187,32 @@ const PropertiesOwnersDatagrid = forwardRef(
                             share,
                             mainOwnership,
                         };
+
                         const objectArray = {
                             values: values,
                             operation: 'post',
                         };
-                        valuesArray.push(objectArray);
-                    }
-                    const toastId = toast.loading(
-                        'Updating ownership property'
-                    );
-                    try {
-                        await apiPost(
-                            '/ownership/ownership/ownerships',
-                            valuesArray,
-                            token,
-                            'Error while updating ownerships'
-                        );
-                        updateSuccessToast(
-                            toastId,
-                            'Ownerships updated correctly!'
-                        );
-                    } catch (error: unknown) {
-                        customError(error, toastId);
+                        dataOwnerships.push(objectArray);
                     }
                 }
+                throw new Error('API call not implemented');
+
+                // API CALL
+                // try {
+                //     await apiPost(
+                //         '/ownership/ownership/ownerships',
+                //         dataOwnerships,
+                //         token,
+                //         'Error while updating ownerships'
+                //     );
+                // } catch (error: unknown) {
+                //     customError(error, 'ownership call');
+                // }
             },
-            [token, propertyId, totalContactsList]
+            [token, propertyId, totalContactsList, initialValues]
         );
+
+        // LINK TO GO TO CONTACT/ COMPANY PAGE
         const CellRender = useCallback(
             ({ data }: { data: any }) => (
                 <LinkWithIcon
@@ -182,12 +226,15 @@ const PropertiesOwnersDatagrid = forwardRef(
             ),
             []
         );
+
+        //CELL RENDER FOR MAIN OWNER COLUMN
         const MainOwnerCellRender = ({ value }: any): React.ReactElement => (
             <FontAwesomeIcon
                 icon={value === true ? faCheck : faXmark}
                 className='row-focused-state text-primary-500'
             />
         );
+
         return (
             <div className='flex'>
                 <div className='basis-2/3'>
@@ -264,7 +311,22 @@ const PropertiesOwnersDatagrid = forwardRef(
                             caption='Main owner'
                             cellRender={MainOwnerCellRender}
                             width={100}
-                        />
+                        >
+                            <Lookup
+                                dataSource={[
+                                    {
+                                        value: true,
+                                        label: '\u2713',
+                                    },
+                                    {
+                                        value: false,
+                                        label: '\u2715',
+                                    },
+                                ]}
+                                valueExpr='value'
+                                displayExpr='label'
+                            />
+                        </Column>
                         <Summary>
                             <TotalItem
                                 column='share'
@@ -279,5 +341,5 @@ const PropertiesOwnersDatagrid = forwardRef(
         );
     }
 );
-PropertiesOwnersDatagrid.displayName = 'PropertiesOwnersDatagrid';
-export default PropertiesOwnersDatagrid;
+
+export default memo(PropertiesOwnersDatagrid);

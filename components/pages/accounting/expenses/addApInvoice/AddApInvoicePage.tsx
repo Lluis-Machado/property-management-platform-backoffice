@@ -26,10 +26,10 @@ import SelectBox from 'devextreme-react/select-box';
 import { Tooltip } from 'devextreme-react/tooltip';
 
 // Local imports
-import '../../../../../lib/styles/formItems.css';
+import '@/lib/styles/formItems.css';
 import { Button } from 'pg-components';
 import PreviewWrapper from './PreviewWrapper';
-import '../../../../../node_modules/allotment/dist/style.css';
+import '@/node_modules/allotment/dist/style.css';
 import '../../../../splitPane/style/splitPane.module.css';
 import { customError } from '@/lib/utils/customError';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
@@ -40,7 +40,6 @@ import {
     documentMessages,
     makeApiRequest,
 } from '@/lib/utils/accounting/apiAccounting';
-import { apiPost } from '@/lib/utils/apiPost';
 import { BusinessPartners } from '@/lib/types/businessPartners';
 import { ApInvoice, ApInvoiceAnalyzedData } from '@/lib/types/apInvoice';
 import BpPopup from '@/components/popups/BpPopup';
@@ -270,14 +269,15 @@ const AddApInvoicePage = ({
                 'Valores a enviar en JSON: ',
                 JSON.stringify(valuesToSend)
             );
+            throw new Error('API call not implemented');
             // SAVE INVOICE
-            const data = await apiPost(
-                `/accounting/tenants/${id}/businesspartners/${idBP}/apinvoices`,
-                valuesToSend,
-                token,
-                'Error saving AP Invoice'
-            );
-            console.log('TODO CORRECTO, valores de vuelta: ', data);
+            // const data = await apiPost(
+            //     `/accounting/tenants/${id}/businesspartners/${idBP}/apinvoices`,
+            //     valuesToSend,
+            //     token,
+            //     'Error saving AP Invoice'
+            // );
+            // console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'AP Invoice saved correctly!');
             // Pass the ref number + date to reload the page
             router.push(

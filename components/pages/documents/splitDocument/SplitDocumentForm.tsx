@@ -9,11 +9,9 @@ import Form, { GroupItem, Item, RequiredRule } from 'devextreme-react/form';
 
 // Local imports
 import { updateSuccessToast } from '@/lib/utils/customToasts';
-import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { Locale } from '@/i18n-config';
 import { TokenRes } from '@/lib/types/token';
 import { customError } from '@/lib/utils/customError';
-import { apiPost } from '@/lib/utils/apiPost';
 import { RangesData } from '@/lib/types/rangesData';
 
 interface Props {
@@ -59,14 +57,16 @@ const SplitDocumentForm = ({ rangesData, token, lang }: Props) => {
                 JSON.stringify(valuesToSend)
             );
 
-            const data = await apiPost(
-                '/contacts/contacts',
-                valuesToSend,
-                token,
-                'Error while creating a contact'
-            );
+            throw new Error('API call not implemented');
 
-            console.log('TODO CORRECTO, valores de vuelta: ', data);
+            // const data = await apiPost(
+            //     '/contacts/contacts',
+            //     valuesToSend,
+            //     token,
+            //     'Error while creating a contact'
+            // );
+
+            // console.log('TODO CORRECTO, valores de vuelta: ', data);
 
             updateSuccessToast(toastId, 'Contact created correctly!');
             router.push('/private/contacts');

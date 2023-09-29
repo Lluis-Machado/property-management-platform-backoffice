@@ -17,7 +17,6 @@ import { toast } from 'react-toastify';
 import ContentLoader from 'react-content-loader';
 import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 import { Locale } from '@/i18n-config';
-import { useNavigationEvent } from '@/lib/hooks/useNavigationEvent';
 
 interface Props {
     dictionary: {
@@ -61,9 +60,13 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
             password,
         };
 
-        setIsLoading(true);
-
         try {
+            if (!username) throw new ApiCallError("Username can't be empty");
+            else if (!password)
+                throw new ApiCallError("Password can't be empty");
+
+            setIsLoading(true);
+
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -141,7 +144,7 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
                             readOnly={isLoading}
                             value={username}
                             onValueChange={setUsername}
-                            valueChangeEvent='keyup'
+                            valueChangeEvent='input'
                         />
                     </Item>
                     <Item>
@@ -151,7 +154,7 @@ const LoginForm = ({ dictionary, searchParams, lang }: Props) => {
                             readOnly={isLoading}
                             value={password}
                             onValueChange={setPassword}
-                            valueChangeEvent='keyup'
+                            valueChangeEvent='input'
                         >
                             <TextBoxButton
                                 name='password'

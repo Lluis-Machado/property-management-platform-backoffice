@@ -29,6 +29,9 @@ import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { ContactData } from '@/lib/types/contactData';
 import { countriesMaskItems } from '@/lib/utils/selectBoxItems';
 import { AddressInfoTab, BankTab, ContactsTab } from '@/components/Tabs';
+import { AddressInfoTabMethods } from '@/components/Tabs/AddressInfoTab';
+import { ContactsTabMethods } from '@/components/Tabs/ContactsTab';
+import { BankTabMethods } from '@/components/Tabs/BankTab';
 
 let companyData: CompanyData = {
     name: '',
@@ -62,18 +65,29 @@ const AddCompanyPage = ({
 }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<CompanyData>(
+    const [initialValues, _] = useState<CompanyData>(
         structuredClone(companyData)
     );
-    const [addressOptions, setAddressOptions] = useState({});
+    const [__, setAddressOptions] = useState({});
 
     const formRef = useRef<Form>(null);
+    const addressTabRef = useRef<AddressInfoTabMethods>(null);
+    const contactsTabRef = useRef<ContactsTabMethods>(null);
+    const bankTabRef = useRef<BankTabMethods>(null);
 
     const router = useRouter();
 
     const handleSubmit = useCallback(async () => {
         const res = formRef.current!.instance.validate();
-        if (!res.isValid) return;
+        if (
+            !res.isValid ||
+            !addressTabRef.current?.isValid() ||
+            !contactsTabRef.current?.isValid() ||
+            !bankTabRef.current?.isValid()
+        ) {
+            toast.warning('Validation error detected, check all fields');
+            return;
+        }
 
         const values = structuredClone(companyData);
 
@@ -100,12 +114,7 @@ const AddCompanyPage = ({
                 JSON.stringify(valuesToSend)
             );
 
-            const data = await apiPost(
-                '/companies/companies',
-                valuesToSend,
-                token,
-                'Error while creating a company'
-            );
+            const data = await apiPost('/api/companies', valuesToSend);
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 
@@ -133,7 +142,6 @@ const AddCompanyPage = ({
                 formData={companyData}
                 labelMode={'floating'}
                 readOnly={isLoading}
-                showValidationSummary
             >
                 {/* Main Information */}
                 <GroupItem colCount={4}>
@@ -169,12 +177,9 @@ const AddCompanyPage = ({
                             items: countriesMaskItems,
                             valueExpr: 'id',
                             displayExpr: 'name',
-                            defaultValue: countriesMaskItems[0],
                             onValueChanged: setAddressOptions, // Trick to force react update
                         }}
-                    >
-                        <RequiredRule />
-                    </Item>
+                    />
                     <Item
                         dataField={`phoneNumber`}
                         label={{ text: 'Phone Number' }}
@@ -193,6 +198,7 @@ const AddCompanyPage = ({
                         />
                         <Tab title={`Address Information`}>
                             <AddressInfoTab
+                                ref={addressTabRef}
                                 dataSource={companyData}
                                 initialStates={[]}
                                 countriesData={countriesData}
@@ -204,6 +210,7 @@ const AddCompanyPage = ({
                         </Tab>
                         <Tab title={`Contacts`}>
                             <ContactsTab
+                                ref={contactsTabRef}
                                 dataSource={companyData}
                                 contactsData={contactsData}
                                 isEditing={true}
@@ -212,6 +219,7 @@ const AddCompanyPage = ({
                         </Tab>
                         <Tab title={`Bank`}>
                             <BankTab
+                                ref={bankTabRef}
                                 dataSource={companyData}
                                 isEditing={true}
                                 isLoading={isLoading}

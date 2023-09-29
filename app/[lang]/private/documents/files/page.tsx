@@ -4,8 +4,17 @@ import { Archive, Folder } from '@/lib/types/documentsAPI';
 import { DocumentsFilesWrapper } from '@/components/pages/documents/files/DocumentsFilesWrapper';
 import { getTreeItemFolderFromFolder } from '@/lib/utils/documents/utilsDocuments';
 import { TreeItem } from '@/lib/types/treeView';
+import { Locale } from '@/i18n-config';
 
-const page = async (): Promise<React.ReactElement> => {
+interface Props {
+    params: { lang: Locale };
+    searchParams: any;
+}
+
+const page = async ({
+    params: { lang },
+    searchParams,
+}: Props): Promise<React.ReactElement> => {
     const documentsUrl = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents`;
 
     const getArchivesBase = async (): Promise<TreeItem<Archive>[]> => {
@@ -61,7 +70,12 @@ const page = async (): Promise<React.ReactElement> => {
         return archives;
     };
 
-    return <DocumentsFilesWrapper archives={await getArchives()} />;
+    return (
+        <DocumentsFilesWrapper
+            archives={await getArchives()}
+            searchParams={searchParams}
+        />
+    );
 };
 
 export default page;

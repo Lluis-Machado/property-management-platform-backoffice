@@ -25,21 +25,14 @@ export const useCountryChange = (
             else setCountriesLoaded((prev) => [...prev, countryId]);
 
             // Fetch states for this country
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
+            fetch(`/api/countries?countryId=${countryId}&lang=${lang}`)
                 .then((resp) => resp.json())
                 .then((data: StateData[]) =>
                     setStates((prev) => (prev ? [...prev, ...data] : data))
                 )
-                .catch((e) => console.error('Error while getting the states'))
+                .catch((e) =>
+                    console.error('Error while getting the states: ', e)
+                )
                 .finally(() => setIsStateLoading(false));
         },
         [lang, token, countriesLoaded]

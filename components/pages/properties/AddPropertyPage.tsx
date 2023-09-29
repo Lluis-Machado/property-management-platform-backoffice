@@ -7,8 +7,12 @@ import { memo, useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Form, {
+    EmailRule,
     GroupItem,
     Item,
+    NumericRule,
+    RequiredRule,
+    StringLengthRule,
     Tab,
     TabPanelOptions,
     TabbedItem,
@@ -49,7 +53,7 @@ let propertyData: PropertyData = {
         value: 0,
     },
     comments: '',
-    contactPersonId: '',
+    contactPersonId: null,
     federalState: '',
     garbageCollection: 0,
     garbageCollectionDate: null,
@@ -68,8 +72,8 @@ let propertyData: PropertyData = {
         currency: '',
         value: 0,
     },
-    mainOwnerId: '',
-    mainOwnerType: '',
+    mainOwnerId: null,
+    mainOwnerType: null,
     mainPropertyId: null,
     municipality: '',
     name: '',
@@ -151,7 +155,7 @@ let propertyData: PropertyData = {
         currency: '',
         value: 0,
     },
-    type: '',
+    type: null,
     typeOfUse: [],
     year: null,
 };
@@ -201,29 +205,30 @@ const AddPropertyPage = ({
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/countries/countries/${countryId}/states?languageCode=${lang}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `${token.token_type} ${token.access_token}`,
-                    },
-                    cache: 'no-store',
-                }
-            )
+            fetch(`/api/countries?countryId=${countryId}&lang=${lang}`)
                 .then((resp) => resp.json())
                 .then((data: StateData[]) => setStates(data))
-                .catch((e) => console.error('Error while getting the states'));
+                .catch((e) =>
+                    console.error('Error while getting the states: ', e)
+                );
         },
         [lang, token]
     );
 
     const handleSubmit = useCallback(async () => {
+        let contactType;
+        const res = formRef.current!.instance.validate();
+        if (!res.isValid) {
+            toast.warning('Validation error detected, check all fields');
+            return;
+        }
         const values = structuredClone(propertyData);
 
-        const contactType: any = totalContactsList?.find(
-            (item) => item.id == values.mainOwnerId
-        );
+        if (values.mainOwnerId) {
+            contactType = totalContactsList?.find(
+                (item) => item.id == values.mainOwnerId
+            );
+        }
 
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             toast.warning('Change at least one field');
@@ -250,12 +255,7 @@ const AddPropertyPage = ({
             };
             console.log('Valores a enviar: ', values);
             console.log('Valores a enviar JSON: ', JSON.stringify(values));
-            const data = await apiPost(
-                '/core/core/properties',
-                dataToSend,
-                token,
-                'Error while creating a property'
-            );
+            const data = await apiPost('/api/properties', dataToSend);
 
             console.log('TODO CORRECTO, valores de vuelta: ', data);
 
@@ -288,7 +288,13 @@ const AddPropertyPage = ({
             >
                 <GroupItem colCount={3}>
                     <GroupItem>
-                        <Item dataField='name' label={{ text: 'Name' }} />
+                        <Item dataField='name' label={{ text: 'Name' }}>
+                            <RequiredRule />
+                            <StringLengthRule
+                                min={3}
+                                message='The property name has to have at least 3 letters'
+                            />
+                        </Item>
                         <Item
                             dataField='type'
                             label={{ text: 'Type' }}
@@ -338,7 +344,9 @@ const AddPropertyPage = ({
                             <Item
                                 dataField='propertyAddress.postalCode'
                                 label={{ text: 'Postal code' }}
-                            />
+                            >
+                                <NumericRule />
+                            </Item>
                             <Item
                                 dataField='propertyAddress.city'
                                 label={{ text: 'City' }}
@@ -357,7 +365,9 @@ const AddPropertyPage = ({
                                     onValueChanged: (e: any) =>
                                         handleCountryChange(e.value),
                                 }}
-                            />
+                            >
+                                <RequiredRule />
+                            </Item>
                             <Item
                                 dataField='propertyAddress.state'
                                 label={{ text: 'State' }}
@@ -383,7 +393,9 @@ const AddPropertyPage = ({
                                     valueExpr: 'id',
                                     searchEnabled: true,
                                 }}
-                            />
+                            >
+                                <RequiredRule />
+                            </Item>
                             <Item
                                 dataField='contactPersonId'
                                 label={{ text: 'Contact Person' }}
@@ -395,21 +407,12 @@ const AddPropertyPage = ({
                                     searchEnabled: true,
                                 }}
                             />
-                            {/* <Item
-                                dataField='billingContactId'
-                                label={{ text: 'Billing Contact' }}
-                                editorType='dxSelectBox'
-                                editorOptions={{
-                                    items: contacts,
-                                    displayExpr: 'label',
-                                    valueExpr: 'id',
-                                    searchEnabled: true,
-                                }}
-                            />  */}
                             <Item
                                 dataField='propertyScanMail'
                                 label={{ text: 'Property Scan Mail' }}
-                            />
+                            >
+                                <EmailRule />
+                            </Item>
                             <Item
                                 dataField='mainPropertyId'
                                 label={{ text: 'Main Property' }}
@@ -599,11 +602,12 @@ const AddPropertyPage = ({
                                 <Item
                                     dataField='bedNumber'
                                     label={{ text: 'Bed Number' }}
-                                />
-                                <Item
-                                    dataField='year'
-                                    label={{ text: 'Year' }}
-                                />
+                                >
+                                    <NumericRule />
+                                </Item>
+                                <Item dataField='year' label={{ text: 'Year' }}>
+                                    <NumericRule />
+                                </Item>
                             </GroupItem>
                         </Tab>
                         <Tab title='Comments'>
@@ -620,19 +624,17 @@ const AddPropertyPage = ({
                     </TabbedItem>
                 </GroupItem>
             </Form>
-            <div className='h-[2rem]'>
-                <div className='flex justify-end'>
-                    <div className='mt-2 flex flex-row justify-between gap-2'>
-                        <Button
-                            elevated
-                            type='button'
-                            icon={faSave}
-                            text='Save Property'
-                            disabled={isLoading}
-                            isLoading={isLoading}
-                            onClick={handleSubmit}
-                        />
-                    </div>
+            <div className='flex items-center justify-center'>
+                <div className='mr-28 mt-2 h-[2rem]  w-32'>
+                    <Button
+                        elevated
+                        type='button'
+                        icon={faSave}
+                        text='Save Property'
+                        disabled={isLoading}
+                        isLoading={isLoading}
+                        onClick={handleSubmit}
+                    />
                 </div>
             </div>
         </div>

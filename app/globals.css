@@ -25,6 +25,7 @@
 	--WuF_White: theme(colors.custom-white);
 	--Slate_200: theme(colors.slate.200);
 	--Slate_500: theme(colors.slate.500);
+	--H_Header: theme(height.header);
 }
 
 * {
@@ -52,6 +53,8 @@
 .dx-texteditor-input {
 	color: var(--Slate_500) !important;
     line-height: 1.5rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 /* For the icon not to conflict with DX styles */
@@ -60,7 +63,7 @@
 }
 
 .dx-master-detail-row .row-focused-state {
-	color: theme(colors.primary.500);
+	color: var(--WuF_Gold);
 }
 
 .expired-document {
@@ -72,4 +75,7 @@
 }
 .dx-tag-container {
 	padding-top: 0px !important;
+}
+.h-content-wrapper {
+	height: calc(100vh - var(--H_Header));
 }
