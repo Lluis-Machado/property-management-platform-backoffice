@@ -45,6 +45,9 @@ import { BusinessPartners } from '@/lib/types/businessPartners';
 import { ApInvoice, ApInvoiceAnalyzedData } from '@/lib/types/apInvoice';
 import BpPopup from '@/components/popups/BpPopup';
 import ToolbarTooltipsApInvoice from '@/components/tooltips/ToolbarTooltipsApInvoice';
+import { CollectionWidgetItem } from 'devextreme/ui/collection/ui.collection_widget.base';
+import DataGrid from '../DataGrid';
+import TextBox from 'devextreme-react/text-box';
 
 const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}`;
 
@@ -411,7 +414,7 @@ const AddApInvoicePage = ({
             <div className='bg- flex flex-row items-center gap-2 text-center'>
                 <span id={data.label + data.index}>
                     <div
-                        className={`rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(
+                        className={`w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(
                             data.label
                         )}`}
                     >
@@ -426,6 +429,36 @@ const AddApInvoicePage = ({
                 >
                     <ContentTooltip data={data.label} />
                 </Tooltip>
+            </div>
+        );
+    };
+    const CostTypeFieldRender = (data: any) => {
+        const input = data || {};
+        if (data === null) {
+            if (input) {
+                (input.label = undefined), (input.index = 0);
+            }
+        }
+        return (
+            <div className='bg-flex flex h-9 flex-row items-center gap-2 text-center'>
+                <span id={input.label + input.index}>
+                    <div
+                        className={`ml-2 w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(
+                            input.label
+                        )}`}
+                    >
+                        {input.label}
+                    </div>
+                </span>
+                <Tooltip
+                    target={'#' + input.label + input.index}
+                    showEvent='mouseenter'
+                    hideEvent='mouseleave'
+                    position='right'
+                >
+                    <ContentTooltip data={input.label} />
+                </Tooltip>
+                <TextBox visible={false} />
             </div>
         );
     };
@@ -603,6 +636,9 @@ const AddApInvoicePage = ({
                                                             labelMode='static'
                                                             itemRender={
                                                                 CostTypeCellRender
+                                                            }
+                                                            fieldRender={
+                                                                CostTypeFieldRender
                                                             }
                                                             displayExpr='label'
                                                             valueExpr='value'
