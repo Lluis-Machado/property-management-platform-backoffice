@@ -70,7 +70,7 @@ export const DetailsWrapper = ({
                     {
                         icon: faSliders,
                         title: 'Actions',
-                        children: <FileActions />,
+                        children: <FileActions document={selectedDocument} />,
                     },
                     {
                         icon: faDatabase,
