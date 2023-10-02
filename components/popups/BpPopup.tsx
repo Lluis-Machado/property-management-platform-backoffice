@@ -10,62 +10,67 @@ import Form, { Item } from 'devextreme-react/form';
 
 // Local imports
 import { Button } from 'pg-components';
-import { TokenRes } from '@/lib/types/token';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
 import { BusinessPartners } from '@/lib/types/businessPartners';
+import { apiPostAccounting } from '@/lib/utils/apiPostAccounting';
 
 interface PopupProps {
     message: string;
     isVisible: boolean;
     onClose: () => void;
-    token: TokenRes;
     id: string;
     allBusinessPartners: BusinessPartners[];
     setValue: any;
 }
-let businessPartnerValues: any = {
-    name: '',
-    vatNumber: '',
-};
 
 const BpPopup = ({
     message,
     isVisible,
     onClose,
-    token,
     id,
     allBusinessPartners,
     setValue,
 }: PopupProps) => {
-    const selectBoxRef = useRef<any>(null);
+    const selectBoxRef = useRef<SelectBox>(null);
+    const [businessPartnerName, setBusinessPartnerName] = useState<string>('');
+    const [businessPartnerVatNumber, setBusinessPartnerVatNumber] =
+        useState<string>('');
+
+    let businessPartnerValues: any = {
+        name: businessPartnerName,
+        vatNumber: businessPartnerVatNumber,
+    };
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     let arrayCIF: any[] = [];
 
     const saveBP = useCallback(async () => {
         const toastId = toast.loading('Saving Business Partner');
-        const values = structuredClone(businessPartnerValues);
+        const values = {
+            name: businessPartnerName,
+            vatNumber: businessPartnerVatNumber,
+        };
         setValue(values);
+
         try {
             console.log('Valores a enviar: ', values);
             console.log('Valores a enviar en JSON: ', JSON.stringify(values));
-            throw new Error('API call not implemented');
 
-            // SAVE INVOICE
-            // const data = await apiPost(
-            //     `/accounting/tenants/${id}/businesspartners`,
-            //     values,
-            //     token,
-            //     'Error saving Business Partner'
-            // );
-            // console.log('TODO CORRECTO, valores de vuelta: ', data);
+            const data = await apiPostAccounting(
+                '/api/accounting/businessPartners',
+                id!,
+                values
+            );
+
+            console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'Business Partner saved correctly!');
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
             setIsLoading(false);
         }
-    }, [setValue, token, id]);
+    }, [id, businessPartnerName, businessPartnerVatNumber]);
 
     const onCustomNameItemCreating = (args: any) => {
         if (!args.text) {
@@ -79,7 +84,7 @@ const BpPopup = ({
         const newItem = {
             name: text,
         };
-        businessPartnerValues.name = newItem.name;
+        setBusinessPartnerName(newItem.name);
 
         const itemInDataSource = currentItems.find(
             (item: any) => item.text === newItem.name
@@ -107,7 +112,7 @@ const BpPopup = ({
             vatNumber: text,
         };
 
-        businessPartnerValues.vatNumber = newItem.vatNumber;
+        setBusinessPartnerVatNumber(newItem.vatNumber);
 
         const itemInDataSource = currentItems.find(
             (item: any) => item.text === newItem.vatNumber
@@ -124,8 +129,8 @@ const BpPopup = ({
 
     const displayValue = (e: any) => {
         for (const businessParter of allBusinessPartners) {
-            if (e.name == businessParter.name) {
-                arrayCIF = [businessParter.vatNumber];
+            if (e === businessParter.name) {
+                arrayCIF = [businessPartnerVatNumber];
                 selectBoxRef.current!.instance.option('dataSource', arrayCIF);
                 selectBoxRef.current!.instance.option('value', arrayCIF[0]);
             }
@@ -180,7 +185,7 @@ const BpPopup = ({
                 </div>
             </>
         ),
-        [onClose, saveBP, allBusinessPartners]
+        [onClose, saveBP, allBusinessPartners, arrayCIF, businessPartnerValues]
     );
 
     const titleComponent = useCallback(

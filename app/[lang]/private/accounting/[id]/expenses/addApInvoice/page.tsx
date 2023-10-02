@@ -2,15 +2,13 @@
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
 import AddApInvoicePage from '@/components/pages/accounting/expenses/addApInvoice/AddApInvoicePage';
 import { BusinessPartners } from '@/lib/types/businessPartners';
-import { TokenRes } from '@/lib/types/token';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getUser } from '@/lib/utils/getUser';
 interface Props {
     params: { id: string };
-    token: TokenRes;
 }
 
-const AddApInvoice: any = async ({ params: { id }, token }: Props) => {
+const AddApInvoice: any = async ({ params: { id } }: Props) => {
     const [user, tenatsBusinessPartners, allBusinessPartners] =
         await Promise.all([
             getUser(),
