@@ -13,6 +13,10 @@ import { ContextMenuPreparingEvent } from 'devextreme/ui/data_grid';
 import {
     faEnvelope,
     faFile,
+    faFileExcel,
+    faFileLines,
+    faFilePowerpoint,
+    faFileWord,
     faImage,
     faQuestion,
 } from '@fortawesome/free-solid-svg-icons';
@@ -48,18 +52,30 @@ const ExtensionCellRender = ({
     data: Document;
 }): React.ReactElement => {
     const icon = (ext: string) => {
+        // This are all the possibilities:
+        // .pdf, .png, .jpg, .jpeg, .heif, .xls, .xlsx, .doc, .docx, .odt, .ppt, .pptx, .eml
         switch (ext.toLowerCase()) {
             case '.jpeg':
             case '.jpg':
             case '.png':
+            case '.heif':
                 return faImage;
-            case '.doc':
-            case '.docx':
             case '.pdf':
-            case '.txt':
                 return faFile;
+            case '.txt':
+                return faFileLines;
             case '.eml':
                 return faEnvelope;
+            case '.xlsx':
+            case '.xls':
+                return faFileExcel;
+            case '.doc':
+            case '.docx':
+            case '.odt':
+                return faFileWord;
+            case '.ppt':
+            case '.pptx':
+                return faFilePowerpoint;
             default:
                 return faQuestion;
         }

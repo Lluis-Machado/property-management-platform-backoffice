@@ -114,6 +114,7 @@ const AuditLog = ({ token }: Props) => {
                                         <DataGrid
                                             className='mr-4'
                                             dataSource={cleanArray}
+                                            showRowLines
                                         >
                                             <Column
                                                 dataField='fieldName'
