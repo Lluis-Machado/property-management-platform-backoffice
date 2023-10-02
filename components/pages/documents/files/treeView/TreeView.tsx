@@ -851,7 +851,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                     multiple
                     ref={UploadFileInputRef}
                     onChange={handleFileInputOnChange}
-                    accept='.pdf, .png, .jpg, .jpeg, .heif, .xls, .xlsx, .doc, .docx, .odt, .ppt, .pptx, .eml'
+                    accept='.pdf, .png, .jpg, .jpeg, .heif, .txt, .xls, .xlsx, .doc, .docx, .odt, .ppt, .pptx, .eml'
                     max={0}
                 />
             </form>
