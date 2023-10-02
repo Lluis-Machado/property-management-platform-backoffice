@@ -38,6 +38,7 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
 import { customError } from '@/lib/utils/customError';
 import DataSource from 'devextreme/data/data_source';
+import { apiPost } from '@/lib/utils/apiPost';
 
 export interface PODatagridProps {
     saveEditData: () => Promise<void>;
@@ -48,13 +49,12 @@ export interface PODatagridProps {
 interface Props {
     dataSource: OwnershipPropertyData[];
     totalContactsList: any[];
-    token: TokenRes;
     isEditing: boolean;
     ref: MutableRefObject<null>;
 }
 const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
     (props, ref) => {
-        const { dataSource, totalContactsList, isEditing, token } = props;
+        const { dataSource, totalContactsList, isEditing } = props;
         const datagridRef: LegacyRef<DataGrid<OwnershipPropertyData, any>> =
             useRef(null);
         const propertyId: number = dataSource[0].propertyId;
@@ -195,21 +195,14 @@ const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
                         dataOwnerships.push(objectArray);
                     }
                 }
-                throw new Error('API call not implemented');
 
-                // API CALL
-                // try {
-                //     await apiPost(
-                //         '/ownership/ownership/ownerships',
-                //         dataOwnerships,
-                //         token,
-                //         'Error while updating ownerships'
-                //     );
-                // } catch (error: unknown) {
-                //     customError(error, 'ownership call');
-                // }
+                const dataToSend = await apiPost(
+                    '/api/ownerships',
+                    dataOwnerships
+                );
+                console.log('TODO CORRECTO, valores de vuelta: ', dataToSend);
             },
-            [token, propertyId, totalContactsList, initialValues]
+            [propertyId, totalContactsList, initialValues]
         );
 
         // LINK TO GO TO CONTACT/ COMPANY PAGE

@@ -17,7 +17,6 @@ interface Props {
 
 const Property = async ({ params: { id, lang } }: Props) => {
     const [
-        user,
         propertyData,
         propertiesData,
         contactData,
@@ -25,7 +24,6 @@ const Property = async ({ params: { id, lang } }: Props) => {
         ownershipData,
         countriesData,
     ] = await Promise.all([
-        getUser(),
         getApiData<PropertyData>(
             `/properties/properties/${id}`,
             'Error while getting property info'
@@ -114,7 +112,6 @@ const Property = async ({ params: { id, lang } }: Props) => {
                 propertiesData={propertiesSorted}
                 totalContactsList={totalContactsListSorted}
                 lang={lang}
-                token={user.token}
                 contacts={contactsListSorted}
                 ownershipData={ownershipData}
                 countries={countriesData}
