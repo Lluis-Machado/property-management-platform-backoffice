@@ -1,30 +1,28 @@
 // Libraries imports
-import { Document } from '@/lib/types/documentsAPI';
-
-// Local imports
 import Form, { Item } from 'devextreme-react/form';
 
+// Local imports
+import { Document } from '@/lib/types/documentsAPI';
+
 interface Props {
-    document: Document | undefined;
+    document?: Document;
 }
 
 export const FileMetaData = ({ document }: Props) => {
     return (
-        <div>
-            <Form formData={document} colCount={2}>
-                {document ? (
-                    Object.keys(document).map((key) => (
-                        <Item
-                            key={key}
-                            caption={key}
-                            dataField={key}
-                            editorOptions={{ readOnly: true }}
-                        />
-                    ))
-                ) : (
-                    <></>
-                )}
-            </Form>
-        </div>
+        <Form formData={document} colCount={2} className='m-2'>
+            {document ? (
+                Object.keys(document).map((key) => (
+                    <Item
+                        key={key}
+                        caption={key}
+                        dataField={key}
+                        editorOptions={{ readOnly: true }}
+                    />
+                ))
+            ) : (
+                <></>
+            )}
+        </Form>
     );
 };
