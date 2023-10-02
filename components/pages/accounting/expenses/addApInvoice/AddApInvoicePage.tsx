@@ -527,46 +527,48 @@ const AddApInvoicePage = ({
                 <Allotment defaultSizes={[65, 35]}>
                     <Allotment.Pane>
                         <div className='h-full overflow-y-auto overflow-x-hidden'>
-                            <div className='mr-2 flex flex-row justify-end gap-4'>
-                                <div className='w-10'>
-                                    <Button
-                                        id='saveButton'
-                                        icon={faFloppyDisk}
-                                        onClick={handleSaveApInvoice}
-                                        disabled={!file}
-                                    />
-                                </div>
-                                <div className='w-10'>
-                                    <Button
-                                        id='annalyzeButton'
-                                        icon={faGears}
-                                        iconPosition={'leading'}
-                                        onClick={handleAnnalyzeInvoice}
-                                        disabled={!file}
-                                    />
-                                </div>
-                                <div className='w-10'>
-                                    <input
-                                        type='file'
-                                        ref={inputRef}
-                                        onChange={handleFileChange}
-                                        style={{ display: 'none' }}
-                                    />
-                                    <Button
-                                        onClick={handleUploadClick}
-                                        id='uploadButton'
-                                        size={'base'}
-                                        style={'outline'}
-                                        icon={faUpload}
-                                        iconPosition={'leading'}
-                                    />
+                            <div className='mr-2 flex flex-row justify-end bg-white'>
+                                <div className='fixed z-20 flex gap-4 bg-white'>
+                                    <div className='w-10'>
+                                        <Button
+                                            id='saveButton'
+                                            icon={faFloppyDisk}
+                                            onClick={handleSaveApInvoice}
+                                            disabled={!file}
+                                        />
+                                    </div>
+                                    <div className='w-10'>
+                                        <Button
+                                            id='annalyzeButton'
+                                            icon={faGears}
+                                            iconPosition={'leading'}
+                                            onClick={handleAnnalyzeInvoice}
+                                            disabled={!file}
+                                        />
+                                    </div>
+                                    <div className='w-10'>
+                                        <input
+                                            type='file'
+                                            ref={inputRef}
+                                            onChange={handleFileChange}
+                                            style={{ display: 'none' }}
+                                        />
+                                        <Button
+                                            onClick={handleUploadClick}
+                                            id='uploadButton'
+                                            size={'base'}
+                                            style={'outline'}
+                                            icon={faUpload}
+                                            iconPosition={'leading'}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             <Form
                                 formData={invoiceData}
                                 labelLocation='left'
                                 ref={formRef}
-                                className='mr-2'
+                                className='mr-2 pt-10'
                             >
                                 <GroupItem
                                     colCount={2}
@@ -756,9 +758,6 @@ const AddApInvoicePage = ({
                                                                     index
                                                                 );
                                                             }}
-                                                            // onValueChanged={(e: ValueChangedEvent) => {
-                                                            //     validateDateTo(e);
-                                                            // }}
                                                             ref={(invoice) =>
                                                                 (serviceDateToRefs.current[
                                                                     index
