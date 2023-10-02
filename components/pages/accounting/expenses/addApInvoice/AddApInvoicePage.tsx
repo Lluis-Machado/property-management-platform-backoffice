@@ -77,13 +77,7 @@ const AddApInvoicePage = ({
     allBusinessPartners,
     token,
 }: Props) => {
-    const inputRef = useRef<HTMLInputElement | null>(null);
-    const selectboxRef = useRef<SelectBox>(null);
-    const formRef = useRef<Form>(null);
-    const serviceDateToRefs = useRef<DateBox[] | any>([]);
-    console.log(serviceDateToRefs);
-    const serviceDateFromRefs = useRef<any[]>([]);
-    const depreciationRatePerYearRefs = useRef<any[]>([]);
+    //////////// States ////////////
     const [visible, setVisible] = useState(false);
     const [file, setFile] = useState<File>();
     const [fileDataURL, setFileDataURL] = useState(null);
@@ -98,6 +92,16 @@ const AddApInvoicePage = ({
     });
     const [lines, setLines] = useState({});
     const [analyzedInvoiceLines, setAnalyzedInvoiceLines] = useState<any>(null);
+
+    //////////// Refs ////////////
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const selectboxRef = useRef<SelectBox>(null);
+    const formRef = useRef<Form>(null);
+    const serviceDateToRefs = useRef<DateBox[] | any>([]);
+    const serviceDateFromRefs = useRef<any[]>([]);
+    const depreciationRatePerYearRefs = useRef<any[]>([]);
+
+    //////////// Custom Hooks ////////////
     const router = useRouter();
 
     // Toast if BP is not known after annalyzing invoice
@@ -153,7 +157,8 @@ const AddApInvoicePage = ({
         }
     };
 
-    const handleAnnalyzeInvoice = useCallback(async () => {
+    // Function to analyze the uploaded invoice
+    const handleAnalyzeInvoice = useCallback(async () => {
         const toastId = toast.loading('Analyzing Invoice');
         let analyzedData;
         const fileInput = inputRef.current;
@@ -232,6 +237,7 @@ const AddApInvoicePage = ({
         }
     }, [token]);
 
+    // Function to Save the AP Invoice
     const handleSaveApInvoice = useCallback(async () => {
         const toastId = toast.loading('Saving Invoice');
         setIsLoading(true);
@@ -542,7 +548,7 @@ const AddApInvoicePage = ({
                                             id='annalyzeButton'
                                             icon={faGears}
                                             iconPosition={'leading'}
-                                            onClick={handleAnnalyzeInvoice}
+                                            onClick={handleAnalyzeInvoice}
                                             disabled={!file}
                                         />
                                     </div>

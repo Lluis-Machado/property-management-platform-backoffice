@@ -5,11 +5,21 @@ import { useCallback, useRef, useState } from 'react';
 // Libraries imports
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons';
 import { Allotment } from 'allotment';
-import Form, { GroupItem, Item, SimpleItem } from 'devextreme-react/form';
+import Form, {
+    GroupItem,
+    Item,
+    NumericRule,
+    RequiredRule,
+    SimpleItem,
+} from 'devextreme-react/form';
 import SelectBox from 'devextreme-react/select-box';
 import { toast } from 'react-toastify';
 import DateBox from 'devextreme-react/date-box';
 import { ValueChangedEvent } from 'devextreme/ui/date_box';
+import { useRouter } from 'next/navigation';
+import { NumberBox } from 'devextreme-react/number-box';
+import Tooltip from 'devextreme-react/tooltip';
+import TextBox from 'devextreme-react/text-box';
 
 // Local imports
 import '../../../../../lib/styles/formItems.css';
@@ -22,6 +32,7 @@ import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { Button } from 'pg-components';
 import PreviewWrapper from '../addApInvoice/PreviewWrapper';
+import { apiPatchAccounting } from '@/lib/utils/apiPatchAccounting';
 
 interface Props {
     id: string;
@@ -36,15 +47,24 @@ export const EditApInvoicePage = ({
     apInvoiceData,
     tenatsBusinessPartners,
 }: Props) => {
-    const selectboxRef = useRef<any>();
-    const dateboxRefFrom = useRef<any>();
-    const dateboxRefTo = useRef<any>();
+    //////////// States ////////////
     const [fileDataURL, setFileDataURL] = useState(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [invoiceData, setInvoiceData] = useState<any>();
     const [lines, setLines] = useState({});
     const [popUpVisible, setPopUpVisible] = useState<boolean>(false);
 
+    //////////// Refs ////////////
+    const selectboxRef = useRef<any>();
+    const formRef = useRef<Form>(null);
+    const serviceDateToRefs = useRef<DateBox[] | any>([]);
+    const serviceDateFromRefs = useRef<any[]>([]);
+    const depreciationRatePerYearRefs = useRef<any[]>([]);
+
+    //////////// Custom Hooks ////////////
+    const router = useRouter();
+
+    //Function to save updated ap invoice
     const handleUpdateApInvoice = useCallback(async () => {
         const toastId = toast.loading('Updating Invoice');
         setIsLoading(true);
@@ -58,13 +78,11 @@ export const EditApInvoicePage = ({
         }
 
         const valuesToSend: ApInvoice = {
-            businessPartner: {
-                name: apInvoiceData.businessPartnerName,
-                vatNumber: apInvoiceData.vatNumber,
-            },
+            // businessPartner: {
+            //     name: apInvoiceData.businessPartnerName,
+            //     vatNumber: apInvoiceData.vatNumber,
+            // },
             businessPartnerId: apInvoiceData.businessPartnerId,
-            businessPartnerName: apInvoiceData.businessPartnerName,
-            //vatNumber: apInvoice.vatNumber,
             refNumber: apInvoiceData.refNumber,
             date: apInvoiceData.date,
             currency: 'EUR',
@@ -81,18 +99,20 @@ export const EditApInvoicePage = ({
                 'Valores a enviar en JSON: ',
                 JSON.stringify(valuesToSend)
             );
-            throw new Error('API call not implemented');
-            // SAVE INVOICE
-            // const data = await apiPost(
-            //     `/accounting/tenants/${id}/businesspartners/${idBP}/apinvoices`,
-            //     valuesToSend,
-            //     token,
-            //     'Error saving AP Invoice'
-            // );
-            // console.log('TODO CORRECTO, valores de vuelta: ', data);
+
+            const data = await apiPatchAccounting(
+                `/accounting/tenants/${id}/businesspartners/${invoiceId}`,
+                id!,
+                invoiceId!,
+                valuesToSend
+            );
+
+            console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'AP Invoice saved correctly!');
             // Pass the ID to reload the page
-            //router.push(`/private/accounting/${id}/expenses?createdId=${data.refNumber}`)
+            router.push(
+                `/private/accounting/${id}/expenses?createdId=${data.refNumber}`
+            );
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
@@ -101,16 +121,187 @@ export const EditApInvoicePage = ({
     }, [invoiceData]);
 
     // Format date and set max/min dates
-    const validateDateTo = (e: ValueChangedEvent) => {
-        dateboxRefFrom.current!.instance.option('max', new Date(e.value));
-        dateboxRefTo.current!.instance.option('displayFormat', dateFormat);
+    const validateDateTo = (e: ValueChangedEvent, index: number) => {
+        serviceDateFromRefs.current![index].instance.option('max', e);
+        serviceDateToRefs.current![index].instance.option(
+            'displayFormat',
+            dateFormat
+        );
     };
 
-    const validateDateFrom = (e: ValueChangedEvent) => {
-        dateboxRefTo.current!.instance.option('min', new Date(e.value));
-        dateboxRefFrom.current!.instance.option('displayFormat', dateFormat);
+    const validateDateFrom = (e: ValueChangedEvent, index: number) => {
+        serviceDateToRefs.current![index].instance.option('min', e);
+        serviceDateFromRefs.current![index].instance.option(
+            'displayFormat',
+            dateFormat
+        );
     };
 
+    // SELECTBOX CODE
+    // Tooltip
+    const ContentTooltip = ({ data }: { data: string }): React.ReactElement => {
+        switch (data) {
+            case 'BAT':
+                return (
+                    <>
+                        <strong>BAT</strong> - Beschränkt abzugsfähige Kosten
+                        pro vermieteten Tag
+                    </>
+                );
+            case 'BAV':
+                return (
+                    <>
+                        <strong>BAV</strong> - Beschränkt abzugsfähige Kosten
+                        für das gesamte Jahr
+                    </>
+                );
+            case 'UAT':
+                return (
+                    <>
+                        <strong>UAT</strong> - Unbeschränkt abzugsfähige Kosten
+                        pro vermieteten Tag
+                    </>
+                );
+            case 'UAV':
+                return (
+                    <>
+                        <strong>UAV</strong> - Unbeschränkt abzugsfähige Kosten
+                        für das gesamte Jahr
+                    </>
+                );
+            case 'NA':
+                return (
+                    <>
+                        <strong>NA</strong> - Nicht abzugsfähige Kosten
+                    </>
+                );
+            case 'Aktiv':
+                return (
+                    <>
+                        <strong>Aktiv</strong> - Aktivierungspflichtige Kosten
+                    </>
+                );
+            case 'Asset':
+                return (
+                    <>
+                        <strong>Asset</strong> - Fixed Asset
+                    </>
+                );
+            default:
+                return <></>;
+        }
+    };
+
+    // Colors Tooltip
+    const getBadgeColor = (data: string): string => {
+        const colors: any = {
+            BAT: 'bg-red-300',
+            BAV: 'bg-orange-300',
+            UAT: 'bg-green-300',
+            UAV: 'bg-lime-300',
+            NA: 'bg-cyan-300',
+            Aktiv: 'bg-purple-300',
+            Asset: 'bg-blue-300',
+        };
+        return colors[data];
+    };
+
+    // Render Category Code with Tooltip & Tooltip Colors
+    const CostTypeCellRender = (data: any) => {
+        return (
+            <div className='bg- flex flex-row items-center gap-2 text-center'>
+                <span id={data.label + data.index}>
+                    <div
+                        className={`w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(
+                            data.label
+                        )}`}
+                    >
+                        {data.label}
+                    </div>
+                </span>
+                <Tooltip
+                    target={'#' + data.label + data.index}
+                    showEvent='mouseenter'
+                    hideEvent='mouseleave'
+                    position='right'
+                >
+                    <ContentTooltip data={data.label} />
+                </Tooltip>
+            </div>
+        );
+    };
+
+    // Render Form Item  with Tooltip & Tooltip Colors
+    const CostTypeFieldRender = (data: any) => {
+        const input = data || {};
+        if (data === null) {
+            if (input) {
+                (input.label = undefined), (input.index = 0);
+            }
+        }
+        return (
+            <div className='bg-flex flex h-[34px] flex-row items-center gap-2 text-center'>
+                <span id={input.label + input.index}>
+                    <div
+                        className={`ml-2 w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(
+                            input.label
+                        )}`}
+                    >
+                        {input.label}
+                    </div>
+                </span>
+                <Tooltip
+                    target={'#' + input.label + input.index}
+                    showEvent='mouseenter'
+                    hideEvent='mouseleave'
+                    position='right'
+                >
+                    <ContentTooltip data={input.label} />
+                </Tooltip>
+                <TextBox visible={false} />
+            </div>
+        );
+    };
+
+    // Function to set field to disabled depending on Cost Code
+    const changeCostType = (e: any) => {
+        const index: number = e.selectedItem.index;
+        if (e.selectedItem.value === 4) {
+            serviceDateToRefs.current![index].instance.option('disabled', true);
+            serviceDateFromRefs.current![index].instance.option(
+                'disabled',
+                true
+            );
+            depreciationRatePerYearRefs.current![index].instance.option(
+                'disabled',
+                false
+            );
+        } else if (e.selectedItem.value === 0 || e.selectedItem.value === 2) {
+            serviceDateToRefs.current![index].instance.option(
+                'disabled',
+                false
+            );
+            serviceDateFromRefs.current![index].instance.option(
+                'disabled',
+                false
+            );
+            depreciationRatePerYearRefs.current![index].instance.option(
+                'disabled',
+                true
+            );
+        } else {
+            serviceDateToRefs.current![index].instance.option('disabled', true);
+            serviceDateFromRefs.current![index].instance.option(
+                'disabled',
+                true
+            );
+            depreciationRatePerYearRefs.current![index].instance.option(
+                'disabled',
+                true
+            );
+        }
+    };
+    console.log(apInvoiceData);
     return (
         <div className='absolute inset-4 w-screen'>
             <div className='h-full'>
@@ -184,6 +375,7 @@ export const EditApInvoicePage = ({
                                 formData={apInvoiceData}
                                 labelMode='static'
                                 className='mr-2'
+                                ref={formRef}
                             >
                                 <GroupItem caption={`Items/Lines`}>
                                     {apInvoiceData.invoiceLines.map(
@@ -191,65 +383,129 @@ export const EditApInvoicePage = ({
                                             return (
                                                 <GroupItem
                                                     key={`GroupItem${index}`}
-                                                    colCount={15}
+                                                    colCount={8}
+                                                    cssClass='pb-2 border-dotted border-b-2 border-primary-500'
                                                 >
+                                                    <Item
+                                                        key={`code${index}`}
+                                                        dataField={`invoiceLines[${index}].expenseCategory.expenseTypeCode`}
+                                                        label={{
+                                                            text: 'Code',
+                                                        }}
+                                                        cssClass='itemStyle'
+                                                    >
+                                                        <SelectBox
+                                                            items={[
+                                                                {
+                                                                    label: 'UAT',
+                                                                    value: 0,
+                                                                    index: `${index}`,
+                                                                },
+                                                                {
+                                                                    label: 'UAV',
+                                                                    value: 1,
+                                                                    index: `${index}`,
+                                                                },
+                                                                {
+                                                                    label: 'BAT',
+                                                                    value: 2,
+                                                                    index: `${index}`,
+                                                                },
+                                                                {
+                                                                    label: 'BAV',
+                                                                    value: 3,
+                                                                    index: `${index}`,
+                                                                },
+                                                                {
+                                                                    label: 'Asset',
+                                                                    value: 4,
+                                                                    index: `${index}`,
+                                                                },
+                                                                {
+                                                                    label: 'NA',
+                                                                    value: 5,
+                                                                    index: `${index}`,
+                                                                },
+                                                            ]}
+                                                            label='Cost'
+                                                            labelMode='static'
+                                                            itemRender={
+                                                                CostTypeCellRender
+                                                            }
+                                                            fieldRender={
+                                                                CostTypeFieldRender
+                                                            }
+                                                            displayExpr='label'
+                                                            valueExpr='value'
+                                                            onSelectionChanged={
+                                                                changeCostType
+                                                            }
+                                                        />
+                                                    </Item>
+                                                    <Item
+                                                        key={`categorie${index}`}
+                                                        dataField={`invoiceLines[${index}].expenseCategory.name`}
+                                                        label={{
+                                                            text: 'Code',
+                                                        }}
+                                                        colSpan={2}
+                                                        cssClass='itemStyle'
+                                                    />
                                                     <Item
                                                         key={`description${index}`}
                                                         dataField={`invoiceLines[${index}].description`}
                                                         label={{
                                                             text: 'Description',
                                                         }}
-                                                        colSpan={3}
+                                                        colSpan={5}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <NumericRule />
+                                                    </Item>
                                                     <Item
-                                                        key={`code${index}`}
-                                                        dataField={`analyzedInvoiceLines[${index}].predictedCategoryId`}
-                                                        label={{ text: 'Code' }}
-                                                        cssClass='itemStyle'
-                                                    />
-                                                    <Item
-                                                        key={`category${index}`}
-                                                        dataField={`analyzedInvoiceLines[${index}].predictedCategoryId`}
-                                                        label={{
-                                                            text: 'Category',
-                                                        }}
-                                                        colSpan={2}
-                                                        cssClass='itemStyle'
-                                                    />
-                                                    <Item
-                                                        key={`serviceDateFrom${index}from`}
+                                                        key={`serviceDateFrom${index}`}
                                                         dataField={`invoiceLines[${index}].serviceDateFrom`}
                                                         label={{ text: 'From' }}
-                                                        colSpan={2}
                                                         cssClass='itemStyle'
                                                     >
                                                         <DateBox
                                                             label={'From'}
-                                                            onValueChanged={
-                                                                validateDateFrom
+                                                            onValueChange={(
+                                                                e: ValueChangedEvent
+                                                            ) => {
+                                                                validateDateFrom(
+                                                                    e,
+                                                                    index
+                                                                );
+                                                            }}
+                                                            ref={(invoice) =>
+                                                                (serviceDateFromRefs.current[
+                                                                    index
+                                                                ] = invoice)
                                                             }
-                                                            ref={dateboxRefFrom}
                                                         />
                                                     </Item>
                                                     <Item
-                                                        key={`serviceDateTo${index}edit`}
+                                                        key={`serviceDateTo${index}`}
                                                         dataField={`invoiceLines[${index}].serviceDateTo`}
                                                         label={{ text: 'To' }}
-                                                        colSpan={2}
                                                         cssClass='itemStyle'
                                                     >
                                                         <DateBox
                                                             label={'To'}
-                                                            ref={dateboxRefTo}
-                                                            onValueChanged={
-                                                                validateDateTo
-                                                            }
-                                                            elementAttr={{
-                                                                displayFormat: {
-                                                                    dateFormat,
-                                                                },
+                                                            onValueChange={(
+                                                                e: ValueChangedEvent
+                                                            ) => {
+                                                                validateDateTo(
+                                                                    e,
+                                                                    index
+                                                                );
                                                             }}
+                                                            ref={(invoice) =>
+                                                                (serviceDateToRefs.current[
+                                                                    index
+                                                                ] = invoice)
+                                                            }
                                                         />
                                                     </Item>
                                                     <Item
@@ -258,11 +514,21 @@ export const EditApInvoicePage = ({
                                                         label={{
                                                             text: 'Deprication',
                                                         }}
+                                                        editorType='dxNumberBox'
                                                         editorOptions={{
                                                             format: "#0.##'%'",
                                                         }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <NumberBox
+                                                            ref={(invoice) =>
+                                                                (depreciationRatePerYearRefs.current[
+                                                                    index
+                                                                ] = invoice)
+                                                            }
+                                                            label='Deprication'
+                                                        />
+                                                    </Item>
                                                     <Item
                                                         key={`quantity${index}`}
                                                         dataField={`invoiceLines[${index}].quantity`}
@@ -270,7 +536,22 @@ export const EditApInvoicePage = ({
                                                             text: 'Amout',
                                                         }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <RequiredRule />
+                                                    </Item>
+                                                    <Item
+                                                        key={`tax${index}`}
+                                                        dataField={`invoiceLines[${index}].tax`}
+                                                        label={{
+                                                            text: 'IVA',
+                                                        }}
+                                                        editorOptions={{
+                                                            format: "#0.##'%'",
+                                                        }}
+                                                        cssClass='itemStyle'
+                                                    >
+                                                        <RequiredRule />
+                                                    </Item>
                                                     <Item
                                                         key={`unitPrice${index}`}
                                                         dataField={`invoiceLines[${index}].unitPrice`}
@@ -285,7 +566,9 @@ export const EditApInvoicePage = ({
                                                             },
                                                         }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <RequiredRule />
+                                                    </Item>
                                                     <Item
                                                         key={`totalUnitPrice${index}`}
                                                         dataField={`invoiceLines[${index}].totalLinePrice`}

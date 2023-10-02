@@ -48,7 +48,7 @@ export async function PATCH(request: Request) {
         const { token } = await getUser();
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
-        const invoiceId = searchParams.get('id');
+        const invoiceId = searchParams.get('invoiceId');
         const apInvoice: ApInvoice = await request.json();
 
         const res = await fetch(
