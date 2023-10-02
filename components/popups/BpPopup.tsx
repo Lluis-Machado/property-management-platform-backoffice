@@ -129,7 +129,6 @@ const BpPopup = ({
 
     const displayValue = (e: any) => {
         for (const businessParter of allBusinessPartners) {
-            console.log(businessParter);
             if (e === businessParter.name) {
                 arrayCIF = [businessPartnerVatNumber];
                 selectBoxRef.current!.instance.option('dataSource', arrayCIF);

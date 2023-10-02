@@ -24,6 +24,7 @@ import { ValueChangedEvent } from 'devextreme/ui/date_box';
 import SelectBox from 'devextreme-react/select-box';
 import { Tooltip } from 'devextreme-react/tooltip';
 import TextBox from 'devextreme-react/text-box';
+import { NumberBox } from 'devextreme-react/number-box';
 
 // Local imports
 import '@/lib/styles/formItems.css';
@@ -79,8 +80,10 @@ const AddApInvoicePage = ({
     const inputRef = useRef<HTMLInputElement | null>(null);
     const selectboxRef = useRef<SelectBox>(null);
     const formRef = useRef<Form>(null);
-    const dateboxRefFrom = useRef<any>(null);
-    const dateboxRefTo = useRef<any>(null);
+    const serviceDateToRefs = useRef<DateBox[] | any>([]);
+    console.log(serviceDateToRefs);
+    const serviceDateFromRefs = useRef<any[]>([]);
+    const depreciationRatePerYearRefs = useRef<any[]>([]);
     const [visible, setVisible] = useState(false);
     const [file, setFile] = useState<File>();
     const [fileDataURL, setFileDataURL] = useState(null);
@@ -328,15 +331,20 @@ const AddApInvoicePage = ({
     }, [value, tenatsBusinessPartners]);
 
     // Format date and set max/min dates
-    const validateDateTo = (e: ValueChangedEvent) => {
-        dateboxRefFrom.current!.instance.option('max', new Date(e.value));
-        console.log(dateboxRefFrom.current!.instance);
-        dateboxRefTo.current!.instance.option('displayFormat', dateFormat);
+    const validateDateTo = (e: ValueChangedEvent, index: number) => {
+        serviceDateFromRefs.current![index].instance.option('max', e);
+        serviceDateToRefs.current![index].instance.option(
+            'displayFormat',
+            dateFormat
+        );
     };
 
-    const validateDateFrom = (e: ValueChangedEvent) => {
-        dateboxRefTo.current!.instance.option('min', e.value);
-        dateboxRefFrom.current!.instance.option('displayFormat', dateFormat);
+    const validateDateFrom = (e: ValueChangedEvent, index: number) => {
+        serviceDateToRefs.current![index].instance.option('min', e);
+        serviceDateFromRefs.current![index].instance.option(
+            'displayFormat',
+            dateFormat
+        );
     };
 
     // SELECTBOX CODE
@@ -465,6 +473,45 @@ const AddApInvoicePage = ({
         );
     };
 
+    // Function to set field to disabled depending on Cost Code
+    const changeCostType = (e: any) => {
+        const index: number = e.selectedItem.index;
+        if (e.selectedItem.value === 4) {
+            serviceDateToRefs.current![index].instance.option('disabled', true);
+            serviceDateFromRefs.current![index].instance.option(
+                'disabled',
+                true
+            );
+            depreciationRatePerYearRefs.current![index].instance.option(
+                'disabled',
+                false
+            );
+        } else if (e.selectedItem.value === 0 || e.selectedItem.value === 2) {
+            serviceDateToRefs.current![index].instance.option(
+                'disabled',
+                false
+            );
+            serviceDateFromRefs.current![index].instance.option(
+                'disabled',
+                false
+            );
+            depreciationRatePerYearRefs.current![index].instance.option(
+                'disabled',
+                true
+            );
+        } else {
+            serviceDateToRefs.current![index].instance.option('disabled', true);
+            serviceDateFromRefs.current![index].instance.option(
+                'disabled',
+                true
+            );
+            depreciationRatePerYearRefs.current![index].instance.option(
+                'disabled',
+                true
+            );
+        }
+    };
+
     return (
         <div className='absolute inset-4 w-screen'>
             <div className='h-full'>
@@ -519,6 +566,7 @@ const AddApInvoicePage = ({
                                 formData={invoiceData}
                                 labelLocation='left'
                                 ref={formRef}
+                                className='mr-2'
                             >
                                 <GroupItem
                                     colCount={2}
@@ -582,6 +630,7 @@ const AddApInvoicePage = ({
                                 formData={invoiceData}
                                 labelMode='static'
                                 className='mr-2'
+                                ref={formRef}
                             >
                                 <GroupItem caption={`Items/Lines`}>
                                     {invoiceData.form.invoiceLines.map(
@@ -643,6 +692,9 @@ const AddApInvoicePage = ({
                                                             }
                                                             displayExpr='label'
                                                             valueExpr='value'
+                                                            onSelectionChanged={
+                                                                changeCostType
+                                                            }
                                                         />
                                                     </Item>
                                                     <Item
@@ -673,9 +725,18 @@ const AddApInvoicePage = ({
                                                     >
                                                         <DateBox
                                                             label={'From'}
-                                                            ref={dateboxRefFrom}
-                                                            onValueChanged={
-                                                                validateDateFrom
+                                                            onValueChange={(
+                                                                e: ValueChangedEvent
+                                                            ) => {
+                                                                validateDateFrom(
+                                                                    e,
+                                                                    index
+                                                                );
+                                                            }}
+                                                            ref={(invoice) =>
+                                                                (serviceDateFromRefs.current[
+                                                                    index
+                                                                ] = invoice)
                                                             }
                                                         />
                                                     </Item>
@@ -687,9 +748,21 @@ const AddApInvoicePage = ({
                                                     >
                                                         <DateBox
                                                             label={'To'}
-                                                            ref={dateboxRefTo}
-                                                            onValueChanged={
-                                                                validateDateTo
+                                                            onValueChange={(
+                                                                e: ValueChangedEvent
+                                                            ) => {
+                                                                validateDateTo(
+                                                                    e,
+                                                                    index
+                                                                );
+                                                            }}
+                                                            // onValueChanged={(e: ValueChangedEvent) => {
+                                                            //     validateDateTo(e);
+                                                            // }}
+                                                            ref={(invoice) =>
+                                                                (serviceDateToRefs.current[
+                                                                    index
+                                                                ] = invoice)
                                                             }
                                                         />
                                                     </Item>
@@ -699,11 +772,21 @@ const AddApInvoicePage = ({
                                                         label={{
                                                             text: 'Deprication',
                                                         }}
+                                                        editorType='dxNumberBox'
                                                         editorOptions={{
                                                             format: "#0.##'%'",
                                                         }}
                                                         cssClass='itemStyle'
-                                                    />
+                                                    >
+                                                        <NumberBox
+                                                            ref={(invoice) =>
+                                                                (depreciationRatePerYearRefs.current[
+                                                                    index
+                                                                ] = invoice)
+                                                            }
+                                                            label='Deprication'
+                                                        />
+                                                    </Item>
                                                     <Item
                                                         key={`quantity${index}`}
                                                         dataField={`form.invoiceLines[${index}].quantity`}
