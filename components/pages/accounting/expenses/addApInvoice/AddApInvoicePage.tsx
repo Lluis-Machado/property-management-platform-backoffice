@@ -227,7 +227,7 @@ const AddApInvoicePage = ({
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [token]);
 
     const handleSaveApInvoice = useCallback(async () => {
         const toastId = toast.loading('Saving Invoice');
@@ -330,11 +330,12 @@ const AddApInvoicePage = ({
     // Format date and set max/min dates
     const validateDateTo = (e: ValueChangedEvent) => {
         dateboxRefFrom.current!.instance.option('max', new Date(e.value));
+        console.log(dateboxRefFrom.current!.instance);
         dateboxRefTo.current!.instance.option('displayFormat', dateFormat);
     };
 
     const validateDateFrom = (e: ValueChangedEvent) => {
-        dateboxRefTo.current!.instance.option('min', new Date(e.value));
+        dateboxRefTo.current!.instance.option('min', e.value);
         dateboxRefFrom.current!.instance.option('displayFormat', dateFormat);
     };
 
@@ -431,6 +432,8 @@ const AddApInvoicePage = ({
             </div>
         );
     };
+
+    // Render Form Item  with Tooltip & Tooltip Colors
     const CostTypeFieldRender = (data: any) => {
         const input = data || {};
         if (data === null) {
@@ -439,7 +442,7 @@ const AddApInvoicePage = ({
             }
         }
         return (
-            <div className='bg-flex flex h-9 flex-row items-center gap-2 text-center'>
+            <div className='bg-flex flex h-[34px] flex-row items-center gap-2 text-center'>
                 <span id={input.label + input.index}>
                     <div
                         className={`ml-2 w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(

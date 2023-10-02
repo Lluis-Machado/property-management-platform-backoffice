@@ -13,6 +13,7 @@ import { Button } from 'pg-components';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
 import { BusinessPartners } from '@/lib/types/businessPartners';
+import { apiPostAccounting } from '@/lib/utils/apiPostAccounting';
 
 interface PopupProps {
     message: string;
@@ -55,16 +56,14 @@ const BpPopup = ({
         try {
             console.log('Valores a enviar: ', values);
             console.log('Valores a enviar en JSON: ', JSON.stringify(values));
-            throw new Error('API call not implemented');
 
-            // SAVE INVOICE
-            // const data = await apiPost(
-            //     `/accounting/tenants/${id}/businesspartners`,
-            //     values,
-            //     token,
-            //     'Error saving Business Partner'
-            // );
-            // console.log('TODO CORRECTO, valores de vuelta: ', data);
+            const data = await apiPostAccounting(
+                '/api/accounting/businessPartners',
+                id!,
+                values
+            );
+
+            console.log('TODO CORRECTO, valores de vuelta: ', data);
             updateSuccessToast(toastId, 'Business Partner saved correctly!');
         } catch (error: unknown) {
             customError(error, toastId);
