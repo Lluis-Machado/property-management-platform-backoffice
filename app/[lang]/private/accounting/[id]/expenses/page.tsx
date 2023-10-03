@@ -15,8 +15,7 @@ export default async function ApInvoices({
     params: { id },
     searchParams,
 }: Props) {
-    const [user, data] = await Promise.all([
-        getUser(),
+    const [data] = await Promise.all([
         getApiData<any>(
             `/accounting/tenants/${id}/apinvoices?includeDeleted=false`,
             'Error while getting AP invoices'
@@ -26,12 +25,7 @@ export default async function ApInvoices({
     return (
         <>
             <Breadcrumb />
-            <ExpensesPage
-                data={data}
-                searchParams={searchParams}
-                id={id}
-                token={user.token}
-            />
+            <ExpensesPage data={data} searchParams={searchParams} id={id} />
         </>
     );
 }

@@ -70,7 +70,6 @@ interface Props {
     ownershipData: OwnershipPropertyData[];
     countries: CountryData[];
     initialStates: StateData[];
-    token: TokenRes;
     lang: Locale;
 }
 
@@ -82,7 +81,6 @@ const PropertyPage = ({
     ownershipData,
     countries,
     initialStates,
-    token,
     lang,
 }: Props): React.ReactElement => {
     //////////// Atoms ////////////
@@ -134,7 +132,7 @@ const PropertyPage = ({
             // Ensure state is removed
             propertyData.propertyAddress.state = null;
         },
-        [lang, token, propertyData.propertyAddress]
+        [lang, propertyData.propertyAddress]
     );
 
     const handleSubmit = async () => {
@@ -261,7 +259,7 @@ const PropertyPage = ({
         } catch (error: unknown) {
             customError(error, toastId);
         }
-    }, [propertyData, router, token]);
+    }, [propertyData, router]);
 
     // CSS styling form element
 
@@ -607,7 +605,6 @@ const PropertyPage = ({
                                 ref={dataGridRef}
                                 dataSource={ownershipData}
                                 totalContactsList={totalContactsList}
-                                token={token}
                                 isEditing={isEditing}
                             />
                         </Tab>

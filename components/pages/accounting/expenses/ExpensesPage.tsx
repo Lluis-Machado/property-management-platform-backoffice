@@ -13,14 +13,12 @@ interface Props {
     data: any[];
     id: string;
     searchParams: { searchParams: any };
-    token: TokenRes;
 }
 
 const ExpensesPage = ({
     data,
     id,
     searchParams,
-    token,
 }: Props): React.ReactElement => {
     const [invoiceVisibility, setInvoiceVisibility] = useState<PopupVisibility>(
         {
@@ -42,7 +40,6 @@ const ExpensesPage = ({
                 }}
                 params={searchParams}
                 id={id}
-                token={token}
             />
             {(invoiceVisibility.visible || invoiceVisibility.hasBeenOpen) && (
                 <PopupPreview

@@ -26,7 +26,7 @@ import {
 } from 'devextreme-react/data-grid';
 import PreviewFileCellRender from '../../../datagrid/PreviewFileCellRender';
 import { RowExpandingEvent } from 'devextreme/ui/data_grid';
-
+import { useRouter } from 'next/navigation';
 // Local imports
 import { ApInvoice } from '@/lib/types/apInvoice';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
@@ -37,13 +37,13 @@ import { toast } from 'react-toastify';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
 import { TokenRes } from '@/lib/types/token';
+import { apiDeleteAccounting } from '@/lib/utils/apiDeleteAccounting';
 
 interface Props {
     dataSource: ApInvoice[];
     onInvoiceClick: (title: string, url: string) => void;
     params: any;
     id: string;
-    token: TokenRes;
 }
 
 // Tooltip
@@ -99,6 +99,7 @@ const ContentTooltip = ({ value }: { value: string }): React.ReactElement => {
             return <></>;
     }
 };
+
 // Colors Tooltip
 const getBadgeColor = (value: string): string => {
     const colors: any = {
@@ -112,6 +113,7 @@ const getBadgeColor = (value: string): string => {
     };
     return colors[value];
 };
+
 // Render Category Code with Tooltip & Tooltip Colors
 const CostTypeCellRender = ({
     value,
@@ -142,6 +144,7 @@ const CostTypeCellRender = ({
         </Tooltip>
     </div>
 );
+
 // Reverse charge convirting value in icon
 const ReverseChargeCellRender = ({ value }: any): React.ReactElement => (
     <FontAwesomeIcon
@@ -155,35 +158,35 @@ const DataGrid = ({
     onInvoiceClick,
     params,
     id,
-    token,
 }: Props): React.ReactElement => {
     const dataGridRef = useRef<DxDataGrid>(null);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
     const [invoiceId, setInvoiceId] = useState<string>('');
+    const router = useRouter();
 
     const handleDeleteClick = (data: any) => {
         setDeleteVisible((prev) => !prev);
         setInvoiceId(data.id);
     };
+
     // CHANGE ANY
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting invoice...');
-        console.log(invoiceId);
         try {
-            throw new Error('API call not implemented');
-            // await apiDelete(
-            //     `/accounting/tenants/${id}/apinvoices/${invoiceId}`,
-            //     token,
-            //     'Error while deleting this invoice'
-            // );
+            await apiDeleteAccounting(
+                '/api/accounting/apInvoices',
+                id!,
+                invoiceId!
+            );
 
             updateSuccessToast(toastId, 'Invoice deleted correctly!');
+
             // Pass the ID to reload the page
-            //router.push(`/private/companies?deletedId=${companyData.id}`);
+            router.push(`?deletedInvoice=${invoiceId}`);
         } catch (error: unknown) {
             customError(error, toastId);
         }
-    }, [token, id, invoiceId]);
+    }, [id, invoiceId, router]);
 
     // RENDER INVOICE CELL TO SEE INVOICE
     const InvoiceCellRender = useCallback(
@@ -201,7 +204,7 @@ const DataGrid = ({
         ({ data }: { data: any }): React.ReactElement => (
             <>
                 <LinkWithIcon
-                    href={`/private/accounting/${id}/expenses/${data.id}editApInvoice`}
+                    href={`/private/accounting/${id}/expenses/${data.id}/editApInvoice`}
                     icon={faPenToSquare}
                 />
             </>
@@ -224,7 +227,6 @@ const DataGrid = ({
         ),
         []
     );
-    DeleteCellRender;
 
     // MASTERDETAIL INVOICELINES
     const DetailSection = ({ data }: any) => {
@@ -232,7 +234,13 @@ const DataGrid = ({
             <DxDataGrid
                 dataSource={data.data.invoiceLines}
                 showBorders={true}
+                keyExpr={'id'}
                 columnAutoWidth={true}
+                focusedRowEnabled={true}
+                focusedRowKey={0}
+                autoNavigateToFocusedRow={true}
+                focusedRowIndex={0}
+                focusedColumnIndex={0}
             >
                 <HeaderFilter visible />
                 <Column
@@ -353,7 +361,7 @@ const DataGrid = ({
                 />
                 <Column
                     caption='Business Partner'
-                    dataField='businessPartner.name'
+                    dataField='businessPartnerName'
                     dataType='string'
                 />
                 <Column
