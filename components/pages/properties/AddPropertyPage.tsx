@@ -26,7 +26,6 @@ import { faSave } from '@fortawesome/free-solid-svg-icons';
 //local imports
 import { PropertyData } from '@/lib/types/propertyInfo';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
-import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { SelectData } from '@/lib/types/selectData';
 import { customError } from '@/lib/utils/customError';
@@ -159,11 +158,11 @@ let propertyData: PropertyData = {
     typeOfUse: [],
     year: null,
 };
+
 interface Props {
     properties: PropertyData[];
     contacts: SelectData[];
     countries: CountryData[];
-    token: TokenRes;
     lang: Locale;
     totalContactsList: any[];
 }
@@ -172,7 +171,6 @@ const AddPropertyPage = ({
     properties,
     contacts,
     countries,
-    token,
     lang,
     totalContactsList,
 }: Props) => {
@@ -212,7 +210,7 @@ const AddPropertyPage = ({
                     console.error('Error while getting the states: ', e)
                 );
         },
-        [lang, token]
+        [lang]
     );
 
     const handleSubmit = useCallback(async () => {
@@ -269,7 +267,7 @@ const AddPropertyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [router, initialValues, token, totalContactsList]);
+    }, [router, initialValues, totalContactsList]);
 
     const calculateCadastreValue = () => {
         propertyData.cadastreValue.value =

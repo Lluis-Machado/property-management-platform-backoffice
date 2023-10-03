@@ -36,7 +36,6 @@ import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import { toast } from 'react-toastify';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
-import { TokenRes } from '@/lib/types/token';
 import { apiDeleteAccounting } from '@/lib/utils/apiDeleteAccounting';
 
 interface Props {

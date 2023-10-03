@@ -33,7 +33,6 @@ import '@/lib/styles/highlightFields.css';
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
-import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
@@ -61,7 +60,6 @@ interface Props {
     contactsData: ContactData[];
     ownershipData: OwnershipPropertyData[];
     initialStates: StateData[];
-    token: TokenRes;
     lang: Locale;
 }
 
@@ -71,7 +69,6 @@ const CompanyPage = ({
     ownershipData,
     contactsData,
     initialStates,
-    token,
     lang,
 }: Props) => {
     const [_, setIsLogOpened] = useAtom(logOpened);
@@ -147,7 +144,7 @@ const CompanyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [companyData, initialValues, token]);
+    }, [companyData, initialValues]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting company...');
@@ -160,7 +157,7 @@ const CompanyPage = ({
         } catch (error: unknown) {
             customError(error, toastId);
         }
-    }, [companyData, router, token]);
+    }, [companyData, router]);
 
     const getMaskFromDataSource = () =>
         countriesMaskItems.filter(

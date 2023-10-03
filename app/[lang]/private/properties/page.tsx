@@ -6,15 +6,13 @@ import { CountryData } from '@/lib/types/countriesData';
 import { PropertyData } from '@/lib/types/propertyInfo';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
-import { getUser } from '@/lib/utils/getUser';
 
 interface Props {
     params: { lang: Locale };
 }
 
 export default async function Properties({ params: { lang } }: Props) {
-    const [user, propertyData, contactData, countryData] = await Promise.all([
-        getUser(),
+    const [propertyData, contactData, countryData] = await Promise.all([
         getApiData<PropertyData[]>(
             '/properties/properties',
             'Error while getting property info'
@@ -47,7 +45,6 @@ export default async function Properties({ params: { lang } }: Props) {
                 contactData={contacts}
                 countryData={countryData}
                 lang={lang}
-                token={user.token}
             />
         </>
     );

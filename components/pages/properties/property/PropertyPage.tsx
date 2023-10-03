@@ -42,7 +42,6 @@ import PropertySidePropertiesDatagrid from './PropertySidePropertiesDatagrid';
 import ConfirmDeletePopup from '@/components/popups/ConfirmationPopup';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
-import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { customError } from '@/lib/utils/customError';
 import { apiDelete } from '@/lib/utils/apiDelete';

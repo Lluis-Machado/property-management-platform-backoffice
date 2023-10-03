@@ -33,10 +33,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // Local imports
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
-import { TokenRes } from '@/lib/types/token';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import LinkWithIcon from '@/components/buttons/LinkWithIcon';
-import { customError } from '@/lib/utils/customError';
 import DataSource from 'devextreme/data/data_source';
 import { apiPost } from '@/lib/utils/apiPost';
 

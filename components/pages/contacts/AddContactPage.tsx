@@ -22,7 +22,6 @@ import { ContactData } from '@/lib/types/contactData';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { Locale } from '@/i18n-config';
-import { TokenRes } from '@/lib/types/token';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';

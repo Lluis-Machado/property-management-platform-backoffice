@@ -13,8 +13,7 @@ interface Props {
 }
 
 const AddCompany = async ({ params: { lang } }: Props) => {
-    const [user, countriesData, contactsData] = await Promise.all([
-        getUser(),
+    const [countriesData, contactsData] = await Promise.all([
         getApiDataWithCache<CountryData[]>(
             `/countries/countries?languageCode=${lang}`,
             'Error while getting countries'
@@ -41,7 +40,6 @@ const AddCompany = async ({ params: { lang } }: Props) => {
                 contactsData={contactsData}
                 countriesData={countriesData}
                 lang={lang}
-                token={user.token}
             />
         </>
     );

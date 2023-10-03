@@ -36,7 +36,6 @@ import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import { ContactData } from '@/lib/types/contactData';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
-import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { formatDate } from '@/lib/utils/formatDateFromJS';

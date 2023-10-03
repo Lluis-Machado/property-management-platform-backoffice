@@ -20,14 +20,12 @@ import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import OwnerDropdownComponent from '@/components/dropdowns/OwnerDropdownComponent';
 import { CountryData } from '@/lib/types/countriesData';
 import { Locale } from '@/i18n-config';
-import { TokenRes } from '@/lib/types/token';
 
 interface Props {
     propertyData: PropertyData[];
     contactData: ContactData[];
     countryData: CountryData[];
     lang: Locale;
-    token: TokenRes;
 }
 
 const PropertiesPage = ({

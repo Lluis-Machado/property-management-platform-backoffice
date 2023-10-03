@@ -15,12 +15,10 @@ import { SavedEvent } from 'devextreme/ui/data_grid';
 
 // Local imports
 import { PeriodsData } from '@/lib/types/periodsData';
-import { TokenRes } from '@/lib/types/token';
 import { updateErrorToast, updateSuccessToast } from '@/lib/utils/customToasts';
 import { idToasts } from '@/lib/types/toastid';
 interface Props {
     data: PeriodsData[];
-    token: TokenRes;
     id: string;
 }
 interface Items {
@@ -34,7 +32,7 @@ const StatusCellRender = ({ value }: any): React.ReactElement =>
         <div className='text-green-700'>Open</div>
     );
 
-const PeriodsPage = ({ data, token, id }: Props) => {
+const PeriodsPage = ({ data, id }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const items: Items[] = [
         { label: 'Open', value: 0 },
@@ -124,7 +122,7 @@ const PeriodsPage = ({ data, token, id }: Props) => {
                 })
             );
         },
-        [token, id]
+        [id]
     );
     const onEditorPreparing = (e: any) => {
         if (e.parentType === 'dataRow' && e.dataField !== 'status') {

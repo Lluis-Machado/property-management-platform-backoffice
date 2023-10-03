@@ -27,9 +27,7 @@ function MainLayout({ children, lang, user }: Props) {
                 <header className='z-50 h-header w-full shadow-header'>
                     <Header lang={lang} user={user} />
                 </header>
-                <ContentWrapper lang={lang} token={user.token}>
-                    {children}
-                </ContentWrapper>
+                <ContentWrapper lang={lang}>{children}</ContentWrapper>
             </section>
             <ToastContainer />
         </section>
