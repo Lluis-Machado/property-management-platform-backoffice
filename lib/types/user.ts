@@ -56,3 +56,17 @@ export interface CreateAuth0User {
     user_id: string;
     verify_email: boolean;
 }
+
+// For updating users
+export interface UpdateAuth0User {
+    blocked: boolean;
+    name: string;
+    nickname: string;
+    picture: string;
+    verify_email: boolean;
+    verify_phone_number: boolean;
+    password: string;
+    connection: string;
+    client_id: string;
+    username: string;
+}

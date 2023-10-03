@@ -70,7 +70,6 @@ interface Props {
     countriesData: CountryData[];
     initialStates: StateData[];
     ownershipData: OwnershipPropertyData[];
-    token: TokenRes;
     lang: Locale;
 }
 
@@ -80,7 +79,6 @@ const ContactPage = ({
     countriesData,
     ownershipData,
     initialStates,
-    token,
     lang,
 }: Props) => {
     const [_, setIsLogOpened] = useAtom(logOpened);
@@ -165,7 +163,7 @@ const ContactPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [contactData, initialValues, token]);
+    }, [contactData, initialValues]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting contact...');
@@ -178,7 +176,7 @@ const ContactPage = ({
         } catch (error: unknown) {
             customError(error, toastId);
         }
-    }, [contactData, router, token]);
+    }, [contactData, router]);
 
     const changeCssFormElement = (e: FieldDataChangedEvent) => {
         document.getElementsByName(e.dataField!)[0].classList.add('styling');
@@ -402,7 +400,6 @@ const ContactPage = ({
                                 isEditing={isEditing}
                                 isLoading={isLoading}
                                 lang={lang}
-                                token={token}
                             />
                         </Tab>
                         <Tab title={`Phones`}>

@@ -6,7 +6,6 @@ import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import DataGrid, {
     Column,
     Item,
-    MasterDetail,
     Pager,
     SearchPanel,
     Toolbar,
@@ -19,9 +18,9 @@ interface Props {
 
 const UsersPage = ({ dataSource }: Props) => {
     const CellRender = useCallback(
-        ({ data }: { data: any }): React.ReactElement => (
+        ({ data }: { data: Auth0User }): React.ReactElement => (
             <LinkWithIcon
-                href={`./users/${data.id}`}
+                href={`./users/${data.user_id}`}
                 icon={faArrowUpRightFromSquare}
             />
         ),

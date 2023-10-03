@@ -61,11 +61,10 @@ let contactData: ContactData = {
 
 interface Props {
     countriesData: CountryData[];
-    token: TokenRes;
     lang: Locale;
 }
 
-const AddContactPage = ({ countriesData, token, lang }: Props) => {
+const AddContactPage = ({ countriesData, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // Importante para que no se copie por referencia
     const [initialValues, _] = useState<ContactData>(
@@ -136,7 +135,7 @@ const AddContactPage = ({ countriesData, token, lang }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [initialValues, token, router, idDocsTabRef]);
+    }, [initialValues, router, idDocsTabRef]);
 
     return (
         <div>
@@ -234,7 +233,6 @@ const AddContactPage = ({ countriesData, token, lang }: Props) => {
                                 isEditing={true}
                                 isLoading={isLoading}
                                 lang={lang}
-                                token={token}
                             />
                         </Tab>
                         <Tab title={`Phones`}>

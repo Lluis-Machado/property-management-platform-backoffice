@@ -1,15 +1,10 @@
 import { useState, useCallback } from 'react';
 
-import { TokenRes } from '../types/token';
 import { StateData } from '../types/countriesData';
 import { ContactData } from '../types/contactData';
 import { CompanyData } from '../types/companyData';
 
-export const useCountryChange = (
-    lang: string,
-    token: TokenRes,
-    initialStates?: StateData[]
-) => {
+export const useCountryChange = (lang: string, initialStates?: StateData[]) => {
     const [states, setStates] = useState<StateData[] | undefined>(
         initialStates
     );
@@ -35,7 +30,7 @@ export const useCountryChange = (
                 )
                 .finally(() => setIsStateLoading(false));
         },
-        [lang, token, countriesLoaded]
+        [lang, countriesLoaded]
     );
 
     const getFilteredStates = useCallback(

@@ -205,7 +205,6 @@ const AddCompanyPage = ({
                                 isEditing={true}
                                 isLoading={isLoading}
                                 lang={lang}
-                                token={token}
                             />
                         </Tab>
                         <Tab title={`Contacts`}>

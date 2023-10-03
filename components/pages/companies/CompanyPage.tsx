@@ -378,7 +378,6 @@ const CompanyPage = ({
                                 isEditing={isEditing}
                                 isLoading={isLoading}
                                 lang={lang}
-                                token={token}
                             />
                         </Tab>
                         <Tab title={`Contacts`}>

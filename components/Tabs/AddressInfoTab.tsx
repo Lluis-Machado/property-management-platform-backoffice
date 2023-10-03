@@ -19,7 +19,6 @@ import { Locale } from '@/i18n-config';
 // Local imports
 import { ContactData } from '@/lib/types/contactData';
 import { CountryData, StateData } from '@/lib/types/countriesData';
-import { TokenRes } from '@/lib/types/token';
 import useCountryChange from '@/lib/hooks/useCountryChange';
 import { CompanyData } from '@/lib/types/companyData';
 import DeleteItem from './TabButtons/DeleteItem';
@@ -35,7 +34,6 @@ interface Props {
     initialStates: StateData[];
     isEditing: boolean;
     isLoading: boolean;
-    token: TokenRes;
     lang: Locale;
 }
 
@@ -48,7 +46,6 @@ const AddressInfoTab = forwardRef<AddressInfoTabMethods, Props>(
             isEditing,
             isLoading,
             lang,
-            token,
         } = props;
         const formRef = useRef<Form>(null);
         const [addressOptions, setAddressOptions] = useState({});
@@ -61,7 +58,7 @@ const AddressInfoTab = forwardRef<AddressInfoTabMethods, Props>(
         );
 
         const { handleCountryChange, getFilteredStates, isStateLoading } =
-            useCountryChange(lang, token, initialStates);
+            useCountryChange(lang, initialStates);
 
         useImperativeHandle(ref, () => ({
             isValid,

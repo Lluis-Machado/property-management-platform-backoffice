@@ -2,6 +2,6 @@
 import { redirect } from 'next/navigation';
 
 const Administration = () => {
-    redirect('./administration/settings');
+    redirect('./administration/users');
 };
 export default Administration;
