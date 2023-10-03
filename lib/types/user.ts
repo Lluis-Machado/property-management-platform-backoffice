@@ -12,23 +12,22 @@ export interface User {
     isLoggedIn: boolean;
 }
 
+// For fetching users
 export interface Auth0User {
-    blocked: boolean;
-    created_at: Date;
+    created_at: string;
     email: string;
     email_verified: boolean;
-    family_name: string;
-    given_name: string;
     identities: Identity[];
     name: string;
     nickname: string;
     picture: string;
-    updated_at: Date;
+    updated_at: string;
     user_id: string;
-    last_password_reset: Date;
+    user_metadata: UserMetadata;
+    last_login: string;
     last_ip: string;
-    last_login: Date;
     logins_count: number;
+    app_metadata: AppMetadata;
 }
 
 export interface Identity {
@@ -36,4 +35,24 @@ export interface Identity {
     provider: string;
     connection: string;
     isSocial: boolean;
+}
+
+export interface UserMetadata {}
+
+export interface AppMetadata {}
+
+// For creating users
+export interface CreateAuth0User {
+    blocked: boolean;
+    connection: string;
+    email_verified: boolean;
+    email: string;
+    family_name: string;
+    given_name: string;
+    name: string;
+    nickname: string;
+    password: string;
+    picture?: string;
+    user_id: string;
+    verify_email: boolean;
 }
