@@ -2,7 +2,7 @@
 import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import ToolbarTooltips from '@/components/tooltips/ToolbarTooltips';
 import { Locale } from '@/i18n-config';
-import { Auth0User, UpdateAuth0User } from '@/lib/types/user';
+import { Auth0User, UserLogs, UserRoles } from '@/lib/types/user';
 import { apiDelete } from '@/lib/utils/apiDelete';
 import { apiPatch } from '@/lib/utils/apiPatch';
 import { customError } from '@/lib/utils/customError';
@@ -20,19 +20,26 @@ import Form, {
     PatternRule,
     RequiredRule,
     StringLengthRule,
+    Tab,
+    TabPanelOptions,
+    TabbedItem,
 } from 'devextreme-react/form';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from 'pg-components';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { memo, useCallback, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
+import RolesDataGrid from './tabs/RolesDataGrid';
+import LogsDataGrid from './tabs/LogsDataGrid';
 
 interface Props {
     userData: Auth0User;
+    userRoles: UserRoles[];
+    userLogs: UserLogs[];
     lang: Locale;
 }
 
-const UserPage = ({ userData, lang }: Props) => {
+const UserPage = ({ userData, userRoles, userLogs, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
@@ -77,6 +84,14 @@ const UserPage = ({ userData, lang }: Props) => {
             delete values.email_verified;
             // @ts-ignore
             delete values.email;
+            // @ts-ignore
+            delete values.logins_count;
+            // @ts-ignore
+            delete values.last_ip;
+            // @ts-ignore
+            delete values.email;
+            // @ts-ignore
+            delete values.last_login;
 
             console.log('Valores a enviar: ', values);
             console.log(JSON.stringify(values));
@@ -230,9 +245,24 @@ const UserPage = ({ userData, lang }: Props) => {
                         />
                     </Item>
                 </GroupItem>
+                {/* Tabs */}
+                <GroupItem cssClass='mt-4'>
+                    <TabbedItem>
+                        <TabPanelOptions
+                            deferRendering={false}
+                            height={'50vh'}
+                        />
+                        <Tab title={`Roles`}>
+                            <RolesDataGrid userRoles={userRoles} />
+                        </Tab>
+                        <Tab title={`Logs`}>
+                            <LogsDataGrid userLogs={userLogs} />
+                        </Tab>
+                    </TabbedItem>
+                </GroupItem>
             </Form>
         </div>
     );
 };
 
-export default UserPage;
+export default memo(UserPage);

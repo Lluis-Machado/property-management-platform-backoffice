@@ -70,3 +70,52 @@ export interface UpdateAuth0User {
     client_id: string;
     username: string;
 }
+
+// For getting user roles
+export interface UserRoles {
+    id: string;
+    name: string;
+    description: string;
+}
+
+// For getting user logs
+export interface UserLogs {
+    date: string;
+    type: string;
+    description: string;
+    connection: string;
+    connection_id: string;
+    client_id: string;
+    client_name: string;
+    ip: string;
+    client_ip: string;
+    details: Details;
+    user_id: string;
+    user_name: string;
+    audience: string;
+    scope: any;
+    log_id: string;
+    _id: string;
+    isMobile: boolean;
+    user_agent: string;
+    location_info: LocationInfo;
+}
+
+export interface Details {
+    actions: Actions;
+}
+
+export interface Actions {
+    executions: string[];
+}
+
+export interface LocationInfo {
+    country_code: string;
+    country_code3: string;
+    country_name: string;
+    city_name: string;
+    latitude: number;
+    longitude: number;
+    time_zone: string;
+    continent_code: string;
+}

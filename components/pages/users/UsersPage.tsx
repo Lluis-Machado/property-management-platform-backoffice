@@ -76,7 +76,7 @@ const UsersPage = ({ dataSource }: Props) => {
             <Column
                 caption='Last Login'
                 dataField='last_login'
-                dataType='date'
+                dataType='datetime'
             />
             <Column caption='Last IP' dataField='last_ip' dataType='string' />
             <Column
