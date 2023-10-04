@@ -18,7 +18,7 @@ import Form, {
     RequiredRule,
     SimpleItem,
 } from 'devextreme-react/form';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import DateBox from 'devextreme-react/date-box';
 import { ValueChangedEvent } from 'devextreme/ui/date_box';
 import SelectBox from 'devextreme-react/select-box';
@@ -35,7 +35,10 @@ import '../../../../splitPane/style/splitPane.module.css';
 import { customError } from '@/lib/utils/customError';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
-import { uploadDocumentsToArchive } from '@/lib/utils/documents/apiDocuments';
+import {
+    downloadDocument,
+    uploadDocumentsToArchive,
+} from '@/lib/utils/documents/apiDocuments';
 import {
     documentMessages,
     makeApiRequest,
@@ -79,8 +82,8 @@ const AddApInvoicePage = ({
 }: Props) => {
     //////////// States ////////////
     const [visible, setVisible] = useState(false);
-    const [file, setFile] = useState<File>();
-    const [fileDataURL, setFileDataURL] = useState(null);
+    const [invoice, setInvoice] = useState<File | string | Blob>();
+    const [fileDataURL, setFileDataURL] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [popUpVisible, setPopUpVisible] = useState<boolean>(false);
     const [invoiceData, setInvoiceData] = useState<any>(apInvoiceData);
@@ -92,6 +95,7 @@ const AddApInvoicePage = ({
     });
     const [lines, setLines] = useState({});
     const [analyzedInvoiceLines, setAnalyzedInvoiceLines] = useState<any>(null);
+    const [value, setValue] = useState<BusinessPartners>();
 
     //////////// Refs ////////////
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -103,6 +107,9 @@ const AddApInvoicePage = ({
 
     //////////// Custom Hooks ////////////
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const docId = searchParams!.get('docId');
+    const archiveId = searchParams!.get('archieveId');
 
     // Toast if BP is not known after annalyzing invoice
     useEffect(() => {
@@ -132,6 +139,23 @@ const AddApInvoicePage = ({
         setSelectedProvider(invoiceData.form.businessPartner);
     }, [invoiceData, tenatsBusinessPartners]);
 
+    // Function when document is already uploaded in Documents
+    useEffect(() => {
+        const archiveId = 'c1b1bacc-7a32-41d2-9dc0-e67afc867d0f';
+        if (docId !== null && archiveId !== null) {
+            const apInvoice = async () => {
+                const url = URL.createObjectURL(
+                    await downloadDocument(archiveId, docId)
+                );
+                const doc = await downloadDocument(archiveId, docId);
+                setFileDataURL(url);
+                setInvoice(doc);
+            };
+            apInvoice();
+        }
+    }, [docId, archiveId]);
+
+    // Upload file computer
     const handleUploadClick = () => {
         inputRef.current?.click();
         setVisible((visible) => !visible);
@@ -139,7 +163,7 @@ const AddApInvoicePage = ({
 
     const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
-        setFile(e.target.files[0]);
+        setInvoice(e.target.files[0]);
         const fileInput = inputRef.current;
         if (!fileInput?.files) return [];
         const selectedDocuments = [...fileInput.files];
@@ -161,17 +185,27 @@ const AddApInvoicePage = ({
     const handleAnalyzeInvoice = useCallback(async () => {
         const toastId = toast.loading('Analyzing Invoice');
         let analyzedData;
-        const fileInput = inputRef.current;
-        if (!fileInput?.files) return [];
-        const selectedDocuments = [...fileInput.files];
-
         const formData = new FormData();
-        for (const file of selectedDocuments) {
-            formData.append('file', file);
+
+        // Logic when invoice is uploaded
+        const fileInput = inputRef.current;
+        if (typeof fileInput === 'object' && fileInput!.files?.length != 0) {
+            const selectedDocuments: File[] = [...fileInput?.files!];
+            for (const file of selectedDocuments) {
+                formData.append('file', file);
+            }
+        } else {
+            const blob = new Blob([invoice as BlobPart], {
+                type: 'application/json',
+            });
+            const blobFile = new File([blob], 'invoice', {
+                type: blob!.type,
+            });
+            formData.append('file', blobFile);
         }
+
         const aux =
             formData instanceof FormData ? formData : JSON.stringify(formData);
-
         const endPoint = `${BASE_END_POINT}/docanalyzer/DocumentAnalyzer/APInvoice`;
         try {
             const response = await makeApiRequest(
@@ -235,7 +269,7 @@ const AddApInvoicePage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [token]);
+    }, [token, invoice]);
 
     // Function to Save the AP Invoice
     const handleSaveApInvoice = useCallback(async () => {
@@ -305,7 +339,7 @@ const AddApInvoicePage = ({
     useEffect(() => {
         let fileReader: any,
             isCancel: boolean = false;
-        if (file) {
+        if (invoice) {
             fileReader = new FileReader();
             fileReader.onload = (e: any) => {
                 const { result } = e.target;
@@ -313,7 +347,7 @@ const AddApInvoicePage = ({
                     setFileDataURL(result);
                 }
             };
-            fileReader.readAsDataURL(file);
+            fileReader.readAsDataURL(invoice);
         }
         return () => {
             isCancel = true;
@@ -321,13 +355,12 @@ const AddApInvoicePage = ({
                 fileReader.abort();
             }
         };
-    }, [file]);
+    }, [invoice]);
 
     // Remove BP that are already related to the tenant
     let totalBP = allBusinessPartners.filter(
         (u) => tenatsBusinessPartners.findIndex((lu) => lu.id === u.id) === -1
     );
-    const [value, setValue] = useState<BusinessPartners>();
 
     // Adding new BP to selectbox Provider
     useEffect(() => {
@@ -540,7 +573,7 @@ const AddApInvoicePage = ({
                                             id='saveButton'
                                             icon={faFloppyDisk}
                                             onClick={handleSaveApInvoice}
-                                            disabled={!file}
+                                            disabled={!invoice}
                                         />
                                     </div>
                                     <div className='w-10'>
@@ -549,7 +582,7 @@ const AddApInvoicePage = ({
                                             icon={faGears}
                                             iconPosition={'leading'}
                                             onClick={handleAnalyzeInvoice}
-                                            disabled={!file}
+                                            disabled={!invoice}
                                         />
                                     </div>
                                     <div className='w-10'>
@@ -942,7 +975,7 @@ const AddApInvoicePage = ({
                     </Allotment.Pane>
                     <Allotment.Pane>
                         <div className='ml-2'>
-                            {!file && (
+                            {!invoice && (
                                 <div className='flex h-screen items-center justify-center'>
                                     <h1 className='text-center text-xl'>
                                         Please upload a AP Invoice
