@@ -9,16 +9,14 @@ import { PropertyData } from '@/lib/types/propertyInfo';
 import { SelectData } from '@/lib/types/selectData';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
-import { getUser } from '@/lib/utils/getUser';
 
 interface Props {
     params: { lang: Locale };
 }
 
 const AddProperty = async ({ params: { lang } }: Props) => {
-    const [user, properties, contactData, companyData, countriesData] =
+    const [properties, contactData, companyData, countriesData] =
         await Promise.all([
-            getUser(),
             getApiData<PropertyData[]>(
                 `/properties/properties/`,
                 'Error while getting properties info'
@@ -89,7 +87,6 @@ const AddProperty = async ({ params: { lang } }: Props) => {
                 properties={propertiesSorted}
                 contacts={contactsSorted}
                 countries={countriesData}
-                token={user.token}
                 lang={lang}
                 totalContactsList={totalContactsListsorted}
             />

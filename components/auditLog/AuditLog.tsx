@@ -4,16 +4,11 @@ import { DateTime } from 'luxon';
 import ScrollView from 'devextreme-react/scroll-view';
 import DataGrid, { Column } from 'devextreme-react/data-grid';
 
-import { TokenRes } from '@/lib/types/token';
 import { selectedObjId, selectedObjName } from '@/lib/atoms/selectedObj';
 import { ApiCallError } from '@/lib/utils/errors';
 import { AccordionBasic } from '@/components/accordion/AccordionBasic';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import './loader.css';
-
-interface Props {
-    token: TokenRes;
-}
 
 const customCell = (data: any, dataField: string) => {
     if (Array.isArray(data[dataField])) {
@@ -36,7 +31,7 @@ const customCell = (data: any, dataField: string) => {
     }
 };
 
-const AuditLog = ({ token }: Props) => {
+const AuditLog = () => {
     const [objId, _] = useAtom(selectedObjId);
     const [objName, __] = useAtom(selectedObjName);
     const [auditLog, setAuditLog] = useState([]);
@@ -57,7 +52,7 @@ const AuditLog = ({ token }: Props) => {
             .then((data) => setAuditLog(data.reverse()))
             .catch((e) => console.error(e))
             .finally(() => setIsLoading(false));
-    }, [objName, objId, token]);
+    }, [objName, objId]);
 
     return (
         <div className='flex h-full w-[50vw] flex-col bg-white'>

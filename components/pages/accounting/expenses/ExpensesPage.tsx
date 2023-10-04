@@ -7,7 +7,6 @@ import { useState } from 'react';
 import { PopupVisibility } from '@/lib/types/Popups';
 import PopupPreview from '@/components/popups/PopupPreview';
 import DataGrid from './DataGrid';
-import { TokenRes } from '@/lib/types/token';
 
 interface Props {
     data: any[];

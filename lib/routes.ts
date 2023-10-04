@@ -63,8 +63,8 @@ export const routes: Route[] = [
         icon: faCog,
         name: 'Administration',
         children: [
-            { name: 'Settings', path: 'settings' },
             { name: 'Users', path: 'users' },
+            { name: 'Settings', path: 'settings' },
         ],
     },
 ];

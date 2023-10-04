@@ -8,15 +8,13 @@ import { Locale } from '@/i18n-config';
 import { localeDevExtreme } from '@/lib/utils/datagrid/localeDevExtreme';
 import { logOpened } from '@/lib/atoms/logOpened';
 import AuditLog from '@/components/auditLog/AuditLog';
-import { TokenRes } from '@/lib/types/token';
 
 interface Props {
     children: React.ReactNode;
     lang: Locale;
-    token: TokenRes;
 }
 
-export function ContentWrapper({ children, lang, token }: Props) {
+export function ContentWrapper({ children, lang }: Props) {
     const [isLogOpened, setIsLogOpened] = useAtom(logOpened);
 
     useEffect(() => {
@@ -28,7 +26,7 @@ export function ContentWrapper({ children, lang, token }: Props) {
             opened={isLogOpened}
             openedStateMode='overlap'
             position='right'
-            component={() => <AuditLog token={token} />}
+            component={() => <AuditLog />}
             //@ts-ignore bad DevExtreme type
             closeOnOutsideClick={() => setIsLogOpened(false)}
             height={'100%'}

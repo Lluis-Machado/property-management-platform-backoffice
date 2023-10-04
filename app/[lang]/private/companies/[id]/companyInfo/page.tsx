@@ -8,16 +8,14 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
-import { getUser } from '@/lib/utils/getUser';
 
 interface Props {
     params: { lang: Locale; id: string };
 }
 
 const Company = async ({ params: { lang, id } }: Props) => {
-    const [user, companyData, countriesData, ownershipData, contactsData] =
+    const [companyData, countriesData, ownershipData, contactsData] =
         await Promise.all([
-            getUser(),
             getApiData<CompanyData>(
                 `/companies/companies/${id}`,
                 'Error while getting company info'
@@ -72,7 +70,6 @@ const Company = async ({ params: { lang, id } }: Props) => {
                 ownershipData={ownershipData}
                 contactsData={contactsData}
                 initialStates={statesData}
-                token={user.token}
                 lang={lang}
             />
         </>

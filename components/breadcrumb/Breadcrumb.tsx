@@ -64,7 +64,8 @@ const Breadcrumb = (): React.ReactElement => {
             if (
                 !/^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$/.test(
                     route
-                )
+                ) &&
+                !route.startsWith('auth0')
             ) {
                 const name =
                     route.charAt(0).toUpperCase() +

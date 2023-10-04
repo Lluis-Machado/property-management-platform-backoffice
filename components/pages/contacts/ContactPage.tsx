@@ -36,7 +36,6 @@ import ConfirmationPopup from '@/components/popups/ConfirmationPopup';
 import { ContactData } from '@/lib/types/contactData';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import SimpleLinkCard from '@/components/cards/SimpleLinkCard';
-import { TokenRes } from '@/lib/types/token';
 import { Locale } from '@/i18n-config';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
@@ -70,7 +69,6 @@ interface Props {
     countriesData: CountryData[];
     initialStates: StateData[];
     ownershipData: OwnershipPropertyData[];
-    token: TokenRes;
     lang: Locale;
 }
 
@@ -80,7 +78,6 @@ const ContactPage = ({
     countriesData,
     ownershipData,
     initialStates,
-    token,
     lang,
 }: Props) => {
     const [_, setIsLogOpened] = useAtom(logOpened);
@@ -165,7 +162,7 @@ const ContactPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [contactData, initialValues, token]);
+    }, [contactData, initialValues]);
 
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting contact...');
@@ -178,7 +175,7 @@ const ContactPage = ({
         } catch (error: unknown) {
             customError(error, toastId);
         }
-    }, [contactData, router, token]);
+    }, [contactData, router]);
 
     const changeCssFormElement = (e: FieldDataChangedEvent) => {
         document.getElementsByName(e.dataField!)[0].classList.add('styling');
@@ -402,7 +399,6 @@ const ContactPage = ({
                                 isEditing={isEditing}
                                 isLoading={isLoading}
                                 lang={lang}
-                                token={token}
                             />
                         </Tab>
                         <Tab title={`Phones`}>

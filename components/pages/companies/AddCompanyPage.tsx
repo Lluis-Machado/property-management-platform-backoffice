@@ -20,7 +20,6 @@ import { faSave } from '@fortawesome/free-solid-svg-icons';
 import { CompanyData } from '@/lib/types/companyData';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { Locale } from '@/i18n-config';
-import { TokenRes } from '@/lib/types/token';
 import { formatDate } from '@/lib/utils/formatDateFromJS';
 import { customError } from '@/lib/utils/customError';
 import { apiPost } from '@/lib/utils/apiPost';
@@ -53,16 +52,10 @@ let companyData: CompanyData = {
 interface Props {
     countriesData: CountryData[];
     contactsData: ContactData[];
-    token: TokenRes;
     lang: Locale;
 }
 
-const AddCompanyPage = ({
-    countriesData,
-    contactsData,
-    token,
-    lang,
-}: Props) => {
+const AddCompanyPage = ({ countriesData, contactsData, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // Importante para que no se copie por referencia
     const [initialValues, _] = useState<CompanyData>(
@@ -128,7 +121,7 @@ const AddCompanyPage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [initialValues, token, router]);
+    }, [initialValues, router]);
 
     const getMaskFromDataSource = () =>
         countriesMaskItems.filter(
@@ -205,7 +198,6 @@ const AddCompanyPage = ({
                                 isEditing={true}
                                 isLoading={isLoading}
                                 lang={lang}
-                                token={token}
                             />
                         </Tab>
                         <Tab title={`Contacts`}>

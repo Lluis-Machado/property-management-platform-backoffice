@@ -1,5 +1,4 @@
 'server-only';
-
 import { cookies } from 'next/headers';
 import { ApiCallError } from './errors';
 import { getRequestCookie } from './getRequestCookie';

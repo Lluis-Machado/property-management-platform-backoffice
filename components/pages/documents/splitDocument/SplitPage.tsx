@@ -4,16 +4,14 @@ import 'allotment/dist/style.css';
 import { Allotment } from 'allotment';
 import SplitDocumentForm from '@/components/pages/documents/splitDocument/SplitDocumentForm';
 import { Locale } from '@/i18n-config';
-import { TokenRes } from '@/lib/types/token';
 import { RangesData } from '@/lib/types/rangesData';
 
 interface Props {
     lang: Locale;
-    token: TokenRes;
     dataSource: RangesData;
 }
 
-const SplitPage = ({ lang, token, dataSource }: Props) => {
+const SplitPage = ({ lang, dataSource }: Props) => {
     return (
         <div className='h-screen w-screen'>
             <Allotment>
@@ -46,7 +44,6 @@ const SplitPage = ({ lang, token, dataSource }: Props) => {
                         </div> */}
                         <SplitDocumentForm
                             lang={lang}
-                            token={token}
                             rangesData={dataSource}
                         />
                     </div>
