@@ -181,7 +181,6 @@ const AddApInvoicePage = ({
     // Function to analyze the uploaded invoice
     const handleAnalyzeInvoice = useCallback(async () => {
         const toastId = toast.loading('Analyzing Invoice');
-        let analyzedData;
         const formData = new FormData();
 
         // Logic when invoice is uploaded or is already uploaded in documents
@@ -201,11 +200,11 @@ const AddApInvoicePage = ({
             formData.append('file', blobFile);
         }
 
-        const aux =
-            formData instanceof FormData ? formData : JSON.stringify(formData);
-
         try {
-            const response = await apiPost('/api/accounting/docAnalyzer', aux);
+            const response = await apiPost(
+                '/api/accounting/docAnalyzer',
+                formData
+            );
 
             console.log('TODO CORRECTO, valores de vuelta: ', response);
 
