@@ -1,7 +1,7 @@
 'use client';
 
 // React imports
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 // Libraries imports
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons';
 import { Allotment } from 'allotment';
@@ -33,6 +33,9 @@ import { dateFormat } from '@/lib/utils/datagrid/customFormats';
 import { Button } from 'pg-components';
 import PreviewWrapper from '../addApInvoice/PreviewWrapper';
 import { apiPatchAccounting } from '@/lib/utils/apiPatchAccounting';
+import { downloadDocument } from '@/lib/utils/documents/apiDocuments';
+import TooltipCostType from '@/components/tooltips/TooltipCostType';
+import TooltipCostTypeColor from '@/components/tooltips/TooltipCostTypeColor';
 
 interface Props {
     id: string;
@@ -48,7 +51,7 @@ export const EditApInvoicePage = ({
     tenatsBusinessPartners,
 }: Props) => {
     //////////// States ////////////
-    const [fileDataURL, setFileDataURL] = useState(null);
+    const [fileDataURL, setFileDataURL] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [invoiceData, setInvoiceData] = useState<any>();
     const [lines, setLines] = useState({});
@@ -63,6 +66,22 @@ export const EditApInvoicePage = ({
 
     //////////// Custom Hooks ////////////
     const router = useRouter();
+
+    // Function to get Doc Data from Backend
+    // TODO MISSING DOC ID & ARCHIVE ID
+    useEffect(() => {
+        const archiveId = 'c1b1bacc-7a32-41d2-9dc0-e67afc867d0f';
+        const docId = '0059cd7e-cf90-4cb6-be13-17fe08cee45e';
+        if (docId !== null && archiveId !== null) {
+            const apInvoice = async () => {
+                const url = URL.createObjectURL(
+                    await downloadDocument(archiveId, docId)
+                );
+                setFileDataURL(url);
+            };
+            apInvoice();
+        }
+    }, []);
 
     //Function to save updated ap invoice
     const handleUpdateApInvoice = useCallback(async () => {
@@ -137,82 +156,13 @@ export const EditApInvoicePage = ({
         );
     };
 
-    // SELECTBOX CODE
-    // Tooltip
-    const ContentTooltip = ({ data }: { data: string }): React.ReactElement => {
-        switch (data) {
-            case 'BAT':
-                return (
-                    <>
-                        <strong>BAT</strong> - Beschränkt abzugsfähige Kosten
-                        pro vermieteten Tag
-                    </>
-                );
-            case 'BAV':
-                return (
-                    <>
-                        <strong>BAV</strong> - Beschränkt abzugsfähige Kosten
-                        für das gesamte Jahr
-                    </>
-                );
-            case 'UAT':
-                return (
-                    <>
-                        <strong>UAT</strong> - Unbeschränkt abzugsfähige Kosten
-                        pro vermieteten Tag
-                    </>
-                );
-            case 'UAV':
-                return (
-                    <>
-                        <strong>UAV</strong> - Unbeschränkt abzugsfähige Kosten
-                        für das gesamte Jahr
-                    </>
-                );
-            case 'NA':
-                return (
-                    <>
-                        <strong>NA</strong> - Nicht abzugsfähige Kosten
-                    </>
-                );
-            case 'Aktiv':
-                return (
-                    <>
-                        <strong>Aktiv</strong> - Aktivierungspflichtige Kosten
-                    </>
-                );
-            case 'Asset':
-                return (
-                    <>
-                        <strong>Asset</strong> - Fixed Asset
-                    </>
-                );
-            default:
-                return <></>;
-        }
-    };
-
-    // Colors Tooltip
-    const getBadgeColor = (data: string): string => {
-        const colors: any = {
-            BAT: 'bg-red-300',
-            BAV: 'bg-orange-300',
-            UAT: 'bg-green-300',
-            UAV: 'bg-lime-300',
-            NA: 'bg-cyan-300',
-            Aktiv: 'bg-purple-300',
-            Asset: 'bg-blue-300',
-        };
-        return colors[data];
-    };
-
     // Render Category Code with Tooltip & Tooltip Colors
     const CostTypeCellRender = (data: any) => {
         return (
             <div className='bg- flex flex-row items-center gap-2 text-center'>
                 <span id={data.label + data.index}>
                     <div
-                        className={`w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(
+                        className={`w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${TooltipCostTypeColor(
                             data.label
                         )}`}
                     >
@@ -225,7 +175,7 @@ export const EditApInvoicePage = ({
                     hideEvent='mouseleave'
                     position='right'
                 >
-                    <ContentTooltip data={data.label} />
+                    <TooltipCostType data={data.label} />
                 </Tooltip>
             </div>
         );
@@ -243,7 +193,7 @@ export const EditApInvoicePage = ({
             <div className='bg-flex flex h-[34px] flex-row items-center gap-2 text-center'>
                 <span id={input.label + input.index}>
                     <div
-                        className={`ml-2 w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(
+                        className={`ml-2 w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${TooltipCostTypeColor(
                             input.label
                         )}`}
                     >
@@ -256,7 +206,7 @@ export const EditApInvoicePage = ({
                     hideEvent='mouseleave'
                     position='right'
                 >
-                    <ContentTooltip data={input.label} />
+                    <TooltipCostType data={input.label} />
                 </Tooltip>
                 <TextBox visible={false} />
             </div>
@@ -301,7 +251,7 @@ export const EditApInvoicePage = ({
             );
         }
     };
-    console.log(apInvoiceData);
+
     return (
         <div className='absolute inset-4 w-screen'>
             <div className='h-full'>
@@ -322,16 +272,14 @@ export const EditApInvoicePage = ({
                                     colCount={2}
                                     caption='Supplier invoice'
                                 >
-                                    <Item
-                                        label={{ text: 'Provider' }}
-                                        dataField='vatNumber'
-                                    >
+                                    <Item label={{ text: 'Provider' }}>
                                         <SelectBox
                                             items={tenatsBusinessPartners}
                                             displayExpr='name'
                                             ref={selectboxRef}
                                             valueExpr='vatNumber'
                                             searchEnabled={true}
+                                            value={apInvoiceData.vatNumber}
                                             dropDownOptions={{
                                                 toolbarItems: [
                                                     {

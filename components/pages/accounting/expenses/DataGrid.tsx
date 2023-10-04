@@ -37,6 +37,7 @@ import { toast } from 'react-toastify';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { customError } from '@/lib/utils/customError';
 import { apiDeleteAccounting } from '@/lib/utils/apiDeleteAccounting';
+import { downloadDocument } from '@/lib/utils/documents/apiDocuments';
 
 interface Props {
     dataSource: ApInvoice[];
@@ -190,19 +191,26 @@ const DataGrid = ({
     //TODO FALTA QUE PASAN EL DOC ID PARA HACER LA LLAMADA CORRECTA PARA CONSEGUIR EL URL Y DATOS DEL DOC
     async function apInvoice(docId: string) {
         // CHANGE LOGIC ARCHIVEID
-        // const archiveId = 'c1b1bacc-7a32-41d2-9dc0-e67afc867d0f'
-        // const url = URL.createObjectURL(await downloadDocument(archiveId, docId))
-        // const doc = await downloadDocument(archiveId, docId)
+        const archiveId = 'c1b1bacc-7a32-41d2-9dc0-e67afc867d0f';
+        const url = URL.createObjectURL(
+            await downloadDocument(archiveId, docId)
+        );
+        const doc = await downloadDocument(archiveId, docId);
+        return url;
     }
 
     // RENDER INVOICE CELL TO SEE INVOICE
     const InvoiceCellRender = useCallback(
         (data: any) => {
+            // TODO CHANGE LOGIC DOC ID
             //const docId = data.data.docID
-            //apInvoice(docId)
+            const docId = '0059cd7e-cf90-4cb6-be13-17fe08cee45e';
+            apInvoice(docId).then((res) => {
+                data.url = res;
+            });
             return (
                 <PreviewFileCellRender
-                    onClick={() => onInvoiceClick(data.id, data.url)}
+                    onClick={() => onInvoiceClick(docId, data.url)}
                     url={data.url}
                 />
             );
