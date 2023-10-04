@@ -8,7 +8,7 @@ export async function POST(request: Request) {
         const company: CompanyData = await request.json();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/companies/companies`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/core/core/companies`,
             {
                 method: 'POST',
                 body: JSON.stringify(company),
@@ -49,7 +49,7 @@ export async function PATCH(request: Request) {
         const contact: CompanyData = await request.json();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/companies/companies/${id}`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/core/core/companies/${id}`,
             {
                 method: 'PATCH',
                 body: JSON.stringify(contact),
@@ -89,7 +89,7 @@ export async function DELETE(request: Request) {
         const id = searchParams.get('id');
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/companies/companies/${id}`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/core/core/companies/${id}`,
             {
                 method: 'DELETE',
                 headers: {

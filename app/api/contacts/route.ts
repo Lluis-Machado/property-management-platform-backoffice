@@ -8,7 +8,7 @@ export async function POST(request: Request) {
         const contact: ContactData = await request.json();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/core/core/contacts`,
             {
                 method: 'POST',
                 body: JSON.stringify(contact),
@@ -49,7 +49,7 @@ export async function PATCH(request: Request) {
         const contact: ContactData = await request.json();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${id}`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/core/core/contacts/${id}`,
             {
                 method: 'PATCH',
                 body: JSON.stringify(contact),
@@ -89,7 +89,7 @@ export async function DELETE(request: Request) {
         const id = searchParams.get('id');
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/contacts/contacts/${id}`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/core/core/contacts/${id}`,
             {
                 method: 'DELETE',
                 headers: {
