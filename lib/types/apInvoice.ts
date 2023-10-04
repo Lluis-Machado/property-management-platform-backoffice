@@ -16,7 +16,7 @@ export interface ApInvoiceAnalyzedData {
     form: ApInvoice;
 }
 
-interface InvoiceLines {
+export interface InvoiceLines {
     description: string;
     tax: string | null;
     quantity: Number;

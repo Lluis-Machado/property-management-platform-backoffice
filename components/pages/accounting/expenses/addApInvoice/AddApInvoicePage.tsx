@@ -40,14 +40,18 @@ import {
     uploadDocumentsToArchive,
 } from '@/lib/utils/documents/apiDocuments';
 import { BusinessPartners } from '@/lib/types/businessPartners';
-import { ApInvoice, ApInvoiceAnalyzedData } from '@/lib/types/apInvoice';
+import {
+    ApInvoice,
+    ApInvoiceAnalyzedData,
+    InvoiceLines,
+} from '@/lib/types/apInvoice';
 import BpPopup from '@/components/popups/BpPopup';
 import ToolbarTooltipsApInvoice from '@/components/tooltips/ToolbarTooltipsApInvoice';
 import { apiPostAccounting } from '@/lib/utils/apiPostAccounting';
-import { TokenRes } from '@/lib/types/token';
 import TooltipCostType from '@/components/tooltips/TooltipCostType';
 import TooltipCostTypeColor from '@/components/tooltips/TooltipCostTypeColor';
 import { apiPost } from '@/lib/utils/apiPost';
+import { InvoiceItemAnalyzer } from '@/lib/types/invoiceItemAnalyzer';
 
 let apInvoiceData: ApInvoiceAnalyzedData = {
     form: {
@@ -68,19 +72,17 @@ interface Props {
     id: string;
     tenatsBusinessPartners: BusinessPartners[];
     allBusinessPartners: BusinessPartners[];
-    token: TokenRes;
 }
 
 const AddApInvoicePage = ({
     id,
     tenatsBusinessPartners,
     allBusinessPartners,
-    token,
 }: Props) => {
     //////////// States ////////////
     const [visible, setVisible] = useState(false);
     const [invoice, setInvoice] = useState<File | string | Blob>();
-    const [fileDataURL, setFileDataURL] = useState<any>(null);
+    const [fileDataURL, setFileDataURL] = useState<null | string>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [popUpVisible, setPopUpVisible] = useState<boolean>(false);
     const [invoiceData, setInvoiceData] = useState<any>(apInvoiceData);
@@ -99,8 +101,8 @@ const AddApInvoicePage = ({
     const selectboxRef = useRef<SelectBox>(null);
     const formRef = useRef<Form>(null);
     const serviceDateToRefs = useRef<DateBox[] | any>([]);
-    const serviceDateFromRefs = useRef<any[]>([]);
-    const depreciationRatePerYearRefs = useRef<any[]>([]);
+    const serviceDateFromRefs = useRef<DateBox[] | any>([]);
+    const depreciationRatePerYearRefs = useRef<NumberBox[] | any>([]);
 
     //////////// Custom Hooks ////////////
     const router = useRouter();
@@ -181,7 +183,6 @@ const AddApInvoicePage = ({
     // Function to analyze the uploaded invoice
     const handleAnalyzeInvoice = useCallback(async () => {
         const toastId = toast.loading('Analyzing Invoice');
-        let analyzedData;
         const formData = new FormData();
 
         // Logic when invoice is uploaded or is already uploaded in documents
@@ -207,8 +208,6 @@ const AddApInvoicePage = ({
         try {
             const response = await apiPost('/api/accounting/docAnalyzer', aux);
 
-            console.log('TODO CORRECTO, valores de vuelta: ', response);
-
             const analyzedData: any = response;
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');
 
@@ -225,7 +224,7 @@ const AddApInvoicePage = ({
 
             setInvoiceData(analyzedData);
             try {
-                let invoiceLinesApiCall: any[] = [];
+                let invoiceLinesApiCall: InvoiceItemAnalyzer[] = [];
                 for (const invoiceLine of analyzedData.form.invoiceLines) {
                     const hasPeriod =
                         invoiceLine.serviceDateFrom == null &&
@@ -269,7 +268,7 @@ const AddApInvoicePage = ({
         const id = 'b99f942c-a141-4555-9554-14a09c5f94a4';
         const idBP = 'a44a9fca-02b5-45d8-a0a4-d300753eec37';
 
-        let invoiceLinesAPInvoice: any[] = [];
+        let invoiceLinesAPInvoice: InvoiceLines[] = [];
 
         for (const invoiceLine of invoiceData.form.invoiceLines) {
             invoiceLinesAPInvoice.push({
