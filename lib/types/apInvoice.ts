@@ -10,6 +10,7 @@ export interface ApInvoice {
     totalTax: number;
     totalTaxPercentage: number;
     invoiceLines: InvoiceLines[];
+    vatNumber?: string;
 }
 export interface ApInvoiceAnalyzedData {
     form: ApInvoice;

@@ -49,6 +49,9 @@ import BpPopup from '@/components/popups/BpPopup';
 import ToolbarTooltipsApInvoice from '@/components/tooltips/ToolbarTooltipsApInvoice';
 import { apiPostAccounting } from '@/lib/utils/apiPostAccounting';
 import { TokenRes } from '@/lib/types/token';
+import TooltipCostType from '@/components/tooltips/TooltipCostType';
+import TooltipCostTypeColor from '@/components/tooltips/TooltipCostTypeColor';
+import { apiPost } from '@/lib/utils/apiPost';
 
 const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}`;
 
@@ -155,7 +158,7 @@ const AddApInvoicePage = ({
         }
     }, [docId, archiveId]);
 
-    // Upload file computer
+    // Upload file from computer
     const handleUploadClick = () => {
         inputRef.current?.click();
         setVisible((visible) => !visible);
@@ -187,7 +190,7 @@ const AddApInvoicePage = ({
         let analyzedData;
         const formData = new FormData();
 
-        // Logic when invoice is uploaded
+        // Logic when invoice is uploaded or is already uploaded in documents
         const fileInput = inputRef.current;
         if (typeof fileInput === 'object' && fileInput!.files?.length != 0) {
             const selectedDocuments: File[] = [...fileInput?.files!];
@@ -206,17 +209,13 @@ const AddApInvoicePage = ({
 
         const aux =
             formData instanceof FormData ? formData : JSON.stringify(formData);
-        const endPoint = `${BASE_END_POINT}/docanalyzer/DocumentAnalyzer/APInvoice`;
-        try {
-            const response = await makeApiRequest(
-                endPoint,
-                'POST',
-                documentMessages.upload,
-                token,
-                aux
-            );
 
-            analyzedData = await response.json();
+        try {
+            const response = await apiPost('/api/accounting/docAnalyzer', aux);
+
+            console.log('TODO CORRECTO, valores de vuelta: ', response);
+
+            //analyzedData = response;
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');
 
             //Calculate total price
@@ -386,82 +385,13 @@ const AddApInvoicePage = ({
         );
     };
 
-    // SELECTBOX CODE
-    // Tooltip
-    const ContentTooltip = ({ data }: { data: string }): React.ReactElement => {
-        switch (data) {
-            case 'BAT':
-                return (
-                    <>
-                        <strong>BAT</strong> - Beschränkt abzugsfähige Kosten
-                        pro vermieteten Tag
-                    </>
-                );
-            case 'BAV':
-                return (
-                    <>
-                        <strong>BAV</strong> - Beschränkt abzugsfähige Kosten
-                        für das gesamte Jahr
-                    </>
-                );
-            case 'UAT':
-                return (
-                    <>
-                        <strong>UAT</strong> - Unbeschränkt abzugsfähige Kosten
-                        pro vermieteten Tag
-                    </>
-                );
-            case 'UAV':
-                return (
-                    <>
-                        <strong>UAV</strong> - Unbeschränkt abzugsfähige Kosten
-                        für das gesamte Jahr
-                    </>
-                );
-            case 'NA':
-                return (
-                    <>
-                        <strong>NA</strong> - Nicht abzugsfähige Kosten
-                    </>
-                );
-            case 'Aktiv':
-                return (
-                    <>
-                        <strong>Aktiv</strong> - Aktivierungspflichtige Kosten
-                    </>
-                );
-            case 'Asset':
-                return (
-                    <>
-                        <strong>Asset</strong> - Fixed Asset
-                    </>
-                );
-            default:
-                return <></>;
-        }
-    };
-
-    // Colors Tooltip
-    const getBadgeColor = (data: string): string => {
-        const colors: any = {
-            BAT: 'bg-red-300',
-            BAV: 'bg-orange-300',
-            UAT: 'bg-green-300',
-            UAV: 'bg-lime-300',
-            NA: 'bg-cyan-300',
-            Aktiv: 'bg-purple-300',
-            Asset: 'bg-blue-300',
-        };
-        return colors[data];
-    };
-
     // Render Category Code with Tooltip & Tooltip Colors
     const CostTypeCellRender = (data: any) => {
         return (
             <div className='bg- flex flex-row items-center gap-2 text-center'>
                 <span id={data.label + data.index}>
                     <div
-                        className={`w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(
+                        className={`w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${TooltipCostTypeColor(
                             data.label
                         )}`}
                     >
@@ -474,7 +404,7 @@ const AddApInvoicePage = ({
                     hideEvent='mouseleave'
                     position='right'
                 >
-                    <ContentTooltip data={data.label} />
+                    <TooltipCostType data={data.label} />
                 </Tooltip>
             </div>
         );
@@ -492,7 +422,7 @@ const AddApInvoicePage = ({
             <div className='bg-flex flex h-[34px] flex-row items-center gap-2 text-center'>
                 <span id={input.label + input.index}>
                     <div
-                        className={`ml-2 w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${getBadgeColor(
+                        className={`ml-2 w-20 rounded-3xl px-2 py-1 text-center text-xs text-black ${TooltipCostTypeColor(
                             input.label
                         )}`}
                     >
@@ -505,7 +435,7 @@ const AddApInvoicePage = ({
                     hideEvent='mouseleave'
                     position='right'
                 >
-                    <ContentTooltip data={input.label} />
+                    <TooltipCostType data={input.label} />
                 </Tooltip>
                 <TextBox visible={false} />
             </div>
