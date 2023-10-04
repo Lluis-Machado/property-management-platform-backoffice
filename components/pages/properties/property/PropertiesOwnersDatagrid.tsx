@@ -255,24 +255,16 @@ const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
                             showInfo
                             showNavigationButtons
                         />
-                        {isEditing === true && (
-                            <Editing
-                                mode='batch'
-                                allowUpdating
-                                allowAdding
-                                allowDeleting
-                                useIcons
-                            />
-                        )}
+                        <Editing
+                            mode='batch'
+                            allowUpdating={isEditing}
+                            allowAdding={isEditing}
+                            allowDeleting={isEditing}
+                            useIcons
+                        />
                         <Toolbar>
-                            <Item
-                                name='addRowButton'
-                                disabled={isEditing === false}
-                            />
-                            <Item
-                                name='revertButton'
-                                disabled={isEditing === false}
-                            />
+                            <Item name='addRowButton' disabled={!isEditing} />
+                            <Item name='revertButton' disabled={!isEditing} />
                         </Toolbar>
                         <Column
                             alignment='center'
@@ -289,7 +281,7 @@ const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
                                 dataSource={totalContactsList}
                                 valueExpr='id'
                                 displayExpr='firstName'
-                            ></Lookup>
+                            />
                         </Column>
                         <Column
                             dataField='share'
