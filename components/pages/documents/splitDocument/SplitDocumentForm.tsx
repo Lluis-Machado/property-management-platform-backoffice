@@ -10,17 +10,15 @@ import Form, { GroupItem, Item, RequiredRule } from 'devextreme-react/form';
 // Local imports
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { Locale } from '@/i18n-config';
-import { TokenRes } from '@/lib/types/token';
 import { customError } from '@/lib/utils/customError';
 import { RangesData } from '@/lib/types/rangesData';
 
 interface Props {
     rangesData: RangesData;
-    token: TokenRes;
     lang: Locale;
 }
 
-const SplitDocumentForm = ({ rangesData, token, lang }: Props) => {
+const SplitDocumentForm = ({ rangesData, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<RangesData>(
@@ -75,7 +73,7 @@ const SplitDocumentForm = ({ rangesData, token, lang }: Props) => {
         } finally {
             setIsLoading(false);
         }
-    }, [rangesData, initialValues, token, router]);
+    }, [rangesData, initialValues, router]);
 
     return (
         <div>
