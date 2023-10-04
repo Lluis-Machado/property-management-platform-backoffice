@@ -39,10 +39,6 @@ import {
     downloadDocument,
     uploadDocumentsToArchive,
 } from '@/lib/utils/documents/apiDocuments';
-import {
-    documentMessages,
-    makeApiRequest,
-} from '@/lib/utils/accounting/apiAccounting';
 import { BusinessPartners } from '@/lib/types/businessPartners';
 import { ApInvoice, ApInvoiceAnalyzedData } from '@/lib/types/apInvoice';
 import BpPopup from '@/components/popups/BpPopup';
@@ -52,8 +48,6 @@ import { TokenRes } from '@/lib/types/token';
 import TooltipCostType from '@/components/tooltips/TooltipCostType';
 import TooltipCostTypeColor from '@/components/tooltips/TooltipCostTypeColor';
 import { apiPost } from '@/lib/utils/apiPost';
-
-const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}`;
 
 let apInvoiceData: ApInvoiceAnalyzedData = {
     form: {
@@ -215,7 +209,7 @@ const AddApInvoicePage = ({
 
             console.log('TODO CORRECTO, valores de vuelta: ', response);
 
-            //analyzedData = response;
+            const analyzedData: any = response;
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');
 
             //Calculate total price
@@ -231,7 +225,6 @@ const AddApInvoicePage = ({
 
             setInvoiceData(analyzedData);
             try {
-                const endPoint = `${BASE_END_POINT}/invoiceitemanalyzer/Predict`;
                 let invoiceLinesApiCall: any[] = [];
                 for (const invoiceLine of analyzedData.form.invoiceLines) {
                     const hasPeriod =
@@ -248,15 +241,14 @@ const AddApInvoicePage = ({
                     };
                     invoiceLinesApiCall.push(objInvoiceItemAnalyzer);
                 }
-                const response = await makeApiRequest(
-                    endPoint,
-                    'POST',
-                    documentMessages.upload,
-                    token,
-                    invoiceLinesApiCall,
-                    true
+                const response = await apiPost(
+                    '/api/accounting/itemAnalyzer',
+                    invoiceLinesApiCall
                 );
-                const analyzedInvoiceLine = await response.json();
+
+                console.log('TODO CORRECTO, valores de vuelta: ', response);
+
+                const analyzedInvoiceLine = response;
                 setAnalyzedInvoiceLines(analyzedInvoiceLine);
             } catch (error: unknown) {
                 customError(error, toastId);
@@ -268,7 +260,7 @@ const AddApInvoicePage = ({
         } finally {
             setIsLoading(false);
         }
-    }, [token, invoice]);
+    }, [invoice]);
 
     // Function to Save the AP Invoice
     const handleSaveApInvoice = useCallback(async () => {
