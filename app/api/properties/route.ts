@@ -49,7 +49,7 @@ export async function PATCH(request: Request) {
         const contact: PropertyData = await request.json();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties/${id}`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/core/core/properties/${id}`,
             {
                 method: 'PATCH',
                 body: JSON.stringify(contact),
@@ -89,7 +89,7 @@ export async function DELETE(request: Request) {
         const id = searchParams.get('id');
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/properties/properties/${id}`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/core/core/properties/${id}`,
             {
                 method: 'DELETE',
                 headers: {
