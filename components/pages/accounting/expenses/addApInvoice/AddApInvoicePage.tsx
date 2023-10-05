@@ -600,7 +600,7 @@ const AddApInvoicePage = ({
                                             return (
                                                 <GroupItem
                                                     key={`GroupItem${index}`}
-                                                    colCount={8}
+                                                    colCount={16}
                                                     cssClass='pb-2 border-dotted border-b-2 border-primary-500'
                                                 >
                                                     <Item
@@ -610,6 +610,7 @@ const AddApInvoicePage = ({
                                                             text: 'Code',
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <SelectBox
                                                             items={[
@@ -665,7 +666,7 @@ const AddApInvoicePage = ({
                                                         label={{
                                                             text: 'Code',
                                                         }}
-                                                        colSpan={2}
+                                                        colSpan={4}
                                                         cssClass='itemStyle'
                                                     />
                                                     <Item
@@ -674,7 +675,7 @@ const AddApInvoicePage = ({
                                                         label={{
                                                             text: 'Description',
                                                         }}
-                                                        colSpan={5}
+                                                        colSpan={10}
                                                         cssClass='itemStyle'
                                                     >
                                                         <NumericRule />
@@ -684,6 +685,7 @@ const AddApInvoicePage = ({
                                                         dataField={`form.invoiceLines[${index}].serviceDateFrom`}
                                                         label={{ text: 'From' }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <DateBox
                                                             label={'From'}
@@ -707,6 +709,7 @@ const AddApInvoicePage = ({
                                                         dataField={`form.invoiceLines[${index}].serviceDateTo`}
                                                         label={{ text: 'To' }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <DateBox
                                                             label={'To'}
@@ -736,6 +739,7 @@ const AddApInvoicePage = ({
                                                             format: "#0.##'%'",
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <NumberBox
                                                             ref={(invoice) =>
@@ -753,6 +757,7 @@ const AddApInvoicePage = ({
                                                             text: 'Amout',
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <RequiredRule />
                                                     </Item>
@@ -761,6 +766,19 @@ const AddApInvoicePage = ({
                                                         dataField={`form.invoiceLines[${index}].tax`}
                                                         label={{
                                                             text: 'IVA',
+                                                        }}
+                                                        editorOptions={{
+                                                            format: "#0.##'%'",
+                                                        }}
+                                                        cssClass='itemStyle'
+                                                    >
+                                                        <RequiredRule />
+                                                    </Item>
+                                                    <Item
+                                                        key={`tax${index}`}
+                                                        dataField={`form.invoiceLines[${index}].discount`}
+                                                        label={{
+                                                            text: 'DTO',
                                                         }}
                                                         editorOptions={{
                                                             format: "#0.##'%'",
@@ -783,6 +801,7 @@ const AddApInvoicePage = ({
                                                             },
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <RequiredRule />
                                                     </Item>
@@ -800,6 +819,7 @@ const AddApInvoicePage = ({
                                                             },
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     />
                                                     <Item
                                                         key={`button${index}`}
@@ -819,6 +839,7 @@ const AddApInvoicePage = ({
                                                             },
                                                         }}
                                                         cssClass='deleteButton'
+                                                        colSpan={2}
                                                     />
                                                 </GroupItem>
                                             );
@@ -836,6 +857,7 @@ const AddApInvoicePage = ({
                                             invoiceData.form.invoiceLines.push({
                                                 description: '',
                                                 tax: null,
+                                                discount: null,
                                                 quantity: null,
                                                 unitPrice: null,
                                                 expenseCategoryId: '',

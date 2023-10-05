@@ -11,6 +11,7 @@ export interface ApInvoice {
     totalTaxPercentage: number;
     invoiceLines: InvoiceLines[];
     vatNumber?: string;
+    url?: string;
 }
 export interface ApInvoiceAnalyzedData {
     form: ApInvoice;
@@ -19,6 +20,7 @@ export interface ApInvoiceAnalyzedData {
 export interface InvoiceLines {
     description: string;
     tax: string | null;
+    discount: string | null;
     quantity: Number;
     unitPrice: Number;
     expenseCategoryId: string | null;

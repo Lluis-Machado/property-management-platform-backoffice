@@ -26,7 +26,7 @@ import '../../../../../lib/styles/formItems.css';
 import '../../../../../node_modules/allotment/dist/style.css';
 import '../../../../splitPane/style/splitPane.module.css';
 import { BusinessPartners } from '@/lib/types/businessPartners';
-import { ApInvoice } from '@/lib/types/apInvoice';
+import { ApInvoice, InvoiceLines } from '@/lib/types/apInvoice';
 import { customError } from '@/lib/utils/customError';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
@@ -88,7 +88,7 @@ export const EditApInvoicePage = ({
         const toastId = toast.loading('Updating Invoice');
         setIsLoading(true);
 
-        let invoiceLinesAPInvoice: any[] = [];
+        let invoiceLinesAPInvoice: InvoiceLines[] = [];
 
         for (const invoiceLine of invoiceData.form.invoiceLines) {
             invoiceLinesAPInvoice.push({
@@ -331,7 +331,7 @@ export const EditApInvoicePage = ({
                                             return (
                                                 <GroupItem
                                                     key={`GroupItem${index}`}
-                                                    colCount={8}
+                                                    colCount={16}
                                                     cssClass='pb-2 border-dotted border-b-2 border-primary-500'
                                                 >
                                                     <Item
@@ -341,6 +341,7 @@ export const EditApInvoicePage = ({
                                                             text: 'Code',
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <SelectBox
                                                             items={[
@@ -396,7 +397,7 @@ export const EditApInvoicePage = ({
                                                         label={{
                                                             text: 'Code',
                                                         }}
-                                                        colSpan={2}
+                                                        colSpan={4}
                                                         cssClass='itemStyle'
                                                     />
                                                     <Item
@@ -405,7 +406,7 @@ export const EditApInvoicePage = ({
                                                         label={{
                                                             text: 'Description',
                                                         }}
-                                                        colSpan={5}
+                                                        colSpan={10}
                                                         cssClass='itemStyle'
                                                     >
                                                         <NumericRule />
@@ -415,6 +416,7 @@ export const EditApInvoicePage = ({
                                                         dataField={`invoiceLines[${index}].serviceDateFrom`}
                                                         label={{ text: 'From' }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <DateBox
                                                             label={'From'}
@@ -438,6 +440,7 @@ export const EditApInvoicePage = ({
                                                         dataField={`invoiceLines[${index}].serviceDateTo`}
                                                         label={{ text: 'To' }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <DateBox
                                                             label={'To'}
@@ -467,6 +470,7 @@ export const EditApInvoicePage = ({
                                                             format: "#0.##'%'",
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <NumberBox
                                                             ref={(invoice) =>
@@ -484,6 +488,7 @@ export const EditApInvoicePage = ({
                                                             text: 'Amout',
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <RequiredRule />
                                                     </Item>
@@ -501,6 +506,17 @@ export const EditApInvoicePage = ({
                                                         <RequiredRule />
                                                     </Item>
                                                     <Item
+                                                        key={`tax${index}`}
+                                                        dataField={`invoiceLines[${index}].discount`}
+                                                        label={{
+                                                            text: 'DTO',
+                                                        }}
+                                                        editorOptions={{
+                                                            format: "#0.##'%'",
+                                                        }}
+                                                        cssClass='itemStyle'
+                                                    ></Item>
+                                                    <Item
                                                         key={`unitPrice${index}`}
                                                         dataField={`invoiceLines[${index}].unitPrice`}
                                                         label={{
@@ -514,6 +530,7 @@ export const EditApInvoicePage = ({
                                                             },
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <RequiredRule />
                                                     </Item>
@@ -531,6 +548,7 @@ export const EditApInvoicePage = ({
                                                             },
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     />
                                                     <Item
                                                         key={`button${index}`}
@@ -550,6 +568,7 @@ export const EditApInvoicePage = ({
                                                             },
                                                         }}
                                                         cssClass='deleteButton'
+                                                        colSpan={2}
                                                     />
                                                 </GroupItem>
                                             );
@@ -567,6 +586,7 @@ export const EditApInvoicePage = ({
                                             apInvoiceData.invoiceLines.push({
                                                 description: '',
                                                 tax: null,
+                                                discount: null,
                                                 quantity: 0,
                                                 unitPrice: 0,
                                                 expenseCategoryId: '',
