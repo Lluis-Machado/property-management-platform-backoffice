@@ -327,7 +327,7 @@ const DataGrid = ({
                 <Column
                     dataField='description'
                     allowHeaderFiltering={false}
-                    width={650}
+                    width={600}
                 />
                 <Column
                     dataField='serviceDateFrom'
@@ -344,6 +344,16 @@ const DataGrid = ({
                     format={dateFormat}
                 />
                 <Column dataField='quantity' allowHeaderFiltering={false} />
+                <Column
+                    dataField='tax'
+                    allowHeaderFiltering={false}
+                    format="#0.##'%'"
+                />
+                <Column
+                    dataField='discount'
+                    allowHeaderFiltering={false}
+                    format="#0.##'%'"
+                />
                 <Column dataField='unitPrice' format={currencyFormat}>
                     <HeaderFilter groupInterval={100} />
                 </Column>

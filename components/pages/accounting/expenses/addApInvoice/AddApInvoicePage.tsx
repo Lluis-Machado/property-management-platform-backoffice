@@ -778,15 +778,13 @@ const AddApInvoicePage = ({
                                                         key={`tax${index}`}
                                                         dataField={`form.invoiceLines[${index}].discount`}
                                                         label={{
-                                                            text: 'DTO',
+                                                            text: 'DTO %',
                                                         }}
                                                         editorOptions={{
                                                             format: "#0.##'%'",
                                                         }}
                                                         cssClass='itemStyle'
-                                                    >
-                                                        <RequiredRule />
-                                                    </Item>
+                                                    ></Item>
                                                     <Item
                                                         key={`unitPrice${index}`}
                                                         dataField={`form.invoiceLines[${index}].unitPrice`}
