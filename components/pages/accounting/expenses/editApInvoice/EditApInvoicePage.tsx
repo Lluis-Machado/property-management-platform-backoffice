@@ -26,7 +26,7 @@ import '../../../../../lib/styles/formItems.css';
 import '../../../../../node_modules/allotment/dist/style.css';
 import '../../../../splitPane/style/splitPane.module.css';
 import { BusinessPartners } from '@/lib/types/businessPartners';
-import { ApInvoice, InvoiceLines } from '@/lib/types/apInvoice';
+import { ApInvoice } from '@/lib/types/apInvoice';
 import { customError } from '@/lib/utils/customError';
 import { updateSuccessToast } from '@/lib/utils/customToasts';
 import { dateFormat } from '@/lib/utils/datagrid/customFormats';
@@ -36,6 +36,7 @@ import { apiPatchAccounting } from '@/lib/utils/apiPatchAccounting';
 import { downloadDocument } from '@/lib/utils/documents/apiDocuments';
 import TooltipCostType from '@/components/tooltips/TooltipCostType';
 import TooltipCostTypeColor from '@/components/tooltips/TooltipCostTypeColor';
+import ToolbarTooltipsApInvoiceEdit from '@/components/tooltips/ToolbarTooltipsApInvoiceEdit';
 
 interface Props {
     id: string;
@@ -53,7 +54,6 @@ export const EditApInvoicePage = ({
     //////////// States ////////////
     const [fileDataURL, setFileDataURL] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [invoiceData, setInvoiceData] = useState<any>();
     const [lines, setLines] = useState({});
     const [popUpVisible, setPopUpVisible] = useState<boolean>(false);
 
@@ -88,28 +88,8 @@ export const EditApInvoicePage = ({
         const toastId = toast.loading('Updating Invoice');
         setIsLoading(true);
 
-        let invoiceLinesAPInvoice: InvoiceLines[] = [];
-
-        for (const invoiceLine of invoiceData.form.invoiceLines) {
-            invoiceLinesAPInvoice.push({
-                ...invoiceLine,
-            });
-        }
-
         const valuesToSend: ApInvoice = {
-            // businessPartner: {
-            //     name: apInvoiceData.businessPartnerName,
-            //     vatNumber: apInvoiceData.vatNumber,
-            // },
-            businessPartnerId: apInvoiceData.businessPartnerId,
-            refNumber: apInvoiceData.refNumber,
-            date: apInvoiceData.date,
-            currency: 'EUR',
-            totalAmount: apInvoiceData.totalAmount,
-            totalBaseAmount: apInvoiceData.totalBaseAmount,
-            totalTax: apInvoiceData.totalTax,
-            totalTaxPercentage: apInvoiceData.totalTaxPercentage,
-            invoiceLines: invoiceLinesAPInvoice,
+            ...apInvoiceData,
         };
 
         try {
@@ -120,7 +100,7 @@ export const EditApInvoicePage = ({
             );
 
             const data = await apiPatchAccounting(
-                `/accounting/tenants/${id}/businesspartners/${invoiceId}`,
+                '/api/accounting/apInvoices',
                 id!,
                 invoiceId!,
                 valuesToSend
@@ -130,14 +110,14 @@ export const EditApInvoicePage = ({
             updateSuccessToast(toastId, 'AP Invoice saved correctly!');
             // Pass the ID to reload the page
             router.push(
-                `/private/accounting/${id}/expenses?createdId=${data.refNumber}`
+                `/private/accounting/${id}/expenses?updatedId=${data.refNumber}`
             );
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
             setIsLoading(false);
         }
-    }, [invoiceData]);
+    }, [router, id, invoiceId, apInvoiceData]);
 
     // Format date and set max/min dates
     const validateDateTo = (e: ValueChangedEvent, index: number) => {
@@ -158,6 +138,7 @@ export const EditApInvoicePage = ({
 
     // Render Category Code with Tooltip & Tooltip Colors
     const CostTypeCellRender = (data: any) => {
+        console.log(data);
         return (
             <div className='bg- flex flex-row items-center gap-2 text-center'>
                 <span id={data.label + data.index}>
@@ -189,6 +170,7 @@ export const EditApInvoicePage = ({
                 (input.label = undefined), (input.index = 0);
             }
         }
+        console.log(data);
         return (
             <div className='bg-flex flex h-[34px] flex-row items-center gap-2 text-center'>
                 <span id={input.label + input.index}>
@@ -215,8 +197,10 @@ export const EditApInvoicePage = ({
 
     // Function to set field to disabled depending on Cost Code
     const changeCostType = (e: any) => {
+        // INDEX IS NULL
+        console.log(e);
         const index: number = e.selectedItem.index;
-        if (e.selectedItem.value === 4) {
+        if (e.selectedItem.value === 'Asset') {
             serviceDateToRefs.current![index].instance.option('disabled', true);
             serviceDateFromRefs.current![index].instance.option(
                 'disabled',
@@ -226,7 +210,10 @@ export const EditApInvoicePage = ({
                 'disabled',
                 false
             );
-        } else if (e.selectedItem.value === 0 || e.selectedItem.value === 2) {
+        } else if (
+            e.selectedItem.value === 'UAT' ||
+            e.selectedItem.value === 'BAT'
+        ) {
             serviceDateToRefs.current![index].instance.option(
                 'disabled',
                 false
@@ -251,23 +238,30 @@ export const EditApInvoicePage = ({
             );
         }
     };
-
+    console.log(apInvoiceData);
     return (
         <div className='absolute inset-4 w-screen'>
             <div className='h-full'>
+                <ToolbarTooltipsApInvoiceEdit />
                 <Allotment defaultSizes={[65, 35]}>
                     <Allotment.Pane>
-                        <div className='mr-4 h-full overflow-y-auto overflow-x-hidden'>
-                            <div className='mr-2 flex flex-row justify-end gap-4'>
-                                <div className='w-10'>
-                                    <Button
-                                        id='saveButton'
-                                        icon={faFloppyDisk}
-                                        onClick={handleUpdateApInvoice}
-                                    />
+                        <div className='h-full overflow-y-auto overflow-x-hidden'>
+                            <div className='mr-2 flex flex-row justify-end bg-white'>
+                                <div className='fixed z-20 flex gap-4 bg-white'>
+                                    <div className='w-10'>
+                                        <Button
+                                            id='saveButton'
+                                            icon={faFloppyDisk}
+                                            onClick={handleUpdateApInvoice}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                            <Form formData={apInvoiceData} labelLocation='left'>
+                            <Form
+                                formData={apInvoiceData}
+                                labelLocation='left'
+                                className='mr-2 pt-10'
+                            >
                                 <GroupItem
                                     colCount={2}
                                     caption='Supplier invoice'
@@ -337,9 +331,6 @@ export const EditApInvoicePage = ({
                                                     <Item
                                                         key={`code${index}`}
                                                         dataField={`invoiceLines[${index}].expenseCategory.expenseTypeCode`}
-                                                        label={{
-                                                            text: 'Code',
-                                                        }}
                                                         cssClass='itemStyle'
                                                         colSpan={2}
                                                     >
@@ -347,32 +338,32 @@ export const EditApInvoicePage = ({
                                                             items={[
                                                                 {
                                                                     label: 'UAT',
-                                                                    value: 0,
+                                                                    value: 'UAT',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'UAV',
-                                                                    value: 1,
+                                                                    value: 'UAV',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'BAT',
-                                                                    value: 2,
+                                                                    value: 'BAT',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'BAV',
-                                                                    value: 3,
+                                                                    value: 'BAV',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'Asset',
-                                                                    value: 4,
+                                                                    value: 'Asset',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'NA',
-                                                                    value: 5,
+                                                                    value: 'NA',
                                                                     index: `${index}`,
                                                                 },
                                                             ]}
@@ -386,7 +377,15 @@ export const EditApInvoicePage = ({
                                                             }
                                                             displayExpr='label'
                                                             valueExpr='value'
-                                                            onSelectionChanged={
+                                                            defaultValue={
+                                                                apInvoiceData
+                                                                    .invoiceLines[
+                                                                    index
+                                                                ]
+                                                                    .expenseCategory
+                                                                    .expenseTypeCode
+                                                            }
+                                                            onValueChanged={
                                                                 changeCostType
                                                             }
                                                         />
@@ -506,7 +505,7 @@ export const EditApInvoicePage = ({
                                                         <RequiredRule />
                                                     </Item>
                                                     <Item
-                                                        key={`tax${index}`}
+                                                        key={`discount${index}`}
                                                         dataField={`invoiceLines[${index}].discount`}
                                                         label={{
                                                             text: 'DTO',
@@ -536,7 +535,7 @@ export const EditApInvoicePage = ({
                                                     </Item>
                                                     <Item
                                                         key={`totalUnitPrice${index}`}
-                                                        dataField={`invoiceLines[${index}].totalLinePrice`}
+                                                        dataField={`invoiceLines[${index}].totalPrice`}
                                                         label={{
                                                             text: 'Total Line Price',
                                                         }}
@@ -589,10 +588,16 @@ export const EditApInvoicePage = ({
                                                 discount: null,
                                                 quantity: 0,
                                                 unitPrice: 0,
-                                                expenseCategoryId: '',
+                                                totalPrice: 0,
+                                                expenseCategory: {
+                                                    id: null,
+                                                    name: null,
+                                                    expenseTypeCode: null,
+                                                },
                                                 depreciationRatePerYear: null,
                                                 serviceDateFrom: '',
                                                 serviceDateTo: '',
+                                                fixedAsset: null,
                                             });
                                             // Update items fields
                                             setLines([]);
@@ -604,15 +609,11 @@ export const EditApInvoicePage = ({
                                 <Form
                                     formData={apInvoiceData}
                                     labelLocation='left'
-                                    style={{
-                                        width: '10vw',
-                                        float: 'right',
-                                        marginRight: '2em',
-                                    }}
+                                    className='mr-2'
                                 >
                                     <GroupItem>
                                         <Item
-                                            dataField='totalBaseAmount'
+                                            dataField='grossAmount'
                                             label={{ text: 'Base Amout' }}
                                             editorOptions={{
                                                 format: {
@@ -634,7 +635,7 @@ export const EditApInvoicePage = ({
                                             }}
                                         />
                                         <Item
-                                            dataField='totalAmount'
+                                            dataField='netAmount'
                                             label={{ text: 'Total Amout' }}
                                             editorOptions={{
                                                 format: {

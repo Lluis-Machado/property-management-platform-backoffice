@@ -1,16 +1,19 @@
 export interface ApInvoice {
     businessPartnerId: string;
-    // businessPartnerName: string;
-    // businessPartnerVatNumber: string;
+    businessPartnerName: string | null;
+    vatNumber?: string | null;
+    businessPartner: {
+        id: string;
+        name: string;
+        vatNumber: string;
+    };
     refNumber: string;
-    date: string;
+    date: string | null;
     currency: string;
-    totalAmount: number;
-    totalBaseAmount: number;
+    netAmount: number;
+    grossAmount: number;
     totalTax: number;
-    totalTaxPercentage: number;
     invoiceLines: InvoiceLines[];
-    vatNumber?: string;
     url?: string;
 }
 export interface ApInvoiceAnalyzedData {
@@ -23,8 +26,14 @@ export interface InvoiceLines {
     discount: string | null;
     quantity: Number;
     unitPrice: Number;
-    expenseCategoryId: string | null;
-    depreciationRatePerYear: string | null;
+    totalPrice: Number;
+    expenseCategory: {
+        id: string | null;
+        name: string | null;
+        expenseTypeCode: string | null;
+    };
+    depreciationRatePerYear?: string | null;
     serviceDateFrom: string | null;
     serviceDateTo: string | null;
+    fixedAsset: {} | null;
 }

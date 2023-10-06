@@ -52,19 +52,25 @@ import TooltipCostType from '@/components/tooltips/TooltipCostType';
 import TooltipCostTypeColor from '@/components/tooltips/TooltipCostTypeColor';
 import { apiPost } from '@/lib/utils/apiPost';
 import { InvoiceItemAnalyzer } from '@/lib/types/invoiceItemAnalyzer';
+import { ExpenseCategory } from '@/lib/types/expenseCategory';
+import { AnalyzedInvoiceLine } from '@/lib/types/analyzedInvoiceLine';
 
 let apInvoiceData: ApInvoiceAnalyzedData = {
     form: {
         businessPartnerId: '',
-        // businessPartnerName: '',
-        // businessPartnerVatNumber: '',
+        businessPartnerName: null,
+        vatNumber: null,
+        businessPartner: {
+            id: '',
+            name: '',
+            vatNumber: '',
+        },
         refNumber: '',
         date: '',
         currency: 'EUR',
-        totalAmount: 0,
-        totalBaseAmount: 0,
         totalTax: 0,
-        totalTaxPercentage: 0,
+        grossAmount: 0,
+        netAmount: 0,
         invoiceLines: [],
     },
 };
@@ -72,12 +78,14 @@ interface Props {
     id: string;
     tenatsBusinessPartners: BusinessPartners[];
     allBusinessPartners: BusinessPartners[];
+    expenseCategory: ExpenseCategory[];
 }
 
 const AddApInvoicePage = ({
     id,
     tenatsBusinessPartners,
     allBusinessPartners,
+    expenseCategory,
 }: Props) => {
     //////////// States ////////////
     const [visible, setVisible] = useState(false);
@@ -208,7 +216,7 @@ const AddApInvoicePage = ({
         try {
             const response = await apiPost('/api/accounting/docAnalyzer', aux);
 
-            const analyzedData: any = response;
+            let analyzedData: any = response;
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');
 
             //Calculate total price
@@ -222,21 +230,12 @@ const AddApInvoicePage = ({
                 analyzedData.form.businessPartner.vatNumber = analyzedData.cif;
             }
 
-            setInvoiceData(analyzedData);
             try {
                 let invoiceLinesApiCall: InvoiceItemAnalyzer[] = [];
                 for (const invoiceLine of analyzedData.form.invoiceLines) {
-                    const hasPeriod =
-                        invoiceLine.serviceDateFrom == null &&
-                        invoiceLine.serviceDateTo == null
-                            ? false
-                            : true;
                     var objInvoiceItemAnalyzer = {
                         vendorName: analyzedData.form.businessPartner.name,
-                        vendorTaxId:
-                            analyzedData.form.businessPartner.vatNumber,
                         invoiceLineDescription: invoiceLine.description,
-                        hasPeriod: hasPeriod,
                     };
                     invoiceLinesApiCall.push(objInvoiceItemAnalyzer);
                 }
@@ -247,13 +246,43 @@ const AddApInvoicePage = ({
 
                 console.log('TODO CORRECTO, valores de vuelta: ', response);
 
-                const analyzedInvoiceLine = response;
+                const analyzedInvoiceLine: any = response;
                 setAnalyzedInvoiceLines(analyzedInvoiceLine);
+
+                for (const invoiceLine of analyzedInvoiceLine) {
+                }
+
+                var temp4: any[] = [];
+                analyzedInvoiceLine.forEach(function (elem: any) {
+                    //console.log("Elem: ", elem);
+                    expenseCategory.filter(function (elem2: any) {
+                        //console.log("Elem2: ", elem2);
+                        if (elem2.name === elem.predictedCategoryId) {
+                            temp4.push(elem2);
+                            //console.log("MATCH!");
+                        }
+                    });
+                });
+                console.log('TEMP4', temp4, temp4.length);
+
+                for (let i: number = 0; i < temp4.length; i++) {
+                    analyzedData.form.invoiceLines[i].expenseCategory = {
+                        ...temp4[i],
+                    };
+                    console.log(
+                        `Form cat ${i}`,
+                        analyzedData.form.invoiceLines[i].expenseCategory
+                    );
+                }
+
+                console.log('Analyzed data (modified)', analyzedData);
             } catch (error: unknown) {
                 customError(error, toastId);
             } finally {
                 setIsLoading(false);
             }
+
+            setInvoiceData(analyzedData);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
@@ -261,36 +290,33 @@ const AddApInvoicePage = ({
         }
     }, [invoice]);
 
+    console.log(analyzedInvoiceLines);
+    console.log(expenseCategory);
+    console.log(invoiceData);
+
     // Function to Save the AP Invoice
     const handleSaveApInvoice = useCallback(async () => {
         const toastId = toast.loading('Saving Invoice');
         setIsLoading(true);
         const id = 'b99f942c-a141-4555-9554-14a09c5f94a4';
-        const idBP = 'a44a9fca-02b5-45d8-a0a4-d300753eec37';
+        const idBP = '29cdeba1-1a4d-48b7-8b70-751476ff2f0c';
 
         let invoiceLinesAPInvoice: InvoiceLines[] = [];
 
         for (const invoiceLine of invoiceData.form.invoiceLines) {
             invoiceLinesAPInvoice.push({
                 ...invoiceLine,
-                expenseCategoryId: '1996e66c-80b2-4c5f-8411-b84efd29393f',
+                expenseCategoryId: '9617266f-3fa7-41e8-b294-e68b5f0a3d30',
                 depreciationRatePerYear: 0,
-                serviceDateFrom: '2023-09-19T09:14:41.861Z',
-                serviceDateTo: '2023-09-19T09:14:41.861Z',
+                serviceDateFrom: null,
+                serviceDateTo: null,
             });
         }
 
         const valuesToSend: ApInvoice = {
+            ...invoiceData.form,
             businessPartnerId: idBP,
-            // businessPartnerName: invoiceData.form.businessPartnerName,
-            // businessPartnerVatNumber: invoiceData.form.businessPartnerVatNumber,
-            refNumber: invoiceData.form.refNumber,
-            date: invoiceData.form.date,
             currency: 'EUR',
-            totalAmount: invoiceData.form.totalAmount,
-            totalBaseAmount: invoiceData.form.totalBaseAmount,
-            totalTax: invoiceData.form.totalTax,
-            totalTaxPercentage: invoiceData.form.totalTaxPercentage,
             invoiceLines: invoiceLinesAPInvoice,
         };
 
@@ -403,6 +429,7 @@ const AddApInvoicePage = ({
 
     // Render Form Item  with Tooltip & Tooltip Colors
     const CostTypeFieldRender = (data: any) => {
+        console.log('CostType data', data);
         const input = data || {};
         if (data === null) {
             if (input) {
@@ -435,6 +462,7 @@ const AddApInvoicePage = ({
 
     // Function to set field to disabled depending on Cost Code
     const changeCostType = (e: any) => {
+        // TODO INDEX EMPTY
         const index: number = e.selectedItem.index;
         if (e.selectedItem.value === 4) {
             serviceDateToRefs.current![index].instance.option('disabled', true);
@@ -605,7 +633,7 @@ const AddApInvoicePage = ({
                                                 >
                                                     <Item
                                                         key={`code${index}`}
-                                                        dataField={`form.invoiceLines[${index}].quantity`}
+                                                        dataField={`form.invoiceLines[${index}].expenseCategory.expenseTypeCode`}
                                                         label={{
                                                             text: 'Code',
                                                         }}
@@ -616,32 +644,32 @@ const AddApInvoicePage = ({
                                                             items={[
                                                                 {
                                                                     label: 'UAT',
-                                                                    value: 0,
+                                                                    value: 'UAT',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'UAV',
-                                                                    value: 1,
+                                                                    value: 'UAV',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'BAT',
-                                                                    value: 2,
+                                                                    value: 'BAT',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'BAV',
-                                                                    value: 3,
+                                                                    value: 'BAV',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'Asset',
-                                                                    value: 4,
+                                                                    value: 'Asset',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'NA',
-                                                                    value: 5,
+                                                                    value: 'NA',
                                                                     index: `${index}`,
                                                                 },
                                                             ]}
@@ -655,14 +683,22 @@ const AddApInvoicePage = ({
                                                             }
                                                             displayExpr='label'
                                                             valueExpr='value'
-                                                            onSelectionChanged={
+                                                            onValueChanged={
                                                                 changeCostType
+                                                            }
+                                                            defaultValue={
+                                                                invoiceData.form
+                                                                    .invoiceLines[
+                                                                    index
+                                                                ]
+                                                                    .expenseCategory
+                                                                    .expenseTypeCode
                                                             }
                                                         />
                                                     </Item>
                                                     <Item
                                                         key={`categorie${index}`}
-                                                        dataField={`analyzedInvoiceLines[${index}].predictedCategoryId`}
+                                                        dataField={`form.invoiceLines[${index}].expenseCategory.name`}
                                                         label={{
                                                             text: 'Code',
                                                         }}
@@ -775,7 +811,7 @@ const AddApInvoicePage = ({
                                                         <RequiredRule />
                                                     </Item>
                                                     <Item
-                                                        key={`tax${index}`}
+                                                        key={`discount${index}`}
                                                         dataField={`form.invoiceLines[${index}].discount`}
                                                         label={{
                                                             text: 'DTO %',
@@ -805,7 +841,7 @@ const AddApInvoicePage = ({
                                                     </Item>
                                                     <Item
                                                         key={`totalUnitPrice${index}`}
-                                                        dataField={`form.invoiceLines[${index}].totalLinePrice`}
+                                                        dataField={`form.invoiceLines[${index}].totalPrice`}
                                                         label={{
                                                             text: 'Total Line Price',
                                                         }}
@@ -877,7 +913,7 @@ const AddApInvoicePage = ({
                                 >
                                     <GroupItem>
                                         <Item
-                                            dataField='form.totalBaseAmount'
+                                            dataField='form.grossAmount'
                                             label={{ text: 'Base Amout' }}
                                             editorOptions={{
                                                 format: {
@@ -899,7 +935,7 @@ const AddApInvoicePage = ({
                                             }}
                                         />
                                         <Item
-                                            dataField='form.totalAmount'
+                                            dataField='form.netAmount'
                                             label={{ text: 'Total Amout' }}
                                             editorOptions={{
                                                 format: {
