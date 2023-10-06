@@ -138,7 +138,6 @@ export const EditApInvoicePage = ({
 
     // Render Category Code with Tooltip & Tooltip Colors
     const CostTypeCellRender = (data: any) => {
-        console.log(data);
         return (
             <div className='bg- flex flex-row items-center gap-2 text-center'>
                 <span id={data.label + data.index}>
@@ -170,7 +169,7 @@ export const EditApInvoicePage = ({
                 (input.label = undefined), (input.index = 0);
             }
         }
-        console.log(data);
+
         return (
             <div className='bg-flex flex h-[34px] flex-row items-center gap-2 text-center'>
                 <span id={input.label + input.index}>

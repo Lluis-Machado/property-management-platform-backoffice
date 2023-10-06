@@ -219,13 +219,6 @@ const AddApInvoicePage = ({
             let analyzedData: any = response;
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');
 
-            //Calculate total price
-            for (const invoiceLine of analyzedData.form.invoiceLines) {
-                const totalLinePrice =
-                    invoiceLine.unitPrice * invoiceLine.quantity;
-                invoiceLine['totalLinePrice'] = totalLinePrice;
-            }
-
             if (analyzedData.form.businessPartner.vatNumber == null) {
                 analyzedData.form.businessPartner.vatNumber = analyzedData.cif;
             }
@@ -249,50 +242,31 @@ const AddApInvoicePage = ({
                 const analyzedInvoiceLine: any = response;
                 setAnalyzedInvoiceLines(analyzedInvoiceLine);
 
-                for (const invoiceLine of analyzedInvoiceLine) {
-                }
-
-                var temp4: any[] = [];
+                var arrayInvoices: any[] = [];
                 analyzedInvoiceLine.forEach(function (elem: any) {
-                    //console.log("Elem: ", elem);
                     expenseCategory.filter(function (elem2: any) {
-                        //console.log("Elem2: ", elem2);
                         if (elem2.name === elem.predictedCategoryId) {
-                            temp4.push(elem2);
-                            //console.log("MATCH!");
+                            arrayInvoices.push(elem2);
                         }
                     });
                 });
-                console.log('TEMP4', temp4, temp4.length);
-
-                for (let i: number = 0; i < temp4.length; i++) {
+                for (let i: number = 0; i < arrayInvoices.length; i++) {
                     analyzedData.form.invoiceLines[i].expenseCategory = {
-                        ...temp4[i],
+                        ...arrayInvoices[i],
                     };
-                    console.log(
-                        `Form cat ${i}`,
-                        analyzedData.form.invoiceLines[i].expenseCategory
-                    );
                 }
-
-                console.log('Analyzed data (modified)', analyzedData);
             } catch (error: unknown) {
                 customError(error, toastId);
             } finally {
                 setIsLoading(false);
             }
-
             setInvoiceData(analyzedData);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
             setIsLoading(false);
         }
-    }, [invoice]);
-
-    console.log(analyzedInvoiceLines);
-    console.log(expenseCategory);
-    console.log(invoiceData);
+    }, [invoice, expenseCategory]);
 
     // Function to Save the AP Invoice
     const handleSaveApInvoice = useCallback(async () => {
@@ -306,7 +280,7 @@ const AddApInvoicePage = ({
         for (const invoiceLine of invoiceData.form.invoiceLines) {
             invoiceLinesAPInvoice.push({
                 ...invoiceLine,
-                expenseCategoryId: '9617266f-3fa7-41e8-b294-e68b5f0a3d30',
+                expenseCategoryId: invoiceLine.expenseCategory.id,
                 depreciationRatePerYear: 0,
                 serviceDateFrom: null,
                 serviceDateTo: null,
@@ -429,7 +403,6 @@ const AddApInvoicePage = ({
 
     // Render Form Item  with Tooltip & Tooltip Colors
     const CostTypeFieldRender = (data: any) => {
-        console.log('CostType data', data);
         const input = data || {};
         if (data === null) {
             if (input) {

@@ -165,7 +165,7 @@ const DataGrid = ({
     const [dataGridValues, setDataGridValues] = useState<ApInvoice[]>(
         structuredClone(dataSource)
     );
-    console.log(dataGridValues);
+
     //////////// Refs ////////////
     const dataGridRef = useRef<DxDataGrid>(null);
     const masterdetailRef = useRef<DxDataGrid>(null);
