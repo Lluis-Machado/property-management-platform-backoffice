@@ -622,17 +622,19 @@ const AddPropertyPage = ({
                     </TabbedItem>
                 </GroupItem>
             </Form>
-            <div className='flex items-center justify-center'>
-                <div className='mr-28 mt-2 h-[2rem]  w-32'>
-                    <Button
-                        elevated
-                        type='button'
-                        icon={faSave}
-                        text='Save Property'
-                        disabled={isLoading}
-                        isLoading={isLoading}
-                        onClick={handleSubmit}
-                    />
+            <div className='my-6'>
+                <div className='flex justify-end'>
+                    <div className='flex flex-row self-center'>
+                        <Button
+                            elevated
+                            type='button'
+                            icon={faSave}
+                            text='Save Property'
+                            disabled={isLoading}
+                            isLoading={isLoading}
+                            onClick={handleSubmit}
+                        />
+                    </div>
                 </div>
             </div>
         </div>
