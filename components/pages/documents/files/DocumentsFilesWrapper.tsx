@@ -92,6 +92,9 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
                     lastUpdateByUser: '',
                     name: '',
                 };
+                TreeViewRef.current?.instance.selectItem(
+                    searchParams?.archiveId
+                );
                 handleFolderSelected(archObj);
             }
         }, [searchParams]);
