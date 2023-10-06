@@ -1,5 +1,5 @@
 //React imports
-import { FC, memo, useCallback, useRef } from 'react';
+import { memo, useCallback, useRef } from 'react';
 
 // Libraries imports
 import { faCircleXmark, faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -49,20 +49,20 @@ export interface Props {
 const getDocumentName = (document: Document | DocumentUpload) => {
     const isDocumentUpload = (
         document: Document | DocumentUpload
-    ): document is DocumentUpload => !document?.hasOwnProperty('fileName');
+    ): document is DocumentUpload => document?.hasOwnProperty('fileName');
     return isDocumentUpload(document) ? document.fileName : document.name;
 };
 
 /**
  * Represents a warning popup that displays the documents that have failed the given action (type).
  */
-const FailedDocumentPopup: FC<Props> = memo(function FailedUploadPopup({
+const FailedDocumentPopup = ({
     documents,
     onHidden,
     onShown,
     type,
     visible,
-}): React.ReactElement {
+}: Props) => {
     const PopupRef = useRef<Popup>(null);
 
     const ContentRender = useCallback(
@@ -125,6 +125,6 @@ const FailedDocumentPopup: FC<Props> = memo(function FailedUploadPopup({
             width='80vw'
         />
     );
-});
+};
 
-export default FailedDocumentPopup;
+export default memo(FailedDocumentPopup);

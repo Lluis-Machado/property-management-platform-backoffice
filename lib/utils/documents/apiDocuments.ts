@@ -4,7 +4,7 @@ import { updateSuccessToast } from '../customToasts';
 import { customError } from '../customError';
 import { ApiCallError } from '../errors';
 
-const BASE_END_POINT = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents`;
+const BASE_END_POINT = '/api/documents';
 
 interface Messages {
     pending: string;
@@ -54,55 +54,6 @@ const makeApiRequest = async (
         throw error;
     }
 };
-
-//#region ARCHIVES
-
-const archiveMessages: Record<string, Messages> = {
-    create: {
-        pending: 'Creating archive',
-        success: 'Archive created',
-        error: 'Error creating archive',
-    },
-    rename: {
-        pending: 'Renaming archive',
-        success: 'Archive renamed',
-        error: 'Error renaming archive',
-    },
-    delete: {
-        pending: 'Deleting archive',
-        success: 'Archive deleted',
-        error: 'Error deleting archive',
-    },
-    undelete: {
-        pending: 'Restoring archive',
-        success: 'Archive restored',
-        error: 'Error restoring archive',
-    },
-};
-
-export const createArchive = async (archiveName: string) => {
-    const endPoint = `${BASE_END_POINT}/archives`;
-    const body = { name: archiveName };
-    return makeApiRequest(endPoint, 'POST', archiveMessages.create, body);
-};
-
-export const renameArchive = async (archiveId: string, newName: string) => {
-    const params = new URLSearchParams({ newName });
-    const endPoint = `${BASE_END_POINT}/archives/${archiveId}?${params}`;
-    return makeApiRequest(endPoint, 'PATCH', archiveMessages.rename);
-};
-
-export const deleteArchive = async (archiveId: string) => {
-    const endPoint = `${BASE_END_POINT}/archives/${archiveId}`;
-    return makeApiRequest(endPoint, 'DELETE', archiveMessages.delete);
-};
-
-export const undeleteArchive = async (archiveId: string) => {
-    const endPoint = `${BASE_END_POINT}/archives/${archiveId}/undelete`;
-    return makeApiRequest(endPoint, 'PATCH', archiveMessages.undelete);
-};
-
-//#endregion
 
 //#region DOCUMENTS
 
@@ -170,14 +121,11 @@ export const renameDocument = async (
     documentId: string,
     documentName: string
 ) => {
-    const endPoint = `${BASE_END_POINT}/${archiveId}/documents/${documentId}/rename`;
-    const formData = new FormData();
-    formData.append('documentName', documentName);
+    const endPoint = `${BASE_END_POINT}/${archiveId}/documents/${documentId}/rename?newName=${documentName}`;
     const response = await makeApiRequest(
         endPoint,
         'PATCH',
-        documentMessages.rename,
-        formData
+        documentMessages.rename
     );
     return response.ok;
 };
@@ -236,15 +184,11 @@ const copyMoveDocument = async (
     body: Document
 ) => {
     const endPoint = `${BASE_END_POINT}/${archiveId}/documents/${documentId}/${type}`;
-    const formData = new FormData();
-    formData.append('destinationArchive', body.destinationArchive);
-    formData.append('documentName', body.documentName);
-    body.folderId && formData.append('folderId', body.folderId);
     const response = await makeApiRequest(
         endPoint,
         'POST',
         documentMessages[type],
-        formData
+        body
     );
     return response.ok;
 };

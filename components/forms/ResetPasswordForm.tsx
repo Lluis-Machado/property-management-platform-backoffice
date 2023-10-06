@@ -48,7 +48,7 @@ const ResetPasswordForm = ({ dictionary, lang }: Props) => {
 
         try {
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/auth/Users/resetPassword?email=${formValues.username}`
+                `/api/users/resetPassword?email=${formValues.username}`
             );
 
             if (response.ok)

@@ -210,11 +210,11 @@ const AddApInvoicePage = ({
             formData.append('file', blobFile);
         }
 
-        const aux =
-            formData instanceof FormData ? formData : JSON.stringify(formData);
-
         try {
-            const response = await apiPost('/api/accounting/docAnalyzer', aux);
+            const response = await apiPost(
+                '/api/accounting/docAnalyzer',
+                formData
+            );
 
             let analyzedData: any = response;
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');

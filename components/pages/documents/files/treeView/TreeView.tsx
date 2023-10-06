@@ -21,10 +21,8 @@ import { Archive, DocumentUpload, Folder } from '@/lib/types/documentsAPI';
 import {
     copyFolder,
     createFolder,
-    deleteArchive,
     deleteFolder,
     moveFolder,
-    renameArchive,
     renameFolder,
     uploadDocumentsToArchive,
     uploadDocumentsToFolder,
@@ -358,19 +356,12 @@ const TreeView: FC<Props> = memo(function TreeView({
      * @param value - The new name for the archive or folder.
      */
     const handleRename = useCallback(
-        async (
-            archiveId: string,
-            data: Archive | Folder,
-            isSelectedItemAnArchive: boolean,
-            value: string
-        ) => {
+        async (archiveId: string, data: Archive | Folder, value: string) => {
             // Update DB
-            const ok = isSelectedItemAnArchive
-                ? await renameArchive(archiveId, value)
-                : await renameFolder(archiveId, (data as Folder).id, {
-                      name: value,
-                      parentId: (data as Folder).parentId,
-                  });
+            const ok = await renameFolder(archiveId, (data as Folder).id, {
+                name: value,
+                parentId: (data as Folder).parentId,
+            });
 
             if (!ok) return;
 
@@ -396,9 +387,7 @@ const TreeView: FC<Props> = memo(function TreeView({
             item: TreeItem<Archive | Folder>
         ) => {
             // Update DB
-            const ok = isSelectedItemAnArchive
-                ? await deleteArchive(archiveId)
-                : await deleteFolder(archiveId, (item.data as Folder).id);
+            const ok = await deleteFolder(archiveId, (item.data as Folder).id);
 
             if (!ok) return;
 
@@ -430,13 +419,7 @@ const TreeView: FC<Props> = memo(function TreeView({
                         isSelectedItemAnArchive,
                         value!
                     ),
-                Rename: () =>
-                    handleRename(
-                        archiveId,
-                        data,
-                        isSelectedItemAnArchive,
-                        value!
-                    ),
+                Rename: () => handleRename(archiveId, data, value!),
                 Delete: () =>
                     handleDelete(
                         archiveId,

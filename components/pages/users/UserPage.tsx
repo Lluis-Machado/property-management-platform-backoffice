@@ -36,10 +36,11 @@ interface Props {
     userData: Auth0User;
     userRoles: UserRoles[];
     userLogs: UserLogs[];
+    roles: UserRoles[];
     lang: Locale;
 }
 
-const UserPage = ({ userData, userRoles, userLogs, lang }: Props) => {
+const UserPage = ({ userData, userRoles, userLogs, roles, lang }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
@@ -253,7 +254,11 @@ const UserPage = ({ userData, userRoles, userLogs, lang }: Props) => {
                             height={'50vh'}
                         />
                         <Tab title={`Roles`}>
-                            <RolesDataGrid userRoles={userRoles} />
+                            <RolesDataGrid
+                                userRoles={userRoles}
+                                roles={roles}
+                                isEditing={isEditing}
+                            />
                         </Tab>
                         <Tab title={`Logs`}>
                             <LogsDataGrid userLogs={userLogs} />

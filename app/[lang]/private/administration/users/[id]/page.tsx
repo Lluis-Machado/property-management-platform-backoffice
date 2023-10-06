@@ -10,7 +10,7 @@ interface Props {
 }
 
 const UserForm = async ({ params: { lang, id } }: Props) => {
-    const [userData, userRoles, userLogs] = await Promise.all([
+    const [userData, userRoles, userLogs, roles] = await Promise.all([
         getApiData<Auth0User>(
             `/auth/users/${id}`,
             'Error while getting user info'
@@ -23,6 +23,7 @@ const UserForm = async ({ params: { lang, id } }: Props) => {
             `/auth/users/${id}/logs`,
             'Error while getting user logs'
         ),
+        getApiData<UserRoles[]>(`/auth/roles`, 'Error while getting all roles'),
     ]);
 
     return (
@@ -32,6 +33,7 @@ const UserForm = async ({ params: { lang, id } }: Props) => {
                 userData={userData}
                 userRoles={userRoles}
                 userLogs={userLogs}
+                roles={roles}
                 lang={lang}
             />
         </>
