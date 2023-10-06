@@ -40,27 +40,37 @@ import {
     uploadDocumentsToArchive,
 } from '@/lib/utils/documents/apiDocuments';
 import { BusinessPartners } from '@/lib/types/businessPartners';
-import { ApInvoice, ApInvoiceAnalyzedData } from '@/lib/types/apInvoice';
+import {
+    ApInvoice,
+    ApInvoiceAnalyzedData,
+    InvoiceLines,
+} from '@/lib/types/apInvoice';
 import BpPopup from '@/components/popups/BpPopup';
 import ToolbarTooltipsApInvoice from '@/components/tooltips/ToolbarTooltipsApInvoice';
 import { apiPostAccounting } from '@/lib/utils/apiPostAccounting';
-import { TokenRes } from '@/lib/types/token';
 import TooltipCostType from '@/components/tooltips/TooltipCostType';
 import TooltipCostTypeColor from '@/components/tooltips/TooltipCostTypeColor';
 import { apiPost } from '@/lib/utils/apiPost';
+import { InvoiceItemAnalyzer } from '@/lib/types/invoiceItemAnalyzer';
+import { ExpenseCategory } from '@/lib/types/expenseCategory';
+import { AnalyzedInvoiceLine } from '@/lib/types/analyzedInvoiceLine';
 
 let apInvoiceData: ApInvoiceAnalyzedData = {
     form: {
         businessPartnerId: '',
-        // businessPartnerName: '',
-        // businessPartnerVatNumber: '',
+        businessPartnerName: null,
+        vatNumber: null,
+        businessPartner: {
+            id: '',
+            name: '',
+            vatNumber: '',
+        },
         refNumber: '',
         date: '',
         currency: 'EUR',
-        totalAmount: 0,
-        totalBaseAmount: 0,
         totalTax: 0,
-        totalTaxPercentage: 0,
+        grossAmount: 0,
+        netAmount: 0,
         invoiceLines: [],
     },
 };
@@ -68,19 +78,19 @@ interface Props {
     id: string;
     tenatsBusinessPartners: BusinessPartners[];
     allBusinessPartners: BusinessPartners[];
-    token: TokenRes;
+    expenseCategory: ExpenseCategory[];
 }
 
 const AddApInvoicePage = ({
     id,
     tenatsBusinessPartners,
     allBusinessPartners,
-    token,
+    expenseCategory,
 }: Props) => {
     //////////// States ////////////
     const [visible, setVisible] = useState(false);
     const [invoice, setInvoice] = useState<File | string | Blob>();
-    const [fileDataURL, setFileDataURL] = useState<any>(null);
+    const [fileDataURL, setFileDataURL] = useState<null | string>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [popUpVisible, setPopUpVisible] = useState<boolean>(false);
     const [invoiceData, setInvoiceData] = useState<any>(apInvoiceData);
@@ -99,8 +109,8 @@ const AddApInvoicePage = ({
     const selectboxRef = useRef<SelectBox>(null);
     const formRef = useRef<Form>(null);
     const serviceDateToRefs = useRef<DateBox[] | any>([]);
-    const serviceDateFromRefs = useRef<any[]>([]);
-    const depreciationRatePerYearRefs = useRef<any[]>([]);
+    const serviceDateFromRefs = useRef<DateBox[] | any>([]);
+    const depreciationRatePerYearRefs = useRef<NumberBox[] | any>([]);
 
     //////////// Custom Hooks ////////////
     const router = useRouter();
@@ -206,37 +216,19 @@ const AddApInvoicePage = ({
                 formData
             );
 
-            console.log('TODO CORRECTO, valores de vuelta: ', response);
-
-            const analyzedData: any = response;
+            let analyzedData: any = response;
             updateSuccessToast(toastId, 'AP Invoice analyzed correctly!');
-
-            //Calculate total price
-            for (const invoiceLine of analyzedData.form.invoiceLines) {
-                const totalLinePrice =
-                    invoiceLine.unitPrice * invoiceLine.quantity;
-                invoiceLine['totalLinePrice'] = totalLinePrice;
-            }
 
             if (analyzedData.form.businessPartner.vatNumber == null) {
                 analyzedData.form.businessPartner.vatNumber = analyzedData.cif;
             }
 
-            setInvoiceData(analyzedData);
             try {
-                let invoiceLinesApiCall: any[] = [];
+                let invoiceLinesApiCall: InvoiceItemAnalyzer[] = [];
                 for (const invoiceLine of analyzedData.form.invoiceLines) {
-                    const hasPeriod =
-                        invoiceLine.serviceDateFrom == null &&
-                        invoiceLine.serviceDateTo == null
-                            ? false
-                            : true;
                     var objInvoiceItemAnalyzer = {
                         vendorName: analyzedData.form.businessPartner.name,
-                        vendorTaxId:
-                            analyzedData.form.businessPartner.vatNumber,
                         invoiceLineDescription: invoiceLine.description,
-                        hasPeriod: hasPeriod,
                     };
                     invoiceLinesApiCall.push(objInvoiceItemAnalyzer);
                 }
@@ -247,50 +239,58 @@ const AddApInvoicePage = ({
 
                 console.log('TODO CORRECTO, valores de vuelta: ', response);
 
-                const analyzedInvoiceLine = response;
+                const analyzedInvoiceLine: any = response;
                 setAnalyzedInvoiceLines(analyzedInvoiceLine);
+
+                var arrayInvoices: any[] = [];
+                analyzedInvoiceLine.forEach(function (elem: any) {
+                    expenseCategory.filter(function (elem2: any) {
+                        if (elem2.name === elem.predictedCategoryId) {
+                            arrayInvoices.push(elem2);
+                        }
+                    });
+                });
+                for (let i: number = 0; i < arrayInvoices.length; i++) {
+                    analyzedData.form.invoiceLines[i].expenseCategory = {
+                        ...arrayInvoices[i],
+                    };
+                }
             } catch (error: unknown) {
                 customError(error, toastId);
             } finally {
                 setIsLoading(false);
             }
+            setInvoiceData(analyzedData);
         } catch (error: unknown) {
             customError(error, toastId);
         } finally {
             setIsLoading(false);
         }
-    }, [invoice]);
+    }, [invoice, expenseCategory]);
 
     // Function to Save the AP Invoice
     const handleSaveApInvoice = useCallback(async () => {
         const toastId = toast.loading('Saving Invoice');
         setIsLoading(true);
         const id = 'b99f942c-a141-4555-9554-14a09c5f94a4';
-        const idBP = 'a44a9fca-02b5-45d8-a0a4-d300753eec37';
+        const idBP = '29cdeba1-1a4d-48b7-8b70-751476ff2f0c';
 
-        let invoiceLinesAPInvoice: any[] = [];
+        let invoiceLinesAPInvoice: InvoiceLines[] = [];
 
         for (const invoiceLine of invoiceData.form.invoiceLines) {
             invoiceLinesAPInvoice.push({
                 ...invoiceLine,
-                expenseCategoryId: '1996e66c-80b2-4c5f-8411-b84efd29393f',
+                expenseCategoryId: invoiceLine.expenseCategory.id,
                 depreciationRatePerYear: 0,
-                serviceDateFrom: '2023-09-19T09:14:41.861Z',
-                serviceDateTo: '2023-09-19T09:14:41.861Z',
+                serviceDateFrom: null,
+                serviceDateTo: null,
             });
         }
 
         const valuesToSend: ApInvoice = {
+            ...invoiceData.form,
             businessPartnerId: idBP,
-            // businessPartnerName: invoiceData.form.businessPartnerName,
-            // businessPartnerVatNumber: invoiceData.form.businessPartnerVatNumber,
-            refNumber: invoiceData.form.refNumber,
-            date: invoiceData.form.date,
             currency: 'EUR',
-            totalAmount: invoiceData.form.totalAmount,
-            totalBaseAmount: invoiceData.form.totalBaseAmount,
-            totalTax: invoiceData.form.totalTax,
-            totalTaxPercentage: invoiceData.form.totalTaxPercentage,
             invoiceLines: invoiceLinesAPInvoice,
         };
 
@@ -435,6 +435,7 @@ const AddApInvoicePage = ({
 
     // Function to set field to disabled depending on Cost Code
     const changeCostType = (e: any) => {
+        // TODO INDEX EMPTY
         const index: number = e.selectedItem.index;
         if (e.selectedItem.value === 4) {
             serviceDateToRefs.current![index].instance.option('disabled', true);
@@ -600,47 +601,48 @@ const AddApInvoicePage = ({
                                             return (
                                                 <GroupItem
                                                     key={`GroupItem${index}`}
-                                                    colCount={8}
+                                                    colCount={16}
                                                     cssClass='pb-2 border-dotted border-b-2 border-primary-500'
                                                 >
                                                     <Item
                                                         key={`code${index}`}
-                                                        dataField={`form.invoiceLines[${index}].quantity`}
+                                                        dataField={`form.invoiceLines[${index}].expenseCategory.expenseTypeCode`}
                                                         label={{
                                                             text: 'Code',
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <SelectBox
                                                             items={[
                                                                 {
                                                                     label: 'UAT',
-                                                                    value: 0,
+                                                                    value: 'UAT',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'UAV',
-                                                                    value: 1,
+                                                                    value: 'UAV',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'BAT',
-                                                                    value: 2,
+                                                                    value: 'BAT',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'BAV',
-                                                                    value: 3,
+                                                                    value: 'BAV',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'Asset',
-                                                                    value: 4,
+                                                                    value: 'Asset',
                                                                     index: `${index}`,
                                                                 },
                                                                 {
                                                                     label: 'NA',
-                                                                    value: 5,
+                                                                    value: 'NA',
                                                                     index: `${index}`,
                                                                 },
                                                             ]}
@@ -654,18 +656,26 @@ const AddApInvoicePage = ({
                                                             }
                                                             displayExpr='label'
                                                             valueExpr='value'
-                                                            onSelectionChanged={
+                                                            onValueChanged={
                                                                 changeCostType
+                                                            }
+                                                            defaultValue={
+                                                                invoiceData.form
+                                                                    .invoiceLines[
+                                                                    index
+                                                                ]
+                                                                    .expenseCategory
+                                                                    .expenseTypeCode
                                                             }
                                                         />
                                                     </Item>
                                                     <Item
                                                         key={`categorie${index}`}
-                                                        dataField={`analyzedInvoiceLines[${index}].predictedCategoryId`}
+                                                        dataField={`form.invoiceLines[${index}].expenseCategory.name`}
                                                         label={{
                                                             text: 'Code',
                                                         }}
-                                                        colSpan={2}
+                                                        colSpan={4}
                                                         cssClass='itemStyle'
                                                     />
                                                     <Item
@@ -674,7 +684,7 @@ const AddApInvoicePage = ({
                                                         label={{
                                                             text: 'Description',
                                                         }}
-                                                        colSpan={5}
+                                                        colSpan={10}
                                                         cssClass='itemStyle'
                                                     >
                                                         <NumericRule />
@@ -684,6 +694,7 @@ const AddApInvoicePage = ({
                                                         dataField={`form.invoiceLines[${index}].serviceDateFrom`}
                                                         label={{ text: 'From' }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <DateBox
                                                             label={'From'}
@@ -707,6 +718,7 @@ const AddApInvoicePage = ({
                                                         dataField={`form.invoiceLines[${index}].serviceDateTo`}
                                                         label={{ text: 'To' }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <DateBox
                                                             label={'To'}
@@ -736,6 +748,7 @@ const AddApInvoicePage = ({
                                                             format: "#0.##'%'",
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <NumberBox
                                                             ref={(invoice) =>
@@ -753,6 +766,7 @@ const AddApInvoicePage = ({
                                                             text: 'Amout',
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <RequiredRule />
                                                     </Item>
@@ -770,6 +784,17 @@ const AddApInvoicePage = ({
                                                         <RequiredRule />
                                                     </Item>
                                                     <Item
+                                                        key={`discount${index}`}
+                                                        dataField={`form.invoiceLines[${index}].discount`}
+                                                        label={{
+                                                            text: 'DTO %',
+                                                        }}
+                                                        editorOptions={{
+                                                            format: "#0.##'%'",
+                                                        }}
+                                                        cssClass='itemStyle'
+                                                    ></Item>
+                                                    <Item
                                                         key={`unitPrice${index}`}
                                                         dataField={`form.invoiceLines[${index}].unitPrice`}
                                                         label={{
@@ -783,12 +808,13 @@ const AddApInvoicePage = ({
                                                             },
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     >
                                                         <RequiredRule />
                                                     </Item>
                                                     <Item
                                                         key={`totalUnitPrice${index}`}
-                                                        dataField={`form.invoiceLines[${index}].totalLinePrice`}
+                                                        dataField={`form.invoiceLines[${index}].totalPrice`}
                                                         label={{
                                                             text: 'Total Line Price',
                                                         }}
@@ -800,6 +826,7 @@ const AddApInvoicePage = ({
                                                             },
                                                         }}
                                                         cssClass='itemStyle'
+                                                        colSpan={2}
                                                     />
                                                     <Item
                                                         key={`button${index}`}
@@ -819,6 +846,7 @@ const AddApInvoicePage = ({
                                                             },
                                                         }}
                                                         cssClass='deleteButton'
+                                                        colSpan={2}
                                                     />
                                                 </GroupItem>
                                             );
@@ -836,6 +864,7 @@ const AddApInvoicePage = ({
                                             invoiceData.form.invoiceLines.push({
                                                 description: '',
                                                 tax: null,
+                                                discount: null,
                                                 quantity: null,
                                                 unitPrice: null,
                                                 expenseCategoryId: '',
@@ -857,7 +886,7 @@ const AddApInvoicePage = ({
                                 >
                                     <GroupItem>
                                         <Item
-                                            dataField='form.totalBaseAmount'
+                                            dataField='form.grossAmount'
                                             label={{ text: 'Base Amout' }}
                                             editorOptions={{
                                                 format: {
@@ -879,7 +908,7 @@ const AddApInvoicePage = ({
                                             }}
                                         />
                                         <Item
-                                            dataField='form.totalAmount'
+                                            dataField='form.netAmount'
                                             label={{ text: 'Total Amout' }}
                                             editorOptions={{
                                                 format: {
