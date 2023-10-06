@@ -22,10 +22,7 @@ export async function POST(request: Request) {
             const responseMsg = await res.text();
             return new NextResponse(
                 responseMsg || 'Something went wrong creating a user',
-                {
-                    status: res.status,
-                    headers: { 'Content-Type': 'application/json' },
-                }
+                { status: res.status }
             );
         }
 

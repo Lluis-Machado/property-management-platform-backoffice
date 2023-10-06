@@ -54,7 +54,7 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
                         ? null
                         : (folder as Folder).id;
 
-                    let endpoint = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${archiveId}/documents`;
+                    let endpoint = `/api/documents/${archiveId}/documents`;
                     let errorMessage = `Error while getting archive {${archiveId}} documents`;
 
                     if (folderId) {
@@ -65,7 +65,6 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
                     }
 
                     const resp = await fetch(endpoint, {
-                        headers: { 'Content-Type': 'application/json' },
                         cache: 'no-store',
                     });
                     if (!resp.ok) throw new ApiCallError(errorMessage);

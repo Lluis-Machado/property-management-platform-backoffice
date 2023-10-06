@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server';
-import { Folder } from '@/lib/types/documentsAPI';
 import { getUser } from '@/lib/utils/getUser';
+import { NextResponse } from 'next/server';
 
 export async function POST(
     request: Request,
@@ -8,23 +7,26 @@ export async function POST(
 ) {
     try {
         const { token } = await getUser();
-        const folderData: Folder = await request.json();
+
+        const documentsIds: string[] = await request.json();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${params.archiveId}/folders`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${params.archiveId}/documents/join`,
             {
                 method: 'POST',
-                body: JSON.stringify(folderData),
+                body: JSON.stringify(documentsIds),
                 headers: {
                     Authorization: `${token.token_type} ${token.access_token}`,
                     'Content-type': 'application/json; charset=UTF-8',
                 },
+                cache: 'no-store',
             }
         );
+
         if (!res.ok) {
             const responseMsg = await res.text();
             return new NextResponse(
-                responseMsg || 'Something went wrong creating a folder',
+                responseMsg || 'Something went wrong joining documents',
                 {
                     status: res.status,
                     headers: { 'Content-Type': 'application/json' },
@@ -32,14 +34,13 @@ export async function POST(
             );
         }
 
-        const data = await res.json();
-        return NextResponse.json(data);
+        return new NextResponse(undefined, { status: res.status });
     } catch (error) {
         return new NextResponse(
             `Unexpected error. Please contact admin. Error info: ${JSON.stringify(
                 error
             )}`,
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
+            { status: 500 }
         );
     }
 }

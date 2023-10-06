@@ -4,14 +4,14 @@ import { getUser } from '@/lib/utils/getUser';
 
 export async function POST(
     request: Request,
-    { params }: { params: { archiveId: string } }
+    { params }: { params: { archiveId: string; folderId: string } }
 ) {
     try {
         const { token } = await getUser();
         const folderData: Folder = await request.json();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${params.archiveId}/folders`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${params.archiveId}/folders/${params.folderId}/move`,
             {
                 method: 'POST',
                 body: JSON.stringify(folderData),
@@ -24,7 +24,7 @@ export async function POST(
         if (!res.ok) {
             const responseMsg = await res.text();
             return new NextResponse(
-                responseMsg || 'Something went wrong creating a folder',
+                responseMsg || 'Something went wrong moving a folder',
                 {
                     status: res.status,
                     headers: { 'Content-Type': 'application/json' },
