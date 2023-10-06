@@ -1,7 +1,7 @@
 'use client';
 
 // React imports
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // Libraries imports
 import {
@@ -159,9 +159,18 @@ const DataGrid = ({
     params,
     id,
 }: Props): React.ReactElement => {
-    const dataGridRef = useRef<DxDataGrid>(null);
-    const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
+    //////////// States ////////////
     const [invoiceId, setInvoiceId] = useState<string>('');
+    const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
+    const [dataGridValues, setDataGridValues] = useState<ApInvoice[]>(
+        structuredClone(dataSource)
+    );
+
+    //////////// Refs ////////////
+    const dataGridRef = useRef<DxDataGrid>(null);
+    const masterdetailRef = useRef<DxDataGrid>(null);
+
+    //////////// Custom Hooks ////////////
     const router = useRouter();
 
     const handleDeleteClick = (data: any) => {
@@ -169,7 +178,7 @@ const DataGrid = ({
         setInvoiceId(data.id);
     };
 
-    // CHANGE ANY
+    // Function delete Ap Invoice
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting invoice...');
         try {
@@ -182,43 +191,53 @@ const DataGrid = ({
             updateSuccessToast(toastId, 'Invoice deleted correctly!');
 
             // Pass the ID to reload the page
-            router.push(`?deletedInvoice=${invoiceId}`);
+            router.push(
+                `/private/accounting/${id}/expenses?deletedInvoice=${invoiceId}`
+            );
         } catch (error: unknown) {
             customError(error, toastId);
         }
     }, [id, invoiceId, router]);
 
-    //TODO FALTA QUE PASAN EL DOC ID PARA HACER LA LLAMADA CORRECTA PARA CONSEGUIR EL URL Y DATOS DEL DOC
-    async function apInvoice(docId: string) {
-        // CHANGE LOGIC ARCHIVEID
-        const archiveId = 'c1b1bacc-7a32-41d2-9dc0-e67afc867d0f';
-        const url = URL.createObjectURL(
-            await downloadDocument(archiveId, docId)
-        );
-        const doc = await downloadDocument(archiveId, docId);
-        return url;
-    }
+    useEffect(() => {
+        addUrl();
+    }, []);
 
-    // RENDER INVOICE CELL TO SEE INVOICE
+    //TODO FALTA QUE PASAN EL DOC ID PARA HACER LA LLAMADA CORRECTA PARA CONSEGUIR EL URL
+    const addUrl = useCallback(() => {
+        let valuesDg: any[] = [];
+        for (const item of dataSource) {
+            const archiveId = 'c1b1bacc-7a32-41d2-9dc0-e67afc867d0f';
+            const docId = '0059cd7e-cf90-4cb6-be13-17fe08cee45e';
+            const fetchData = async () => {
+                const url = URL.createObjectURL(
+                    await downloadDocument(archiveId, docId)
+                );
+                return url;
+            };
+            fetchData().then((res) => {
+                item.url = res;
+            });
+            valuesDg.push(item);
+        }
+        setDataGridValues(valuesDg);
+        //dataGridRef.current?.instance.option("dataSource", valuesDg);
+    }, [dataSource]);
+
+    // Cell render for preview invoice column
     const InvoiceCellRender = useCallback(
         (data: any) => {
-            // TODO CHANGE LOGIC DOC ID
-            //const docId = data.data.docID
-            const docId = '0059cd7e-cf90-4cb6-be13-17fe08cee45e';
-            apInvoice(docId).then((res) => {
-                data.url = res;
-            });
             return (
                 <PreviewFileCellRender
-                    onClick={() => onInvoiceClick(docId, data.url)}
-                    url={data.url}
+                    onClick={() => onInvoiceClick(data.data.id, data.data.url)}
+                    url={data.data.url}
                 />
             );
         },
         [onInvoiceClick]
     );
 
-    // RENDER INVOICE EDITING
+    // Cell render for edit column
     const CellRender = useCallback(
         ({ data }: { data: any }): React.ReactElement => (
             <>
@@ -231,7 +250,7 @@ const DataGrid = ({
         [id]
     );
 
-    // RENDER INVOICE EDITING
+    // Cell render for delete invoice column
     const DeleteCellRender = useCallback(
         ({ data }: { data: any }): React.ReactElement => (
             <button
@@ -247,7 +266,37 @@ const DataGrid = ({
         []
     );
 
-    // MASTERDETAIL INVOICELINES
+    // function is date from/to are visible in masterdetail
+    const visibleDateFromTO = (e: any) => {
+        // if (e.rowType === 'data') {
+        //     if (e.data.expenseCategory.expenseTypeCode === "BAT" || e.data.expenseCategory.expenseTypeCode === "UAT") {
+        //         masterdetailRef.current!.instance.columnOption(
+        //             'serviceDateFrom',
+        //             'visible',
+        //             true
+        //         ),
+        //         masterdetailRef.current!.instance.columnOption(
+        //             'serviceDateTo',
+        //             'visible',
+        //             true
+        //         )
+        //     } else {
+        //         masterdetailRef.current!.instance.columnOption(
+        //             'serviceDateFrom',
+        //             'visible',
+        //             false
+        //         ),
+        //         masterdetailRef.current!.instance.columnOption(
+        //             'serviceDateTo',
+        //             'visible',
+        //             false
+        //         )
+        //         masterdetailRef.current!.instance.refresh();
+        //     }
+        // }
+    };
+
+    // Masterdetail
     const DetailSection = ({ data }: any) => {
         return (
             <DxDataGrid
@@ -260,6 +309,8 @@ const DataGrid = ({
                 autoNavigateToFocusedRow={true}
                 focusedRowIndex={0}
                 focusedColumnIndex={0}
+                onRowPrepared={visibleDateFromTO}
+                ref={masterdetailRef}
             >
                 <HeaderFilter visible />
                 <Column
@@ -276,7 +327,7 @@ const DataGrid = ({
                 <Column
                     dataField='description'
                     allowHeaderFiltering={false}
-                    width={650}
+                    width={600}
                 />
                 <Column
                     dataField='serviceDateFrom'
@@ -293,6 +344,16 @@ const DataGrid = ({
                     format={dateFormat}
                 />
                 <Column dataField='quantity' allowHeaderFiltering={false} />
+                <Column
+                    dataField='tax'
+                    allowHeaderFiltering={false}
+                    format="#0.##'%'"
+                />
+                <Column
+                    dataField='discount'
+                    allowHeaderFiltering={false}
+                    format="#0.##'%'"
+                />
                 <Column dataField='unitPrice' format={currencyFormat}>
                     <HeaderFilter groupInterval={100} />
                 </Column>
@@ -322,7 +383,7 @@ const DataGrid = ({
                 onConfirm={handleDelete}
             />
             <DxDataGrid
-                dataSource={dataSource}
+                dataSource={dataGridValues}
                 keyExpr='id'
                 showRowLines
                 defaultFilterValue={

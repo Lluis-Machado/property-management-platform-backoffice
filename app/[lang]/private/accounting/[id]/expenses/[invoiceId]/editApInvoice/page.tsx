@@ -14,7 +14,7 @@ const EditApInvoice: any = async ({ params: { id, invoiceId } }: Props) => {
     const [apInvoiceData, tenatsBusinessPartners] = await Promise.all([
         getApiData<ApInvoice>(
             `/accounting/tenants/${id}/apinvoices/${invoiceId}`,
-            'Error while getting Ap invpice info'
+            'Error while getting Ap invoice info'
         ),
         getApiData<BusinessPartners[]>(
             `/accounting/tenants/b99f942c-a141-4555-9554-14a09c5f94a4/businessPartners`,
