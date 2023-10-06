@@ -1,4 +1,3 @@
-import { Document } from '@/lib/types/documentsAPI';
 import { getUser } from '@/lib/utils/getUser';
 import { NextResponse } from 'next/server';
 
@@ -8,13 +7,13 @@ export async function PATCH(
 ) {
     try {
         const { token } = await getUser();
-        const renameData: Document = await request.json();
+        const { searchParams } = new URL(request.url);
+        const newName = searchParams.get('newName');
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${params.archiveId}/documents/${params.documentId}/rename`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${params.archiveId}/documents/${params.documentId}/rename?newName=${newName}`,
             {
                 method: 'PATCH',
-                body: JSON.stringify(renameData),
                 headers: {
                     Authorization: `${token.token_type} ${token.access_token}`,
                     'Content-type': 'application/json; charset=UTF-8',
@@ -33,8 +32,7 @@ export async function PATCH(
             );
         }
 
-        const data = await res.json();
-        return NextResponse.json(data);
+        return new NextResponse(undefined, { status: res.status });
     } catch (error) {
         return new NextResponse(
             `Unexpected error. Please contact admin. Error info: ${JSON.stringify(

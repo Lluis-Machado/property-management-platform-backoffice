@@ -21,6 +21,7 @@ export async function PATCH(
                 },
             }
         );
+
         if (!res.ok) {
             const responseMsg = await res.text();
             return new NextResponse(
@@ -60,6 +61,7 @@ export async function DELETE(
                 },
             }
         );
+
         if (!res.ok) {
             const responseMsg = await res.text();
             return new NextResponse(

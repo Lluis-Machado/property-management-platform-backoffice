@@ -33,8 +33,7 @@ export async function POST(
             );
         }
 
-        const data = await res.json();
-        return NextResponse.json(data);
+        return new NextResponse(undefined, { status: res.status });
     } catch (error) {
         return new NextResponse(
             `Unexpected error. Please contact admin. Error info: ${JSON.stringify(

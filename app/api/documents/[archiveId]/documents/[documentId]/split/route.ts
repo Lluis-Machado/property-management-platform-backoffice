@@ -1,4 +1,3 @@
-import { Document } from '@/lib/types/documentsAPI';
 import { getUser } from '@/lib/utils/getUser';
 import { NextResponse } from 'next/server';
 
@@ -8,24 +7,23 @@ export async function POST(
 ) {
     try {
         const { token } = await getUser();
-        const copyData: Document = await request.json();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${params.archiveId}/documents/${params.documentId}/copy`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${params.archiveId}/documents/${params.documentId}/split`,
             {
                 method: 'POST',
-                body: JSON.stringify(copyData),
                 headers: {
                     Authorization: `${token.token_type} ${token.access_token}`,
                     'Content-type': 'application/json; charset=UTF-8',
                 },
+                cache: 'no-store',
             }
         );
 
         if (!res.ok) {
             const responseMsg = await res.text();
             return new NextResponse(
-                responseMsg || 'Something went wrong moving a document',
+                responseMsg || 'Something went wrong splitting documents',
                 {
                     status: res.status,
                     headers: { 'Content-Type': 'application/json' },
