@@ -8,9 +8,14 @@ const ToolbarTooltipsApInvoiceEdit = () => {
                 showEvent='mouseenter'
                 hideEvent='mouseleave'
             >
-                <div className='text-base text-primary-700'>
-                    Save changes Invoice
-                </div>
+                <div className='text-base text-primary-700'>Save changes</div>
+            </Tooltip>
+            <Tooltip
+                target='#deleteButton'
+                showEvent='mouseenter'
+                hideEvent='mouseleave'
+            >
+                <div className='text-base text-primary-700'>Delete Invoice</div>
             </Tooltip>
         </>
     );

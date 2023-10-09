@@ -191,38 +191,36 @@ const DataGrid = ({
             updateSuccessToast(toastId, 'Invoice deleted correctly!');
 
             // Pass the ID to reload the page
-            router.push(
-                `/private/accounting/${id}/expenses?deletedInvoice=${invoiceId}`
-            );
+            router.refresh();
         } catch (error: unknown) {
             customError(error, toastId);
         }
     }, [id, invoiceId, router]);
 
-    useEffect(() => {
-        addUrl();
-    }, []);
+    // useEffect(() => {
+    //     addUrl();
+    // }, []);
 
-    //TODO FALTA QUE PASAN EL DOC ID PARA HACER LA LLAMADA CORRECTA PARA CONSEGUIR EL URL
-    const addUrl = useCallback(() => {
-        let valuesDg: any[] = [];
-        for (const item of dataSource) {
-            const archiveId = 'c1b1bacc-7a32-41d2-9dc0-e67afc867d0f';
-            const docId = '0059cd7e-cf90-4cb6-be13-17fe08cee45e';
-            const fetchData = async () => {
-                const url = URL.createObjectURL(
-                    await downloadDocument(archiveId, docId)
-                );
-                return url;
-            };
-            fetchData().then((res) => {
-                item.url = res;
-            });
-            valuesDg.push(item);
-        }
-        setDataGridValues(valuesDg);
-        //dataGridRef.current?.instance.option("dataSource", valuesDg);
-    }, [dataSource]);
+    // //TODO FALTA QUE PASAN EL DOC ID PARA HACER LA LLAMADA CORRECTA PARA CONSEGUIR EL URL
+    // const addUrl = useCallback(() => {
+    //     let valuesDg: any[] = [];
+    //     for (const item of dataSource) {
+    //         const archiveId = 'c1b1bacc-7a32-41d2-9dc0-e67afc867d0f';
+    //         const docId = '0059cd7e-cf90-4cb6-be13-17fe08cee45e';
+    //         const fetchData = async () => {
+    //             const url = URL.createObjectURL(
+    //                 await downloadDocument(archiveId, docId)
+    //             );
+    //             return url;
+    //         };
+    //         fetchData().then((res) => {
+    //             item.url = res;
+    //         });
+    //         valuesDg.push(item);
+    //     }
+    //     setDataGridValues(valuesDg);
+    //     //dataGridRef.current?.instance.option("dataSource", valuesDg);
+    // }, [dataSource]);
 
     // Cell render for preview invoice column
     const InvoiceCellRender = useCallback(
@@ -418,7 +416,12 @@ const DataGrid = ({
                     </Item>
                     <Item name='searchPanel' />
                 </Toolbar>
-
+                <Column
+                    alignment='center'
+                    caption='Edit'
+                    cellRender={CellRender}
+                    width={100}
+                />
                 <Column
                     allowHeaderFiltering={false}
                     caption='Invoice Nr.'
@@ -477,19 +480,13 @@ const DataGrid = ({
                     caption='Invoice'
                     cellRender={InvoiceCellRender}
                     width={100}
-                /> */}
-                <Column
-                    alignment='center'
-                    caption='Edit'
-                    cellRender={CellRender}
-                    width={100}
                 />
-                <Column
+                {/* <Column
                     alignment='center'
                     caption='Delete'
                     cellRender={DeleteCellRender}
                     width={100}
-                />
+                /> */}
                 <MasterDetail enabled={true} component={DetailSection} />
             </DxDataGrid>
         </>

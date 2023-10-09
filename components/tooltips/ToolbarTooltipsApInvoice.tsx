@@ -11,12 +11,12 @@ const ToolbarTooltipsApInvoice = () => {
                 <div className='text-base text-primary-700'>Save Invoice</div>
             </Tooltip>
             <Tooltip
-                target='#annalyzeButton'
+                target='#analyzeButton'
                 showEvent='mouseenter'
                 hideEvent='mouseleave'
             >
                 <div className='text-base text-primary-700'>
-                    Annalyze Invoice
+                    Analyze Invoice
                 </div>
             </Tooltip>
             <Tooltip
