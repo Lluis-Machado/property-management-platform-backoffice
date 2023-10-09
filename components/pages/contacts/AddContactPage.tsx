@@ -64,12 +64,13 @@ interface Props {
 }
 
 const AddContactPage = ({ countriesData, lang }: Props) => {
+    // States
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    // Importante para que no se copie por referencia
     const [initialValues, _] = useState<ContactData>(
-        structuredClone(contactData)
+        structuredClone(contactData) // Important to not be copied by reference
     );
 
+    // Refs
     const formRef = useRef<Form>(null);
     const idDocsTabRef = useRef<IdDocumentsTabMethods>(null);
     const addressTabRef = useRef<AddressInfoTabMethods>(null);

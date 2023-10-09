@@ -71,15 +71,13 @@ const TreeView: FC<Props> = memo(function TreeView({
     onFolderSelected,
     treeViewRef,
 }): React.ReactElement {
-    const UploadFileFormRef = useRef<HTMLFormElement>(null);
-    const UploadFileInputRef = useRef<HTMLInputElement>(null);
-
+    // Atoms
     const [fileManagerNeedRefresh, _] = useAtom(refreshFileManager);
 
+    // States
     const [selectedTreeItem, setSelectedTreeItem] = useState<
         TreeItem<Archive | Folder> | undefined
     >(undefined);
-
     const [formPopupStatus, setFormPopupStatus] = useState<{
         folderName?: string;
         type: FormPopupType;
@@ -104,6 +102,10 @@ const TreeView: FC<Props> = memo(function TreeView({
             documents: [],
             visibility: { hasBeenOpen: false, visible: false },
         });
+
+    // Refs
+    const UploadFileFormRef = useRef<HTMLFormElement>(null);
+    const UploadFileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (selectedTreeItem) onFolderSelected(selectedTreeItem.data);

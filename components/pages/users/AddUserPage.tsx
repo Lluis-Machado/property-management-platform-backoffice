@@ -40,12 +40,12 @@ interface Props {
 }
 
 const AddUserPage = ({ lang }: Props) => {
+    // States
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    // Importante para que no se copie por referencia
     const [initialValues, _] = useState<CreateAuth0User>(
-        structuredClone(userData)
+        structuredClone(userData) // Important to not be copied by reference
     );
-
+    // Refs
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
@@ -94,7 +94,7 @@ const AddUserPage = ({ lang }: Props) => {
     }, [initialValues, router]);
 
     return (
-        <div>
+        <>
             <Form
                 ref={formRef}
                 formData={userData}
@@ -176,7 +176,7 @@ const AddUserPage = ({ lang }: Props) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

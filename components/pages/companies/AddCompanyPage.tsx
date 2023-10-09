@@ -56,13 +56,14 @@ interface Props {
 }
 
 const AddCompanyPage = ({ countriesData, contactsData, lang }: Props) => {
+    // States
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    // Importante para que no se copie por referencia
     const [initialValues, _] = useState<CompanyData>(
-        structuredClone(companyData)
+        structuredClone(companyData) // Important to not be copied by reference
     );
     const [__, setAddressOptions] = useState({});
 
+    // Refs
     const formRef = useRef<Form>(null);
     const addressTabRef = useRef<AddressInfoTabMethods>(null);
     const contactsTabRef = useRef<ContactsTabMethods>(null);

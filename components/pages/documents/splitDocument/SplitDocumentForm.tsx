@@ -19,14 +19,15 @@ interface Props {
 }
 
 const SplitDocumentForm = ({ rangesData, lang }: Props) => {
+    // States
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<RangesData>(
-        structuredClone(rangesData)
+    const [initialValues, _] = useState<RangesData>(
+        structuredClone(rangesData) // Important to not be copied by reference
     );
     const [ranges, setRanges] = useState([]);
-
+    // Refs
     const formRef = useRef<Form>(null);
+
     const router = useRouter();
 
     const handleSubmit = useCallback(async () => {

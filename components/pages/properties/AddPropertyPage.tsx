@@ -174,22 +174,22 @@ const AddPropertyPage = ({
     lang,
     totalContactsList,
 }: Props) => {
+    // States
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [states, setStates] = useState<StateData[] | undefined>(undefined);
-    // Importante para que no se copie por referencia
-    const [initialValues, setInitialValues] = useState<PropertyData>(
-        structuredClone(propertyData)
+    const [initialValues, _] = useState<PropertyData>(
+        structuredClone(propertyData) // Important to not be copied by reference
     );
-
+    // Refs
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
 
-    // CSS CHANGES
-    const changeSelectbox = (e: ValueChangedEvent) => {
+    const changeSelectbox = useCallback((e: ValueChangedEvent) => {
         e.element.classList.add('stylingForm');
-    };
-    const changeCssFormElement = (e: FieldDataChangedEvent) => {
+    }, []);
+
+    const changeCssFormElement = useCallback((e: FieldDataChangedEvent) => {
         if (!e.dataField) {
             document
                 .getElementById(e.element.attributes[1].nodeValue!)
@@ -199,7 +199,7 @@ const AddPropertyPage = ({
                 .getElementsByName(e.dataField!)[0]
                 .classList.add('styling');
         }
-    };
+    }, []);
 
     const handleCountryChange = useCallback(
         (countryId: number) => {
@@ -269,14 +269,18 @@ const AddPropertyPage = ({
         }
     }, [router, initialValues, totalContactsList]);
 
-    const calculateCadastreValue = () => {
+    const calculateCadastreValue = useCallback(() => {
         propertyData.cadastreValue.value =
             propertyData.buildingPrice.value + propertyData.plotPrice.value;
         formRef.current!.instance.updateData(propertyData);
-    };
+    }, [
+        propertyData.buildingPrice.value,
+        propertyData.plotPrice.value,
+        formRef,
+    ]);
 
     return (
-        <div>
+        <>
             <Form
                 formData={propertyData}
                 readOnly={isLoading}
@@ -637,7 +641,7 @@ const AddPropertyPage = ({
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

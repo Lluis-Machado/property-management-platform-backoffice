@@ -27,9 +27,10 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
         archives,
         searchParams,
     }): React.ReactElement {
-        const TreeViewRef = useRef<DxTreeView>(null);
+        // Atoms
         const [_, setIsLoading] = useAtom(isLoadingFileManager);
 
+        // States
         const [selectedFolder, setSelectedFolder] = useState<
             Archive | Folder | undefined
         >(undefined);
@@ -40,6 +41,9 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
             Document | undefined
         >(undefined);
         const [detailsVisible, setDetailsVisible] = useState<boolean>(false);
+
+        // Refs
+        const TreeViewRef = useRef<DxTreeView>(null);
 
         const handleFolderSelected = useCallback(
             async (folder: Archive | Folder) => {
@@ -97,7 +101,7 @@ export const DocumentsFilesWrapper: FC<Props> = memo(
                 );
                 handleFolderSelected(archObj);
             }
-        }, [searchParams]);
+        }, [searchParams, handleFolderSelected]);
 
         const handleDocumentSelectionChanged = useCallback(
             async (documents: Document[]) => {
