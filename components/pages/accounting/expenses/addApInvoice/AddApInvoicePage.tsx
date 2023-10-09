@@ -53,7 +53,6 @@ import TooltipCostTypeColor from '@/components/tooltips/TooltipCostTypeColor';
 import { apiPost } from '@/lib/utils/apiPost';
 import { InvoiceItemAnalyzer } from '@/lib/types/invoiceItemAnalyzer';
 import { ExpenseCategory } from '@/lib/types/expenseCategory';
-import { AnalyzedInvoiceLine } from '@/lib/types/analyzedInvoiceLine';
 
 let apInvoiceData: ApInvoiceAnalyzedData = {
     form: {
@@ -118,7 +117,7 @@ const AddApInvoicePage = ({
     const docId = searchParams!.get('docId');
     const archiveId = searchParams!.get('archieveId');
 
-    // Toast if BP is not known after annalyzing invoice
+    // Toast if BP is not known after analyzing invoice
     useEffect(() => {
         // Check if we are on init state
         if (JSON.stringify(invoiceData) === JSON.stringify(apInvoiceData))
@@ -126,7 +125,7 @@ const AddApInvoicePage = ({
         // Check if BP was founded by AI
         if (!invoiceData.form.businessPartner.vatNumber && !invoiceData.cif) {
             toast.warn(
-                'Busniness Partner / CIF not found, create a new Business Partner'
+                'Business Partner / CIF not found, create a new Business Partner'
             );
             return;
         }
@@ -139,7 +138,7 @@ const AddApInvoicePage = ({
             )[0]
         ) {
             toast.warn(
-                'Busniness Partner not known, create a new Business Partner'
+                'Business Partner not known, create a new Business Partner'
             );
             return;
         }
@@ -273,7 +272,7 @@ const AddApInvoicePage = ({
         const toastId = toast.loading('Saving Invoice');
         setIsLoading(true);
         const id = 'b99f942c-a141-4555-9554-14a09c5f94a4';
-        const idBP = '29cdeba1-1a4d-48b7-8b70-751476ff2f0c';
+        const idBP = '1a78d068-c4bd-4bc8-9630-19bad280ab3d';
 
         let invoiceLinesAPInvoice: InvoiceLines[] = [];
 
@@ -289,6 +288,7 @@ const AddApInvoicePage = ({
 
         const valuesToSend: ApInvoice = {
             ...invoiceData.form,
+            //businessPartnerId: invoiceData.form.businessPartner.id,
             businessPartnerId: idBP,
             currency: 'EUR',
             invoiceLines: invoiceLinesAPInvoice,
@@ -436,6 +436,7 @@ const AddApInvoicePage = ({
     // Function to set field to disabled depending on Cost Code
     const changeCostType = (e: any) => {
         // TODO INDEX EMPTY
+        console.log(e);
         const index: number = e.selectedItem.index;
         if (e.selectedItem.value === 4) {
             serviceDateToRefs.current![index].instance.option('disabled', true);
@@ -487,9 +488,9 @@ const AddApInvoicePage = ({
                 <ToolbarTooltipsApInvoice />
                 <Allotment defaultSizes={[65, 35]}>
                     <Allotment.Pane>
-                        <div className='h-full overflow-y-auto overflow-x-hidden'>
-                            <div className='mr-2 flex flex-row justify-end bg-white'>
-                                <div className='fixed z-20 flex gap-4 bg-white'>
+                        <div className='h-full'>
+                            <div className='mr-2 flex flex-row justify-end'>
+                                <div className='flex gap-4'>
                                     <div className='w-10'>
                                         <Button
                                             id='saveButton'
@@ -500,7 +501,7 @@ const AddApInvoicePage = ({
                                     </div>
                                     <div className='w-10'>
                                         <Button
-                                            id='annalyzeButton'
+                                            id='analyzeButton'
                                             icon={faGears}
                                             iconPosition={'leading'}
                                             onClick={handleAnalyzeInvoice}
@@ -525,401 +526,429 @@ const AddApInvoicePage = ({
                                     </div>
                                 </div>
                             </div>
-                            <Form
-                                formData={invoiceData}
-                                labelLocation='left'
-                                ref={formRef}
-                                className='mr-2 pt-10'
-                            >
-                                <GroupItem
-                                    colCount={2}
-                                    caption='Supplier invoice'
-                                >
-                                    <Item label={{ text: 'Provider' }}>
-                                        <SelectBox
-                                            items={tenatsBusinessPartners}
-                                            displayExpr='name'
-                                            ref={selectboxRef}
-                                            valueExpr='vatNumber'
-                                            searchEnabled={true}
-                                            value={selectedProvider!.vatNumber}
-                                            dropDownOptions={{
-                                                toolbarItems: [
-                                                    {
-                                                        toolbar: 'bottom',
-                                                        widget: 'dxButton',
-                                                        options: {
-                                                            icon: 'plus',
-                                                            width: 90,
-                                                            elementAttr: {
-                                                                style: 'min-width: 55px;!important',
-                                                            },
-                                                            onClick: () =>
-                                                                setPopUpVisible(
-                                                                    true
-                                                                ),
-                                                        },
-                                                    },
-                                                ],
-                                            }}
-                                        />
-                                        <RequiredRule />
-                                    </Item>
-                                    <SimpleItem
-                                        dataField='form.refNumber'
-                                        label={{ text: 'Invoice Number' }}
-                                    >
-                                        <RequiredRule />
-                                    </SimpleItem>
-                                    <SimpleItem
-                                        dataField='form.businessPartner.vatNumber'
-                                        label={{ text: 'CIF' }}
-                                    >
-                                        <RequiredRule />
-                                    </SimpleItem>
-                                    <SimpleItem
-                                        dataField='form.date'
-                                        label={{ text: 'Date of invoice' }}
-                                        editorType='dxDateBox'
-                                        editorOptions={{
-                                            displayFormat: dateFormat,
-                                        }}
-                                    >
-                                        <RequiredRule />
-                                    </SimpleItem>
-                                </GroupItem>
-                            </Form>
-                            <Form
-                                formData={invoiceData}
-                                labelMode='static'
-                                className='mr-2'
-                                ref={formRef}
-                            >
-                                <GroupItem caption={`Items/Lines`}>
-                                    {invoiceData.form.invoiceLines.map(
-                                        (invoice: any, index: number) => {
-                                            return (
-                                                <GroupItem
-                                                    key={`GroupItem${index}`}
-                                                    colCount={16}
-                                                    cssClass='pb-2 border-dotted border-b-2 border-primary-500'
-                                                >
-                                                    <Item
-                                                        key={`code${index}`}
-                                                        dataField={`form.invoiceLines[${index}].expenseCategory.expenseTypeCode`}
-                                                        label={{
-                                                            text: 'Code',
-                                                        }}
-                                                        cssClass='itemStyle'
-                                                        colSpan={2}
-                                                    >
-                                                        <SelectBox
-                                                            items={[
-                                                                {
-                                                                    label: 'UAT',
-                                                                    value: 'UAT',
-                                                                    index: `${index}`,
-                                                                },
-                                                                {
-                                                                    label: 'UAV',
-                                                                    value: 'UAV',
-                                                                    index: `${index}`,
-                                                                },
-                                                                {
-                                                                    label: 'BAT',
-                                                                    value: 'BAT',
-                                                                    index: `${index}`,
-                                                                },
-                                                                {
-                                                                    label: 'BAV',
-                                                                    value: 'BAV',
-                                                                    index: `${index}`,
-                                                                },
-                                                                {
-                                                                    label: 'Asset',
-                                                                    value: 'Asset',
-                                                                    index: `${index}`,
-                                                                },
-                                                                {
-                                                                    label: 'NA',
-                                                                    value: 'NA',
-                                                                    index: `${index}`,
-                                                                },
-                                                            ]}
-                                                            label='Cost'
-                                                            labelMode='static'
-                                                            itemRender={
-                                                                CostTypeCellRender
-                                                            }
-                                                            fieldRender={
-                                                                CostTypeFieldRender
-                                                            }
-                                                            displayExpr='label'
-                                                            valueExpr='value'
-                                                            onValueChanged={
-                                                                changeCostType
-                                                            }
-                                                            defaultValue={
-                                                                invoiceData.form
-                                                                    .invoiceLines[
-                                                                    index
-                                                                ]
-                                                                    .expenseCategory
-                                                                    .expenseTypeCode
-                                                            }
-                                                        />
-                                                    </Item>
-                                                    <Item
-                                                        key={`categorie${index}`}
-                                                        dataField={`form.invoiceLines[${index}].expenseCategory.name`}
-                                                        label={{
-                                                            text: 'Code',
-                                                        }}
-                                                        colSpan={4}
-                                                        cssClass='itemStyle'
-                                                    />
-                                                    <Item
-                                                        key={`description${index}`}
-                                                        dataField={`form.invoiceLines[${index}].description`}
-                                                        label={{
-                                                            text: 'Description',
-                                                        }}
-                                                        colSpan={10}
-                                                        cssClass='itemStyle'
-                                                    >
-                                                        <NumericRule />
-                                                    </Item>
-                                                    <Item
-                                                        key={`serviceDateFrom${index}`}
-                                                        dataField={`form.invoiceLines[${index}].serviceDateFrom`}
-                                                        label={{ text: 'From' }}
-                                                        cssClass='itemStyle'
-                                                        colSpan={2}
-                                                    >
-                                                        <DateBox
-                                                            label={'From'}
-                                                            onValueChange={(
-                                                                e: ValueChangedEvent
-                                                            ) => {
-                                                                validateDateFrom(
-                                                                    e,
-                                                                    index
-                                                                );
-                                                            }}
-                                                            ref={(invoice) =>
-                                                                (serviceDateFromRefs.current[
-                                                                    index
-                                                                ] = invoice)
-                                                            }
-                                                        />
-                                                    </Item>
-                                                    <Item
-                                                        key={`serviceDateTo${index}`}
-                                                        dataField={`form.invoiceLines[${index}].serviceDateTo`}
-                                                        label={{ text: 'To' }}
-                                                        cssClass='itemStyle'
-                                                        colSpan={2}
-                                                    >
-                                                        <DateBox
-                                                            label={'To'}
-                                                            onValueChange={(
-                                                                e: ValueChangedEvent
-                                                            ) => {
-                                                                validateDateTo(
-                                                                    e,
-                                                                    index
-                                                                );
-                                                            }}
-                                                            ref={(invoice) =>
-                                                                (serviceDateToRefs.current[
-                                                                    index
-                                                                ] = invoice)
-                                                            }
-                                                        />
-                                                    </Item>
-                                                    <Item
-                                                        key={`depreciationRatePerYear${index}`}
-                                                        dataField={`form.invoiceLines[${index}].depreciationRatePerYear`}
-                                                        label={{
-                                                            text: 'Deprication',
-                                                        }}
-                                                        editorType='dxNumberBox'
-                                                        editorOptions={{
-                                                            format: "#0.##'%'",
-                                                        }}
-                                                        cssClass='itemStyle'
-                                                        colSpan={2}
-                                                    >
-                                                        <NumberBox
-                                                            ref={(invoice) =>
-                                                                (depreciationRatePerYearRefs.current[
-                                                                    index
-                                                                ] = invoice)
-                                                            }
-                                                            label='Deprication'
-                                                        />
-                                                    </Item>
-                                                    <Item
-                                                        key={`quantity${index}`}
-                                                        dataField={`form.invoiceLines[${index}].quantity`}
-                                                        label={{
-                                                            text: 'Amout',
-                                                        }}
-                                                        cssClass='itemStyle'
-                                                        colSpan={2}
-                                                    >
-                                                        <RequiredRule />
-                                                    </Item>
-                                                    <Item
-                                                        key={`tax${index}`}
-                                                        dataField={`form.invoiceLines[${index}].tax`}
-                                                        label={{
-                                                            text: 'IVA',
-                                                        }}
-                                                        editorOptions={{
-                                                            format: "#0.##'%'",
-                                                        }}
-                                                        cssClass='itemStyle'
-                                                    >
-                                                        <RequiredRule />
-                                                    </Item>
-                                                    <Item
-                                                        key={`discount${index}`}
-                                                        dataField={`form.invoiceLines[${index}].discount`}
-                                                        label={{
-                                                            text: 'DTO %',
-                                                        }}
-                                                        editorOptions={{
-                                                            format: "#0.##'%'",
-                                                        }}
-                                                        cssClass='itemStyle'
-                                                    ></Item>
-                                                    <Item
-                                                        key={`unitPrice${index}`}
-                                                        dataField={`form.invoiceLines[${index}].unitPrice`}
-                                                        label={{
-                                                            text: 'Unit Price',
-                                                        }}
-                                                        editorOptions={{
-                                                            format: {
-                                                                type: 'currency',
-                                                                currency: 'EUR',
-                                                                precision: 2,
-                                                            },
-                                                        }}
-                                                        cssClass='itemStyle'
-                                                        colSpan={2}
-                                                    >
-                                                        <RequiredRule />
-                                                    </Item>
-                                                    <Item
-                                                        key={`totalUnitPrice${index}`}
-                                                        dataField={`form.invoiceLines[${index}].totalPrice`}
-                                                        label={{
-                                                            text: 'Total Line Price',
-                                                        }}
-                                                        editorOptions={{
-                                                            format: {
-                                                                type: 'currency',
-                                                                currency: 'EUR',
-                                                                precision: 2,
-                                                            },
-                                                        }}
-                                                        cssClass='itemStyle'
-                                                        colSpan={2}
-                                                    />
-                                                    <Item
-                                                        key={`button${index}`}
-                                                        itemType='button'
-                                                        horizontalAlignment='left'
-                                                        buttonOptions={{
-                                                            icon: 'trash',
-                                                            type: 'danger',
-                                                            onClick: () => {
-                                                                // Set a new empty line
-                                                                invoiceData.form.invoiceLines.splice(
-                                                                    index,
-                                                                    1
-                                                                );
-                                                                // Update items fields
-                                                                setLines([]);
-                                                            },
-                                                        }}
-                                                        cssClass='deleteButton'
-                                                        colSpan={2}
-                                                    />
-                                                </GroupItem>
-                                            );
-                                        }
-                                    )}
-                                </GroupItem>
-                                <Item
-                                    itemType='button'
-                                    horizontalAlignment='left'
-                                    buttonOptions={{
-                                        icon: 'add',
-                                        text: 'Add line',
-                                        onClick: () => {
-                                            // Set a new empty line
-                                            invoiceData.form.invoiceLines.push({
-                                                description: '',
-                                                tax: null,
-                                                discount: null,
-                                                quantity: null,
-                                                unitPrice: null,
-                                                expenseCategoryId: '',
-                                                depreciationRatePerYear: null,
-                                                serviceDateFrom: '',
-                                                serviceDateTo: '',
-                                            });
-                                            // Update items fields
-                                            setLines([]);
-                                        },
-                                    }}
-                                />
-                            </Form>
-                            <div className='float-right w-1/6'>
+                            <div className='h-[95%] overflow-y-auto overflow-x-hidden'>
                                 <Form
                                     formData={invoiceData}
                                     labelLocation='left'
+                                    ref={formRef}
                                     className='mr-2'
                                 >
-                                    <GroupItem>
-                                        <Item
-                                            dataField='form.grossAmount'
-                                            label={{ text: 'Base Amout' }}
+                                    <GroupItem
+                                        colCount={2}
+                                        caption='Supplier invoice'
+                                    >
+                                        <Item label={{ text: 'Provider' }}>
+                                            <SelectBox
+                                                items={tenatsBusinessPartners}
+                                                displayExpr='name'
+                                                ref={selectboxRef}
+                                                valueExpr='vatNumber'
+                                                searchEnabled={true}
+                                                value={
+                                                    selectedProvider!.vatNumber
+                                                }
+                                                dropDownOptions={{
+                                                    toolbarItems: [
+                                                        {
+                                                            toolbar: 'bottom',
+                                                            widget: 'dxButton',
+                                                            options: {
+                                                                icon: 'plus',
+                                                                width: 90,
+                                                                elementAttr: {
+                                                                    style: 'min-width: 55px;!important',
+                                                                },
+                                                                onClick: () =>
+                                                                    setPopUpVisible(
+                                                                        true
+                                                                    ),
+                                                            },
+                                                        },
+                                                    ],
+                                                }}
+                                            />
+                                            <RequiredRule />
+                                        </Item>
+                                        <SimpleItem
+                                            dataField='form.refNumber'
+                                            label={{ text: 'Invoice Number' }}
+                                        >
+                                            <RequiredRule />
+                                        </SimpleItem>
+                                        <SimpleItem
+                                            dataField='form.businessPartner.vatNumber'
+                                            label={{ text: 'CIF' }}
+                                        >
+                                            <RequiredRule />
+                                        </SimpleItem>
+                                        <SimpleItem
+                                            dataField='form.date'
+                                            label={{ text: 'Date of invoice' }}
+                                            editorType='dxDateBox'
                                             editorOptions={{
-                                                format: {
-                                                    type: 'currency',
-                                                    currency: 'EUR',
-                                                    precision: 2,
-                                                },
+                                                displayFormat: dateFormat,
                                             }}
-                                        />
-                                        <Item
-                                            dataField='form.totalTax'
-                                            label={{ text: 'IVA' }}
-                                            editorOptions={{
-                                                format: {
-                                                    type: 'currency',
-                                                    currency: 'EUR',
-                                                    precision: 2,
-                                                },
-                                            }}
-                                        />
-                                        <Item
-                                            dataField='form.netAmount'
-                                            label={{ text: 'Total Amout' }}
-                                            editorOptions={{
-                                                format: {
-                                                    type: 'currency',
-                                                    currency: 'EUR',
-                                                    precision: 2,
-                                                },
-                                            }}
-                                        />
+                                        >
+                                            <RequiredRule />
+                                        </SimpleItem>
                                     </GroupItem>
                                 </Form>
+                                <Form
+                                    formData={invoiceData}
+                                    labelMode='static'
+                                    className='mr-2'
+                                    ref={formRef}
+                                >
+                                    <GroupItem caption={`Items/Lines`}>
+                                        {invoiceData.form.invoiceLines.map(
+                                            (invoice: any, index: number) => {
+                                                return (
+                                                    <GroupItem
+                                                        key={`GroupItem${index}`}
+                                                        colCount={16}
+                                                        cssClass='pb-2 border-dotted border-b-2 border-primary-500'
+                                                    >
+                                                        <Item
+                                                            key={`code${index}`}
+                                                            dataField={`form.invoiceLines[${index}].expenseCategory.expenseTypeCode`}
+                                                            label={{
+                                                                text: 'Code',
+                                                            }}
+                                                            cssClass='itemStyle'
+                                                            colSpan={2}
+                                                        >
+                                                            <SelectBox
+                                                                items={[
+                                                                    {
+                                                                        label: 'UAT',
+                                                                        value: 'UAT',
+                                                                        index: `${index}`,
+                                                                    },
+                                                                    {
+                                                                        label: 'UAV',
+                                                                        value: 'UAV',
+                                                                        index: `${index}`,
+                                                                    },
+                                                                    {
+                                                                        label: 'BAT',
+                                                                        value: 'BAT',
+                                                                        index: `${index}`,
+                                                                    },
+                                                                    {
+                                                                        label: 'BAV',
+                                                                        value: 'BAV',
+                                                                        index: `${index}`,
+                                                                    },
+                                                                    {
+                                                                        label: 'Asset',
+                                                                        value: 'Asset',
+                                                                        index: `${index}`,
+                                                                    },
+                                                                    {
+                                                                        label: 'NA',
+                                                                        value: 'NA',
+                                                                        index: `${index}`,
+                                                                    },
+                                                                ]}
+                                                                label='Cost'
+                                                                labelMode='static'
+                                                                itemRender={
+                                                                    CostTypeCellRender
+                                                                }
+                                                                fieldRender={
+                                                                    CostTypeFieldRender
+                                                                }
+                                                                displayExpr='label'
+                                                                valueExpr='value'
+                                                                onValueChanged={
+                                                                    changeCostType
+                                                                }
+                                                                defaultValue={
+                                                                    invoiceData
+                                                                        .form
+                                                                        .invoiceLines[
+                                                                        index
+                                                                    ]
+                                                                        .expenseCategory
+                                                                        .expenseTypeCode
+                                                                }
+                                                            />
+                                                        </Item>
+                                                        <Item
+                                                            key={`categorie${index}`}
+                                                            dataField={`form.invoiceLines[${index}].expenseCategory.name`}
+                                                            label={{
+                                                                text: 'Code',
+                                                            }}
+                                                            colSpan={4}
+                                                            cssClass='itemStyle'
+                                                        />
+                                                        <Item
+                                                            key={`description${index}`}
+                                                            dataField={`form.invoiceLines[${index}].description`}
+                                                            label={{
+                                                                text: 'Description',
+                                                            }}
+                                                            colSpan={10}
+                                                            cssClass='itemStyle'
+                                                        >
+                                                            <NumericRule />
+                                                        </Item>
+                                                        <Item
+                                                            key={`serviceDateFrom${index}`}
+                                                            dataField={`form.invoiceLines[${index}].serviceDateFrom`}
+                                                            label={{
+                                                                text: 'From',
+                                                            }}
+                                                            cssClass='itemStyle'
+                                                            colSpan={2}
+                                                        >
+                                                            <DateBox
+                                                                label={'From'}
+                                                                onValueChange={(
+                                                                    e: ValueChangedEvent
+                                                                ) => {
+                                                                    validateDateFrom(
+                                                                        e,
+                                                                        index
+                                                                    );
+                                                                }}
+                                                                ref={(
+                                                                    invoice
+                                                                ) =>
+                                                                    (serviceDateFromRefs.current[
+                                                                        index
+                                                                    ] = invoice)
+                                                                }
+                                                            />
+                                                        </Item>
+                                                        <Item
+                                                            key={`serviceDateTo${index}`}
+                                                            dataField={`form.invoiceLines[${index}].serviceDateTo`}
+                                                            label={{
+                                                                text: 'To',
+                                                            }}
+                                                            cssClass='itemStyle'
+                                                            colSpan={2}
+                                                        >
+                                                            <DateBox
+                                                                label={'To'}
+                                                                onValueChange={(
+                                                                    e: ValueChangedEvent
+                                                                ) => {
+                                                                    validateDateTo(
+                                                                        e,
+                                                                        index
+                                                                    );
+                                                                }}
+                                                                ref={(
+                                                                    invoice
+                                                                ) =>
+                                                                    (serviceDateToRefs.current[
+                                                                        index
+                                                                    ] = invoice)
+                                                                }
+                                                            />
+                                                        </Item>
+                                                        <Item
+                                                            key={`depreciationRatePerYear${index}`}
+                                                            dataField={`form.invoiceLines[${index}].depreciationRatePerYear`}
+                                                            label={{
+                                                                text: 'Depreciation',
+                                                            }}
+                                                            editorType='dxNumberBox'
+                                                            editorOptions={{
+                                                                format: "#0.##'%'",
+                                                            }}
+                                                            cssClass='itemStyle'
+                                                            colSpan={2}
+                                                        >
+                                                            <NumberBox
+                                                                ref={(
+                                                                    invoice
+                                                                ) =>
+                                                                    (depreciationRatePerYearRefs.current[
+                                                                        index
+                                                                    ] = invoice)
+                                                                }
+                                                                label='Depreciation'
+                                                            />
+                                                        </Item>
+                                                        <Item
+                                                            key={`quantity${index}`}
+                                                            dataField={`form.invoiceLines[${index}].quantity`}
+                                                            label={{
+                                                                text: 'Amount',
+                                                            }}
+                                                            cssClass='itemStyle'
+                                                            colSpan={2}
+                                                        >
+                                                            <RequiredRule />
+                                                        </Item>
+                                                        <Item
+                                                            key={`tax${index}`}
+                                                            dataField={`form.invoiceLines[${index}].tax`}
+                                                            label={{
+                                                                text: 'IVA',
+                                                            }}
+                                                            editorOptions={{
+                                                                format: "#0.##'%'",
+                                                            }}
+                                                            cssClass='itemStyle'
+                                                        >
+                                                            <RequiredRule />
+                                                        </Item>
+                                                        <Item
+                                                            key={`discount${index}`}
+                                                            dataField={`form.invoiceLines[${index}].discount`}
+                                                            label={{
+                                                                text: 'DTO %',
+                                                            }}
+                                                            editorOptions={{
+                                                                format: "#0.##'%'",
+                                                            }}
+                                                            cssClass='itemStyle'
+                                                        ></Item>
+                                                        <Item
+                                                            key={`unitPrice${index}`}
+                                                            dataField={`form.invoiceLines[${index}].unitPrice`}
+                                                            label={{
+                                                                text: 'Unit Price',
+                                                            }}
+                                                            editorOptions={{
+                                                                format: {
+                                                                    type: 'currency',
+                                                                    currency:
+                                                                        'EUR',
+                                                                    precision: 2,
+                                                                },
+                                                            }}
+                                                            cssClass='itemStyle'
+                                                            colSpan={2}
+                                                        >
+                                                            <RequiredRule />
+                                                        </Item>
+                                                        <Item
+                                                            key={`totalUnitPrice${index}`}
+                                                            dataField={`form.invoiceLines[${index}].totalPrice`}
+                                                            label={{
+                                                                text: 'Total Line Price',
+                                                            }}
+                                                            editorOptions={{
+                                                                format: {
+                                                                    type: 'currency',
+                                                                    currency:
+                                                                        'EUR',
+                                                                    precision: 2,
+                                                                },
+                                                            }}
+                                                            cssClass='itemStyle'
+                                                            colSpan={2}
+                                                        />
+                                                        <Item
+                                                            key={`button${index}`}
+                                                            itemType='button'
+                                                            horizontalAlignment='left'
+                                                            buttonOptions={{
+                                                                icon: 'trash',
+                                                                type: 'danger',
+                                                                onClick: () => {
+                                                                    // Set a new empty line
+                                                                    invoiceData.form.invoiceLines.splice(
+                                                                        index,
+                                                                        1
+                                                                    );
+                                                                    // Update items fields
+                                                                    setLines(
+                                                                        []
+                                                                    );
+                                                                },
+                                                            }}
+                                                            cssClass='deleteButton'
+                                                            colSpan={2}
+                                                        />
+                                                    </GroupItem>
+                                                );
+                                            }
+                                        )}
+                                    </GroupItem>
+                                    <Item
+                                        itemType='button'
+                                        horizontalAlignment='left'
+                                        buttonOptions={{
+                                            icon: 'add',
+                                            text: 'Add line',
+                                            onClick: () => {
+                                                // Set a new empty line
+                                                invoiceData.form.invoiceLines.push(
+                                                    {
+                                                        description: '',
+                                                        tax: null,
+                                                        discount: null,
+                                                        quantity: null,
+                                                        unitPrice: null,
+                                                        expenseCategory: {
+                                                            id: null,
+                                                            name: null,
+                                                            expenseTypeCode:
+                                                                null,
+                                                        },
+                                                        expenseCategoryId: '',
+                                                        depreciationRatePerYear:
+                                                            null,
+                                                        serviceDateFrom: '',
+                                                        serviceDateTo: '',
+                                                    }
+                                                );
+                                                // Update items fields
+                                                setLines([]);
+                                            },
+                                        }}
+                                    />
+                                </Form>
+                                <div className='float-right w-1/6'>
+                                    <Form
+                                        formData={invoiceData}
+                                        labelLocation='left'
+                                        className='mr-2'
+                                    >
+                                        <GroupItem>
+                                            <Item
+                                                dataField='form.grossAmount'
+                                                label={{ text: 'Base Amount' }}
+                                                editorOptions={{
+                                                    format: {
+                                                        type: 'currency',
+                                                        currency: 'EUR',
+                                                        precision: 2,
+                                                    },
+                                                }}
+                                            />
+                                            <Item
+                                                dataField='form.totalTax'
+                                                label={{ text: 'IVA' }}
+                                                editorOptions={{
+                                                    format: {
+                                                        type: 'currency',
+                                                        currency: 'EUR',
+                                                        precision: 2,
+                                                    },
+                                                }}
+                                            />
+                                            <Item
+                                                dataField='form.netAmount'
+                                                label={{ text: 'Total Amount' }}
+                                                editorOptions={{
+                                                    format: {
+                                                        type: 'currency',
+                                                        currency: 'EUR',
+                                                        precision: 2,
+                                                    },
+                                                }}
+                                            />
+                                        </GroupItem>
+                                    </Form>
+                                </div>
                             </div>
                         </div>
                     </Allotment.Pane>
