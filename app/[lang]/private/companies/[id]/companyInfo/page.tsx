@@ -8,6 +8,7 @@ import { CountryData, StateData } from '@/lib/types/countriesData';
 import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
+import { sortByProperty } from '@/lib/utils/sortByProperty';
 
 interface Props {
     params: { lang: Locale; id: string };
@@ -60,6 +61,8 @@ const Company = async ({ params: { lang, id } }: Props) => {
         // Await all promises and flat the response to one array only
         if (promises) statesData = (await Promise.all(promises)).flat();
     }
+
+    sortByProperty(contactsData, 'firstName');
 
     return (
         <>

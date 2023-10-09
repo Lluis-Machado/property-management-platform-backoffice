@@ -80,28 +80,29 @@ const ContactPage = ({
     initialStates,
     lang,
 }: Props) => {
+    // Atoms
     const [_, setIsLogOpened] = useAtom(logOpened);
     const [__, setUserId] = useAtom(selectedObjId);
     const [___, setObjName] = useAtom(selectedObjName);
+    // States
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
     const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
-    // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<ContactData>(
-        structuredClone(contactData)
+        structuredClone(contactData) // Important to not be copied by reference
     );
-
-    // Used for audit log calls
-    useEffect(() => {
-        setObjName('contact');
-    }, [setObjName]);
-
+    // Refs
     const formRef = useRef<Form>(null);
     const idDocsTabRef = useRef<IdDocumentsTabMethods>(null);
     const addressTabRef = useRef<AddressInfoTabMethods>(null);
     const phonesTabRef = useRef<PhonesTabMethods>(null);
     const bankTabRef = useRef<BankTabMethods>(null);
+
+    // Used for audit log calls
+    useEffect(() => {
+        setObjName('contact');
+    }, [setObjName]);
 
     const router = useRouter();
 

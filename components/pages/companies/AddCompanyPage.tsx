@@ -56,13 +56,14 @@ interface Props {
 }
 
 const AddCompanyPage = ({ countriesData, contactsData, lang }: Props) => {
+    // States
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    // Importante para que no se copie por referencia
     const [initialValues, _] = useState<CompanyData>(
-        structuredClone(companyData)
+        structuredClone(companyData) // Important to not be copied by reference
     );
     const [__, setAddressOptions] = useState({});
 
+    // Refs
     const formRef = useRef<Form>(null);
     const addressTabRef = useRef<AddressInfoTabMethods>(null);
     const contactsTabRef = useRef<ContactsTabMethods>(null);
@@ -142,17 +143,17 @@ const AddCompanyPage = ({ countriesData, contactsData, lang }: Props) => {
                         <RequiredRule />
                     </Item>
                     <Item dataField='nif' label={{ text: 'NIF' }} />
-                    <Item dataField='email' label={{ text: 'Email' }}>
-                        <EmailRule message='Email is invalid' />
-                    </Item>
-                    <Item
-                        dataField='germanTaxOffice'
-                        label={{ text: 'German Tax Office' }}
-                    />
                     <Item
                         dataField='uStIDNumber'
                         label={{ text: 'USt. ID Number' }}
                     />
+                    <Item
+                        dataField='germanTaxOffice'
+                        label={{ text: 'German Tax Office' }}
+                    />
+                    <Item dataField='email' label={{ text: 'Email' }}>
+                        <EmailRule message='Email is invalid' />
+                    </Item>
                     <Item
                         dataField='foundingDate'
                         label={{ text: 'Founding Date' }}

@@ -13,8 +13,6 @@ export default async function Accounting() {
         'Error while getting tenants'
     );
 
-    console.log('Accounting: ', data);
-
     return (
         <>
             <div className='mt-4 text-lg text-secondary-500'>

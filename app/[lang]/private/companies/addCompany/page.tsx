@@ -6,7 +6,7 @@ import { ContactData } from '@/lib/types/contactData';
 import { CountryData } from '@/lib/types/countriesData';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
-import { getUser } from '@/lib/utils/getUser';
+import { sortByProperty } from '@/lib/utils/sortByProperty';
 
 interface Props {
     params: { lang: Locale };
@@ -32,6 +32,8 @@ const AddCompany = async ({ params: { lang } }: Props) => {
             country.category = 'Other Countries';
         }
     }
+
+    sortByProperty(contactsData, 'firstName');
 
     return (
         <>

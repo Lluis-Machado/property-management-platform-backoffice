@@ -9,7 +9,7 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { PropertyData } from '@/lib/types/propertyInfo';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
-import { getUser } from '@/lib/utils/getUser';
+import { sortByProperty } from '@/lib/utils/sortByProperty';
 
 interface Props {
     params: { lang: Locale; id: string };
@@ -50,12 +50,7 @@ const Property = async ({ params: { id, lang } }: Props) => {
         ),
     ]);
     // Sort properties alphabetical
-    let propertiesSorted = propertiesData.slice(0);
-    propertiesSorted.sort(function (a, b) {
-        var x = a.name.toLowerCase();
-        var y = b.name.toLowerCase();
-        return x < y ? -1 : x > y ? 1 : 0;
-    });
+    sortByProperty(propertiesData, 'name');
 
     // Get states
     let statesData: StateData[] = [];
@@ -77,12 +72,7 @@ const Property = async ({ params: { id, lang } }: Props) => {
     }
 
     // Sort contacts alphabetical
-    let contactsListSorted = contacts.slice(0);
-    contactsListSorted.sort(function (a, b) {
-        var x = a.firstName!.toLowerCase();
-        var y = b.firstName!.toLowerCase();
-        return x < y ? -1 : x > y ? 1 : 0;
-    });
+    sortByProperty(contacts, 'firstName');
 
     // Add contact type to companies
     let companieslist: CompanyDataProperty[] = [];
@@ -97,22 +87,17 @@ const Property = async ({ params: { id, lang } }: Props) => {
     const totalContactsList = [...contacts, ...companieslist];
 
     // Sort all contacts alphabetical
-    let totalContactsListSorted = totalContactsList.slice(0);
-    totalContactsListSorted.sort(function (a, b) {
-        var x = a.firstName!.toLowerCase();
-        var y = b.firstName!.toLowerCase();
-        return x < y ? -1 : x > y ? 1 : 0;
-    });
+    sortByProperty(totalContactsList, 'firstName');
 
     return (
         <>
             <Breadcrumb />
             <PropertyPage
                 propertyData={propertyData}
-                propertiesData={propertiesSorted}
-                totalContactsList={totalContactsListSorted}
+                propertiesData={propertiesData}
+                totalContactsList={totalContactsList}
                 lang={lang}
-                contacts={contactsListSorted}
+                contacts={contacts}
                 ownershipData={ownershipData}
                 countries={countriesData}
                 initialStates={statesData}

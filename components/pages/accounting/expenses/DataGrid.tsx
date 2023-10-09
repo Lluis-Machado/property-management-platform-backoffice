@@ -303,10 +303,7 @@ const DataGrid = ({
                 keyExpr={'id'}
                 columnAutoWidth={true}
                 focusedRowEnabled={true}
-                focusedRowKey={0}
                 autoNavigateToFocusedRow={true}
-                focusedRowIndex={0}
-                focusedColumnIndex={0}
                 onRowPrepared={visibleDateFromTO}
                 ref={masterdetailRef}
             >
@@ -384,6 +381,7 @@ const DataGrid = ({
                 dataSource={dataGridValues}
                 keyExpr='id'
                 showRowLines
+                showBorders
                 defaultFilterValue={
                     params.bp ? ['businessPartner', '=', params.bp] : undefined
                 }
@@ -392,7 +390,6 @@ const DataGrid = ({
                 focusedRowEnabled
                 columnHidingEnabled={false}
                 columnMinWidth={100}
-                showBorders
                 ref={dataGridRef}
                 onRowExpanding={onRowExpanding}
             >
@@ -406,8 +403,6 @@ const DataGrid = ({
                 <Paging defaultPageSize={10} />
                 <Pager
                     visible={true}
-                    allowedPageSizes={[10]}
-                    showPageSizeSelector
                     displayMode={'compact'}
                     showInfo
                     showNavigationButtons
@@ -479,7 +474,7 @@ const DataGrid = ({
                         ]}
                     />
                 </Column>
-                <Column
+                {/* <Column
                     alignment='center'
                     allowExporting={false}
                     caption='Invoice'

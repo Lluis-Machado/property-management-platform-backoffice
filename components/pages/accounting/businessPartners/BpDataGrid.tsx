@@ -20,6 +20,7 @@ const BpDataGrid = ({ dataSource }: Props) => {
             dataSource={dataSource}
             keyExpr='id'
             showRowLines
+            showBorders
             allowColumnResizing
             rowAlternationEnabled
             focusedRowEnabled
@@ -34,7 +35,6 @@ const BpDataGrid = ({ dataSource }: Props) => {
                 visible={true}
                 allowedPageSizes={'auto'}
                 displayMode={'compact'}
-                showPageSizeSelector
                 showInfo
                 showNavigationButtons
             />

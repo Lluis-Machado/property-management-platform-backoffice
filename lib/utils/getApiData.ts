@@ -3,6 +3,13 @@ import { cookies } from 'next/headers';
 import { ApiCallError } from './errors';
 import { getRequestCookie } from './getRequestCookie';
 
+/**
+ * Retrieves API data without caching for a specified path.
+ *
+ * @param {string} path - The API endpoint path to fetch data from.
+ * @param {string} errorMsg - Error message to throw if the request fails.
+ * @returns {Promise<T>} - A Promise that resolves to the fetched data of type T.
+ */
 export const getApiData = async <T>(
     path: string,
     errorMsg: string

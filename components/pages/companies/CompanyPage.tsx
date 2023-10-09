@@ -71,27 +71,28 @@ const CompanyPage = ({
     initialStates,
     lang,
 }: Props) => {
+    // Atoms
     const [_, setIsLogOpened] = useAtom(logOpened);
     const [__, setCompanyId] = useAtom(selectedObjId);
     const [___, setObjName] = useAtom(selectedObjName);
+    // States
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
     const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
-    // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<CompanyData>(
-        structuredClone(companyData)
+        structuredClone(companyData) // Important to not be copied by reference
     );
+    // Refs
+    const formRef = useRef<Form>(null);
+    const addressTabRef = useRef<AddressInfoTabMethods>(null);
+    const contactsTabRef = useRef<ContactsTabMethods>(null);
+    const bankTabRef = useRef<BankTabMethods>(null);
 
     // Used for audit log calls
     useEffect(() => {
         setObjName('company');
     }, [setObjName]);
-
-    const formRef = useRef<Form>(null);
-    const addressTabRef = useRef<AddressInfoTabMethods>(null);
-    const contactsTabRef = useRef<ContactsTabMethods>(null);
-    const bankTabRef = useRef<BankTabMethods>(null);
 
     const router = useRouter();
 
@@ -159,20 +160,28 @@ const CompanyPage = ({
         }
     }, [companyData, router]);
 
-    const getMaskFromDataSource = () =>
-        countriesMaskItems.filter(
-            (obj) => obj.id === companyData.countryMaskId
-        )[0]?.mask || countriesMaskItems[0].mask;
+    const getMaskFromDataSource = useCallback(() => {
+        return (
+            countriesMaskItems.find(
+                (obj) => obj.id === companyData.countryMaskId
+            )?.mask || countriesMaskItems[0].mask
+        );
+    }, [companyData.countryMaskId]);
 
-    const getMaskValueChange = (e: ValueChangedEvent) => {
-        const result = countriesMaskItems.filter((obj) => obj.id === e.value);
-        const value = result[0]?.mask;
-        if (value) {
-            formRef
-                .current!.instance.getEditor('phoneNumber')!
-                .option('mask', value);
-        }
-    };
+    const getMaskValueChange = useCallback(
+        (e: ValueChangedEvent) => {
+            const result = countriesMaskItems.filter(
+                (obj) => obj.id === e.value
+            );
+            const value = result[0]?.mask;
+            if (value) {
+                formRef
+                    .current!.instance.getEditor('phoneNumber')!
+                    .option('mask', value);
+            }
+        },
+        [formRef]
+    );
 
     // CHANGES FIELDS
     const changeCssFormElement = (e: FieldDataChangedEvent) => {

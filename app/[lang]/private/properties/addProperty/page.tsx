@@ -7,6 +7,7 @@ import { ContactData } from '@/lib/types/contactData';
 import { CountryData } from '@/lib/types/countriesData';
 import { PropertyData } from '@/lib/types/propertyInfo';
 import { SelectData } from '@/lib/types/selectData';
+import { sortByProperty } from '@/lib/utils/sortByProperty';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
 
@@ -36,12 +37,7 @@ const AddProperty = async ({ params: { lang } }: Props) => {
         ]);
 
     // Sort properties alphabetical
-    let propertiesSorted = properties.slice(0);
-    propertiesSorted.sort(function (a, b) {
-        var x = a.name.toLowerCase();
-        var y = b.name.toLowerCase();
-        return x < y ? -1 : x > y ? 1 : 0;
-    });
+    sortByProperty(properties, 'name');
 
     // Add contact type to contacts
     let contacts: SelectData[] = [];
@@ -54,12 +50,7 @@ const AddProperty = async ({ params: { lang } }: Props) => {
     }
 
     // Sort contacts alphabetical
-    let contactsSorted = contacts.slice(0);
-    contactsSorted.sort(function (a, b) {
-        var x = a.label.toLowerCase();
-        var y = b.label.toLowerCase();
-        return x < y ? -1 : x > y ? 1 : 0;
-    });
+    sortByProperty(contacts, 'label');
 
     // Add contact type to companies
     let companies: SelectData[] = [];
@@ -73,22 +64,17 @@ const AddProperty = async ({ params: { lang } }: Props) => {
     const totalContactsList = [...contacts, ...companies];
 
     // Sort all contacts alphabetical
-    let totalContactsListsorted = totalContactsList.slice(0);
-    totalContactsListsorted.sort(function (a, b) {
-        var x = a.label.toLowerCase();
-        var y = b.label.toLowerCase();
-        return x < y ? -1 : x > y ? 1 : 0;
-    });
+    sortByProperty(totalContactsList, 'label');
 
     return (
         <>
             <Breadcrumb />
             <AddPropertyPage
-                properties={propertiesSorted}
-                contacts={contactsSorted}
+                properties={properties}
+                contacts={contacts}
                 countries={countriesData}
                 lang={lang}
-                totalContactsList={totalContactsListsorted}
+                totalContactsList={totalContactsList}
             />
         </>
     );

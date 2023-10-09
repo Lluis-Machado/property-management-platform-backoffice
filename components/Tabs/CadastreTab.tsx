@@ -19,10 +19,7 @@ const Cadastre = ({ propertyData, isEditing, isLoading }: Props) => {
     const [cadastreRef, setCadastreRef] = useState<string>(
         propertyData.cadastreRef
     );
-    const [addressOptions, setAddressOptions] = useState(() => {
-        console.log('Cadaste: ME INICIALIZO');
-        return {};
-    });
+    const [addressOptions, _] = useState({});
     const [eventsList, setEventsList] = useState<FieldDataChangedEvent[]>([]);
     const [elementsList, setElementsList] = useState<ValueChangedEvent[]>([]);
     const formRef = useRef<Form>(null);

@@ -1,19 +1,18 @@
 'use client';
-
 import { useRouter } from 'next/navigation';
 import { AvatarDropdown } from 'pg-components';
 
 // Local imports
 import { signOut } from '@/lib/utils/signOut';
-import { User } from '@/lib/types/user';
 import { Locale } from '@/i18n-config';
 
 interface Props {
     lang: Locale;
-    user: User;
+    nickname: string;
+    picture: string;
 }
 
-const AvatarDropdownWrapper = ({ lang, user }: Props) => {
+const AvatarDropdownWrapper = ({ lang, nickname, picture }: Props) => {
     const router = useRouter();
 
     const navigationItems = [
@@ -30,10 +29,10 @@ const AvatarDropdownWrapper = ({ lang, user }: Props) => {
     return (
         <div className='mr-5 flex w-auto items-center justify-center'>
             <p className='select-none whitespace-nowrap font-semibold'>
-                {user?.nickname}
+                {nickname}
             </p>
             <AvatarDropdown
-                picture={user?.picture}
+                picture={picture}
                 navigationItems={navigationItems}
             />
         </div>

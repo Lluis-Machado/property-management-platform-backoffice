@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // Local imports
 import { Locale } from '@/i18n-config';
 import AvatarDropdownWrapper from '@/components/dropdowns/AvatarDropdownWrapper';
-import { User } from '@/lib/types/user';
+import { getUser } from '@/lib/utils/getUser';
 
 const headerOptions: { name: string; icon: IconDefinition }[] = [
     {
@@ -27,13 +27,13 @@ const headerOptions: { name: string; icon: IconDefinition }[] = [
 
 interface Props {
     lang: Locale;
-    user: User;
 }
 
-export const HeaderOptions: FC<Props> = memo(function HeaderOptions({
+export const HeaderOptions: FC<Props> = memo(async function HeaderOptions({
     lang,
-    user,
 }) {
+    const user = await getUser();
+
     return (
         <div className='z-20 flex flex-row text-secondary-500/50'>
             {headerOptions.map((icon) => (
@@ -44,7 +44,11 @@ export const HeaderOptions: FC<Props> = memo(function HeaderOptions({
                     <FontAwesomeIcon icon={icon.icon} />
                 </div>
             ))}
-            <AvatarDropdownWrapper lang={lang} user={user} />
+            <AvatarDropdownWrapper
+                lang={lang}
+                nickname={user.nickname}
+                picture={user.picture}
+            />
         </div>
     );
 });

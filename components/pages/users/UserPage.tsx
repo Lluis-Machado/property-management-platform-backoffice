@@ -41,15 +41,15 @@ interface Props {
 }
 
 const UserPage = ({ userData, userRoles, userLogs, roles, lang }: Props) => {
+    // States
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
     const [unsavedVisible, setUnsavedVisible] = useState<boolean>(false);
-    // Importante para que no se copie por referencia
     const [initialValues, setInitialValues] = useState<Auth0User>(
-        structuredClone(userData)
+        structuredClone(userData) // Important to not be copied by reference
     );
-
+    // Refs
     const formRef = useRef<Form>(null);
 
     const router = useRouter();
