@@ -7,15 +7,13 @@ import { ContentWrapper } from './ContentWrapper';
 import { Locale } from '@/i18n-config';
 import Header from './header/Header';
 import Sidebar from './sidebar/Sidebar';
-import { User } from '@/lib/types/user';
 
 interface Props {
     children: React.ReactNode;
     lang: Locale;
-    user: User;
 }
 
-function MainLayout({ children, lang, user }: Props) {
+function MainLayout({ children, lang }: Props) {
     return (
         <section className='min-h-screen w-screen bg-white'>
             {/* Sidebar */}
@@ -25,7 +23,7 @@ function MainLayout({ children, lang, user }: Props) {
             {/* Header and page */}
             <section className='absolute inset-0 left-12 flex flex-col overflow-hidden'>
                 <header className='z-50 h-header w-full shadow-header'>
-                    <Header lang={lang} user={user} />
+                    <Header lang={lang} />
                 </header>
                 <ContentWrapper lang={lang}>{children}</ContentWrapper>
             </section>

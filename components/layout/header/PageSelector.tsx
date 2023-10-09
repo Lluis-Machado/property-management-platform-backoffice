@@ -21,12 +21,14 @@ const findParent = (path: string, routes: Route[]) => {
 const currentRouteIsChild = (path: string): boolean => {
     if (!path) return false;
     const segments = path.split('/').filter((segment) => segment !== ''); // Split the path and remove empty segments
+    if (segments[5]) return false; // Return false if we have more than one level
     const possibleChild = segments[3]; // Try to get a segment next to parent
     return possibleChild !== undefined;
 };
 
 const PageSelector = () => {
     const pathName = usePathname();
+
     const itemIsActualRoute = useCallback(
         (route: string) => pathName?.includes(route),
         [pathName]

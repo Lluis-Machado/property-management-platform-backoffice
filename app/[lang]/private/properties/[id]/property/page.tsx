@@ -9,7 +9,6 @@ import { OwnershipPropertyData } from '@/lib/types/ownershipProperty';
 import { PropertyData } from '@/lib/types/propertyInfo';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
-import { getUser } from '@/lib/utils/getUser';
 
 interface Props {
     params: { lang: Locale; id: string };

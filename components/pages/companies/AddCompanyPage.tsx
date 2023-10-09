@@ -143,17 +143,17 @@ const AddCompanyPage = ({ countriesData, contactsData, lang }: Props) => {
                         <RequiredRule />
                     </Item>
                     <Item dataField='nif' label={{ text: 'NIF' }} />
-                    <Item dataField='email' label={{ text: 'Email' }}>
-                        <EmailRule message='Email is invalid' />
-                    </Item>
-                    <Item
-                        dataField='germanTaxOffice'
-                        label={{ text: 'German Tax Office' }}
-                    />
                     <Item
                         dataField='uStIDNumber'
                         label={{ text: 'USt. ID Number' }}
                     />
+                    <Item
+                        dataField='germanTaxOffice'
+                        label={{ text: 'German Tax Office' }}
+                    />
+                    <Item dataField='email' label={{ text: 'Email' }}>
+                        <EmailRule message='Email is invalid' />
+                    </Item>
                     <Item
                         dataField='foundingDate'
                         label={{ text: 'Founding Date' }}

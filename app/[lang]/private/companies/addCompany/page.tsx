@@ -6,7 +6,6 @@ import { ContactData } from '@/lib/types/contactData';
 import { CountryData } from '@/lib/types/countriesData';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
-import { getUser } from '@/lib/utils/getUser';
 
 interface Props {
     params: { lang: Locale };
@@ -32,6 +31,19 @@ const AddCompany = async ({ params: { lang } }: Props) => {
             country.category = 'Other Countries';
         }
     }
+
+    contactsData.sort((a, b) => {
+        const firstNameA = a.firstName.toUpperCase();
+        const firstNameB = b.firstName.toUpperCase();
+
+        if (firstNameA < firstNameB) {
+            return -1;
+        }
+        if (firstNameA > firstNameB) {
+            return 1;
+        }
+        return 0;
+    });
 
     return (
         <>
