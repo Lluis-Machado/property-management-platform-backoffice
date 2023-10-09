@@ -6,6 +6,7 @@ import { ContactData } from '@/lib/types/contactData';
 import { CountryData } from '@/lib/types/countriesData';
 import { getApiData } from '@/lib/utils/getApiData';
 import { getApiDataWithCache } from '@/lib/utils/getApiDataWithCache';
+import { sortByProperty } from '@/lib/utils/sortByProperty';
 
 interface Props {
     params: { lang: Locale };
@@ -32,18 +33,7 @@ const AddCompany = async ({ params: { lang } }: Props) => {
         }
     }
 
-    contactsData.sort((a, b) => {
-        const firstNameA = a.firstName.toUpperCase();
-        const firstNameB = b.firstName.toUpperCase();
-
-        if (firstNameA < firstNameB) {
-            return -1;
-        }
-        if (firstNameA > firstNameB) {
-            return 1;
-        }
-        return 0;
-    });
+    sortByProperty(contactsData, 'firstName');
 
     return (
         <>
