@@ -20,5 +20,4 @@ const dictionaries = {
  * @param {Locale} locale - The locale code (e.g., 'en', 'de', 'es').
  * @returns {Promise<object>} - A promise that resolves to the imported dictionary object.
  */
-export const getDictionary = async (locale: Locale): Promise<object> =>
-    dictionaries[locale]();
+export const getDictionary = async (locale: Locale) => dictionaries[locale]();
