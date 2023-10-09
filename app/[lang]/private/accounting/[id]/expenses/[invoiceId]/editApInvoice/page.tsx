@@ -10,7 +10,6 @@ interface Props {
 }
 
 const EditApInvoice: any = async ({ params: { id, invoiceId } }: Props) => {
-    console.log(invoiceId);
     const [apInvoiceData, tenatsBusinessPartners] = await Promise.all([
         getApiData<ApInvoice>(
             `/accounting/tenants/${id}/apinvoices/${invoiceId}`,

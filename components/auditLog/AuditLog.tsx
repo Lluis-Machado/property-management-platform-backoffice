@@ -39,7 +39,6 @@ const AuditLog = () => {
 
     useEffect(() => {
         if (!objId) return;
-        console.log(objId);
         setIsLoading(true);
         fetch(`/api/audits?objId=${objId}&objName=${objName}`)
             .then((resp) => {
