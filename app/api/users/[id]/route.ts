@@ -1,57 +1,20 @@
+import { Auth0User } from '@/lib/types/user';
 import { getUser } from '@/lib/utils/getUser';
 import { NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+export async function PATCH(
+    request: Request,
+    { params }: { params: { id: string } }
+) {
     try {
         const { token } = await getUser();
-        const ownershipsData = await request.json();
+        const user: Auth0User = await request.json();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/ownership/ownership/ownerships`,
-            {
-                method: 'POST',
-                body: JSON.stringify(ownershipsData),
-                headers: {
-                    Authorization: `${token.token_type} ${token.access_token}`,
-                    'Content-type': 'application/json; charset=UTF-8',
-                },
-            }
-        );
-        if (!res.ok) {
-            const responseMsg = await res.text();
-            return new NextResponse(
-                responseMsg || 'Something went wrong creating a ownership',
-                {
-                    status: res.status,
-                    headers: { 'Content-Type': 'application/json' },
-                }
-            );
-        }
-
-        const data = await res.json();
-        return NextResponse.json(data);
-    } catch (error) {
-        return new NextResponse(
-            `Unexpected error. Please contact admin. Error info: ${JSON.stringify(
-                error
-            )}`,
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
-        );
-    }
-}
-
-export async function PATCH(request: Request) {
-    try {
-        const { token } = await getUser();
-        const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
-        const ownershipsData = await request.json();
-
-        const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/ownership/ownership/${id}/property`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/auth/users/${params.id}`,
             {
                 method: 'PATCH',
-                body: JSON.stringify(ownershipsData),
+                body: JSON.stringify(user),
                 headers: {
                     Authorization: `${token.token_type} ${token.access_token}`,
                     'Content-type': 'application/json; charset=UTF-8',
@@ -61,7 +24,7 @@ export async function PATCH(request: Request) {
         if (!res.ok) {
             const responseMsg = await res.text();
             return new NextResponse(
-                responseMsg || 'Something went wrong updating ownerships',
+                responseMsg || 'Something went wrong updating a user',
                 {
                     status: res.status,
                     headers: { 'Content-Type': 'application/json' },
@@ -81,14 +44,15 @@ export async function PATCH(request: Request) {
     }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(
+    request: Request,
+    { params }: { params: { id: string } }
+) {
     try {
         const { token } = await getUser();
-        const { searchParams } = new URL(request.url);
-        const idOwnership = searchParams.get('id');
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/ownership/ownership/${idOwnership}`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/auth/users/${params.id}`,
             {
                 method: 'DELETE',
                 headers: {
@@ -100,7 +64,7 @@ export async function DELETE(request: Request) {
         if (!res.ok) {
             const responseMsg = await res.text();
             return new NextResponse(
-                responseMsg || 'Something went wrong deleting a wnership',
+                responseMsg || 'Something went wrong deleting a user',
                 {
                     status: res.status,
                     headers: { 'Content-Type': 'application/json' },

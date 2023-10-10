@@ -114,7 +114,7 @@ export async function DELETE(request: Request) {
             );
         }
 
-        return new NextResponse(undefined, { status: 200 });
+        return new NextResponse(undefined, { status: res.status });
     } catch (error) {
         return new NextResponse(
             `Unexpected error. Please contact admin. Error info: ${JSON.stringify(

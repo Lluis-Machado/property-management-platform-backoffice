@@ -1,31 +1,30 @@
 import { NextResponse } from 'next/server';
-import { Folder } from '@/lib/types/documentsAPI';
 import { getUser } from '@/lib/utils/getUser';
+import { CompanyData } from '@/lib/types/companyData';
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { archiveId: string; folderId: string } }
+    { params }: { params: { id: string } }
 ) {
     try {
         const { token } = await getUser();
-        const folderData: Folder = await request.json();
+        const contact: CompanyData = await request.json();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${params.archiveId}/folders/${params.folderId}`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/core/core/companies/${params.id}`,
             {
                 method: 'PATCH',
-                body: JSON.stringify(folderData),
+                body: JSON.stringify(contact),
                 headers: {
                     Authorization: `${token.token_type} ${token.access_token}`,
                     'Content-type': 'application/json; charset=UTF-8',
                 },
             }
         );
-
         if (!res.ok) {
             const responseMsg = await res.text();
             return new NextResponse(
-                responseMsg || 'Something went wrong updating a folder',
+                responseMsg || 'Something went wrong updating a company',
                 {
                     status: res.status,
                     headers: { 'Content-Type': 'application/json' },
@@ -47,25 +46,25 @@ export async function PATCH(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { archiveId: string; folderId: string } }
+    { params }: { params: { id: string } }
 ) {
     try {
         const { token } = await getUser();
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/documents/${params.archiveId}/folders/${params.folderId}`,
+            `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/core/core/companies/${params.id}`,
             {
                 method: 'DELETE',
                 headers: {
                     Authorization: `${token.token_type} ${token.access_token}`,
+                    'Content-type': 'application/json; charset=UTF-8',
                 },
             }
         );
-
         if (!res.ok) {
             const responseMsg = await res.text();
             return new NextResponse(
-                responseMsg || 'Something went wrong deleting a folder',
+                responseMsg || 'Something went wrong deleting a company',
                 {
                     status: res.status,
                     headers: { 'Content-Type': 'application/json' },

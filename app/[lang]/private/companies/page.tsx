@@ -3,6 +3,7 @@ import CompaniesPage from '@/components/pages/companies/CompaniesPage';
 import { Locale } from '@/i18n-config';
 import { CompanyData } from '@/lib/types/companyData';
 import { getApiData } from '@/lib/utils/getApiData';
+import { sortByProperty } from '@/lib/utils/sortByProperty';
 
 interface Props {
     params: { lang: Locale };
@@ -13,6 +14,8 @@ const Companies = async ({ params: { lang } }: Props) => {
         '/companies/companies?includeDeteted=false',
         'Error while getting companies'
     );
+
+    sortByProperty(companyData, 'name');
 
     return (
         <>

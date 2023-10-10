@@ -130,8 +130,7 @@ const CompanyPage = ({
             console.log(JSON.stringify(valuesToSend));
 
             const data = await apiPatch(
-                '/api/companies',
-                companyData.id!,
+                `/api/companies/${companyData.id!}`,
                 valuesToSend
             );
 
@@ -150,7 +149,7 @@ const CompanyPage = ({
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting company...');
         try {
-            await apiDelete('/api/companies', companyData.id!);
+            await apiDelete(`/api/companies/${companyData.id!}`);
 
             updateSuccessToast(toastId, 'Company deleted correctly!');
             // Pass the ID to reload the page

@@ -29,7 +29,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from 'pg-components';
 import React, { memo, useCallback, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
-import RolesDataGrid from './tabs/RolesDataGrid';
+import RolesDataGrid, { RolesDatagridProps } from './tabs/RolesDataGrid';
 import LogsDataGrid from './tabs/LogsDataGrid';
 
 interface Props {
@@ -51,6 +51,7 @@ const UserPage = ({ userData, userRoles, userLogs, roles, lang }: Props) => {
     );
     // Refs
     const formRef = useRef<Form>(null);
+    const rolesDG = useRef<RolesDatagridProps>(null);
 
     const router = useRouter();
 
@@ -63,7 +64,10 @@ const UserPage = ({ userData, userRoles, userLogs, roles, lang }: Props) => {
 
         const values = structuredClone(userData);
 
-        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
+        if (
+            JSON.stringify(values) === JSON.stringify(initialValues) &&
+            !rolesDG.current?.hasEditData()
+        ) {
             toast.warning('Change at least one field');
             return;
         }
@@ -72,6 +76,8 @@ const UserPage = ({ userData, userRoles, userLogs, roles, lang }: Props) => {
         const toastId = toast.loading('Updating user...');
 
         try {
+            // Save roles, if there are any
+            if (rolesDG.current?.hasEditData()) rolesDG.current?.saveEditData();
             // Deleting this properties because auth0 does not want them
             // @ts-ignore
             delete values.user_id;
@@ -93,13 +99,14 @@ const UserPage = ({ userData, userRoles, userLogs, roles, lang }: Props) => {
             delete values.email;
             // @ts-ignore
             delete values.last_login;
+            // @ts-ignore
+            delete values.last_password_reset;
 
             console.log('Valores a enviar: ', values);
             console.log(JSON.stringify(values));
 
             const data = await apiPatch(
-                '/api/users',
-                userData.user_id!,
+                `/api/users/${userData.user_id!}`,
                 values
             );
 
@@ -118,7 +125,7 @@ const UserPage = ({ userData, userRoles, userLogs, roles, lang }: Props) => {
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting user...');
         try {
-            await apiDelete('/api/users', userData.user_id!);
+            await apiDelete(`/api/users/${userData.user_id!}`);
 
             updateSuccessToast(toastId, 'Contact deleted correctly!');
             // Pass the ID to reload the page
@@ -255,6 +262,8 @@ const UserPage = ({ userData, userRoles, userLogs, roles, lang }: Props) => {
                         />
                         <Tab title={`Roles`}>
                             <RolesDataGrid
+                                ref={rolesDG}
+                                userId={userData.user_id}
                                 userRoles={userRoles}
                                 roles={roles}
                                 isEditing={isEditing}

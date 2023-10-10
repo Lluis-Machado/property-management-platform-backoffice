@@ -3,7 +3,6 @@
 import { memo, useCallback } from 'react';
 
 // Library imports
-import { useRouter } from 'next/navigation';
 import DataGrid, {
     Column as DxColumn,
     SearchPanel,
@@ -22,7 +21,7 @@ const AccountingPage = ({ dataSource }: Props): React.ReactElement => {
     const CellRender = useCallback(
         ({ data }: { data: any }): React.ReactElement => (
             <LinkWithIcon
-                href={`./accounting/${data.id}/incomes`}
+                href={`./accounting/${data.id}/expenses`}
                 icon={faArrowUpRightFromSquare}
             />
         ),

@@ -72,7 +72,13 @@ const AddUserPage = ({ lang }: Props) => {
             const valuesToSend: CreateAuth0User = {
                 ...values,
                 name: `${values.given_name} ${values.family_name}`,
-                picture: `https://ui-avatars.com/api/?name=${values.given_name}+${values.family_name}&background=random&size=128`,
+                picture: `https://ui-avatars.com/api/?name=${values.given_name.replaceAll(
+                    ' ',
+                    ''
+                )}+${values.family_name.replaceAll(
+                    ' ',
+                    ''
+                )}&background=random&size=128`,
             };
             console.log('Valores a enviar: ', valuesToSend);
             console.log(JSON.stringify(valuesToSend));

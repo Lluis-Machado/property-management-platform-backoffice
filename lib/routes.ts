@@ -35,8 +35,8 @@ export const routes: Route[] = [
         icon: faReceipt,
         name: 'Accounting',
         children: [
-            { name: 'AR Invoices', path: 'incomes' },
             { name: 'AP Invoices', path: 'expenses' },
+            { name: 'AR Invoices', path: 'incomes' },
             { name: 'Business Partners', path: 'businessPartners' },
             { name: 'Fixed Assets', path: 'fixedAssets' },
             { name: 'Loans', path: 'loans' },

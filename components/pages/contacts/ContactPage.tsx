@@ -148,8 +148,7 @@ const ContactPage = ({
             console.log(JSON.stringify(valuesToSend));
 
             const data = await apiPatch(
-                '/api/contacts',
-                contactData.id!,
+                `/api/contacts${contactData.id!}`,
                 valuesToSend
             );
 
@@ -168,7 +167,7 @@ const ContactPage = ({
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting contact...');
         try {
-            await apiDelete('/api/contacts', contactData.id!);
+            await apiDelete(`/api/contacts${contactData.id!}`);
 
             updateSuccessToast(toastId, 'Contact deleted correctly!');
             // Pass the ID to reload the page

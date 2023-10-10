@@ -88,7 +88,7 @@ const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
             }
         };
 
-        // Function tyo save changes ownershipsdatagrid
+        // Function to save changes ownershipsdatagrid
         const saveData = useCallback(
             async (e: SavedEvent<OwnershipPropertyData, any>) => {
                 const data: OwnershipPropertyData[] =

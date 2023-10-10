@@ -231,8 +231,7 @@ const PropertyPage = ({
             console.log('Valores a enviar JSON: ', JSON.stringify(dataToSend));
 
             const data = await apiPatch(
-                '/api/properties',
-                propertyData.id!,
+                `/api/properties/${propertyData.id!}`,
                 dataToSend
             );
 
@@ -250,7 +249,7 @@ const PropertyPage = ({
     const handleDelete = useCallback(async () => {
         const toastId = toast.loading('Deleting property...');
         try {
-            await apiDelete('/api/properties', propertyData.id!);
+            await apiDelete(`/api/properties/${propertyData.id!}`);
 
             updateSuccessToast(toastId, 'Property deleted correctly!');
             // Pass the ID to reload the page

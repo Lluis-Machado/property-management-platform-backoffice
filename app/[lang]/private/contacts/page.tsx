@@ -3,6 +3,7 @@ import ContactsPage from '@/components/pages/contacts/ContactsPage';
 import { Locale } from '@/i18n-config';
 import { ContactData } from '@/lib/types/contactData';
 import { getApiData } from '@/lib/utils/getApiData';
+import { sortByProperty } from '@/lib/utils/sortByProperty';
 
 interface Props {
     params: { lang: Locale };
@@ -14,6 +15,8 @@ const Contacts = async ({ params: { lang }, searchParams }: Props) => {
         '/contacts/contacts',
         'Error while getting contacts'
     );
+
+    sortByProperty(contactData, 'firstName');
 
     return (
         <>
