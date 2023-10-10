@@ -2,10 +2,10 @@ import {
     faAddressBook,
     faBuilding,
     faCalculator,
+    faChartSimple,
     faCog,
     faFileAlt,
     faHouse,
-    faReceipt,
 } from '@fortawesome/free-solid-svg-icons';
 
 // Local imports
@@ -32,7 +32,7 @@ export const routes: Route[] = [
     },
     {
         path: 'accounting',
-        icon: faReceipt,
+        icon: faChartSimple,
         name: 'Accounting',
         children: [
             { name: 'AP Invoices', path: 'expenses' },

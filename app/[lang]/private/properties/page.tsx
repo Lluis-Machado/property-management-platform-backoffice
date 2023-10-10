@@ -40,6 +40,9 @@ export default async function Properties({ params: { lang } }: Props) {
 
     return (
         <>
+            <div className='text-2xl tracking-wide text-secondary-500'>
+                Properties Module
+            </div>
             <div className='mt-4 text-lg text-secondary-500'>
                 Select a property
             </div>

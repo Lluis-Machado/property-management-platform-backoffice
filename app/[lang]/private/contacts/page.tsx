@@ -20,6 +20,9 @@ const Contacts = async ({ params: { lang }, searchParams }: Props) => {
 
     return (
         <>
+            <div className='text-2xl tracking-wide text-secondary-500'>
+                Contacts Module
+            </div>
             <div className='mt-4 text-lg text-secondary-500'>
                 Select a contact
             </div>

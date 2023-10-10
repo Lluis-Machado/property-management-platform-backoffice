@@ -19,6 +19,9 @@ const Companies = async ({ params: { lang } }: Props) => {
 
     return (
         <>
+            <div className='text-2xl tracking-wide text-secondary-500'>
+                Companies Module
+            </div>
             <div className='mt-4 text-lg text-secondary-500'>
                 Select a company
             </div>
