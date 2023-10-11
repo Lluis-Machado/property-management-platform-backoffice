@@ -59,7 +59,7 @@ const RolesDataGrid = forwardRef<RolesDatagridProps, Props>((props, ref) => {
         let promises = [];
         if (rolesToAdd.length > 0) {
             promises.push(apiPost(`/api/users/${userId}/roles`, rolesToAdd));
-        } else if (rolesToAdd.length > 0) {
+        } else if (rolesToRemove.length > 0) {
             promises.push(
                 apiDelete(`/api/users/${userId}/roles`, rolesToRemove)
             );
