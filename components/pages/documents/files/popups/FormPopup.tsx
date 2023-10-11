@@ -1,11 +1,10 @@
 // React imports
-import { FC, memo, useCallback, useRef } from 'react';
+import { FC, memo, useCallback, useRef, useState } from 'react';
 
 // Librares imports
 import { Button, Input } from 'pg-components';
-import { Form, Formik } from 'formik';
-import * as Yup from 'yup';
 import Popup from 'devextreme-react/popup';
+import TextBox from 'devextreme-react/text-box';
 
 /**
  * Represents the type of form actions for the FormPopup component.
@@ -52,6 +51,7 @@ const FormPopup: FC<Props> = memo(function FormPopup({
     visible,
 }): React.ReactElement {
     const PopupRef = useRef<Popup>(null);
+    const [name, setName] = useState(elementName);
 
     /**
      * Renders the form for the 'New folder' and 'Rename' action.
@@ -60,38 +60,36 @@ const FormPopup: FC<Props> = memo(function FormPopup({
      */
     const FolderNameForm = useCallback(
         ({ submitText }: { submitText: string }): React.ReactElement => {
-            const validationSchema = Yup.object().shape({
-                folderName: Yup.string().required('Cannot be empty').trim(),
-            });
             return (
-                <Formik
-                    initialValues={{ folderName: elementName }}
-                    onSubmit={(values) => {
-                        onSubmit(values.folderName);
-                        PopupRef.current?.instance.hide();
-                    }}
-                    validationSchema={validationSchema}
-                >
-                    <Form className='flex flex-col'>
-                        <Input name='folderName' required />
-                        <div className='flex justify-end'>
-                            <div className='flex w-3/4 flex-row justify-end gap-2'>
-                                <Button text={submitText} type='submit' />
-                                <Button
-                                    text='Cancel'
-                                    type='button'
-                                    style='outline'
-                                    onClick={() =>
-                                        PopupRef.current?.instance.hide()
-                                    }
-                                />
-                            </div>
+                <>
+                    <TextBox
+                        value={name}
+                        onValueChange={(e) => setName(e)}
+                        valueChangeEvent='keyup'
+                    />
+                    <div className='mt-4 flex justify-end'>
+                        <div className='flex w-3/4 flex-row justify-end gap-2'>
+                            <Button
+                                text={submitText}
+                                onClick={() => {
+                                    onSubmit(name);
+                                    PopupRef.current?.instance.hide();
+                                }}
+                            />
+                            <Button
+                                text='Cancel'
+                                type='button'
+                                style='outline'
+                                onClick={() =>
+                                    PopupRef.current?.instance.hide()
+                                }
+                            />
                         </div>
-                    </Form>
-                </Formik>
+                    </div>
+                </>
             );
         },
-        [elementName, onSubmit]
+        [elementName, onSubmit, name]
     );
     /**
      * Renders the form for the 'New folder' action.
