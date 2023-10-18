@@ -32,15 +32,11 @@ const PropertyPageTitle = ({
         structuredClone(propertyData)
     );
     const [name, setName] = useState(propertyData.name);
-    const sendData = (e: ValueChangedEvent) => {
-        const value = e.value;
-        if (e.value != initialValues.name) {
-            e.element.classList.add('styling');
-        } else {
-            e.element.classList.remove('styling');
-        }
+    const sendData = ({ value, element }: ValueChangedEvent) => {
+        const isNameChanged = value !== initialValues.name;
+        element.classList.toggle('styling', isNameChanged);
         setName(value);
-        parentCallback(e.value);
+        parentCallback(value);
         setIsEditingTitle(false);
     };
 

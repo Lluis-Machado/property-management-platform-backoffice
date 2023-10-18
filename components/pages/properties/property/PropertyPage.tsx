@@ -160,13 +160,10 @@ const PropertyPage = ({
                 .items() as OwnershipPropertyData[];
 
             // Check if shares are not equal to 100. Complexity O(n)
-            let sumofShares: number = 0;
-            for (const item of dataOwnersDG) {
-                sumofShares += item.share;
-                if (sumofShares > 100) {
-                    break;
-                }
-            }
+            const sumofShares = dataOwnersDG.reduce(
+                (total, item) => total + item.share,
+                0
+            );
 
             if (sumofShares !== 100) {
                 toast.warning(
@@ -260,28 +257,28 @@ const PropertyPage = ({
     }, [propertyData, router]);
 
     // CSS styling form element
-
-    const changeCssFormElement = (e: FieldDataChangedEvent) => {
-        if (!e.dataField) {
+    const changeCssFormElement = ({
+        dataField,
+        element,
+    }: FieldDataChangedEvent) => {
+        if (!dataField) {
             document
-                .getElementById(e.element.attributes[1].nodeValue!)
+                .getElementById(element.attributes[1].nodeValue!)
                 ?.classList.add('styling');
         } else {
-            document
-                .getElementsByName(e.dataField!)[0]
-                .classList.add('styling');
+            document.getElementsByName(dataField!)[0].classList.add('styling');
         }
     };
 
-    const changeSelectbox = (e: ValueChangedEvent) => {
+    const changeSelectbox = ({ element }: ValueChangedEvent) => {
         document
-            .getElementById(e.element.attributes[1].nodeValue!)
+            .getElementById(element.attributes[1].nodeValue!)
             ?.classList.add('stylingForm');
     };
 
-    const changeTagbox = (e: ValueChangedEvent) => {
-        if (e.event !== undefined) {
-            e.element.classList.add('stylingForm');
+    const changeTagbox = ({ event, element }: ValueChangedEvent) => {
+        if (event !== undefined) {
+            element.classList.add('stylingForm');
         }
     };
 

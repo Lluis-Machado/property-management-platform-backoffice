@@ -189,17 +189,20 @@ const AddPropertyPage = ({
         e.element.classList.add('stylingForm');
     }, []);
 
-    const changeCssFormElement = useCallback((e: FieldDataChangedEvent) => {
-        if (!e.dataField) {
-            document
-                .getElementById(e.element.attributes[1].nodeValue!)
-                ?.classList.add('styling');
-        } else {
-            document
-                .getElementsByName(e.dataField!)[0]
-                .classList.add('styling');
-        }
-    }, []);
+    const changeCssFormElement = useCallback(
+        ({ dataField, element }: FieldDataChangedEvent) => {
+            if (!dataField) {
+                document
+                    .getElementById(element.attributes[1].nodeValue!)
+                    ?.classList.add('styling');
+            } else {
+                document
+                    .getElementsByName(dataField!)[0]
+                    .classList.add('styling');
+            }
+        },
+        []
+    );
 
     const handleCountryChange = useCallback(
         (countryId: number) => {

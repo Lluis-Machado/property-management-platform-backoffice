@@ -72,19 +72,16 @@ const PropertiesOwnersDatagrid = forwardRef<PODatagridProps, Props>(
             datagridRef.current!.instance.getDataSource();
 
         // Css styles for sum of shares
-        const summaryShares = (e: any) => {
-            if (e.rowType == 'totalFooter') {
-                if (e.summaryItems[0]?.column == 'share') {
-                    if (e.summaryItems[0]?.value !== 100) {
-                        e.cellElement.querySelector(
-                            '.dx-datagrid-summary-item'
-                        ).style.color = 'red';
-                    } else {
-                        e.cellElement.querySelector(
-                            '.dx-datagrid-summary-item'
-                        ).style.color = 'rgba(51,51,51,.7)';
-                    }
-                }
+        const summaryShares = ({ rowType, summaryItems, cellElement }: any) => {
+            if (
+                rowType === 'totalFooter' &&
+                summaryItems[0] &&
+                summaryItems[0].column === 'share'
+            ) {
+                cellElement.querySelector(
+                    '.dx-datagrid-summary-item'
+                ).style.color =
+                    summaryItems[0].value !== 100 ? 'red' : 'rgba(51,51,51,.7)';
             }
         };
 
